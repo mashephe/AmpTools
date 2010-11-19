@@ -1,0 +1,262 @@
+//______________________________________________________________________________
+//*-*-*-*-*-*-*-*-*-*-*-*The Minimization package*-*--*-*-*-*-*-*-*-*-*-*-*
+//*-*                    ========================                         *
+//*-*                                                                     *
+//*-*   This package was originally written in Fortran by Fred James      *
+//*-*   and part of PACKLIB (patch D506)                                  *
+//*-*                                                                     *
+//*-*   It has been converted to a C++ class  by R.Brun                   *
+//*-*   The current implementation in C++ is a straightforward conversion *
+//*-*   of the original Fortran version: The main changes are:            *
+//*-*                                                                     *
+//*-*   - The variables in the various Minuit labelled common blocks      *
+//*-*     have been changed to the URMinuit class data members.            *
+//*-*   - The internal arrays with a maximum dimension depending on the   *
+//*-*     maximum number of parameters are now data members arrays with   *
+//*-*     a dynamic dimension such that one can fit very large problems   *
+//*-*     by simply initialising the URMinuit constructor with the maximum *
+//*-*     number of parameters.                                           *
+//*-*   - The include file Minuit.h has been commented as much as possible*
+//*-*     using existing comments in the code or the printed documentation*
+//*-*   - The original Minuit subroutines are now member functions.       *
+//*-*   - Constructors and destructor have been added.                    *
+//*-*   - Instead of passing the FCN  function in the argument            *
+//*-*     list, the addresses of this function is stored as pointer       *
+//*-*     in the data members of the class. This is by far more elegant   *
+//*-*     and flexible in an interactive environment.                     *
+//*-*     The member function SetFCN can be used to define this pointer.  *
+//*-*   - The ROOT static function Printf is provided to replace all      *
+//*-*     format statements and to print on currently defined output file.*
+//*-*   - The derived class URMinuitOld contains obsolete routines from    *
+//*-*     the Fortran based version.                                      *
+//*-*   - The functions SetObjectFit(TObject *obj)/GetObjectFit() can be  *
+//*-*     used inside the FCN function to set/get a referenced object     *
+//*-*     instead of using global variables.                              *
+//*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+//BEGIN_HTML
+/*
+</pre>
+<P>
+<H2><A NAME=H2Basic-concepts-of-MINUIT.html>Basic concepts of MINUIT</A></H2>
+<P>
+The <A HREF=http://wwwinfo.cern.ch/asdoc/minuit/minmain.html> MINUIT</A> package acts on a multiparameter Fortran function to which one
+must give the generic name <TT>FCN</TT>. In the ROOT implementation,
+the function <TT>FCN</TT> is defined via the MINUIT SetFCN member function
+when an Histogram.Fit command is invoked.
+The value of <TT>FCN</TT> will in general depend on one
+or more variable parameters.
+<P>
+To take a simple example, in case of ROOT histograms (classes TH1C,TH1S,TH1F,TH1D)
+the Fit function defines the Minuit fitting function as being H1FitChisquare
+or H1FitLikelihood depending on the options selected.
+H1FitChisquare
+calculates the chisquare between the user fitting function (gaussian, polynomial,
+user defined,etc) and the data for given values of the parameters.
+It is the task of MINUIT to find those values of the parameters
+which give the lowest value of chisquare.
+<P>
+<H3>Basic concepts - The transformation for parameters with limits.</H3>
+<P>
+For variable parameters with limits, MINUIT uses the following
+transformation:
+<P>
+<PRE>
+  P   = arcsin(2((P   -a)/(b- a))-1)                P    = a+((b- a)/(2))(sinP    +1)
+   int             ext                               ext                      int
+</PRE>
+<P>
+so that the internal value P    can take on any value, while the external
+                            int
+value P    can take on values only between the lower limit a and the
+       ext
+upper limit b. Since the transformation is necessarily non-linear, it
+would transform a nice linear problem into a nasty non-linear one, which
+is the reason why limits should be avoided if not necessary. In addition,
+the transformation does require some computer time, so it slows down the
+computation a little bit, and more importantly, it introduces additional
+numerical inaccuracy into the problem in addition to what is introduced in
+the numerical calculation of the <TT>FCN</TT> value. The effects of
+non-linearity and numerical roundoff both become more important as the
+external value gets closer to one of the limits (expressed as the distance
+to nearest limit divided by distance between limits). The user must
+therefore be aware of the fact that, for example, if he puts limits of
+(0,10^10  ) on a parameter, then the values 0.0 and 1. 0 will be
+indistinguishable to the accuracy of most machines.
+<P>
+The transformation also affects the parameter error matrix, of course, so
+MINUIT does a transformation of the error matrix (and the ``parabolic''
+parameter errors) when there are parameter limits. Users should however
+realize that the transformation is only a linear approximation, and that
+it cannot give a meaningful result if one or more parameters is very close
+to a limit, where partial Pext /partial Pint  #0. Therefore, it is
+recommended that:
+<P>
+<OL>
+<LI>Limits on variable parameters should be used only when needed in order
+to prevent the parameter from taking on unphysical values.
+<LI>When a satisfactory minimum has been found using limits, the limits
+should then be removed if possible, in order to perform or re-perform the
+error analysis without limits.
+</OL>
+<P>
+<H3>How to get the right answer from MINUIT.</H3>
+<P>
+MINUIT offers the user a choice of several minimization algorithms. The
+MIGRAD algorithm is in general the best minimizer for
+nearly all functions. It is a variable-metric method with inexact line
+search, a stable metric updating scheme, and checks for
+positive-definiteness. Its main weakness is that it depends heavily on
+knowledge of the first derivatives, and fails miserably if they are very
+inaccurate.
+<P>
+If parameter limits are needed, in spite of the side effects, then the
+user should be aware of the following techniques to alleviate problems
+caused by limits:
+<P>
+<H4>Getting the right minimum with limits.</H4>
+<P>
+If MIGRAD converges normally to a point where no parameter is near one of
+its limits, then the existence of limits has probably not prevented MINUIT
+from finding the right minimum. On the other hand, if one or more
+parameters is near its limit at the minimum, this may be because the true
+minimum is indeed at a limit, or it may be because the minimizer has
+become ``blocked'' at a limit. This may normally happen only if the
+parameter is so close to a limit (internal value at an odd multiple of #((pi)/(2))
+that MINUIT prints a warning to this effect when it prints
+the parameter values.
+
+The minimizer can become blocked at a limit, because at a limit the
+derivative seen by the minimizer partial F/partial Pint  is zero no matter
+what the real derivative partial F/partial Pext  is.
+<P>
+<P>
+<PRE>
+((partial F)/(partial P   ))= ((partial F)/(partial P   ))((partial P    )/(partial P   )) =((partial F)/(partial P    ))= 0
+                       int                           ext             ext             int                           ext
+</PRE>
+<P>
+<P>
+<H4>Getting the right parameter errors with limits.</H4>
+<P>
+In the best case, where the minimum is far from any limits, MINUIT will
+correctly transform the error matrix, and the parameter errors it reports
+should be accurate and very close to those you would have got without
+limits. In other cases (which should be more common, since otherwise you
+wouldn't need limits), the very meaning of parameter errors becomes
+problematic. Mathematically, since the limit is an absolute constraint on
+the parameter, a parameter at its limit has no error, at least in one
+direction. The error matrix, which can assign only symmetric errors, then
+becomes essentially meaningless.
+<P>
+<H3>Interpretation of Parameter Errors:</H3>
+<P>
+There are two kinds of problems that can arise: the reliability of
+MINUIT's error estimates, and their statistical interpretation, assuming
+they are accurate.
+<P>
+<H3>Statistical interpretation:</H3>
+<P>
+For discussuion of basic concepts, such as the meaning of the elements of
+the error matrix, or setting of exact confidence levels see:
+<ol>
+  <li>F.James. 
+     Determining the statistical Significance of experimental Results. 
+     Technical Report DD/81/02 and CERN Report 81-03, CERN, 1981.</li> 
+
+  <li>W.T.Eadie, D.Drijard, F.James, M.Roos, and B.Sadoulet. 
+     Statistical Methods in Experimental Physics. 
+     North-Holland, 1971.</li> 
+</ol>
+<P>
+<H3>Reliability of MINUIT error estimates.</H3>
+<P>
+MINUIT always carries around its own current estimates of the parameter
+errors, which it will print out on request, no matter how accurate they
+are at any given point in the execution. For example, at initialization,
+these estimates are just the starting step sizes as specified by the user.
+After a HESSE step, the errors are usually quite accurate,
+unless there has been a problem. MINUIT, when it prints out error values,
+also gives some indication of how reliable it thinks they are. For
+example, those marked <TT>CURRENT GUESS ERROR</TT> are only working values
+not to be believed, and <TT>APPROXIMATE ERROR</TT> means that they have
+been calculated but there is reason to believe that they may not be
+accurate.
+<P>
+If no mitigating adjective is given, then at least MINUIT believes the
+errors are accurate, although there is always a small chance that MINUIT
+has been fooled. Some visible signs that MINUIT may have been fooled are:
+<P>
+<OL>
+<LI>Warning messages produced during the minimization or error analysis.
+<LI>Failure to find new minimum.
+<LI>Value of <TT>EDM</TT> too big (estimated Distance to Minimum).
+<LI>Correlation coefficients exactly equal to zero, unless some parameters
+are known to be uncorrelated with the others.
+<LI>Correlation coefficients very close to one (greater than 0.99). This
+indicates both an exceptionally difficult problem, and one which has been
+badly parameterized so that individual errors are not very meaningful
+because they are so highly correlated.
+<LI>Parameter at limit. This condition, signalled by a MINUIT warning
+message, may make both the function minimum and parameter errors
+unreliable. See the discussion above ``Getting the right parameter errors
+with limits''.
+</OL>
+<P>
+The best way to be absolutely sure of the errors, is to use
+``independent'' calculations and compare them, or compare the calculated
+errors with a picture of the function. Theoretically, the covariance
+matrix for a ``physical'' function must be positive-definite at the
+minimum, although it may not be so for all points far away from the
+minimum, even for a well-determined physical problem. Therefore, if MIGRAD
+reports that it has found a non-positive-definite covariance matrix, this
+may be a sign of one or more of the following:
+<P>
+<H5>A non-physical region:</H5>
+<P>
+On its way to the minimum, MIGRAD may have traversed a region which has
+unphysical behaviour, which is of course not a serious problem as long as
+it recovers and leaves such a region.
+<P>
+<H5>An underdetermined problem:</H5>
+<P>
+If the matrix is not positive-definite even at the minimum, this may mean
+that the solution is not well-defined, for example that there are more
+unknowns than there are data points, or that the parameterization of the
+fit contains a linear dependence. If this is the case, then MINUIT (or any
+other program) cannot solve your problem uniquely, and the error matrix
+will necessarily be largely meaningless, so the user must remove the
+underdeterminedness by reformulating the parameterization. MINUIT cannot
+do this itself.
+<P>
+<H5>Numerical inaccuracies:</H5>
+<P>
+It is possible that the apparent lack of positive-definiteness is in fact
+only due to excessive roundoff errors in numerical calculations in the
+user function or not enough precision. This is unlikely in general, but
+becomes more likely if the number of free parameters is very large, or if
+
+the parameters are badly scaled (not all of the same order of magnitude),
+and correlations are also large. In any case, whether the
+non-positive-definiteness is real or only numerical is largely irrelevant,
+since in both cases the error matrix will be unreliable and the minimum
+suspicious.
+<P>
+<H5>An ill-posed problem:</H5>
+<P>
+For questions of parameter dependence, see the discussion above on
+positive-definiteness.
+<P>
+Possible other mathematical problems are the following:
+<P>
+<H5>Excessive numerical roundoff:</H5>
+<P>
+Be especially careful of exponential and factorial functions which get big
+very quickly and lose accuracy.
+<P>
+<H5>Starting too far from the solution:</H5>
+<P>
+The function may have unphysical local minima, especially at infinity in
+some variables.
+<pre>
+*/
+//END_HTML

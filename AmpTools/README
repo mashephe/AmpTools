@@ -1,0 +1,23 @@
+
+This package depends on CLHEP.  You should set the environment variable
+CLHEP_INCLUDE_DIR to point to the CLHEP include directory, for example
+/usr/local/CLHEP/include
+
+This package also depends on ROOT.  Be sure that ROOTSYS points to your root 
+installation.
+
+Typing 'make' will build the package and produce a single static library, 
+libAmpTools.a, that can be linked by external packages.  To access the include 
+files, it is recommended one add the path to this top level directory in the
+-I flag to gcc.  Once this is done, files can be included in code by typing, 
+for example, '#include "IUAmpTools/AmplitudeManager.h"'.
+
+Support for computing amplitudes on graphics cards can be enabled by
+typing 'make GPU=1'.  In this case CUDA_INSTALL_PATH should point to your
+installation of CUDA and you may need to adjust the CUDA_FLAGS variable in 
+the Makefile for your particular hardware.
+
+***WARNING***:  Even though the Makefile suggests that MPI is supported
+and there is an IUAmpToolsMPI directory -- MPI support is currently not
+functional.  Migration of the software to GPU made the need for MPI disappear.
+Future versions of the code will include MPI + GPU support.
