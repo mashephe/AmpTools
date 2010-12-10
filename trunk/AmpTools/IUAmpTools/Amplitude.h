@@ -190,10 +190,7 @@ public:
    */
   
   bool updatePar( const string& name ) const;
-  
-  /**
-   * 
-  
+    
   // speed may be enhanced if the two functions below are combined
   // as this avoids an extra function call, but puts more complicated
   // calcAllAmplitudes loops in user code
