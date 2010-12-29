@@ -4,9 +4,9 @@
 
 #include <mpi.h>
 
-#include "IUAmpTools/LikelihoodManagerMPI.h"
-#include "IUAmpTools/LikelihoodCalculatorMPI.h"
-#include "IUAmpTools/MPITag.h"
+#include "IUAmpToolsMPI/LikelihoodManagerMPI.h"
+#include "IUAmpToolsMPI/LikelihoodCalculatorMPI.h"
+#include "IUAmpToolsMPI/MPITag.h"
 
 void
 LikelihoodManagerMPI::registerCalculator( int id, 
