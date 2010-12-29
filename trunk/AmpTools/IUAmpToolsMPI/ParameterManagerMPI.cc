@@ -2,8 +2,8 @@
 #include <mpi.h>
 #include <sstream>
 
-#include "IUAmpTools/ParameterManagerMPI.h"
-#include "IUAmpTools/MPITag.h"
+#include "IUAmpToolsMPI/ParameterManagerMPI.h"
+#include "IUAmpToolsMPI/MPITag.h"
 
 ParameterManagerMPI::
 ParameterManagerMPI( MinuitMinimizationManager& minuitManager,

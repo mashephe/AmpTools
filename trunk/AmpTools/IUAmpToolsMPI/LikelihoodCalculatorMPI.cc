@@ -2,8 +2,8 @@
 #include <mpi.h>
 #include <pthread.h>
 
-#include "IUAmpTools/LikelihoodCalculatorMPI.h"
-#include "IUAmpTools/LikelihoodManagerMPI.h"
+#include "IUAmpToolsMPI/LikelihoodCalculatorMPI.h"
+#include "IUAmpToolsMPI/LikelihoodManagerMPI.h"
 
 LikelihoodCalculatorMPI::
 LikelihoodCalculatorMPI( const AmplitudeManager& ampManager,

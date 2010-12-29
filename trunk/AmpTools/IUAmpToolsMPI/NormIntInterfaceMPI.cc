@@ -3,8 +3,8 @@
 
 #include <mpi.h>
 
-#include "IUAmpTools/NormIntInterfaceMPI.h"
-#include "IUAmpTools/MPITag.h"
+#include "IUAmpToolsMPI/NormIntInterfaceMPI.h"
+#include "IUAmpToolsMPI/MPITag.h"
 
 using namespace std;
 

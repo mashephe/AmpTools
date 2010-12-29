@@ -1,8 +1,8 @@
 #if !defined(LIKELIHOODCALCULATORMPI)
 #define LIKELIHOODCALCULATORMPI
 
-#include "IUAmpTools/MPITag.h"
-#include "IUAmpTools/ParameterManagerMPI.h"
+#include "IUAmpToolsMPI/MPITag.h"
+#include "IUAmpToolsMPI/ParameterManagerMPI.h"
 #include "IUAmpTools/LikelihoodCalculator.h"
 
 class MISubject;
