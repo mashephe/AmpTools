@@ -56,47 +56,29 @@ m_dataReader( dataReader ),
 m_functionEvaluated( false )
 {
   
-  cout << m_ampManager.finalStateName() << " LikelihoodCalculator: " << endl;
-  cout << "\tInitializing likelihood calculator and caching data." << endl;
+// avoid caching data here in the constructor so that MPI-based classes that
+// inherit from this class can have better control of what triggers the
+// caching of data
   
-  cout << "Allocating Data and Amplitude Array..." << endl;
-  m_ampVecs.loadData( &dataReader );
-  m_ampVecs.allocateAmps( m_ampManager, true );  
-  cout << "\tDone." << endl;
-    
-  cout << m_ampManager.finalStateName() << " LikelihoodCalculator: " << endl;
-  cout << "\tFinished caching data " << endl;
   
-  const vector< string >& ampNames = m_ampManager.getAmpNames();
-  for( vector< string >::const_iterator ampName = ampNames.begin();
-      ampName != ampNames.end();
-      ++ampName ){
-    
-    if( parManager.hasConstraints( *ampName ) ||
-       parManager.hasParameter( *ampName ) ){
-      
-      ComplexParameter* par = parManager.findParameter( *ampName );
-      
-      m_parAmpMap[par->realName()] = m_ampManager.ampIndex( *ampName );
-      if( !par->isPurelyReal() ) 
-        m_parAmpMap[par->imagName()] = m_ampManager.ampIndex( *ampName );
-    }
-  }
-  
-  // also build a map of parameter name <--> index --
-  // this is useful for referencing parameters by number
-  unsigned int index = 0;
-  for( map< string, int >::iterator mapItr = m_parAmpMap.begin();
-      mapItr != m_parAmpMap.end(); ++mapItr ){
-    
-    m_parVec.push_back( mapItr->first );
-    m_parIndex[mapItr->first] = index++;
-  }
+//  cout << m_ampManager.finalStateName() << " LikelihoodCalculator: " << endl;
+//  cout << "\tInitializing likelihood calculator." << endl;
   
 }
 
 void
 LikelihoodCalculator::update( const MISubject* ){
+  
+  if( !m_functionEvaluated ) { 
+    
+    // first calculation -- need to load the data
+    
+    cout << "Allocating Data and Amplitude Array in LikelihoodCalculator for " 
+         << m_ampManager.finalStateName() << "..." << endl;
+    m_ampVecs.loadData( &m_dataReader );
+    m_ampVecs.allocateAmps( m_ampManager, true );  
+    cout << "\tDone." << endl;
+  }
   
   m_sumLnI = m_ampManager.calcSumLogIntensity( m_ampVecs,
                                               !m_functionEvaluated );
@@ -106,18 +88,12 @@ LikelihoodCalculator::update( const MISubject* ){
 }
 
 double
-LikelihoodCalculator::contribution(){
-  
-  return operator()();
-}
-
-double
 LikelihoodCalculator::operator()(){
   
   // check to be sure we can actually perform a computation of the
   // likelihood in the case that we have floating parameters
   // in amplitudes
-  
+    
   if( m_ampManager.hasAmpWithFreeParam() && !m_normInt.hasAccessToMC() ){
     
     cout << "ERROR: AmplitudeManager has amplitudes with floating parameters\n"
@@ -125,6 +101,9 @@ LikelihoodCalculator::operator()(){
 
     assert( false );
   }
+
+  // this takes care of the case where we call operator() without having
+  // first done an update
   
   MISubject* dummy( NULL );
   if( !m_functionEvaluated ) update( dummy ); 
@@ -165,27 +144,11 @@ LikelihoodCalculator::normIntTerm(){
 double
 LikelihoodCalculator::dataTerm(){
   
-  return m_sumLnI;
-}
-
-unsigned int
-LikelihoodCalculator::parIndex( const string& parName ) const
-{
-  map< string, unsigned int >::const_iterator mapItr = 
-  m_parIndex.find( parName );
-  assert( mapItr != m_parIndex.end() );
+  // this takes care of the case where we call operator() without having
+  // first done an update
   
-  return mapItr->second;
-}
-
-string
-LikelihoodCalculator::parName( unsigned int parIndex ) const
-{
-  return m_parVec.at( parIndex );
-}
-
-bool
-LikelihoodCalculator::dependsOn( const string& parName ) const 
-{
-  return ( m_parIndex.find( parName ) != m_parIndex.end() );
+  MISubject* dummy( NULL );
+  if( !m_functionEvaluated ) update( dummy );   
+  
+  return m_sumLnI;
 }

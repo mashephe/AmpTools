@@ -74,39 +74,33 @@ class LikelihoodCalculator : public MIFunctionContribution
   
   ~LikelihoodCalculator(){}
 	
-  // where the likelihood calculation gets done
-  double operator()();
+  // where the likelihood calculation gets "assembled"
+  virtual double operator()();
 
-  // override these routines so that data can be cached at update time
-  // to speed up likelihood and derivative calculation
-  void update( const MISubject* );
-  double contribution();
+  // this function will be called on a parameter change -- do expensive
+  // computations of the likelihood here that go into assembly of the
+  // final likelihood above.  Dividing task this way allows for better
+  // implementation of parallel computations
+  virtual void update( const MISubject* );
   
-  // does the likelihood depend on a particular parameter?
-  bool dependsOn( const string& parName ) const;
- 
+  // need to override contribution method in MIFunctionContribution to
+  // allow LikelihoodCalculator class to handle update calls correctly
+  virtual double contribution() { return operator()(); }
+   
 protected:
 	
   // helper functions -- also useful for pulling parts of the
   // likelihood calculation
   double dataTerm();
   double normIntTerm();
-
-  unsigned int parIndex( const string& parName ) const;
-  string parName( unsigned int parIndex ) const;
     
- private:
+private:
 			
   const AmplitudeManager& m_ampManager;
   const NormIntInterface& m_normInt;
   DataReader& m_dataReader;
-    
-  bool m_functionEvaluated;
 
-  map< string, int > m_parAmpMap;
-    
-  map< string, unsigned int > m_parIndex;
-  vector< string > m_parVec;
+  bool m_functionEvaluated;
 
   // calculate this "expensive" number once when parameters are updated
   double m_sumLnI;
