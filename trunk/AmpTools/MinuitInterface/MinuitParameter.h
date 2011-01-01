@@ -42,75 +42,75 @@
 class MinuitParameterManager;
 
 class MinuitParameter : public Parameter {
-   
-   friend class MinuitParameterManager;
-   enum { kUnknownMinuitId = 0 };
-      
-   public:
-      MinuitParameter( const std::string& name,
-                       MinuitParameterManager& aManager,
-                       double initialValue = 0,
-		       bool bounded = false,
-		       double lowerBound = 0,
-		       double upperBound = 0 ); 
-   
-   virtual ~MinuitParameter();
-   
-   // user allowed changes in the status of the parameter:
-      void fix();   // keep parameter constant during minimization
-      void free(); // allow parameter to float during minimization
-      void bound( double lowerBound, double upperBound ); // limit parameter range in minimization
-      void unbound();
-      
-      unsigned int minuitId() const;
-      bool floating() const;
-   
-      double error() const; // symmetric (parabolic) error
-      const AsymmetricError& asymmetricErrors() const;
-      double globalCorrelationCoefficient() const;
-      
-      bool bounded() const;
-      double lowerBound() const;
-      double upperBound() const;
-      
-      void registerWithManager();
-      void unregister();
-      
-      std::ostream& dump( std::ostream& aStream ) const;
-      
-   protected:
-      // status changes managed by MinuitParameterManager
-      void invalidateErrors();
-      void validateErrors();
-      void setParabolicError( double newParabolicError );
-      void setAsymmetricErrors( const std::pair<double,double>& newAsymmetricErrors );
-      void setGlobalCorrelation( double globalCorrelationCoefficient );
-      void setMinuitId( unsigned int minuitId );
-      
-   private:
-      MinuitParameter(); // stop default
-      MinuitParameter( const MinuitParameter& ); // stop default
-      const MinuitParameter& operator=( const MinuitParameter& rhs ); // stop default
-
-      // --------- member data ----------
-
-      unsigned int m_minuitId;
-      bool m_floating;
-      
-      double m_lowerBound;
-      double m_upperBound;
-      bool m_bounded;
-      
-      bool m_validErrors;
-      double m_parabolicError;
-      AsymmetricError m_asymmetricErrors;
-      
-      double m_globalCorrelationCoefficient;
-
-      MinuitParameterManager& m_parameterManager;
+  
+  friend class MinuitParameterManager;
+  enum { kUnknownMinuitId = 0 };
+  
+public:
+  MinuitParameter( const std::string& name,
+                  MinuitParameterManager& aManager,
+                  double initialValue = 0,
+                  bool bounded = false,
+                  double lowerBound = 0,
+                  double upperBound = 0 ); 
+  
+  virtual ~MinuitParameter();
+  
+  // user allowed changes in the status of the parameter:
+  void fix();   // keep parameter constant during minimization
+  void free(); // allow parameter to float during minimization
+  void bound( double lowerBound, double upperBound ); // limit parameter range in minimization
+  void unbound();
+  
+  unsigned int minuitId() const;
+  bool floating() const;
+  
+  double error() const; // symmetric (parabolic) error
+  const AsymmetricError& asymmetricErrors() const;
+  double globalCorrelationCoefficient() const;
+  
+  bool bounded() const;
+  double lowerBound() const;
+  double upperBound() const;
+  
+  void registerWithManager();
+  void unregister();
+  
+  std::ostream& dump( std::ostream& aStream ) const;
+  
+protected:
+  // status changes managed by MinuitParameterManager
+  void invalidateErrors();
+  void validateErrors();
+  void setParabolicError( double newParabolicError );
+  void setAsymmetricErrors( const std::pair<double,double>& newAsymmetricErrors );
+  void setGlobalCorrelation( double globalCorrelationCoefficient );
+  void setMinuitId( unsigned int minuitId );
+  
+private:
+  MinuitParameter(); // stop default
+  MinuitParameter( const MinuitParameter& ); // stop default
+  const MinuitParameter& operator=( const MinuitParameter& rhs ); // stop default
+  
+  // --------- member data ----------
+  
+  unsigned int m_minuitId;
+  bool m_floating;
+  
+  double m_lowerBound;
+  double m_upperBound;
+  bool m_bounded;
+  
+  bool m_validErrors;
+  double m_parabolicError;
+  AsymmetricError m_asymmetricErrors;
+  
+  double m_globalCorrelationCoefficient;
+  
+  MinuitParameterManager& m_parameterManager;
 };
 inline  std::ostream& operator<<( std::ostream& aStream, 
-                                  const MinuitParameter& aParameter ) {
-   return aParameter.dump( aStream );
+                                 const MinuitParameter& aParameter ) {
+  return aParameter.dump( aStream );
 }
 #endif
