@@ -66,8 +66,11 @@ class ParameterManager : MIObserver
     
   void setupFromConfigurationInfo( ConfigurationInfo* cfgInfo );
   
-  void addProductionParameter( const string& ampName, bool real = false );  
-  void addAmplitudeParameter( const string& ampName, const ParameterInfo* parInfo );
+  // these functions need to be virtual so that parallel implementations
+  // can override their functionality correctly since they are called
+  // from within setupFromConfigurationInfo
+  virtual void addProductionParameter( const string& ampName, bool real = false );  
+  virtual void addAmplitudeParameter( const string& ampName, const ParameterInfo* parInfo );
   
   void writeParameters( ofstream& file ) const;
 
@@ -85,7 +88,8 @@ class ParameterManager : MIObserver
  protected:
 
   // useful for MPI implementations of ParameterManager
-  complex< double >* getParPtr( const string& ampName );
+  complex< double >* getProdParPtr( const string& ampName );
+  double* getAmpParPtr( const string& parName );
 	
  private:
 	
