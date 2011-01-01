@@ -237,9 +237,8 @@ ParameterManager::addProductionParameter( const string& ampName, bool real )
   
 }
 
-
 complex< double >* 
-ParameterManager::getParPtr( const string& ampName ){
+ParameterManager::getProdParPtr( const string& ampName ){
   
   map< string, ComplexParameter* >::iterator mapItr 
   = m_prodParams.find( ampName );
@@ -250,6 +249,16 @@ ParameterManager::getParPtr( const string& ampName ){
   return mapItr->second->valuePtr();
 }
 
+double* 
+ParameterManager::getAmpParPtr( const string& parName ){
+  
+  map< string, MinuitParameter* >::iterator mapItr = m_ampParams.find( parName );
+  
+  // make sure we found one
+  assert( mapItr != m_ampParams.end() );
+  
+  return mapItr->second->valuePtr();
+}
 
 void
 ParameterManager::writeParameters( ofstream& outFile ) const
