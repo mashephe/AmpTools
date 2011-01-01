@@ -53,6 +53,7 @@ public:
   void setValue( double newValue );
   double value() const {return m_value;}
   const double* constValuePtr() const { return &m_value; }
+  double* valuePtr() { return &m_value; }
   
   virtual void setError( double newError, bool notify = false );
   virtual double error() const {return m_error;}
