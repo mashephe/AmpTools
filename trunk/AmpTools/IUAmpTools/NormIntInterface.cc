@@ -49,24 +49,40 @@
 
 NormIntInterface::NormIntInterface( DataReader* genMCData, 
                                     DataReader* accMCData, 
-                                    const AmplitudeManager& ampManager ) : 
+                                    const AmplitudeManager& ampManager ) :
 m_pAmpManager( &ampManager ),
 m_accMCReader( accMCData ),
-m_genMCReader( genMCData )
+m_genMCReader( genMCData ),
+m_emptyCache( true )
 {
-  
   assert( ( m_accMCReader != NULL ) && ( m_genMCReader != NULL ) );
   
   m_nGenEvents = m_genMCReader->numEvents();
-  m_nAccEvents = m_accMCReader->numEvents();
+  m_nAccEvents = m_accMCReader->numEvents(); 
+
+  // start by initalizing the caches to zero -- MPI implementation will
+  // iteratate over and update the cache so setting up the keys in the
+  // map is essential
   
-	forceCacheUpdate();
+  vector< string > amps = ampManager.getAmpNames();
+  for( vector< string >::iterator amp = amps.begin();
+       amp != amps.end();
+       ++amp ) {
+    for( vector< string >::iterator conjAmp = amps.begin();
+        conjAmp != amps.end();
+        ++conjAmp ) {
+
+      m_normIntCache[*amp][*conjAmp] = complex< double >( 0, 0 );
+      m_ampIntCache[*amp][*conjAmp] = complex< double >( 0, 0 );      
+    }
+  }      
 }
 
 NormIntInterface::NormIntInterface( const string& normIntFile ) :
 m_pAmpManager( NULL ),
 m_accMCReader( NULL ),
-m_genMCReader( NULL )
+m_genMCReader( NULL ),
+m_emptyCache( false )
 {
   
 	cout << "Reading cached normalization integral calculation from: "
@@ -140,6 +156,18 @@ complex< double >
 NormIntInterface::normInt( string amp, string conjAmp, bool forceUseCache ) const
 {
   
+  if( m_emptyCache ) forceCacheUpdate();
+  
+  if( m_pAmpManager->hasAmpWithFreeParam() && !hasAccessToMC() ){
+   
+    cout << "ERROR: the AmplitudeManager has amplitudes that contain free\n"
+         << "       parameters, but no MC has been provided to recalculate\n"
+         << "       the normalization integrals.  Check that config file\n"
+         << "       lists appropriate data and MC sources." << endl;
+    
+    assert( false );
+  }
+  
   if( !forceUseCache && hasAccessToMC() && m_pAmpManager->hasAmpWithFreeParam() ){
     
     m_normIntCache = 
@@ -184,13 +212,16 @@ NormIntInterface::hasAmpInt( string amp, string conjAmp ) const
 complex< double > 
 NormIntInterface::ampInt( string amp, string conjAmp, bool forceUseCache ) const
 {
-  if( !forceUseCache && hasAccessToMC() && m_pAmpManager->hasAmpWithFreeParam() ){
+  
+  if( m_emptyCache ) forceCacheUpdate();
+  
+  if( !forceUseCache && m_pAmpManager->hasAmpWithFreeParam() ){
    
     cout << "WARNING:  request of for numerical integral of amplitude\n"
          << "    that has floating parameters using *generated* MC.\n"
          << "    (This is not typically used in a fit -- check for bugs!)\n" 
          << "    Providing original cached value which may be incorrect if\n"
-         << "    the parameter has changed."
+         << "    the parameter has changed since initialization."
          << endl;
   }
 
@@ -214,8 +245,18 @@ NormIntInterface::ampInt( string amp, string conjAmp, bool forceUseCache ) const
 }
 
 void
-NormIntInterface::forceCacheUpdate() const
+NormIntInterface::forceCacheUpdate( bool normIntOnly ) const
 {
+  
+  flush( cout );
+  
+  // we can assume that m_mcVecs contains the accepted MC since the
+  // generated MC is never left in m_mcVecs
+  if( normIntOnly && !m_emptyCache ){
+    
+    m_normIntCache = m_pAmpManager->calcIntegrals( m_mcVecs, m_nGenEvents, false );
+    return;
+  }
   
   assert( ( m_genMCReader != NULL ) && ( m_accMCReader != NULL ) );
   
@@ -223,7 +264,6 @@ NormIntInterface::forceCacheUpdate() const
   m_mcVecs.deallocAmpVecs();
   
 	cout << "Loading generated Monte Carlo..." << endl;
-	m_genMCReader->resetSource();
   m_mcVecs.loadData( m_genMCReader );
   m_mcVecs.allocateAmps( *m_pAmpManager );
 	cout << "\tDone.\n" << flush;
@@ -247,18 +287,19 @@ NormIntInterface::forceCacheUpdate() const
     m_mcVecs.deallocAmpVecs();
     
     cout << "Loading acccepted Monte Carlo..." << endl;
-    m_accMCReader->resetSource();
     m_mcVecs.loadData( m_accMCReader );
     m_mcVecs.allocateAmps( *m_pAmpManager );
     cout << "\tDone." << endl;
         
     cout << "Calculating integrals..." << endl;
     m_normIntCache = 
-    m_pAmpManager->calcIntegrals( m_mcVecs, m_nGenEvents );
+      m_pAmpManager->calcIntegrals( m_mcVecs, m_nGenEvents );
     cout << "\tDone." << endl;
 	}	
   
   // leaves class in state with m_mcVecs holding accepted MC
+
+  m_emptyCache = false;
 }  
 
 void
@@ -312,3 +353,34 @@ NormIntInterface::exportNormIntCache( const string& fileName ) const
 		out << endl;
 	}
 }
+
+map< string, map< string, complex< double > > >
+NormIntInterface::getAmpIntegrals() const { 
+  
+  return m_ampIntCache; 
+
+}
+
+map< string, map< string, complex< double > > >
+NormIntInterface::getNormIntegrals() const { 
+  
+  return m_normIntCache; 
+}
+
+
+void 
+NormIntInterface::setAmpIntegral( string ampName, string cnjName,
+                                 complex< double > val ) const { 
+
+  m_ampIntCache[ampName][cnjName] = val; 
+  m_emptyCache = false;
+}
+
+void 
+NormIntInterface::setNormIntegral( string ampName, string cnjName,
+                      complex< double > val ) const { 
+  
+  m_normIntCache[ampName][cnjName] = val; 
+  m_emptyCache = false;
+}
+

@@ -67,14 +67,17 @@ public:
   bool hasAccessToMC() const;
   
 	// this integral folds in detector acceptance
-	complex< double > normInt( string amp, string conjAmp, bool forceUseCache = false ) const;
+	virtual complex< double > normInt( string amp, string conjAmp, bool forceUseCache = false ) const;
 	bool hasNormInt( string amp, string conjAmp ) const;
 
 	// this purely the integral of the amplitude -- perfect acceptance
-	complex< double > ampInt( string amp, string conjAmp, bool forceUseCache = false ) const;
+	virtual complex< double > ampInt( string amp, string conjAmp, bool forceUseCache = false ) const;
 	bool hasAmpInt( string amp, string conjAmp ) const;
 
-  void forceCacheUpdate() const;
+  // needs to be virtual so parallel implementations can properly
+  // override this function
+  virtual void forceCacheUpdate( bool normIntOnly = false ) const;
+
 	void exportNormIntCache( const string& fileName ) const;
 
 	void setGenEvents( int events ) { m_nGenEvents = events; }
@@ -84,19 +87,17 @@ public:
 
 	// protected helper functions for parallel implementations
 
-	 map< string, map< string, complex< double > > >
-	   getAmpIntegrals() { return m_ampIntCache; }
-	 map< string, map< string, complex< double > > >
-	   getNormIntegrals() { return m_normIntCache; }
+  map< string, map< string, complex< double > > > getAmpIntegrals() const;
+  map< string, map< string, complex< double > > > getNormIntegrals() const;
 
 
-	 void setAmpIntegral( string ampName, string cnjName,
-			      complex< double > val )
-	 { m_ampIntCache[ampName][cnjName] = val; }
-	 void setNormIntegral( string ampName, string cnjName,
-			       complex< double > val )
-	 { m_normIntCache[ampName][cnjName] = val; }
+  void setAmpIntegral( string ampName, string cnjName,
+                       complex< double > val ) const;
+  void setNormIntegral( string ampName, string cnjName,
+                        complex< double > val ) const;
 
+  const AmplitudeManager* ampManager() const { return m_pAmpManager; }
+  
  private:
   
 	const AmplitudeManager* m_pAmpManager;
@@ -107,6 +108,8 @@ public:
 	int m_nGenEvents;
   int m_nAccEvents;
 
+  mutable bool m_emptyCache;
+  
   // needed to cache accepted MC data for NI recalculation
   mutable AmpVecs m_mcVecs;
 
