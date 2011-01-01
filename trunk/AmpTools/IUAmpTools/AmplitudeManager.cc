@@ -497,6 +497,11 @@ AmplitudeManager::calcSumLogIntensity( AmpVecs& a, bool bIsFirstPass ) const
 map< string, map< string, complex< double > > >
 AmplitudeManager::calcIntegrals( AmpVecs& a, int iNGenEvents, bool bIsFirstPass ) const
 {    
+
+  // this method could be made more efficient by caching a table of
+  // integrals associated with each AmpVecs object and then, based on the
+  // variables bIsFirstPass and m_vbIsAmpFixed data compute only
+  // those terms that could have changed
   
   map< string, map< string, complex< double > > > mapNamesToIntegral;
   
@@ -508,14 +513,9 @@ AmplitudeManager::calcIntegrals( AmpVecs& a, int iNGenEvents, bool bIsFirstPass 
 	int i, j, iEvent;	
 	for( i = 0; i < iNAmps;i++ )
 	{
-    if( !bIsFirstPass && m_vbIsAmpFixed[i] )
-			continue;
     
 		for( j = 0; j <= i; j++ )
-		{
-      if( !bIsFirstPass && m_vbIsAmpFixed[j] )
-        continue;
-			
+		{			
       double cAiAjRe=0;
 			double cAiAjIm=0;
       
@@ -587,7 +587,7 @@ AmplitudeManager::addAmpFactor( const string& ampName,
     m_ampIndex[ampName] = m_ampNames.size() - 1;
     
     m_prodAmpVec.push_back( static_cast< complex< double >* >( 0 ) );
-    m_vbIsAmpFixed.push_back( false );
+    m_vbIsAmpFixed.push_back( true );
     
     cout << "Creating new amplitude with name:  " << ampName 
     << " [Index: " << m_ampIndex[ampName] << "]" << endl;
@@ -642,7 +642,7 @@ AmplitudeManager::addAmpFactor( const string& ampName,
 	
 	//Enable a short-cut if no factors are variable in the amplitude 
 	m_vbIsAmpFixed[m_ampIndex[ampName]] = 
-  m_vbIsAmpFixed[m_ampIndex[ampName]] || newAmp->containsFreeParameters();
+  m_vbIsAmpFixed[m_ampIndex[ampName]] && !newAmp->containsFreeParameters();
 }
 
 
