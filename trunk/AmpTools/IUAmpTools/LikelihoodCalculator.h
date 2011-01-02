@@ -74,23 +74,13 @@ class LikelihoodCalculator : public MIFunctionContribution
   
   ~LikelihoodCalculator(){}
 	
-  // where the likelihood calculation gets "assembled"
-  virtual double operator()();
-
-  // this function will be called on a parameter change -- do expensive
-  // computations of the likelihood here that go into assembly of the
-  // final likelihood above.  Dividing task this way allows for better
-  // implementation of parallel computations
-  virtual void update( const MISubject* );
-  
-  // need to override contribution method in MIFunctionContribution to
-  // allow LikelihoodCalculator class to handle update calls correctly
-  virtual double contribution() { return operator()(); }
+  // this method delivers the likelihood
+  double operator()();
    
 protected:
 	
   // helper functions -- also useful for pulling parts of the
-  // likelihood calculation
+  // likelihood calculation in parallel implementations
   double dataTerm();
   double normIntTerm();
     
@@ -100,10 +90,7 @@ private:
   const NormIntInterface& m_normInt;
   DataReader& m_dataReader;
 
-  bool m_functionEvaluated;
-
-  // calculate this "expensive" number once when parameters are updated
-  double m_sumLnI;
+  bool m_firstPass;
 
   // The flat array of kinematics and amplitudes 
   AmpVecs m_ampVecs;
