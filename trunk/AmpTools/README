@@ -17,7 +17,5 @@ typing 'make GPU=1'.  In this case CUDA_INSTALL_PATH should point to your
 installation of CUDA and you may need to adjust the CUDA_FLAGS variable in 
 the Makefile for your particular hardware.
 
-***WARNING***:  Even though the Makefile suggests that MPI is supported
-and there is an IUAmpToolsMPI directory -- MPI support is currently not
-functional.  Migration of the software to GPU made the need for MPI disappear.
-Future versions of the code will include MPI + GPU support.
+Warning: MPI support is somewhat experimental at the moment.  You can build
+MPI-enabled code by passing MPI=1 on the make command line
