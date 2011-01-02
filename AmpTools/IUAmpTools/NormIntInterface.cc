@@ -329,6 +329,8 @@ NormIntInterface::forceCacheUpdate( bool normIntOnly ) const
 void
 NormIntInterface::exportNormIntCache( const string& fileName ) const
 {
+  if( m_emptyNormIntCache || m_emptyAmpIntCache ) forceCacheUpdate();
+  
 	ofstream out( fileName.c_str() );
 	
 	out << m_nGenEvents << "\t" << m_nAccEvents << endl;
