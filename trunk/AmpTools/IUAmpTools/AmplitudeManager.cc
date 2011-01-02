@@ -675,6 +675,18 @@ AmplitudeManager::setupFromConfigurationInfo( const ConfigurationInfo* configInf
     
     // add production amplitudes
     setDefaultProductionAmplitude(ampName, ampInfoVector[i]->value());
+
+    // if the amplitude has parameters we should go ahead and set their
+    // values, otherwise they will be set the default value as defined
+    // by the AmpParameter class -- in a fit, the ParameterManager will
+    // later reset these pointers to point to floating parameters in MINUIT
+    vector< ParameterInfo* > pars = ampInfoVector[i]->parameters();
+    for( vector< ParameterInfo* >::iterator parItr = pars.begin();
+         parItr != pars.end();
+         ++parItr ){
+     
+      setAmpParValue( ampName, (**parItr).parName(), (**parItr).value() );
+    }
   }
 }
 
@@ -888,16 +900,21 @@ AmplitudeManager::setAmpParPtr( const string& ampName, const string& parName,
 
 void
 AmplitudeManager::setAmpParValue( const string& ampName, const string& parName,
-                                 double val ){
+                                  double val ){
   
   bool foundFactor = false;
+
+  // we will redetermine the status of this variable in the loop below
+  m_vbIsAmpFixed[m_ampIndex[ampName]] = true;
   
   for( vector< const Amplitude* >::iterator factorItr = m_mapNameToAmps[ampName].begin();
       factorItr != m_mapNameToAmps[ampName].end();
       ++factorItr ){
     
     if( (**factorItr).setParValue( parName, val ) ) foundFactor = true;
-    m_vbIsAmpFixed[m_ampIndex[ampName]] = (**factorItr).containsFreeParameters();
+    
+    m_vbIsAmpFixed[m_ampIndex[ampName]] = m_vbIsAmpFixed[m_ampIndex[ampName]] && 
+      !(**factorItr).containsFreeParameters();
   }
   
   if( !foundFactor ){
