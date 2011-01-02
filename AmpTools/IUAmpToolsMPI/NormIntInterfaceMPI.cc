@@ -46,15 +46,13 @@
 using namespace std;
 
 NormIntInterfaceMPI::NormIntInterfaceMPI( DataReader* genMCData, 
-                                         DataReader* accMCData, 
-                                         const AmplitudeManager& ampManager ):
+                                          DataReader* accMCData, 
+                                          const AmplitudeManager& ampManager ):
 NormIntInterface( genMCData, accMCData, ampManager )
 {
   setupMPI();
   
   cout << "Done setting up for process " << m_rank << endl;
-  
-//  forceCacheUpdate();
 }
 
 NormIntInterfaceMPI::NormIntInterfaceMPI( const string& normIntFile ) :
