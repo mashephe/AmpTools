@@ -1,9 +1,19 @@
+//******************************************************************************
+// See individual source files for licesnse information.
+// 
+// This software written by Matthew Shepherd, Ryan Mitchell, and 
+//                  Hrayr Matevosyan at Indiana University, Bloomington and
+//                  Lawrence Gibbons at Cornell University
+//
+//******************************************************************************
+
+INSTALATION AND USE:
 
 This package depends on CLHEP.  You should set the environment variable
 CLHEP_INCLUDE_DIR to point to the CLHEP include directory, for example
 /usr/local/CLHEP/include
 
-This package also depends on ROOT.  Be sure that ROOTSYS points to your root 
+This package also depends on ROOT.  Be sure that ROOTSYS points to your ROOT 
 installation.
 
 Typing 'make' will build the package and produce a single static library, 
@@ -19,3 +29,16 @@ the Makefile for your particular hardware.
 
 Warning: MPI support is somewhat experimental at the moment.  You can build
 MPI-enabled code by passing MPI=1 on the make command line
+
+
+RELEASE NOTES:
+
+v0.1 (2-January-2011):
+
+First publicly available experimental version.  The package has been in
+private testing for a long period of time.  Some aspects of the MPI implementation
+still need refinement.  Callbacks to the amplitudes on a change of parameters
+have not been enabled by the ParameterManagerMPI.  In addition, the MPI+GPU
+features have not been tested.  For example, the code needs to learn how to
+select the correct GPU on a multi-GPU fit.
+
