@@ -168,7 +168,7 @@ NormIntInterface::normInt( string amp, string conjAmp, bool forceUseCache ) cons
   
   if( m_emptyNormIntCache ) forceCacheUpdate( true );
   
-  if( m_pAmpManager->hasAmpWithFreeParam() && !hasAccessToMC() ){
+  if( !hasAccessToMC() && ( m_pAmpManager != NULL ) && m_pAmpManager->hasAmpWithFreeParam() ){
    
     cout << "ERROR: the AmplitudeManager has amplitudes that contain free\n"
          << "       parameters, but no MC has been provided to recalculate\n"
@@ -178,7 +178,8 @@ NormIntInterface::normInt( string amp, string conjAmp, bool forceUseCache ) cons
     assert( false );
   }
   
-  if( !forceUseCache && hasAccessToMC() && m_pAmpManager->hasAmpWithFreeParam() ){
+  if( !forceUseCache && hasAccessToMC() && 
+      ( m_pAmpManager != NULL ) && m_pAmpManager->hasAmpWithFreeParam() ){
     
     m_normIntCache = 
       m_pAmpManager->calcIntegrals( m_mcVecs, m_nGenEvents, false );
@@ -225,7 +226,7 @@ NormIntInterface::ampInt( string amp, string conjAmp, bool forceUseCache ) const
   
   if( m_emptyAmpIntCache ) forceCacheUpdate();
   
-  if( !forceUseCache && m_pAmpManager->hasAmpWithFreeParam() ){
+  if( !forceUseCache && ( m_pAmpManager != NULL ) && m_pAmpManager->hasAmpWithFreeParam() ){
    
     cout << "WARNING:  request of for numerical integral of amplitude\n"
          << "    that has floating parameters using *generated* MC.\n"
