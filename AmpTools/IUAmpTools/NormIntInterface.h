@@ -108,7 +108,8 @@ public:
 	int m_nGenEvents;
   int m_nAccEvents;
 
-  mutable bool m_emptyCache;
+  mutable bool m_emptyNormIntCache;
+  mutable bool m_emptyAmpIntCache;
   
   // needed to cache accepted MC data for NI recalculation
   mutable AmpVecs m_mcVecs;
