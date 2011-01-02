@@ -4,7 +4,7 @@ INC_DIR :=  -I.. -I$(CLHEP_INCLUDE_DIR) -I$(ROOTSYS)/include
 SRCDIRS := UpRootMinuit MinuitInterface IUAmpTools
 
 CXX := gcc
-CXX_FLAGS := -O3 
+CXX_FLAGS := -O3
 
 #To build in MPI-exentsions type: make MPI=1
 #(this can be used with GPU, e.g.:  make MPI=1 GPU=1)
@@ -13,7 +13,6 @@ ifdef MPI
 
 SRCDIRS += IUAmpToolsMPI
 
-# mpiCC for mpich and mpic++ for lam-based mpi
 MPICC := mpicxx -cc=$(CXX) 
 
 endif
@@ -37,7 +36,6 @@ DEFAULT := libAmpTools_GPU.a
 else
 
 DEFAULT := libAmpTools.a
-CXX_FLAGS += -g
 
 endif
 
