@@ -38,6 +38,7 @@
 #define KINEMATICS
 
 #include <vector>
+#include <cassert>
 
 #include "CLHEP/Vector/LorentzVector.h"
 
@@ -89,12 +90,20 @@ public:
              float weight = 1.0 ) :
   m_eventID(  Kinematics::m_globalEventID++ ),
   m_particleList( particleList ),
-  m_weight( weight ) {}
+  m_weight( weight ) { assert( particleList.size() <= kMaxParticles ); }
   
   /**
    * The destructor.
    */
   virtual ~Kinematics() {}
+  
+  /**
+   * In many applications, fixed-size arrays are used to store kinematic
+   * data.  Provided a single place to define the maximum number of four-
+   * vectors that makeup an event.
+   */
+  
+  enum { kMaxParticles = 6 };
   
   /**
    * Set the event ID.
