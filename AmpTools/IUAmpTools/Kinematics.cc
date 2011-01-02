@@ -63,6 +63,8 @@ Kinematics::particle( unsigned int index ) const {
 void
 Kinematics::setParticleList( const vector< HepLorentzVector >& particleList ){
 	
+  assert( particleList.size() <= kMaxParticles );
+  
 	m_particleList = particleList;
 }
 
