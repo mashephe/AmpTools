@@ -55,7 +55,7 @@ class ParameterManager : MIObserver
  public:
 
   ParameterManager( MinuitMinimizationManager& minuitManager,
-                   AmplitudeManager* ampManager );
+                    AmplitudeManager* ampManager );
 
   ParameterManager( MinuitMinimizationManager& minuitManager,
 		    const vector<AmplitudeManager*>& ampManager );
@@ -69,6 +69,7 @@ class ParameterManager : MIObserver
   // these functions need to be virtual so that parallel implementations
   // can override their functionality correctly since they are called
   // from within setupFromConfigurationInfo
+  
   virtual void addProductionParameter( const string& ampName, bool real = false );  
   virtual void addAmplitudeParameter( const string& ampName, const ParameterInfo* parInfo );
   
@@ -81,8 +82,9 @@ class ParameterManager : MIObserver
 
   bool hasParameter(const string& ampName) const;
 
-  ComplexParameter* findParameter(const string& ampName) const;
-  
+  ComplexParameter* findParameter(const string& ampName) const;  
+
+  // this gets called whenever an amplitude parameter changes
   void update( const MISubject* parPtr );
 
  protected:
