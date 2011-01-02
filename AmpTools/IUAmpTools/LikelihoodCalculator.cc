@@ -53,67 +53,39 @@ MIFunctionContribution( parManager.fitManager() ),
 m_ampManager( ampManager ),
 m_normInt( normInt ),
 m_dataReader( dataReader ),
-m_functionEvaluated( false )
+m_firstPass( true )
 {
   
 // avoid caching data here in the constructor so that MPI-based classes that
 // inherit from this class can have better control of what triggers the
 // caching of data
   
-  
-//  cout << m_ampManager.finalStateName() << " LikelihoodCalculator: " << endl;
-//  cout << "\tInitializing likelihood calculator." << endl;
-  
-}
-
-void
-LikelihoodCalculator::update( const MISubject* ){
-  
-  if( !m_functionEvaluated ) { 
-    
-    // first calculation -- need to load the data
-    
-    cout << "Allocating Data and Amplitude Array in LikelihoodCalculator for " 
-         << m_ampManager.finalStateName() << "..." << endl;
-    m_ampVecs.loadData( &m_dataReader );
-    m_ampVecs.allocateAmps( m_ampManager, true );  
-    cout << "\tDone." << endl;
-  }
-  
-  m_sumLnI = m_ampManager.calcSumLogIntensity( m_ampVecs,
-                                              !m_functionEvaluated );
-      
-  // set the flag saying we've evaluated necessary components for L
-  m_functionEvaluated = true;
 }
 
 double
 LikelihoodCalculator::operator()(){
   
-  // check to be sure we can actually perform a computation of the
-  // likelihood in the case that we have floating parameters
-  // in amplitudes
-    
-  if( m_ampManager.hasAmpWithFreeParam() && !m_normInt.hasAccessToMC() ){
-    
-    cout << "ERROR: AmplitudeManager has amplitudes with floating parameters\n"
-         << "       but NormIntInterface has not been provided with MC." << endl;
-
-    assert( false );
-  }
-
-  // this takes care of the case where we call operator() without having
-  // first done an update
+  // split the compuation of likelihood into data and normalization
+  // integral sums -- this provides parallel implementations with the
+  // methods they need to compute these terms individually
   
-  MISubject* dummy( NULL );
-  if( !m_functionEvaluated ) update( dummy ); 
-    
   return ( -2 * ( dataTerm() - normIntTerm() ) );
 }
 
 
 double
 LikelihoodCalculator::normIntTerm(){
+  
+  // check to be sure we can actually perform a computation of the
+  // normalization integrals in case we have floating parameters
+  
+  if( m_ampManager.hasAmpWithFreeParam() && !m_normInt.hasAccessToMC() ){
+    
+    cout << "ERROR: AmplitudeManager has amplitudes with floating parameters\n"
+    << "       but NormIntInterface has not been provided with MC." << endl;
+    
+    assert( false );
+  }
   
   // the normalization integral table won't change during the course
   // of this loop, so after we have retrieved one integral (which will
@@ -143,12 +115,22 @@ LikelihoodCalculator::normIntTerm(){
 
 double
 LikelihoodCalculator::dataTerm(){
+    
+  if( m_firstPass ) { 
+    
+    // first calculation -- need to load the data
+    
+    cout << "Allocating Data and Amplitude Array in LikelihoodCalculator for " 
+         << m_ampManager.finalStateName() << "..." << endl;
+    
+    m_ampVecs.loadData( &m_dataReader );
+    m_ampVecs.allocateAmps( m_ampManager, true );  
+    cout << "\tDone." << endl;
+  }
   
-  // this takes care of the case where we call operator() without having
-  // first done an update
+  double sumLnI = m_ampManager.calcSumLogIntensity( m_ampVecs, m_firstPass );
   
-  MISubject* dummy( NULL );
-  if( !m_functionEvaluated ) update( dummy );   
+  m_firstPass = false;
   
-  return m_sumLnI;
+  return sumLnI;
 }
