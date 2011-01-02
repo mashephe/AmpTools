@@ -71,9 +71,13 @@ public:
    *
    * Return of a pointer is done to save memory copy and allocation time.  
    * The class the receives the pointer is responsible for deleting memory
-   * when it is finished with it. 
+   * when it is finished with it.
+   *
+   * This method should be virtual in the user's class if the DataReaderMPI 
+   * template is to be used.
    *
    * \see Kinematics
+   * \see DataReaderMPI
    */
 	virtual Kinematics* getEvent() = 0;
   
@@ -81,6 +85,11 @@ public:
    * The user should override this function with one that resets the source
    * so that the next call to getEvent() begins reading from the first 
    * event in the source.
+   *
+   * This method should be virtual in the user's class if the DataReaderMPI 
+   * template is to be used.
+   *
+   * \see DataReaderMPI
    */
 	virtual void resetSource() = 0;	
 
@@ -88,6 +97,11 @@ public:
    * The user should override this function with one that returns the number
    * of events in the source.  This is used for allocating memory to store
    * the data and amplitudes.
+   *
+   * This method should be virtual in the user's class if the DataReaderMPI 
+   * template is to be used.
+   *
+   * \see DataReaderMPI
    */
 	virtual unsigned int numEvents() const = 0;
     
