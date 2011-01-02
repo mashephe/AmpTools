@@ -53,7 +53,8 @@ NormIntInterface::NormIntInterface( DataReader* genMCData,
 m_pAmpManager( &ampManager ),
 m_accMCReader( accMCData ),
 m_genMCReader( genMCData ),
-m_emptyCache( true )
+m_emptyNormIntCache( true ),
+m_emptyAmpIntCache( true )
 {
   assert( ( m_accMCReader != NULL ) && ( m_genMCReader != NULL ) );
   
@@ -75,14 +76,18 @@ m_emptyCache( true )
       m_normIntCache[*amp][*conjAmp] = complex< double >( 0, 0 );
       m_ampIntCache[*amp][*conjAmp] = complex< double >( 0, 0 );      
     }
-  }      
+  }
+  
+  // avoid computation of normalization integrals until they are 
+  // actually requested -- this avoids unnecessary expensive computations
 }
 
 NormIntInterface::NormIntInterface( const string& normIntFile ) :
 m_pAmpManager( NULL ),
 m_accMCReader( NULL ),
 m_genMCReader( NULL ),
-m_emptyCache( false )
+m_emptyNormIntCache( false ),
+m_emptyAmpIntCache( false )
 {
   
 	cout << "Reading cached normalization integral calculation from: "
@@ -156,7 +161,12 @@ complex< double >
 NormIntInterface::normInt( string amp, string conjAmp, bool forceUseCache ) const
 {
   
-  if( m_emptyCache ) forceCacheUpdate();
+  // pass in true flag to delay computation of amplitude integrals as
+  // long as possible -- in the case of a fit with free parameters, this
+  // should allow just one computation of the amplitude integrals at the
+  // end of the fit
+  
+  if( m_emptyNormIntCache ) forceCacheUpdate( true );
   
   if( m_pAmpManager->hasAmpWithFreeParam() && !hasAccessToMC() ){
    
@@ -213,7 +223,7 @@ complex< double >
 NormIntInterface::ampInt( string amp, string conjAmp, bool forceUseCache ) const
 {
   
-  if( m_emptyCache ) forceCacheUpdate();
+  if( m_emptyAmpIntCache ) forceCacheUpdate();
   
   if( !forceUseCache && m_pAmpManager->hasAmpWithFreeParam() ){
    
@@ -247,59 +257,73 @@ NormIntInterface::ampInt( string amp, string conjAmp, bool forceUseCache ) const
 void
 NormIntInterface::forceCacheUpdate( bool normIntOnly ) const
 {
-  
-  flush( cout );
-  
-  // we can assume that m_mcVecs contains the accepted MC since the
-  // generated MC is never left in m_mcVecs
-  if( normIntOnly && !m_emptyCache ){
-    
+  if( !m_emptyNormIntCache ){
+
+    // we can assume that m_mcVecs contains the accepted MC since the
+    // generated MC is never left in m_mcVecs
+
     m_normIntCache = m_pAmpManager->calcIntegrals( m_mcVecs, m_nGenEvents, false );
-    return;
+
+    // stop here if we just want the norm ints -- this will likely be the normal
+    // mode of operation for NI recalculations during a fit
+    if( normIntOnly ) return;
   }
   
   assert( ( m_genMCReader != NULL ) && ( m_accMCReader != NULL ) );
-  
-  // flush this if anything is loaded
-  m_mcVecs.deallocAmpVecs();
-  
-	cout << "Loading generated Monte Carlo..." << endl;
-  m_mcVecs.loadData( m_genMCReader );
-  m_mcVecs.allocateAmps( *m_pAmpManager );
-	cout << "\tDone.\n" << flush;
+    
+  if( !normIntOnly ){
+
+    // flush this if anything is loaded
+    m_mcVecs.deallocAmpVecs();
+
+    cout << "Loading generated Monte Carlo..." << endl;
+    m_mcVecs.loadData( m_genMCReader );
+    m_mcVecs.allocateAmps( *m_pAmpManager );
+    cout << "\tDone.\n" << flush;
 	  
-	cout << "Calculating integrals..." << endl;
-  m_ampIntCache = 
-  m_pAmpManager->calcIntegrals( m_mcVecs, m_nGenEvents );
-	cout << "\tDone." << endl;
+    cout << "Calculating integrals..." << endl;
+    m_ampIntCache = 
+      m_pAmpManager->calcIntegrals( m_mcVecs, m_nGenEvents );
+    cout << "\tDone." << endl;
+    
+    m_emptyAmpIntCache = false;
+  }
   
-	if( m_accMCReader == m_genMCReader )
+  // the last condition is needed to guarantee that m_ampIntCache has
+  // been correctly filled
+	if( ( m_accMCReader == m_genMCReader ) && !normIntOnly )
 	{    
 		// optimization for perfect acceptance		
-		cout << "Perfect acceptance -- no accepted integrals calculated" << endl;
+		cout << "Perfect acceptance -- using integrals from generated MC" << endl;
     
 		m_normIntCache = m_ampIntCache;
 	}
 	else
 	{		
     
-    //Cleaning up the generated data
+    // reload the accepted MC if needed -- always leave accepted MC in 
+    // memory
     m_mcVecs.deallocAmpVecs();
     
     cout << "Loading acccepted Monte Carlo..." << endl;
     m_mcVecs.loadData( m_accMCReader );
     m_mcVecs.allocateAmps( *m_pAmpManager );
     cout << "\tDone." << endl;
-        
-    cout << "Calculating integrals..." << endl;
-    m_normIntCache = 
-      m_pAmpManager->calcIntegrals( m_mcVecs, m_nGenEvents );
-    cout << "\tDone." << endl;
-	}	
   
-  // leaves class in state with m_mcVecs holding accepted MC
+    // if the cache wasn't empty then calculation happend back at the start
+    // of this routine and we don't need to update it again
+    if( m_emptyNormIntCache ){
+      
+      cout << "Calculating integrals..." << endl;
+      m_normIntCache = 
+       m_pAmpManager->calcIntegrals( m_mcVecs, m_nGenEvents );
+      cout << "\tDone." << endl;
+    }	
+  }
 
-  m_emptyCache = false;
+  m_emptyNormIntCache = false;
+
+  // this method always leaves class in state with m_mcVecs holding accepted MC
 }  
 
 void
@@ -373,7 +397,7 @@ NormIntInterface::setAmpIntegral( string ampName, string cnjName,
                                  complex< double > val ) const { 
 
   m_ampIntCache[ampName][cnjName] = val; 
-  m_emptyCache = false;
+  m_emptyAmpIntCache = false;
 }
 
 void 
@@ -381,6 +405,6 @@ NormIntInterface::setNormIntegral( string ampName, string cnjName,
                       complex< double > val ) const { 
   
   m_normIntCache[ampName][cnjName] = val; 
-  m_emptyCache = false;
+  m_emptyNormIntCache = false;
 }
 
