@@ -178,10 +178,7 @@ AmplitudeManager::calcAmplitudes( AmpVecs& a, bool bIsFirstPass, bool useMC ) co
 	int iAmpIndex, iAmpFactOffset=0;	
 	for( iAmpIndex = 0; iAmpIndex < iNAmps; iAmpIndex++ )
 	{
-		//Skip re-computing amplitudes not containing any free parameters
-		if( !bIsFirstPass && m_vbIsAmpFixed[iAmpIndex] )
-			continue;
-		
+        
 		map< string, vector< vector< int > > >::const_iterator permItr = 
     m_ampPermutations.find( m_ampNames[iAmpIndex] );
 		assert( permItr != m_ampPermutations.end() );		
@@ -194,6 +191,20 @@ AmplitudeManager::calcAmplitudes( AmpVecs& a, bool bIsFirstPass, bool useMC ) co
 		int iLocalOffset = 0;
 		int iFactor, iNFactors = vAmps.size();
     
+    // if it is not the first pass through and this particular
+    // amplitude is fixed, then we can skip to the next amplitude
+    // and avoid all of the symmetrization computation as well
+    // as checking each individual factor for free parameters.
+    // HOWEVER we need to be sure to adjust the iAmpFactOffset correctly
+    // so it is ready for the next amplitude.
+    if( !bIsFirstPass && m_vbIsAmpFixed[iAmpIndex] ){
+      
+      iAmpFactOffset += 2 * a.m_iNEvents * iNPermutations * iNFactors;
+      continue;
+    }
+		
+    // cout << "Recomputing amplitude: " << m_ampNames[iAmpIndex] << endl;
+    
     // calculate all the factors that make up an amplitude for
     // for all events serially on CPU or in parallel on GPU
     
@@ -205,6 +216,8 @@ AmplitudeManager::calcAmplitudes( AmpVecs& a, bool bIsFirstPass, bool useMC ) co
 			
 			if( !bIsFirstPass && !pCurrAmp->containsFreeParameters() )
 				continue;
+      
+      // cout << "Recomputing factor: " << pCurrAmp->name() << endl;
 			
 			if( bIsFirstPass ) gettimeofday( &(tStart), NULL );
       
@@ -227,18 +240,19 @@ AmplitudeManager::calcAmplitudes( AmpVecs& a, bool bIsFirstPass, bool useMC ) co
         cout << "-> Seconds spent calculating " 
         << pCurrAmp->name() << " for " << permItr->first << ":  "
         << dTime << endl << flush;
-
-        /*
-        // print out amplitudes for the first permutation for the first
-        // ten events
-        for( int iEvent = 0; ( iEvent < a.m_iNTrueEvents ) && ( iEvent < 10 ); ++iEvent ){
-          
-          cout << pCurrAmp->name() << " Event " << iEvent << ":  ( " 
-               << a.m_pdAmpFactors[iAmpFactOffset+iLocalOffset+2*iEvent] << ", " 
-               << a.m_pdAmpFactors[iAmpFactOffset+iLocalOffset+2*iEvent+1] << " )" << endl;
-        }
-       */
       }	
+      
+      /*
+      // print out amplitudes for the first permutation for the first
+      // ten events
+       for( int iEvent = 0; ( iEvent < a.m_iNTrueEvents ) && ( iEvent < 10 ); ++iEvent ){
+         
+         cout << pCurrAmp->name() << " Event " << iEvent << ":  ( " 
+         << a.m_pdAmpFactors[iAmpFactOffset+iLocalOffset+2*iEvent] << ", " 
+         << a.m_pdAmpFactors[iAmpFactOffset+iLocalOffset+2*iEvent+1] << " )" << endl;
+       }
+       */
+      
     }
     
     // now assemble all the factors in an amplitude into a single
@@ -688,7 +702,7 @@ AmplitudeManager::setupFromConfigurationInfo( const ConfigurationInfo* configInf
     setDefaultProductionAmplitude(ampName, ampInfoVector[i]->value());
 
     // if the amplitude has parameters we should go ahead and set their
-    // values, otherwise they will be set the default value as defined
+    // values, otherwise they will be set to the default value as defined
     // by the AmpParameter class -- in a fit, the ParameterManager will
     // later reset these pointers to point to floating parameters in MINUIT
     vector< ParameterInfo* > pars = ampInfoVector[i]->parameters();
@@ -899,10 +913,13 @@ AmplitudeManager::setAmpParPtr( const string& ampName, const string& parName,
       ++factorItr ){
     
     if( (**factorItr).setParPtr( parName, ampParPtr ) ) foundFactor = true;
-    m_vbIsAmpFixed[m_ampIndex[ampName]] = false;
   }
   
-  if( !foundFactor ){
+  if( foundFactor ){
+
+    m_vbIsAmpFixed[m_ampIndex[ampName]] = false;
+  }
+  else {
     
     // cout << "NOTICE:  no registered factor in the amplitude " << ampName
     //      << " contains the parameter " << parName << "." << endl;
