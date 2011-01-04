@@ -227,6 +227,17 @@ AmplitudeManager::calcAmplitudes( AmpVecs& a, bool bIsFirstPass, bool useMC ) co
         cout << "-> Seconds spent calculating " 
         << pCurrAmp->name() << " for " << permItr->first << ":  "
         << dTime << endl << flush;
+
+        /*
+        // print out amplitudes for the first permutation for the first
+        // ten events
+        for( int iEvent = 0; ( iEvent < a.m_iNTrueEvents ) && ( iEvent < 10 ); ++iEvent ){
+          
+          cout << pCurrAmp->name() << " Event " << iEvent << ":  ( " 
+               << a.m_pdAmpFactors[iAmpFactOffset+iLocalOffset+2*iEvent] << ", " 
+               << a.m_pdAmpFactors[iAmpFactOffset+iLocalOffset+2*iEvent+1] << " )" << endl;
+        }
+       */
       }	
     }
     
@@ -275,7 +286,7 @@ AmplitudeManager::calcAmplitudes( AmpVecs& a, bool bIsFirstPass, bool useMC ) co
 			}
 			
 			a.m_pdAmps[iOffsetA]   *= dSymmFactor;
-			a.m_pdAmps[iOffsetA+1] *= dSymmFactor;				
+			a.m_pdAmps[iOffsetA+1] *= dSymmFactor;      
 		}
     
 		//Update the global offset of ampfactor array
