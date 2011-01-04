@@ -5,6 +5,10 @@ ifdef GPU
 CUDAFILES	:= $(wildcard *.cu)
 endif
 
+ifdef MPI
+CXX = $(MPICC)
+endif
+
 .PHONY: default
 
 default: $(LIB)
