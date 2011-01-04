@@ -57,6 +57,19 @@ Amplitude::calcAmplitudeAll( GDouble* pdData, GDouble* pdAmps, int iNEvents,
 	assert( iNParticles );
 	
   GDouble** pKin = new GDouble*[iNParticles];
+
+  /*
+  if( m_registeredParams.size() != 0 ) {
+
+    cout << "Current values of parameters: " << endl;
+    for( vector< AmpParameter* >::const_iterator parItr = m_registeredParams.begin();
+        parItr != m_registeredParams.end();
+        ++parItr ){
+      
+      cout << "\t" << (**parItr).name() << ":  " << (**parItr) << endl;
+    }
+  }
+  */
   
 	int i, iEvent;
 	for( iEvent=0; iEvent<iNEvents; iEvent++ ){        
