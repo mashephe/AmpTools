@@ -34,6 +34,10 @@
 // any other party arising from use of the program.
 //******************************************************************************
 
+#ifdef USE_MPI
+#include <mpi.h>
+#endif
+
 #include <iostream>
 #include <math.h>
 #include <string.h>
@@ -86,14 +90,39 @@ GPUManager::GPUManager() :
 	m_iDimThreadX=0;
 	m_iDimThreadY=0;
   
-	///////CUDA INITIALIZATION
-  cudaSetDevice(0);
-  cudaDeviceProp devProp;
-  cudaGetDeviceProperties( &devProp, 0 );
+  int thisDevice = 0;
 
+  if( !m_cudaDisplay )
+    cout<<"\n################### CUDA DEVICE ##################\n";    
+  
+#ifdef USE_MPI
+  
+  // Note that a better algorithm would be to utilize the jobs "local
+  // rank" on the machine instead of global rank -- this needs development.
+  // The obvious problem wiht the technique below is that, e.g., in a 
+  // two-GPU per node cluster, all even rank jobs will use device zero.
+  // If two even rank jobs land on the same node device zero will be
+  // overloaded and device 1 will be unused.
+  
+  int rank, devs;
+  MPI_Comm_rank( MPI_COMM_WORLD, &rank );
+  cudaGetDeviceCount(&devs);
+  thisDevice = rank % devs;
+  
+  if( !m_cudaDisplay ) {
+    cout << "\nParallel GPU configuration requested." << endl;
+    cout << "\nNumber of CUDA devices available on this node:  " << devs << endl;
+    cout << "\nMPI process " << rank << " is using device " << thisDevice << endl;
+  }
+#endif
+  
+	///////CUDA INITIALIZATION
+  cudaSetDevice( thisDevice );
+  cudaDeviceProp devProp;
+  cudaGetDeviceProperties( &devProp, thisDevice );
+  
 	if( ! m_cudaDisplay ){
     
-    cout<<"\n################### CUDA DEVICE ##################\n";
     cout<<"Current GPU Properites:\n";
     cout<<"\t Name: "<<devProp.name<<endl; 
     cout<<"\t Total global memory: "<<devProp.totalGlobalMem/((float)1024*1024)<<" MB"<<endl; 
