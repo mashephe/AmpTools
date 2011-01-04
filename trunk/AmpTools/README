@@ -28,11 +28,13 @@ typing 'make GPU=1'.  In this case CUDA_INSTALL_PATH should point to your
 installation of CUDA and you may need to adjust the CUDA_FLAGS variable in 
 the Makefile for your particular hardware.
 
-Warning: MPI support is somewhat experimental at the moment.  You can build
-MPI-enabled code by passing MPI=1 on the make command line
-
-
 RELEASE NOTES:
+
+v0.2 (4-January-2011):
+
+Fixed bad memory handling bug that would cause corrupt amplitude calculation
+for a fit that had an amplitude with free parameters.  Users should be 
+skeptical of fits done with free amplitude parameters with version 0.1.
 
 v0.1 (2-January-2011):
 
