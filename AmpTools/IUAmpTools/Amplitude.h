@@ -133,7 +133,14 @@ public:
    */
   bool isDefault() const { return ( m_isDefault == true ); }
 
-
+  /**
+   * The user can override this to do specific one-time tasks that
+   * before the fit begins, but after the parameters have been initialized.
+   * In general these tasks should go into the this init routine
+   * rather than the consructor.
+   */
+  virtual void init(){}
+  
   /**
    * This tells the AmpParameter with the indicated name to obtain its
    * value from some external location in memory.  This functionality is
