@@ -712,6 +712,21 @@ AmplitudeManager::setupFromConfigurationInfo( const ConfigurationInfo* configInf
      
       setAmpParValue( ampName, (**parItr).parName(), (**parItr).value() );
     }
+    
+    // finally initialize the amplitudes
+    vector< const Amplitude* > ampVec = m_mapNameToAmps[ampName];
+    for( vector< const Amplitude* >::iterator amp = ampVec.begin();
+         amp != ampVec.end();
+         ++amp ) {
+     
+      // init needs to be non-const or else the user has to deal with
+      // mutable data -- in reality we really want some aspects of the 
+      // amplitude like the name, arguments, etc. to never change and
+      // other aspects to be mutable, but this seems to put an extra
+      // burden on the user
+      
+      const_cast< Amplitude* >(*amp)->init();
+    }
   }
 }
 
