@@ -182,7 +182,18 @@ ParameterManager::addAmplitudeParameter( const string& ampName, const ParameterI
     
     foundOne = true;
   
-    (**ampManPtr).setAmpParPtr( ampName, parName, parPtr->constValuePtr() );
+    if( parInfo->fixed() ){
+
+      // if it is fixed just go ahead and set the parameter by value
+      // this prevents Amplitude class from thinking that is has
+      // a free parameter
+      
+      (**ampManPtr).setAmpParValue( ampName, parName, parInfo->value() );
+    }
+    else{
+      
+      (**ampManPtr).setAmpParPtr( ampName, parName, parPtr->constValuePtr() );
+    }
   }
   
   if( !foundOne ){
