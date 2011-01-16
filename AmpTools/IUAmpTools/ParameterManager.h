@@ -93,6 +93,8 @@ class ParameterManager : MIObserver
   complex< double >* getProdParPtr( const string& ampName );
   double* getAmpParPtr( const string& parName );
 	
+  virtual void update( const string& parName );
+  
  private:
 	
   // stop default
