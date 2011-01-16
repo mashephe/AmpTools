@@ -48,7 +48,8 @@ LikelihoodCalculatorMPI( const AmplitudeManager& ampManager,
 LikelihoodCalculator( ampManager, normInt, dataReader, parManager ),
 m_ampManager( ampManager ),
 m_parManager( parManager ),
-m_thisId( m_idCounter++ )
+m_thisId( m_idCounter++ ),
+m_firstPass( true )
 {
   setupMPI();
 
@@ -147,7 +148,7 @@ LikelihoodCalculatorMPI::operator()()
   // if we have an amplitude with a free parameter, the call to normIntTerm()
   // will trigger recomputation of NI's -- we need to put the workers in the
   // loop to send the recomputed NI's back to the master
-  if( m_ampManager.hasAmpWithFreeParam() ){
+  if( m_ampManager.hasAmpWithFreeParam() || m_firstPass ){
   
     cmnd[1] = LikelihoodManagerMPI::kComputeIntegrals;
     for( int i = 1; i < m_numProc; ++i ){
@@ -158,9 +159,11 @@ LikelihoodCalculatorMPI::operator()()
   
   // this call will utilize the NormIntInterface on the master which
   // ultimately gets handled by the instance of NormIntInterfaceMPI
-  // that is passed into the constructorof this class
+  // that is passed into the constructor of this class
   lnL -= normIntTerm();
 
+  m_firstPass = false;
+  
   return -2 * lnL;
 }
 
