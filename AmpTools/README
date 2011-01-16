@@ -30,6 +30,19 @@ the Makefile for your particular hardware.
 
 RELEASE NOTES:
 
+v0.3 (16-January-2011):
+
+Improved reduction kernel for doing double-precision sums on the GPU.  This
+was causing double precision computation to fail on newer Tesla GPUs.  No trouble
+is seen now.  Doing sums on GPU seems to show minimal speed improvements.  
+Further optimization is likely needed.  This version also implements callbacks
+to amplitudes when parameters change in MPI-based fits.  In addition, a new
+init() method is provided in the Amplitude class that users can override.  The
+init() method allows the user to make expensive initial computations *after*
+the initial values of the parameters have been set.  Doing these computations
+in the constructor for amplitudes with free parameters is not recommended since
+the free parameters will be set to some default value of 1E9.
+
 v0.2 (4-January-2011):
 
 Fixed bad memory handling bug that would cause corrupt amplitude calculation
