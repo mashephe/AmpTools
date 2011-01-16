@@ -128,6 +128,7 @@ private:
   // portions of the likeihood calculation -- they should only be called
   // on the worker nodes
   void updateParameters();
+  void updateAmpParameter();
   void computeLikelihood();
 
   static int m_idCounter;

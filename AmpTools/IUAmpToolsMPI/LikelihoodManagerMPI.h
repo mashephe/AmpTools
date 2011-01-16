@@ -51,12 +51,16 @@ class LikelihoodManagerMPI
   enum FitCommand { kComputeLikelihood,
                     kComputeIntegrals,
                     kUpdateParameters,
+                    kUpdateAmpParameter,
                     kExit };
 
   LikelihoodManagerMPI(){};
 
   static void registerCalculator( int id, LikelihoodCalculatorMPI* calc );
+
   static void deliverLikelihood();
+  
+  static void broadcastToFirst( FitCommand command );
   
  private:
 
@@ -64,6 +68,7 @@ class LikelihoodManagerMPI
 
   static bool m_mpiSetup;
   static bool m_isMaster;
+  static int m_numProc;
 
   static map< int, LikelihoodCalculatorMPI* > m_calcMap;
 };

@@ -52,9 +52,9 @@ m_thisId( m_idCounter++ )
 {
   setupMPI();
 
-  if( !m_isMaster ){
+  LikelihoodManagerMPI::registerCalculator( m_thisId, this );
 
-    LikelihoodManagerMPI::registerCalculator( m_thisId, this );
+  if( !m_isMaster ){
 
     // check back in with the master after registration
     MPI_Send( &m_thisId, 1, MPI_INT, 0, MPITag::kIntSend, MPI_COMM_WORLD );
@@ -171,6 +171,15 @@ LikelihoodCalculatorMPI::updateParameters()
 
   // do the update on the worker nodes
   m_parManager.updateParameters();
+}
+
+void
+LikelihoodCalculatorMPI::updateAmpParameter()
+{
+  assert( !m_isMaster );
+  
+  // do the update on the worker nodes
+  m_parManager.updateAmpParameter();
 }
 
 void
