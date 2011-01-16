@@ -42,7 +42,7 @@
 #ifdef __CUDACC__
 
 	#define HOST __host__
-	#define DEVICE __device__
+	#define DEVICE __forceinline__ __device__
 	#define HOSTDEVICE __host__ __device__
 
 #else
