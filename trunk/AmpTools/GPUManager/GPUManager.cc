@@ -52,6 +52,10 @@
 
 bool GPUManager::m_cudaDisplay = false;
 
+template <class T>
+void reduce(int size, int threads, int blocks,
+                 int whichKernel, T *d_idata, T *d_odata);
+
 GPUManager::GPUManager() : 
   m_ampCalcOnly( false )
 {
@@ -134,7 +138,7 @@ GPUManager::GPUManager() :
     m_cudaDisplay = true;
   }
   
-  if( devProp.minor < 3 ){
+  if( ( devProp.major == 1 ) && devProp.minor < 3 ){
     
     // double precision operations need 1.3 hardware or higher
     assert( sizeof( GDouble ) <= 4 );
@@ -490,7 +494,7 @@ double GPUManager::calcSumLogIntensity()
 		cudaMemset(m_pfDevRes+m_iNTrueEvents,0,sizeof(GDouble)*(m_iNEvents-m_iNTrueEvents));
 		int whichKernel = 6;   		
 		// execute the kernel to sum partial sums from each block on CPU  
-		reduce_sm13<GDouble>(m_iNEvents, m_iNThreads, m_iNBlocks, whichKernel, m_pfDevRes, m_pfDevREDUCE);
+		reduce<GDouble>(m_iNEvents, m_iNThreads, m_iNBlocks, whichKernel, m_pfDevRes, m_pfDevREDUCE);
 		// copy result from device to host
 		cudaMemcpy( m_pfRes, m_pfDevREDUCE, m_iNBlocks*sizeof(GDouble), cudaMemcpyDeviceToHost);
 		for(i=0; i<m_iNBlocks; i++) 
@@ -637,7 +641,7 @@ void GPUManager::calcCUDADims()
 	
 	//Reduction Parameters
 	unsigned int maxThreads = 256;  // number of threads per block
-  unsigned int maxBlocks = 256;		
+	unsigned int maxBlocks = 256;		
 	
   if (m_iNEvents == 1) 
 		m_iNThreads = 1;
