@@ -352,3 +352,79 @@ void ParameterManagerMPI::updateParameters()
   }
 }
 
+
+void ParameterManagerMPI::updateAmpParameter( const string& parName )
+{
+  
+  int nameLength;
+  char parNameArr[kMaxNameLength];
+  double value;
+  
+  MPI_Status status;
+  
+  if( m_isMaster ){
+    
+    for( int proc = 1; proc < m_numProc; ++proc ){
+      
+      map< string, double* >::iterator parItr =
+      m_ampParMap.find( parName );
+      
+      // we should *always* be able to find the parameter with the 
+      // the appropriate name
+      assert( parItr != m_ampParMap.end() );
+              
+      nameLength = parItr->first.length();
+      assert( nameLength <= kMaxNameLength );
+      strcpy( parNameArr, parItr->first.c_str() );
+        
+      MPI_Send( &nameLength, 1, MPI_INT, proc,
+               MPITag::kIntSend, MPI_COMM_WORLD );
+      MPI_Send( parNameArr, nameLength, MPI_CHAR, proc,
+               MPITag::kCharSend, MPI_COMM_WORLD );
+      
+      value = *(parItr->second);
+        
+      MPI_Send( &value, 1, MPI_DOUBLE, proc,
+               MPITag::kDoubleSend, MPI_COMM_WORLD );
+    }
+  }
+  else{
+    
+    MPI_Recv( &nameLength, 1, MPI_INT, 0, MPITag::kIntSend,
+             MPI_COMM_WORLD, &status );
+    MPI_Recv( parNameArr, nameLength, MPI_CHAR, 0, MPITag::kCharSend,
+             MPI_COMM_WORLD, &status );
+    
+    MPI_Recv( &value, 1, MPI_DOUBLE, 0, MPITag::kDoubleSend,
+             MPI_COMM_WORLD, &status );
+      
+    ostringstream name;
+    for( int i = 0; i < nameLength; ++i ) name << parNameArr[i];
+      
+    // check that the name is sane and the reset the value
+    map< string, double* >::iterator parItr = m_ampParMap.find( name.str() );
+    assert( parItr != m_ampParMap.end() );
+    (*(parItr->second)) = value;
+    
+    // now we need to trigger the update method using the base class
+    // this will call the update routines in the individual amplitudes
+        
+    ParameterManager::update( name.str() );
+  }
+}
+
+void
+ParameterManagerMPI::update( const string& parName ){
+  
+  // should only be called directly on the master via
+  // the call to virtual ParameterManager::update 
+  
+  assert( m_isMaster );
+ 
+  // this puts workers into the updateAmpParameter routine above 
+  LikelihoodManagerMPI::broadcastToFirst( LikelihoodManagerMPI::kUpdateAmpParameter );
+  
+  // now put the master there
+  updateAmpParameter( parName );
+}
+

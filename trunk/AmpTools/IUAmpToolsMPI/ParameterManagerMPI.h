@@ -43,6 +43,7 @@
 
 #include "IUAmpTools/ParameterManager.h"
 #include "IUAmpTools/AmplitudeManager.h"
+#include "IUAmpToolsMPI/LikelihoodManagerMPI.h"
 #include "MinuitInterface/MIObserver.h"
 
 using namespace std;
@@ -77,15 +78,19 @@ class ParameterManagerMPI : public ParameterManager
   // the likelihood calculator will need to call this routine in order
   // to update the parameters in advance of the likelihood calculation
   void updateParameters();
+  
+  // the likelihood calculator on the worker nodes will call this routine
+  // in order to update a changed ampitude parameter -- the update routine
+  // on the master (function below) will call this directly with the
+  // parameter name
+  void updateAmpParameter( const string& parName = "" );
 
+protected:
   
-  // in order to properly implement callbacks to the amplitudes when a 
-  // parameter changes, this class must implement the update method
-  // in the ParameterManager class -- callbacks will not work
-  // now in MPI -- needs fixing!
-//  void update( MISubject* subject );
+  // this overrides the base class function
+  void update( const string& parName );
   
- private:
+private:
 
   void setupMPI();
 

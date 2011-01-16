@@ -86,6 +86,11 @@ LikelihoodManagerMPI::deliverLikelihood()
         
         likCalc->updateParameters();
         break;
+  
+      case kUpdateAmpParameter:
+        
+        likCalc->updateAmpParameter();
+        break;
         
       case kComputeIntegrals:
         
@@ -113,14 +118,46 @@ LikelihoodManagerMPI::deliverLikelihood()
 }
 
 void
+LikelihoodManagerMPI::broadcastToFirst( FitCommand command ){
+  
+  if( !m_mpiSetup ) setupMPI();
+  
+  // this broadcasts a particular command to the first registered
+  // calculator -- note that there can be multiple likelihood
+  // calculators per node as there is one likelihood calculator
+  // for every reaction
+  
+  // should only be called on the master:
+  assert( m_isMaster );
+
+  int cmnd[2];
+  cmnd[1] = command;
+
+  map< int, LikelihoodCalculatorMPI* >::iterator mapItr = m_calcMap.begin();
+  
+  // if this is false then there are no registered calculators
+  assert( mapItr != m_calcMap.end() );
+  
+  cmnd[0] = mapItr->first;    
+   
+  // this will send a command to just the first registered calculator
+  for( int i = 1; i < m_numProc; ++i ){
+      
+    MPI_Send( cmnd, 2, MPI_INT, i, MPITag::kIntSend, MPI_COMM_WORLD );
+  }
+}
+
+void
 LikelihoodManagerMPI::setupMPI()
 {
   int rank;
   MPI_Comm_rank( MPI_COMM_WORLD, &rank );
   m_isMaster = ( rank == 0 );
+  MPI_Comm_size( MPI_COMM_WORLD, &m_numProc );
   m_mpiSetup = true;
 }
 
 bool LikelihoodManagerMPI::m_mpiSetup = false;
 bool LikelihoodManagerMPI::m_isMaster = false;
+int LikelihoodManagerMPI::m_numProc = 0;
 map< int, LikelihoodCalculatorMPI* > LikelihoodManagerMPI::m_calcMap;
