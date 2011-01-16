@@ -210,10 +210,21 @@ void ParameterManagerMPI::addAmplitudeParameter( const string& ampName,
     for( ; ampManPtr != m_ampManagers.end(); ++ampManPtr ){
       
       if( !(*ampManPtr)->hasProductionAmp( ampName ) ) continue;
-      
+
       foundOne = true;
       
-      (**ampManPtr).setAmpParPtr( ampName, parName, m_ampParMap[parName] );
+      if( parInfo->fixed() ){
+        
+        // if it is fixed just go ahead and set the parameter by value
+        // this prevents Amplitude class from thinking that is has
+        // a free parameter
+        
+        (**ampManPtr).setAmpParValue( ampName, parName, parInfo->value() );
+      }
+      else{
+        
+        (**ampManPtr).setAmpParPtr( ampName, parName, m_ampParMap[parName] );
+      }      
     }
     
     if( !foundOne ){
