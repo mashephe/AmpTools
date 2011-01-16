@@ -354,15 +354,22 @@ ParameterManager::update( const MISubject* parPtr ){
       
       // we found the relevant param -- now notify all amplitude managers that
       // the parameter has changed
-      
-      for( vector< AmplitudeManager* >::const_iterator ampMan = m_ampManagers.begin();
-          ampMan != m_ampManagers.end();
-          ++ampMan ){
-        
-        (**ampMan).updateAmpPar( mapItr->first );
-      }
+  
+      update( mapItr->first );
     }
   }
 }
 
-
+void
+ParameterManager::update( const string& parName ){
+  
+  // useful to have this method available to update by name
+  
+  for( vector< AmplitudeManager* >::const_iterator ampMan = m_ampManagers.begin();
+      ampMan != m_ampManagers.end();
+      ++ampMan ){
+    
+    (**ampMan).updateAmpPar( parName );
+  }
+}  
+  
