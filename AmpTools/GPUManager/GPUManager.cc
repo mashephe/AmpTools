@@ -50,6 +50,8 @@
 #include "GPUManager/GPUKernel.h"
 #include "GPUManager/GPUManager.h"
 
+#include "GPUManager/sdkHelper.h"
+
 bool GPUManager::m_cudaDisplay = false;
 
 template <class T>
@@ -126,11 +128,13 @@ GPUManager::GPUManager() :
   cudaGetDeviceProperties( &devProp, thisDevice );
   
 	if( ! m_cudaDisplay ){
-    
+
+    int cudaCoresPerMP = _ConvertSMVer2Cores(devProp.major,devProp.minor);
+
     cout<<"Current GPU Properites:\n";
     cout<<"\t Name: "<<devProp.name<<endl; 
     cout<<"\t Total global memory: "<<devProp.totalGlobalMem/((float)1024*1024)<<" MB"<<endl; 
-    cout<<"\t Number of cores: " << 8*devProp.multiProcessorCount << endl;
+    cout<<"\t Number of cores: " << cudaCoresPerMP*devProp.multiProcessorCount << endl;
     cout<<"\t Rev.: "<<devProp.major<<"."<<devProp.minor<<endl;
     cout<<"\t Precision (size of GDouble): " << sizeof(GDouble) << " bytes" << endl;	
     cout<<"##################################################\n\n";
