@@ -395,9 +395,9 @@ PlotGenerator::intensity( const vector< string >& amplitudes, bool accCorrected 
 			errorMatrix[iRe][jRe] = m_errorMatrix[IRe][JRe];
 			errorMatrix[iIm][jIm] = m_errorMatrix[IIm][JIm];
       
-			deriv[iRe] += ( real( m_prodAmps[conjIndex] ) * real( ampInt ) +
+			deriv[iRe] += 2 * ( real( m_prodAmps[conjIndex] ) * real( ampInt ) +
                      imag( m_prodAmps[conjIndex] ) * imag( ampInt ) );
-			deriv[iIm] -= ( imag( m_prodAmps[conjIndex] ) * real( ampInt ) +
+			deriv[iIm] += 2 * ( imag( m_prodAmps[conjIndex] ) * real( ampInt ) -
                      real( m_prodAmps[conjIndex] ) * imag( ampInt ) );
       
  			intensity += real( m_prodAmps[ampIndex] * conj( m_prodAmps[conjIndex] ) * ampInt );
@@ -415,6 +415,9 @@ PlotGenerator::intensity( const vector< string >& amplitudes, bool accCorrected 
   
 	return pair< double, double >( intensity, sqrt( variance ) );
 }
+
+// this computes the phase differences between sums of production
+// coefficients -- it is not clear if this has any meaningful signficance
 
 double
 PlotGenerator::phaseDiff( const vector< string >& amps1, 

@@ -68,6 +68,9 @@ public:
 	pair< double, double > intensity( const vector< string >& amps,
                                     bool accCorrected = true ) const;
   
+    // this computes the phase differences between sums of production
+    // coefficients -- it is not clear if this has any meaningful signficance
+    
 	double phaseDiff( const vector< string >& amps1, 
                    const vector< string >& amps2 );
   
