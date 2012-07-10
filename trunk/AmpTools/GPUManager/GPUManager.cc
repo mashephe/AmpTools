@@ -644,8 +644,8 @@ void GPUManager::calcCUDADims()
 	// cout<<"\tGrid dimensions:  ("<<m_iDimGridX<<","<<m_iDimGridY<<")\n";
 	
 	//Reduction Parameters
-	unsigned int maxThreads = 256;  // number of threads per block
-	unsigned int maxBlocks = 256;		
+	unsigned int maxThreads = 1024;  // number of threads per block
+	unsigned int maxBlocks = 1024;		
 	
   if (m_iNEvents == 1) 
 		m_iNThreads = 1;
