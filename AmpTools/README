@@ -30,6 +30,17 @@ the Makefile for your particular hardware.
 
 RELEASE NOTES:
 
+v0.4 (11-July-2012):
+
+Fixed GPU manager to correctly report the number of cores on various new
+GPU hardware (with a fix from R.T. Jones).
+
+Corrected a factor of 2 and sign mistake in the calculation of errors
+on the intensity in the PlotGenerator.
+
+Fixed a bug in the PlotGenerator that didn't allow enabling and disabling
+of amplitudes.
+
 v0.3 (16-January-2011):
 
 Improved reduction kernel for doing double-precision sums on the GPU.  This
