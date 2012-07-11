@@ -222,6 +222,9 @@ PlotGenerator::initialize() {
     // and hang onto it
     m_ampManagerMap[rctInfo->reactionName()] = ampManager;
     
+    // enable the reaction by default
+    m_reactEnabled[rctInfo->reactionName()] = true;
+    
     // ask derived class plotters to register their 
     // amplitudes and contractions
     registerPhysics( ampManager );
@@ -257,24 +260,11 @@ PlotGenerator::initialize() {
       }
     }
   }
-  
-  buildUniqueAmplitudes();
-  
-  // start off with all sums and amplitudes enabled
-  for( map< string, bool >::iterator mapItr = m_ampEnabled.begin();
-       mapItr != m_ampEnabled.end();
-      ++mapItr ){
-   
-    mapItr->second = true;
-  }
 
-  for( map< string, bool >::iterator mapItr = m_sumEnabled.begin();
-      mapItr != m_sumEnabled.end();
-      ++mapItr ){
-    
-    mapItr->second = true;
-  }
-  
+  // buildUniqueAmplitudes will also create an initalize the maps that store
+  // the enable/disable status of the amplitudes and sums
+  buildUniqueAmplitudes();
+
   recordConfiguration();
 }
 
@@ -565,8 +555,8 @@ PlotGenerator::disableAmp( unsigned int uniqueAmpIndex ){
     
     unsigned int i = mapItr->second;
     
-    // cout << "Setting production amp for " << mapItr->first << " from "
-    //      << m_prodAmps[i] << " to " << m_zeroProdAmps[i] << endl;
+//     cout << "Setting production amp for " << mapItr->first << " from "
+//          << m_prodAmps[i] << " to " << m_zeroProdAmps[i] << endl;
     
     m_prodAmps[i] = m_zeroProdAmps[i];
     m_ampEnabled[amp] = false;
@@ -577,13 +567,13 @@ PlotGenerator::disableAmp( unsigned int uniqueAmpIndex ){
 
 void
 PlotGenerator::enableAmp( unsigned int uniqueAmpIndex ){
-  
+      
   string amp = m_uniqueAmplitudes[uniqueAmpIndex];
     
   for( map< string, unsigned int >::iterator mapItr = m_ampIndex.begin();
       mapItr != m_ampIndex.end();
       ++mapItr ){
-    
+          
     vector< string > ampParts = stringSplit( mapItr->first, "::" );
     if( ampParts[2] != amp ) continue;
     
@@ -593,11 +583,11 @@ PlotGenerator::enableAmp( unsigned int uniqueAmpIndex ){
 
     // on turn back on the amplitude in the amplitude manager if the
     // sum to which it belogins is also enabled
-    
+      
     if( m_sumEnabled[ampParts[1]] ){
     
-      // cout << "Setting production amp for " << mapItr->first << " from "
-      //      << m_prodAmps[i] << " to " << m_fitProdAmps[i] << endl;
+     //   cout << "Setting production amp for " << mapItr->first << " from "
+     //         << m_prodAmps[i] << " to " << m_fitProdAmps[i] << endl;
     
       m_prodAmps[i] = m_fitProdAmps[i];
     }
@@ -743,12 +733,26 @@ PlotGenerator::buildUniqueAmplitudes(){
        m_uniqueAmplitudes.end() ){
       
       m_uniqueAmplitudes.push_back( tok[2] );
+      
+      // if this amp hasn't been added to the ampEnabled list, 
+      // then add it and set it to true
+      if( m_ampEnabled.find( tok[2] ) == m_ampEnabled.end() ) {
+        
+        m_ampEnabled[tok[2]] = true;
+      }
     }
     
     if( find( m_uniqueSums.begin(), m_uniqueSums.end(), tok[1] ) == 
        m_uniqueSums.end() ){
       
       m_uniqueSums.push_back( tok[1] );
+
+      // if this sum hasn't been added to the sumEnabled list, 
+      // then add it and set it to true
+      if( m_sumEnabled.find( tok[1] ) == m_sumEnabled.end() ){
+
+        m_sumEnabled[tok[1]] = true;
+      }
     }
   }
 }
