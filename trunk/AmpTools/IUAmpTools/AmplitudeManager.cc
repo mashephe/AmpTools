@@ -50,11 +50,14 @@
 #include <cassert>
 
 #include "IUAmpTools/AmplitudeManager.h"
+#include "IUAmpTools/NormIntInterface.h"
 #include "IUAmpTools/Kinematics.h"
 
 AmplitudeManager::AmplitudeManager( const vector< string >& finalState, 
                                    const string& finalStateName) :
-m_finalStateName(finalStateName)
+m_finalStateName(finalStateName),
+m_renormalizeAmps( false ),
+m_normInt( NULL )
 {
   cout << "Creating amplitude manager for final state:" << endl;
 	
@@ -342,10 +345,17 @@ AmplitudeManager::calcIntensities( AmpVecs& a, bool bIsFirstPass ) const
 	for( i = 0; i < iNAmps; i++ ){
 		for( j = 0; j <= i; j++ ){
       
-			cTmp = (*m_prodAmpVec[i]) * conj(*m_prodAmpVec[j]);			
+			cTmp = (*m_prodAmpVec[i]) * conj(*m_prodAmpVec[j]);
+			
+      if( m_renormalizeAmps ){
+        
+        cTmp /= sqrt( m_normInt->ampInt( m_ampNames[i], m_ampNames[i] ) *
+                      m_normInt->ampInt( m_ampNames[j], m_ampNames[j] ) );
+      }
+      
 			pdViVjRe[i*(i+1)/2+j] = cTmp.real();
 			pdViVjIm[i*(i+1)/2+j] = cTmp.imag();
-			
+			      
 			if( i != j ) {
         
 				pdViVjRe[i*(i+1)/2+j] *= 2;
@@ -981,6 +991,19 @@ AmplitudeManager::updateAmpPar( const string& parName ) const {
       (**ampItr).updatePar( parName );
     }
   }
+}
+
+void
+AmplitudeManager::renormalizeAmps( const NormIntInterface* normInt ){
+  
+  m_normInt = normInt;
+  m_renormalizeAmps = true;
+}
+
+void
+AmplitudeManager::disableRenormalization(){
+
+  m_renormalizeAmps = false;
 }
 
 // private functions

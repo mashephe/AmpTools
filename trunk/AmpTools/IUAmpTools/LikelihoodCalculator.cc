@@ -101,9 +101,20 @@ LikelihoodCalculator::normIntTerm(){
     for( vector< string >::iterator conjAmp = ampNames.begin();
         conjAmp != ampNames.end(); ++conjAmp ){
       
-      normTerm += ( m_ampManager.productionAmp( *amp ) * 
+      complex< double > thisTerm( 0, 0 );
+
+      thisTerm = ( m_ampManager.productionAmp( *amp ) * 
                    conj( m_ampManager.productionAmp( *conjAmp ) ) *
-                   m_normInt.normInt( *amp, *conjAmp, useCachedIntegrals ) );
+                  m_normInt.normInt( *amp, *conjAmp, useCachedIntegrals ) );
+              
+      if( m_ampManager.ampsAreRenormalized() ){
+        
+        thisTerm /=
+          sqrt( real( m_normInt.ampInt( *amp, *amp, useCachedIntegrals ) ) *
+                real( m_normInt.ampInt( *conjAmp, *conjAmp, useCachedIntegrals ) ) );
+      }
+      
+      normTerm += thisTerm;
       
       useCachedIntegrals = true;
     }
