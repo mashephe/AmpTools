@@ -56,6 +56,7 @@
 #endif	//GPU_ACCELERATION
 
 class Kinematics;
+class NormIntInterface;
 
 using namespace std;
 
@@ -162,7 +163,7 @@ public:
    *
    * \param[in] kinematics a pointer to a Kinematics object
    */
-        double calcIntensity( const Kinematics* kinematics ) const;
+  double calcIntensity( const Kinematics* kinematics ) const;
 
   /**
    * This function calculates and returns the sum of the log of the intensities
@@ -508,8 +509,45 @@ public:
    * derived by internally stored default values.
    */
 	void resetProductionAmplitudes();
-    
 
+  /**
+   * This will cause amplitude manager to renormalize amplitudes <b>in
+   * computations of the intensity only</b>.  Each amplitude will be
+   * multipled by a factor of \f$ 1 / \lang A_i(x) A_i^*(x) \rang \f$
+   * that comes from the normalization integral interface.
+   *
+   * This scaling is useful when fitting data as it results in a trivial
+   * relation between the fit parameters (production amplitudes) and
+   * the number of events associated with each amplitude.
+   *
+   * Results of calcAmplitudes or calcIntegrals will remain unchanged.
+   * Note that this is necessary to avoid a circular dependency.
+   *
+   * \param[in] normInt the interface to provide normalization integrals
+   *
+   * \see disableRenormalization
+   * \see ampsAreRenormalized
+   */
+  void renormalizeAmps( const NormIntInterface* normInt );
+
+  /**
+   * This function disables renormalization of amplitudes in the
+   * calculation of the intensity.
+   *
+   * \see renormalizeAmps
+   * \see ampsAreRenormalized
+   */
+  void disableRenormalization();
+  
+  /**
+   * This function checks to see whether amplitudes are renormalized
+   * in the intensity calculation.
+   *
+   * \see renormalizeAmps
+   * \see disableRenormalization
+   */
+  bool ampsAreRenormalized() const { return m_renormalizeAmps; }
+  
 private:
 	
 	// recursive routine to symmetrize final state
@@ -560,6 +598,9 @@ private:
 	// a vector to hold all of the symmetric combinations of final
 	// state particles
 	vector< vector< int > > m_symmCombos;
+  
+  bool m_renormalizeAmps;
+  const NormIntInterface* m_normInt;
     
 #ifdef GPU_ACCELERATION
 	
