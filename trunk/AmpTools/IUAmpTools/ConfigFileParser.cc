@@ -210,6 +210,8 @@ ConfigFileParser::getConfigurationInfo(){
 
     if ((*lineItr).keyword() == "initialize") doInitialize(*lineItr);
 
+    if ((*lineItr).keyword() == "scale") doScale(*lineItr);
+
   }
 
     cout << "ConfigFileParser INFO:  Finished FOURTH PASS" << endl;
@@ -345,6 +347,7 @@ ConfigFileParser::checkSyntax() const{
   keywordParameters["constrain"]     = pair<int,int>(6,100);
   keywordParameters["permute"]       = pair<int,int>(5,100);
   keywordParameters["parameter"]     = pair<int,int>(2,5);
+  keywordParameters["scale"]         = pair<int,int>(4,4);
 
   for (vector<ConfigFileLine>::const_iterator lineItr = m_configFileLines.begin();
        lineItr != m_configFileLines.end(); ++lineItr){
@@ -656,6 +659,35 @@ ConfigFileParser::doInitialize(const ConfigFileLine& line){
     line.printLine();
     exit(1);
   }
+}
+
+
+void
+ConfigFileParser::doScale(const ConfigFileLine& line){
+  vector<string> arguments = line.arguments();
+  string reaction = arguments[0];
+  string sumname  = arguments[1];
+  string ampname  = arguments[2];
+  string value    = arguments[3];
+  AmplitudeInfo* amplitude = m_configurationInfo->amplitude(reaction,sumname,ampname);
+  if (!amplitude){
+    cout << "ConfigFileParser ERROR:  trying to scale nonexistent amplitude " << endl;
+    line.printLine();
+    exit(1);
+  }
+  if ((value.size() > 0) && (value[0] == '[') and (value[value.size()-1] == ']')){
+    string parname("");
+    for (unsigned int k = 1; k < value.size()-1; k++){
+      parname += value[k];
+    }
+    ParameterInfo* parinfo = m_configurationInfo->parameter(parname);
+    if (!parinfo){
+      cout << "ConfigFileParser ERROR:  can't find parameter " << parname << endl;
+      line.printLine();
+      exit(1);
+    }
+  }
+  amplitude->setScale(value);
 }
 
 

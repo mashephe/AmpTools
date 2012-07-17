@@ -550,6 +550,7 @@ AmplitudeInfo::display(string fileName, bool append){
   cout << "      INITIAL VALUE:  " << m_value << endl;
   cout << "               REAL?  " << m_real << endl;
   cout << "              FIXED?  " << m_fixed << endl;
+  cout << "              SCALE:  " << m_scale << endl;
 
   if (fileName != ""){
     outfile.close();
@@ -779,6 +780,7 @@ AmplitudeInfo::clear(){
   m_value = complex<double>(0.0,0.0);
   m_real = false;
   m_fixed = false;
+  m_scale = "1.0";
   m_parameters.clear();
 }
 

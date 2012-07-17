@@ -150,6 +150,7 @@ class ConfigFileParser
     void doInitialize    (const ConfigFileLine& line);
     void doPermute       (const ConfigFileLine& line);
     void doConstrain     (const ConfigFileLine& line);
+    void doScale         (const ConfigFileLine& line);
 
 
       // Member data
