@@ -1,0 +1,163 @@
+#include <iostream>
+#include <string>
+#include "TString.h"
+#include "TH1F.h"
+#include "TFile.h"
+#include "TGenPhaseSpace.h"
+#include "CLHEP/Vector/LorentzVector.h"
+#include "IUAmpTools/Kinematics.h"
+#include "IUAmpTools/AmplitudeManager.h"
+#include "IUAmpTools/ConfigFileParser.h"
+#include "IUAmpTools/ConfigurationInfo.h"
+#include "DalitzDataIO/DalitzDataReader.h"
+#include "DalitzDataIO/DalitzDataWriter.h"
+#include "DalitzAmp/BreitWigner.h"
+
+
+using namespace std;
+
+int main(int argc, char** argv){
+
+
+    // ************************
+    // usage
+    // ************************
+
+  cout << endl << " *** Generating Events According to Amplitudes *** " << endl << endl;
+
+  if (argc <= 3){
+    cout << "Usage:" << endl << endl;
+    cout << "\tgeneratePhysics <config file name> <output file name> <number of events>" << endl << endl;
+    return 0;
+  }
+
+
+    // ************************
+    // parse the command line parameters
+    // ************************
+
+  string cfgname(argv[1]);
+  string outfilename(argv[2]);
+  int nevents(atoi(argv[3]));
+
+  cout << "Config file name = " << cfgname << endl << endl;
+  cout << "Output file name = " << outfilename << endl;
+  cout << "Number of events = " << nevents << endl << endl;
+
+
+    // ************************
+    // parse the config file
+    // ************************
+
+  ConfigFileParser parser(cfgname);
+  ConfigurationInfo* cfgInfo = parser.getConfigurationInfo();
+  cfgInfo->display();
+
+  ReactionInfo* reaction = cfgInfo->reactionList()[0];
+
+
+    // ************************
+    // create an AmplitudeManager
+    // ************************
+
+  cout << endl << endl;
+  cout << "Creating AmplitudeManager for reaction " << reaction->reactionName() << endl;
+  AmplitudeManager ampMan(reaction->particleList(),reaction->reactionName());
+  ampMan.registerAmplitudeFactor( BreitWigner() );
+  ampMan.setupFromConfigurationInfo( cfgInfo );
+  cout << "... Finished creating AmplitudeManager" << endl;
+
+
+    // ************************
+    // create a DataWriter
+    // ************************
+
+  cout << "Creating a Data Writer..." << endl;
+  DalitzDataWriter dataWriter(outfilename);
+  cout << "... Finished creating a Data Writer" << endl << endl;
+
+
+    // ************************
+    // use ROOT to generate phase space
+    // ************************
+
+  TGenPhaseSpace generator;
+  TLorentzVector parent(0.0, 0.0, 0.0, 3.0);
+  double daughterMasses[3] = {0.2, 0.2, 0.2};
+  generator.SetDecay(parent, 3, daughterMasses);
+  double maxWeight = generator.GetWtMax();
+
+
+    // ************************
+    // first generate a set of phase space events
+    // ************************
+
+  cout << "generating phase space..." << endl;
+
+  AmpVecs packedSummary;
+
+  for (int i = 0; i < nevents; i++){
+
+      // generate the decay
+
+    double weight = generator.Generate();
+    if (weight < drand48() * maxWeight){
+      i--;  continue;
+    }
+
+
+      // pack the decay products into a Kinematics object
+
+    vector<HepLorentzVector> fourvectors;
+    TLorentzVector* p1 = generator.GetDecay(0);
+    TLorentzVector* p2 = generator.GetDecay(1);
+    TLorentzVector* p3 = generator.GetDecay(2);
+    fourvectors.push_back(HepLorentzVector(p1->Px(),p1->Py(),p1->Pz(),p1->E()));
+    fourvectors.push_back(HepLorentzVector(p2->Px(),p2->Py(),p2->Pz(),p2->E()));
+    fourvectors.push_back(HepLorentzVector(p3->Px(),p3->Py(),p3->Pz(),p3->E()));
+    Kinematics* kin = new Kinematics(fourvectors);
+
+
+      // load events into the AmpVecs object
+
+    packedSummary.loadEvent(kin,i,nevents);
+
+    delete kin;
+
+  }
+
+  packedSummary.allocateAmps(ampMan,true);
+
+  cout << "... finished generating phase space" << endl;
+
+    
+    // ************************
+    // calculate intensities for all events
+    // ************************
+
+  cout << "calculating intensities..." << endl;
+  double maxIntensity = 1.2 * ampMan.calcIntensities(packedSummary);
+  cout << "... finished calculating intensities" << endl;
+
+
+    // ************************
+    // loop over all events again and do accept/reject
+    // ************************
+
+  cout << "doing accept/reject..." << endl;
+  for (int i = 0; i < nevents; i++){
+    double intensity = packedSummary.m_pdIntensity[i]; 
+    double rndm = drand48() * maxIntensity;
+    if (intensity > rndm){
+      Kinematics* kin = packedSummary.getEvent(i);
+      dataWriter.writeEvent(*kin);
+      delete kin;
+    }
+  }
+  cout << "... finished doing accept/reject" << endl;
+
+  cout << "KEPT " << dataWriter.eventCounter() << " events" << endl;
+
+
+
+}
