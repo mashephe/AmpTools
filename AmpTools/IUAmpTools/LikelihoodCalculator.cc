@@ -132,7 +132,7 @@ LikelihoodCalculator::dataTerm(){
     // first calculation -- need to load the data
     
     cout << "Allocating Data and Amplitude Array in LikelihoodCalculator for " 
-         << m_ampManager.finalStateName() << "..." << endl;
+         << m_ampManager.reactionName() << "..." << endl;
     
     m_ampVecs.loadData( &m_dataReader );
     m_ampVecs.allocateAmps( m_ampManager, true );  
