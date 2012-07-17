@@ -53,27 +53,27 @@
 #include "IUAmpTools/NormIntInterface.h"
 #include "IUAmpTools/Kinematics.h"
 
-AmplitudeManager::AmplitudeManager( const vector< string >& finalState, 
-                                   const string& finalStateName) :
-m_finalStateName(finalStateName),
+AmplitudeManager::AmplitudeManager( const vector< string >& reaction, 
+                                   const string& reactionName) :
+m_reactionName(reactionName),
 m_renormalizeAmps( false ),
 m_normInt( NULL )
 {
-  cout << "Creating amplitude manager for final state:" << endl;
+  cout << "Creating amplitude manager for reaction:" << endl;
 	
   // a list of index switches needed to generate the symmetrized amplitude
   // group the switches by particle type
   // dump out some information
   map< string, vector< pair< int, int > > > swapsByType;
-  for( unsigned int i = 0; i < finalState.size(); ++i ){
+  for( unsigned int i = 0; i < reaction.size(); ++i ){
 		
-    cout << "\t" << finalState[i] << " -->> " << i << endl;
+    cout << "\t" << reaction[i] << " -->> " << i << endl;
 		
-    for( unsigned int j = i + 1; j < finalState.size(); ++j ){
+    for( unsigned int j = i + 1; j < reaction.size(); ++j ){
 			
-      if( finalState[i] == finalState[j] ){
+      if( reaction[i] == reaction[j] ){
 				
-        swapsByType[finalState[i]].push_back( pair< int, int >( i, j ) );
+        swapsByType[reaction[i]].push_back( pair< int, int >( i, j ) );
       }
     }
   }
@@ -97,8 +97,8 @@ m_normInt( NULL )
   // setup the vector of symmetric combinations -- first initialize
   // it with numberOfCombos copies of the default ordering
   // then go in and make the swaps	
-  vector< int > defaultOrder( finalState.size() );
-  for( unsigned int i = 0; i < finalState.size(); ++i ){
+  vector< int > defaultOrder( reaction.size() );
+  for( unsigned int i = 0; i < reaction.size(); ++i ){
 		
     defaultOrder[i] = i;
   }
@@ -129,7 +129,7 @@ m_normInt( NULL )
 	
   for( unsigned int i = 0; i < m_symmCombos.size(); ++i ){
 		
-    for( unsigned int j = 0; j < finalState.size(); ++j ){
+    for( unsigned int j = 0; j < reaction.size(); ++j ){
 			
       cout << "\t" << m_symmCombos[i][j];
     }
@@ -687,7 +687,7 @@ AmplitudeManager::setupFromConfigurationInfo( const ConfigurationInfo* configInf
   vector< string > sumName;
   
   // loop over amplitudes in the ConfigurationInfo
-  vector<AmplitudeInfo*> ampInfoVector = configInfo->amplitudeList(m_finalStateName);
+  vector<AmplitudeInfo*> ampInfoVector = configInfo->amplitudeList(m_reactionName);
   for (unsigned int i = 0; i < ampInfoVector.size(); i++){
     
     string ampName = ampInfoVector[i]->fullName();

@@ -92,13 +92,13 @@ public:
    * argument.  Particles with identical string identifiers will be automatically
    * permuted when the intesnity is calculated.
    * 
-   * \param[in] finalStateName an optional name for the final state
+   * \param[in] reactionName an optional name for the reaction
    *
    * \see getPermutations
    * \see addAmpPermutation
    */
 	AmplitudeManager( const vector< string >& finalState, 
-                    const string& finalStateName = ""); 
+                    const string& reactionName = ""); 
 
   /** Destructor.
    */
@@ -278,7 +278,7 @@ public:
    * This returns the name of the final state that was optionally passed
    * to the constructor of the AmplitudeManager.
    */
-  string finalStateName() const {return m_finalStateName;}
+  string reactionName() const {return m_reactionName;}
 
   /**
    * This return returns the complex production amplitude (\f$ V_i\f$) for a
@@ -548,6 +548,13 @@ public:
    */
   bool ampsAreRenormalized() const { return m_renormalizeAmps; }
   
+  /**
+   * This function returns the normalization 
+   */
+  double intensityScale() const { return *m_intensityScale; }
+  
+  void setIntensityScalePtr( const double* scalePtr ) { m_intensityScale = scalePtr; }
+  
 private:
 	
 	// recursive routine to symmetrize final state
@@ -555,7 +562,7 @@ private:
                                vector< vector< pair< int, int > > > remainingSwaps,
                                const vector< int >& defaultOrder );
   
-  string m_finalStateName;
+  string m_reactionName;
   
 	// check to see if amplitudes have already been symmetrized so user can
 	// be warned if additional amplitudes are added after symmetrization is done
@@ -599,6 +606,11 @@ private:
 	// state particles
 	vector< vector< int > > m_symmCombos;
   
+  // this tracks the integral of the intensity
+  const double* m_intensityScale;
+  double m_defaultIntensityScale;
+  
+  // a flag to track if we are renormalizing the amplitudes
   bool m_renormalizeAmps;
   const NormIntInterface* m_normInt;
     
