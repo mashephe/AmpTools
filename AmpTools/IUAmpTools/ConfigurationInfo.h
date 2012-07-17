@@ -773,7 +773,9 @@ public:
   bool                       real()           const {return m_real;}
   bool                       fixed()          const {return m_fixed;}
   
-  
+  string                     scale()          const {return m_scale;} 
+
+
   //  Return a list of parameters (other than the production parameter)
   //    associated with this amplitude.
  
@@ -782,8 +784,8 @@ public:
    * that are associated with this amplitude.  
    */
   const vector < ParameterInfo* >&  parameters()     const {return m_parameters;}
-  
-  
+
+
   //  Display or clear information for this amplitude
 
   /**
@@ -849,6 +851,9 @@ public:
   void setReal           (bool real)               {m_real = real;}
   void setFixed          (bool fixed)              {m_fixed = fixed;}
   
+  void setScale          (string scale)            {m_scale = scale;}
+
+
   /**
    * This associates some amplitude parameter described by the ParameterInfo
    * objects with the current amplitude.
@@ -889,6 +894,7 @@ private:
   complex< double >            m_value;
   bool                         m_real;
   bool                         m_fixed;
+  string                       m_scale;
   vector< ParameterInfo* >     m_parameters;
   
 };
