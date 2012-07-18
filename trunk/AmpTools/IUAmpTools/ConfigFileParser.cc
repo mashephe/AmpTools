@@ -686,9 +686,11 @@ ConfigFileParser::doScale(const ConfigFileLine& line){
       line.printLine();
       exit(1);
     }
+    amplitude->addParameter(parinfo);
   }
   amplitude->setScale(value);
 }
+
 
 
 void
