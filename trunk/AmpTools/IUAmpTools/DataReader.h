@@ -55,10 +55,18 @@ class DataReader
 public:
 	
   /**
-   * This is the constructor.
+   * This is the default constructor.
    */
-	DataReader() {}
-  
+	DataReader( ) : 
+                   m_isDefault(true) { }
+
+  /**
+   * This constructor takes a list of arguments and stores them.
+   */
+	DataReader( const vector< string >& args ) :
+                    m_isDefault(false),
+                    m_args(args) { }
+
   /**
    * This is the destructor.
    */
@@ -104,6 +112,53 @@ public:
    * \see DataReaderMPI
    */
 	virtual unsigned int numEvents() const = 0;
+
+  /**
+   * The user should override this function with one that returns the 
+   * class name of the derived data reader.
+   */
+        virtual string name() const = 0;
+
+  /**
+   * The user should override this function with a function that can create
+   * a new data reader (of the derived type).
+   *
+   * This method should be virtual in the user's class if the DataReaderMPI 
+   * template is to be used.
+   *
+   * \see DataReaderMPI
+   */
+        virtual DataReader* newDataReader( const vector< string >& args ) const = 0;
+
+  /**
+   * The user should override this function with a function that can create
+   * a duplicate data reader (of the derived type).
+   *
+   * This method should be virtual in the user's class if the DataReaderMPI 
+   * template is to be used.
+   *
+   * \see DataReaderMPI
+   */
+        virtual DataReader* clone() const = 0;
+
+  /**
+   * Returns the list of arguments that was passed to the constructor.
+   */
+        vector<string> arguments() const { return m_args; }
+
+  /**
+   * Returns true if this instance was created using the default constructor
+   * and returns false otherwise.
+   */
+        bool isDefault() const { return ( m_isDefault == true ); }
+
+
+private:
+
+  bool m_isDefault;
+
+  vector<string> m_args;
+
     
 };
 

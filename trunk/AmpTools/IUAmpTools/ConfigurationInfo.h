@@ -64,7 +64,7 @@ class ParameterInfo;
  *            - ReactionInfo must contain a vector of particle names.
  *                 (These are used by the Kinematics class, for example,
  *                  to keep track of four-vectors.)
- *            - It also holds names of data files and MC files.
+ *            - It also holds instructions for how to read data and MC.
  *      -#  COHERENT SUMS (CoherentSumInfo Class)
  *            - Coherent sums are uniquely specified by a reaction name
  *                 and a sum name.
@@ -456,31 +456,31 @@ public:
   const vector<string>&    particleList()    const {return m_particleList;}
   
   
-  // Return file names that are associated with this reaction
+  // Return information about data and MC associated with this reaction
   
   /**
-   * Returns a vector of all data files that are associated with this
-   * reaction.
+   * Returns the name of a DataReader and a vector of arguments (e.g. file names)
+   * to that DataReader for DATA associated with this reaction.
    *
-   * \see addDataFile
+   * \see setData
    */
-  const vector<string>&    dataFiles()       const {return m_dataFiles;}
+  const pair< string, vector<string> >& data()  const {return m_data;}
 
   /**
-   * Returns a vector of all generated Monte Carlo files that are associated
-   * with this reaction.
+   * Returns the name of a DataReader and a vector of arguments (e.g. file names)
+   * to that DataReader for GENERATED MC associated with this reaction.
    *
-   * \see addGenMCFile
+   * \see setGenMC
    */
-  const vector<string>&    genMCFiles()      const {return m_genMCFiles;}
+  const pair< string, vector<string> >& genMC()  const {return m_genMC;}
 
   /**
-   * Returns a vector of all accepted Monte Carlo files that are associated
-   * with this reaction.
+   * Returns the name of a DataReader and a vector of arguments (e.g. file names)
+   * to that DataReader for ACCEPTED MC associated with this reaction.
    *
-   * \see addAccMCFile
+   * \see setAccMC
    */
-  const vector<string>&    accMCFiles()      const {return m_accMCFiles;}
+  const pair< string, vector<string> >& accMC()  const {return m_accMC;}
 
   /**
    * Returns the name of the file that the normalization integral cache
@@ -521,34 +521,40 @@ public:
   void  setParticleList (const vector<string>& particleList) {m_particleList = particleList;}
 
   /**
-   * Adds a data file to the list of data files for this reaction.  Information
-   * from multiple files will be concatenated.
+   * Sets the name of a DataReader and a vector of arguments (e.g. file names)
+   * to that DataReader for DATA associated with this reaction.
    *
-   * \param[in] dataFile name of the data file
+   * \param[in] classname the name of the DataReader that will read DATA
+   * \param[in] args arguments to the DataReader
    *
-   * \see dataFiles
+   * \see data
    */
-  void  addDataFile     (const string& dataFile)    {m_dataFiles.push_back(dataFile);}
+  void  setData   (const string& classname, const vector<string>& args)
+                            { m_data = pair<string, vector<string> >(classname,args); }
 
   /**
-   * Adds a generated Monte Carlo to the list of files for this reaction.  Information
-   * from multiple files will be concatenated.
+   * Sets the name of a DataReader and a vector of arguments (e.g. file names)
+   * to that DataReader for GENERATED MC associated with this reaction.
    *
-   * \param[in] genMCFile the name of the generated MC file
+   * \param[in] classname the name of the DataReader that will read GENERATED MC
+   * \param[in] args arguments to the DataReader
    *
-   * \see genMCFiles
+   * \see genMC
    */
-  void  addGenMCFile    (const string& genMCFile)   {m_genMCFiles.push_back(genMCFile);}
+  void  setGenMC   (const string& classname, const vector<string>& args)
+                            { m_genMC = pair<string, vector<string> >(classname,args); }
 
   /**
-   * Adds an accepted Monte Carlo to the list of files for this reaction. Information
-   * from multiple files will be concatenated.
+   * Sets the name of a DataReader and a vector of arguments (e.g. file names)
+   * to that DataReader for ACCEPTED MC associated with this reaction.
    *
-   * \param[in] accMCFile the name of the accepted MC file
+   * \param[in] classname the name of the DataReader that will read ACCEPTED MC
+   * \param[in] args arguments to the DataReader
    *
-   * \see accMCFiles
+   * \see accMC
    */
-  void  addAccMCFile    (const string& accMCFile)   {m_accMCFiles.push_back(accMCFile);}
+  void  setAccMC   (const string& classname, const vector<string>& args)
+                            { m_accMC = pair<string, vector<string> >(classname,args); }
 
   /**
    * Sets the name of the file to use as the normalization integral cache
@@ -562,12 +568,12 @@ public:
   
 private:
   
-  string          m_reactionName;
-  vector<string>  m_particleList;
-  vector<string>  m_dataFiles;
-  vector<string>  m_genMCFiles;
-  vector<string>  m_accMCFiles;
-  string          m_normIntFile;
+  string                         m_reactionName;
+  vector<string>                 m_particleList;
+  pair< string, vector<string> > m_data;
+  pair< string, vector<string> > m_genMC;
+  pair< string, vector<string> > m_accMC;
+  string                         m_normIntFile;
   
 };
 

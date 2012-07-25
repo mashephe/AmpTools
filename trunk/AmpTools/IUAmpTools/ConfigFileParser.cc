@@ -170,7 +170,11 @@ ConfigFileParser::getConfigurationInfo(){
     if (((*lineItr).keyword() == "datafile")  ||
         ((*lineItr).keyword() == "genmcfile") ||
         ((*lineItr).keyword() == "accmcfile") ||
-        ((*lineItr).keyword() == "normintfile")) doFileName(*lineItr);
+        ((*lineItr).keyword() == "data") ||
+        ((*lineItr).keyword() == "genmc") ||
+        ((*lineItr).keyword() == "accmc"))  doData(*lineItr);
+
+    if ((*lineItr).keyword() == "normintfile") doNormInt(*lineItr);
 
     if ((*lineItr).keyword() == "sum") doSum(*lineItr);
 
@@ -337,9 +341,9 @@ ConfigFileParser::checkSyntax() const{
   keywordParameters["keyword"]       = pair<int,int>(3,3);
   keywordParameters["fit"]           = pair<int,int>(1,1);
   keywordParameters["reaction"]      = pair<int,int>(3,100);
-  keywordParameters["datafile"]      = pair<int,int>(2,100);
-  keywordParameters["genmcfile"]     = pair<int,int>(2,100);
-  keywordParameters["accmcfile"]     = pair<int,int>(2,100);
+  keywordParameters["data"]          = pair<int,int>(2,100);
+  keywordParameters["genmc"]         = pair<int,int>(2,100);
+  keywordParameters["accmc"]         = pair<int,int>(2,100);
   keywordParameters["normintfile"]   = pair<int,int>(2,2);
   keywordParameters["sum"]           = pair<int,int>(2,100);
   keywordParameters["amplitude"]     = pair<int,int>(4,100);
@@ -348,6 +352,10 @@ ConfigFileParser::checkSyntax() const{
   keywordParameters["permute"]       = pair<int,int>(5,100);
   keywordParameters["parameter"]     = pair<int,int>(2,5);
   keywordParameters["scale"]         = pair<int,int>(4,4);
+    // these are deprecated, but print out an error message later
+  keywordParameters["datafile"]      = pair<int,int>(2,100);
+  keywordParameters["genmcfile"]     = pair<int,int>(2,100);
+  keywordParameters["accmcfile"]     = pair<int,int>(2,100);
 
   for (vector<ConfigFileLine>::const_iterator lineItr = m_configFileLines.begin();
        lineItr != m_configFileLines.end(); ++lineItr){
@@ -397,35 +405,51 @@ ConfigFileParser::doReaction(const ConfigFileLine& line){
 
 
 void
-ConfigFileParser::doFileName(const ConfigFileLine& line){
+ConfigFileParser::doData(const ConfigFileLine& line){
   vector<string> arguments = line.arguments();
-  string reaction = arguments[0];
-  vector<string> files (arguments.begin()+1, arguments.end());
+  string reaction  = arguments[0];
+  string classname = arguments[1];
+  vector<string> dataargs (arguments.begin()+2, arguments.end());
   ReactionInfo* rct = m_configurationInfo->reaction(reaction);
   if (!rct){
-    cout << "ConfigFileParser ERROR:  Can't associate filename with a reaction:  " << endl;
+    cout << "ConfigFileParser ERROR:  Can't associate data with a reaction:  " << endl;
     line.printLine();
     exit(1);
   }
   if (line.keyword() == "datafile"){
-    for (unsigned int i = 0; i < files.size(); i++){
-      rct->addDataFile(files[i]);
-    }
+    cout << "ConfigFileParser ERROR:  datafile is deprecated, use data" << endl;
+    line.printLine();
+    exit(1);
   }
   if (line.keyword() == "genmcfile"){
-    for (unsigned int i = 0; i < files.size(); i++){
-      rct->addGenMCFile(files[i]);
-    }
+    cout << "ConfigFileParser ERROR:  genmcfile is deprecated, use genmc" << endl;
+    line.printLine();
+    exit(1);
   }
   if (line.keyword() == "accmcfile"){
-    for (unsigned int i = 0; i < files.size(); i++){
-      rct->addAccMCFile(files[i]);
-    }
+    cout << "ConfigFileParser ERROR:  accmcfile is deprecated, use accmc" << endl;
+    line.printLine();
+    exit(1);
+  }
+  if (line.keyword() == "data")  rct->setData (classname, dataargs);
+  if (line.keyword() == "genmc") rct->setGenMC(classname, dataargs);
+  if (line.keyword() == "accmc") rct->setAccMC(classname, dataargs);
+}
+
+
+void
+ConfigFileParser::doNormInt(const ConfigFileLine& line){
+  vector<string> arguments = line.arguments();
+  string reaction = arguments[0];
+  string file = arguments[1];
+  ReactionInfo* rct = m_configurationInfo->reaction(reaction);
+  if (!rct){
+    cout << "ConfigFileParser ERROR:  Can't associate normintfile with a reaction:  " << endl;
+    line.printLine();
+    exit(1);
   }
   if (line.keyword() == "normintfile"){
-    for (unsigned int i = 0; i < files.size(); i++){
-      rct->setNormIntFile(files[i]);
-    }
+    rct->setNormIntFile(file);
   }
 }
 
