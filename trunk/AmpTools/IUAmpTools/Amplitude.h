@@ -65,7 +65,7 @@ class AmpParameter;
  * some physics process.  These amplitudes can be added to the AmplitudeManager
  * as factors that build-up a decay amplitude for a particular final state.
  * 
- * It is recommended that user factorize the physics amplitudes as much as
+ * It is recommended that the user factorize the physics amplitudes as much as
  * possible.  For example, a user may have an Amplitude class that defines
  * how to compute a Breit-Wigner and another Amplitude class that describes
  * some two-body angular distribution.  The complete decay amplitude for a
@@ -87,14 +87,24 @@ class Amplitude
 {
   
 public:
-	
-  /**
-   * The default constructor.  Users should define their own constructor
-   * which takes any parameters necessary to compute the amplitude.
-   */
-  
-  Amplitude(){}
 
+  /**
+   * The default constructor.  The user's derived class should contain a
+   * default constructor that calls this constructor.
+   */
+  Amplitude( ) : m_isDefault(true) { }
+
+  /**
+   * This constructor takes a list of arguments to inititialize an 
+   * amplitude and then stores them.  The user's derived class should
+   * contain a similar constructor that calls this one.
+   */
+  Amplitude( const vector< string >& args ) : m_isDefault(false),
+                                              m_args(args){ }
+
+  /**
+   * This is the destructor.
+   */
   virtual ~Amplitude(){}
 
   /**
@@ -132,6 +142,11 @@ public:
    * default constructor.
    */
   bool isDefault() const { return ( m_isDefault == true ); }
+
+  /**
+   * Returns the list of arguments that was passed to the constructor.
+   */
+  vector<string> arguments() const { return m_args; }
 
   /**
    * The user can override this to do specific one-time tasks that
@@ -327,18 +342,12 @@ protected:
    */
   inline const vector< int >& getCurrentPermutation() const { return m_currentPermutation; }
 
-  /**
-   * Change the default status flag of the Amplitude.
-   *
-   * \param[in] status a new status flag
-   *
-   * \see getDefaultStatus
-   */
-  void setDefaultStatus( bool status ) { m_isDefault = status; }
 
 private:
 
   bool m_isDefault;
+
+  vector<string> m_args;
   
   vector< AmpParameter* > m_registeredParams;
   
