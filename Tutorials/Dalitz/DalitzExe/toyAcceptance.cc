@@ -39,7 +39,9 @@ int main(int argc, char** argv){
     // ************************
 
   cout << "Creating a Data Reader..." << endl;
-  DalitzDataReader dataReader(infilename);
+  vector<string> args;
+  args.push_back(infilename);
+  DalitzDataReader dataReader(args);
   cout << "... Finished creating a Data Reader" << endl << endl;
 
 
