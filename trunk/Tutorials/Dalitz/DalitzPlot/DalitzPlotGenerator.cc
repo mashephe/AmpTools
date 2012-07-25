@@ -20,17 +20,17 @@ m_histVect( kNumHist )
     string name = (**react).reactionName();
     
     cout << "Caching data for reaction:  " << name << endl;
-    DalitzDataReader dataReader( (**react).dataFiles()[0] );
+    DalitzDataReader dataReader( (**react).data().second );
     m_dataMap[name].loadData( &dataReader );
     
     cout << "Caching accepted MC for reaction:  " << name << endl;
-    DalitzDataReader accMCReader( (**react).accMCFiles()[0] );
+    DalitzDataReader accMCReader( (**react).accMC().second );
     m_accMCMap[name].loadData( &accMCReader );
     m_accMCMap[name].allocateAmps( ampManager( name ), true );
     ampManager( name ).calcAmplitudes( m_accMCMap[name] );
     
     cout << "Caching generated MC for reaction:  " << name << endl;
-    DalitzDataReader genMCReader( (**react).genMCFiles()[0] );
+    DalitzDataReader genMCReader( (**react).genMC().second );
     m_genMCMap[name].loadData( &genMCReader );
     m_genMCMap[name].allocateAmps( ampManager( name ), true );
     ampManager( name ).calcAmplitudes( m_genMCMap[name] );

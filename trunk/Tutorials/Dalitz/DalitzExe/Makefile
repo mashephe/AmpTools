@@ -11,6 +11,16 @@ CXX := gcc
 #CXX_FLAGS := -O3 -m32
 CXX_FLAGS := -O3
 
+
+ifdef MPI
+
+CXX := mpicxx -cc=$(CXX)
+CXX_FLAGS += -DUSEMPI
+
+endif
+
+
+
 ifdef GPU
 
 INC_DIR += -I$(CUDA_INSTALL_PATH)/include

@@ -9,9 +9,13 @@
 #include "DalitzDataIO/DalitzDataReader.h"
 
 
-DalitzDataReader::DalitzDataReader( const string& inFileName,
-                                    const string& inTreeName ) :
+DalitzDataReader::DalitzDataReader( const vector< string >& args ) :
+                                    DataReader( args ),
                                     m_eventCounter( 0 ){
+
+  assert(args.size() == 1);
+  string inFileName(args[0]);
+  string inTreeName("nt");
 
   TH1::AddDirectory( kFALSE );
 
@@ -70,4 +74,15 @@ DalitzDataReader::getEvent(){
 unsigned int
 DalitzDataReader::numEvents() const{
   return static_cast< unsigned int >( m_inTree->GetEntries() );
+}
+
+DataReader*
+DalitzDataReader::newDataReader( const vector< string >& args ) const {
+  return new DalitzDataReader( args );
+}
+
+DataReader*
+DalitzDataReader::clone() const {
+  return ( isDefault() ? new DalitzDataReader() : 
+    new DalitzDataReader( arguments() ) );
 }

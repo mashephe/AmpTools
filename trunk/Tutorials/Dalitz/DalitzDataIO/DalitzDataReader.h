@@ -13,14 +13,24 @@ class DalitzDataReader : public DataReader{
 
 public:
 
-  DalitzDataReader( const string& inFileName, 
-                    const string& inTreeName = "nt" );
+  DalitzDataReader() : DataReader() { }
 
-  Kinematics* getEvent();
-  void resetSource();
+  DalitzDataReader( const vector< string >& args );
 
-  unsigned int numEvents() const;
+  string name() const { return "DalitzDataReader"; }
+
+  virtual Kinematics* getEvent();
+
+  virtual void resetSource();
+
+  virtual unsigned int numEvents() const;
+
   int eventCounter() const { return m_eventCounter; }
+
+  virtual DataReader* newDataReader( const vector< string >& args ) const;
+
+  virtual DataReader* clone() const;
+
 
 private:
 

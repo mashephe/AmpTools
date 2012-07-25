@@ -74,8 +74,10 @@ int main(int argc, char** argv){
       // ************************
 
     cout << "Creating Data Reader..." << endl;
-    //DalitzDataReader dataReader(reactions[irct]->dataFiles()[0]);
-    DalitzDataReader dataReader(infilename);
+    //DalitzDataReader dataReader(reactions[irct]->dataFiles());
+    vector<string> args;
+    args.push_back(infilename);
+    DalitzDataReader dataReader(args);
     cout << "... Finished creating Data Reader" << endl << endl << endl;
 
 

@@ -90,9 +90,9 @@ int main( int argc, char* argv[] ){
     // create DataReaders
     // ************************
 
-  DalitzDataReader dataDataReader(reaction->dataFiles()[0]);
-  DalitzDataReader genDataReader(reaction->genMCFiles()[0]);
-  DalitzDataReader accDataReader(reaction->accMCFiles()[0]);
+  DalitzDataReader dataDataReader(reaction->data().second);
+  DalitzDataReader genDataReader(reaction->genMC().second);
+  DalitzDataReader accDataReader(reaction->accMC().second);
 
 
     // ************************
