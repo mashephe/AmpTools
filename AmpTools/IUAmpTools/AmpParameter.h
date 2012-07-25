@@ -84,6 +84,11 @@ public:
   AmpParameter( const AmpParameter& ampPar );
 
   /**
+   * The assignment operator (similar to the copy constructor).
+   */
+  AmpParameter& operator=( const AmpParameter& ampPar );
+
+  /**
    * A function to return the string name of this parameter.
    */
   string name() const { return m_name; }
@@ -93,7 +98,7 @@ public:
    * compares the values of the pointers.
    */
   bool operator==( const AmpParameter& otherPar ) const;
-  
+
   /**
    * An operator for interpreting the class as a double.
    */

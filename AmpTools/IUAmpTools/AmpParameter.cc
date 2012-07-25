@@ -83,6 +83,27 @@ m_name( ampPar.name() ) {
   }
 }
 
+
+AmpParameter&
+AmpParameter::operator=( const AmpParameter& ampPar ){
+  m_defaultValue = ampPar;
+  m_name = ampPar.name();
+
+  if( ampPar.hasExternalPtr() ){
+
+    m_valPtr = ampPar.valPtr();
+    m_hasExternalPtr = true;
+  }
+  else{
+    
+    m_valPtr = &m_defaultValue;
+    m_hasExternalPtr = false;
+  }
+
+  return *this;
+}
+
+
 bool
 AmpParameter::operator==( const AmpParameter& otherPar ) const {
   
