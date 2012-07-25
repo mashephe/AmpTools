@@ -446,17 +446,17 @@ ReactionInfo::display(string fileName, bool append){
   for (unsigned int i = 0; i < m_particleList.size(); i++){
     cout << "\t\t" << i+1 << ".  " << m_particleList[i] << endl;
   }
-  cout << "         DATA FILES:  " << m_dataFiles.size() << endl;
-  for (unsigned int i = 0; i < m_dataFiles.size(); i++){
-    cout << "\t\t" << i+1 << ".  " << m_dataFiles[i] << endl;
+  cout << "        DATA READER:  " << m_data.first << endl;
+  for (unsigned int i = 0; i < m_data.second.size(); i++){
+    cout << "\t\t\t\t" << m_data.second[i] << endl;
   }
-  cout << " GENERATED MC FILES:  " << m_genMCFiles.size() << endl;
-  for (unsigned int i = 0; i < m_genMCFiles.size(); i++){
-    cout << "\t\t" << i+1 << ".  " << m_genMCFiles[i] << endl;
+  cout << "      ACC MC READER:  " << m_accMC.first << endl;
+  for (unsigned int i = 0; i < m_accMC.second.size(); i++){
+    cout << "\t\t\t\t" << m_accMC.second[i] << endl;
   }
-  cout << "  ACCEPTED MC FILES:  " << m_accMCFiles.size() << endl;
-  for (unsigned int i = 0; i < m_accMCFiles.size(); i++){
-    cout << "\t\t" << i+1 << ".  " << m_accMCFiles[i] << endl;
+  cout << "      GEN MC READER:  " << m_genMC.first << endl;
+  for (unsigned int i = 0; i < m_genMC.second.size(); i++){
+    cout << "\t\t\t\t" << m_genMC.second[i] << endl;
   }
   cout << "  NORMALIZATION INTEGRAL FILE: " << endl;
   if (m_normIntFile != "")  cout << "\t\t    " << m_normIntFile << endl;
@@ -766,9 +766,10 @@ AmplitudeInfo::removeParameter (ParameterInfo* parameter){
 
 void
 ReactionInfo::clear(){
-  m_dataFiles.clear();
-  m_genMCFiles.clear();
-  m_accMCFiles.clear();
+  vector<string> empty;
+  m_data  = pair<string, vector<string> >("",empty);
+  m_genMC = pair<string, vector<string> >("",empty);
+  m_accMC = pair<string, vector<string> >("",empty);
   m_normIntFile = "";
 }
 

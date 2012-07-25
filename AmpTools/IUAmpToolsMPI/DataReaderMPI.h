@@ -21,14 +21,13 @@ struct KinStruct {
 
 /**
  * This is a template that can be used to turn a user-defined DataReader
- * object into parallel data reader using MPI.  Use of this template will
+ * object into a parallel data reader using MPI.  Use of this template will
  * cause the data to be distributed evenly amongst the worker nodes.  Each
  * of the instances of this class on the worker nodes will behave as if
- * they have only a subset of the data.  The instantance of it on the master
- * node will behave as if it has all of the data.  Note that the only requirement
- * to use this template is that user-defined class be able to be constructed
- * with two strings.  Also be sure that the getEvent, resetSource, and
- * numEvents methods in the user-defiend class are declared virtual.
+ * they have only a subset of the data.  The instance of it on the master
+ * node will behave as if it has all of the data.  Be sure that the getEvent, 
+ * resetSource, numEvents, newDataReader, and clone methods in the 
+ * user-defiend class are declared virtual.
  *
  * \ingroup IUAmpToolsMPI
  */
@@ -38,27 +37,29 @@ class DataReaderMPI : public T
 {
   
 public:
-  
+
   /**
-   * This is the constructor for the templated class.  There is a bit of
-   * a limitation here in that the (supposedly generic) data reader must 
-   * be able to construct itself based on two string arguments.  This is 
-   * typically sufficient, e.g. a ROOT file name and a tree name or just 
-   * file name.  If it becomes too limiting a new solution should be developed.  
-   * For now it is worth accepting this limiation to avoiding requiring the user
-   * to write the MPI-based data reader class.
+   * This is the default constructor.
    */
-  
-  DataReaderMPI( const string& arg1 = "", 
-                 const string& arg2 = "" );
+
+  DataReaderMPI() : T() { }
+
+  /**
+   * This is the constructor for the templated class, which takes as
+   * input a vector of arguments (as in the base class).
+   */
+
+  DataReaderMPI( const vector<string>& args );
   
   ~DataReaderMPI();
   
-  // override these functions with a parallelized versions -- it is very 
+  // override these functions with parallelized versions -- it is very 
   // important that the methods in the base class be declared virtual!
   
   Kinematics* getEvent();
   void resetSource();
+  DataReader* newDataReader( const vector< string >& args ) const;
+  DataReader* clone() const;
   
   unsigned int numEvents() const;
   
@@ -88,9 +89,12 @@ private:
 };
 
 
+
+
+
 template< class T >
-DataReaderMPI<T>::DataReaderMPI( const string& arg1, const string& arg2 ) : 
-  T( arg1, arg2 ),
+DataReaderMPI<T>::DataReaderMPI( const vector< string >& args ) : 
+  T( args ),
   m_ptrCache( 0 ),
   m_ptrItr( m_ptrCache.begin() )
 {
@@ -348,6 +352,25 @@ void DataReaderMPI<T>::defineMPIType()
   MPI_Type_struct( 6, length, loc, type, &MPI_KinStruct );
   MPI_Type_commit( &MPI_KinStruct );
   
+}
+
+
+template< class T >
+DataReader*
+DataReaderMPI<T>::newDataReader( const vector< string >& args ) const {
+
+  return new DataReaderMPI<T>( args );
+
+}
+
+
+template< class T >
+DataReader*
+DataReaderMPI<T>::clone() const {
+
+  return ( this->isDefault() ? new DataReaderMPI<T>() : 
+    new DataReaderMPI<T>( this->arguments() ) );
+
 }
 
 
