@@ -358,18 +358,6 @@ GPUManager::copyAmpsToGPU( const AmpVecs& a )
   
 }
 
-void
-GPUManager::setParamPtrs(  const vector< const complex< double >* >& pvpFitPars )
-{
-	m_vpFitPars = pvpFitPars;
-}
-
-void
-GPUManager::setCoherenceMatrix( const vector< vector < bool > >& cohMtx ){
-  
-  m_vbSumCoherently = cohMtx;
-}
-
 void 
 GPUManager::calcAmplitudeAll( const Amplitude* amp, GDouble* pcResAmp, 
                               const vector< vector< int > >* pvPermutations )
@@ -439,7 +427,9 @@ GPUManager::calcAmplitudeAll( const Amplitude* amp, GDouble* pcResAmp,
   }    
 }
 
-double GPUManager::calcSumLogIntensity()
+double
+GPUManager::calcSumLogIntensity( const vector< complex< double > >& prodCoef,
+                                 const vector< vector< bool > >& cohMtx )
 {
   
   // be sure memory has been allocated for intensity computation
@@ -453,13 +443,13 @@ double GPUManager::calcSumLogIntensity()
 	for( i = 0; i< m_iNAmps; i++) {
 		for( j = 0; j <= i; j++ ) {
       
-			cdFij = (*(m_vpFitPars[i])) * conj(*(m_vpFitPars[j]));
+			cdFij = prodCoef[i] * prodCoef[j];
       
       // here is the transition from double -> GDouble
 			m_pfVRe[i*(i+1)/2+j] = 
-        ( m_vbSumCoherently[i][j] ? static_cast< GDouble >( cdFij.real() ) : 0 );
+        ( cohMtx[i][j] ? static_cast< GDouble >( cdFij.real() ) : 0 );
 			m_pfVIm[i*(i+1)/2+j] = 
-        ( m_vbSumCoherently[i][j] ? static_cast< GDouble >( cdFij.imag() ) : 0 );
+        ( cohMtx[i][j] ? static_cast< GDouble >( cdFij.imag() ) : 0 );
     }
   }
 	  
