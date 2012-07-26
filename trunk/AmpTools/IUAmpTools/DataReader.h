@@ -37,6 +37,11 @@
 // any other party arising from use of the program.
 //******************************************************************************
 
+#include <string>
+#include <vector>
+
+using namespace std;
+
 class Kinematics;
 
 /**
