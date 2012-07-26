@@ -76,9 +76,8 @@ public:
   
 	// Now the intensity calculator
 	void copyAmpsToGPU( const AmpVecs& a );
-	void setParamPtrs( const vector< const complex< double >* >& pvpFitPars );
-  void setCoherenceMatrix( const vector< vector < bool > >& cohMtx );
-	double calcSumLogIntensity();
+	double calcSumLogIntensity( const vector< complex< double > >& prodCoef,
+                              const vector< vector< bool > >& cohMtx );
 
 	// General utils:
   static int calcNEventsGPU( int iNEvents ){
@@ -110,10 +109,7 @@ private:
 	
 	//Host Arrays
 	GDouble* m_pcCalcAmp;
-	
-	vector< const complex< double >* > m_vpFitPars;
-  vector< vector< bool > > m_vbSumCoherently;
-  
+	  
 	GDouble* m_pfAmpRe;
 	GDouble* m_pfAmpIm;
 	GDouble* m_pfVRe;
