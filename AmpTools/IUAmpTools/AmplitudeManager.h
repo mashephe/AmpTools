@@ -45,6 +45,7 @@
 #include <complex>
 
 #include "IUAmpTools/Amplitude.h"
+#include "IUAmpTools/AmpParameter.h"
 #include "IUAmpTools/DataReader.h"
 #include "IUAmpTools/AmpVecs.h"
 #include "IUAmpTools/ConfigurationInfo.h"
@@ -357,7 +358,8 @@ public:
    * \see Amplitude::newAmplitude
    */  
 	void addAmpFactor( const string& ampName, const string& factorName, 
-                     const vector< string >& args, const string& sum = "" );
+                     const vector< string >& args, const string& sum = "",
+                     const string& scale = "1.0" );
     
   /**
    * This adds an additional permutation to any amplitude that is has not
@@ -501,7 +503,7 @@ public:
    * \see Amplitude::updatePar
    */
   void updateAmpPar( const string& parName ) const;
-  
+    
   /**
    * This resets all of the production amplitudes to their default values.
    * If production amplitudes were referenced from external pointers, this
@@ -519,6 +521,14 @@ public:
    * This scaling is useful when fitting data as it results in a trivial
    * relation between the fit parameters (production amplitudes) and
    * the number of events associated with each amplitude.
+   *
+   * This feature should be used with caution when coupled with constraints
+   * on the production parameters.  If two amplitudes are constrained
+   * to have the same production coefficient and have the same
+   * scale, turning on renormalization will essentially for the two
+   * amplitudes to have the same number of events in the fit.
+   *
+   * The default behavior is to have renormalization turned off.
    *
    * Results of calcAmplitudes or calcIntegrals will remain unchanged.
    * Note that this is necessary to avoid a circular dependency.
@@ -613,6 +623,8 @@ private:
   // a flag to track if we are renormalizing the amplitudes
   bool m_renormalizeAmps;
   const NormIntInterface* m_normInt;
+  
+  vector< AmpParameter > m_ampScaleVec;
     
 #ifdef GPU_ACCELERATION
 	
@@ -624,7 +636,7 @@ private:
   // cheat for now -- GPUManager class still isn't quite "const correct"
   mutable GPUManager m_dataGPUManGTX;	
   mutable GPUManager m_mcGPUManGTX;
-	
+  	
 #endif //GPU_ACCELERATION
   
 };
