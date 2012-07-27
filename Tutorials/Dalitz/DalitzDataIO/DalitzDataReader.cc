@@ -10,7 +10,7 @@
 
 
 DalitzDataReader::DalitzDataReader( const vector< string >& args ) :
-                                    DataReader( args ),
+                                    UserDataReader< DalitzDataReader >(args),
                                     m_eventCounter( 0 ){
 
   assert(args.size() == 1);
@@ -76,13 +76,3 @@ DalitzDataReader::numEvents() const{
   return static_cast< unsigned int >( m_inTree->GetEntries() );
 }
 
-DataReader*
-DalitzDataReader::newDataReader( const vector< string >& args ) const {
-  return new DalitzDataReader( args );
-}
-
-DataReader*
-DalitzDataReader::clone() const {
-  return ( isDefault() ? new DalitzDataReader() : 
-    new DalitzDataReader( arguments() ) );
-}

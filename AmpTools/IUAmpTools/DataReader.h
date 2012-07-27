@@ -48,8 +48,8 @@ class Kinematics;
  * This base class provides an interface to data.
  *
  * It is intended that the user writes a functional data reader that
- * inherits from this class and defines the necessary virtual member
- * functions for accessing data.
+ * inherits indirectly from this class (through the UserDataReader class)
+ * and defines the necessary virtual member functions for accessing data.
  *
  * \ingroup IUAmpTools
  */
@@ -125,24 +125,18 @@ public:
         virtual string name() const = 0;
 
   /**
-   * The user should override this function with a function that can create
-   * a new data reader (of the derived type).
+   * This method is overridden by the UserDataReader class and does not
+   * need to be defined (or used) by the user.
    *
-   * This method should be virtual in the user's class if the DataReaderMPI 
-   * template is to be used.
-   *
-   * \see DataReaderMPI
+   * \see UserDataReader
    */
         virtual DataReader* newDataReader( const vector< string >& args ) const = 0;
 
   /**
-   * The user should override this function with a function that can create
-   * a duplicate data reader (of the derived type).
+   * This method is overridden by the UserDataReader class and does not
+   * need to be defined (or used) by the user.
    *
-   * This method should be virtual in the user's class if the DataReaderMPI 
-   * template is to be used.
-   *
-   * \see DataReaderMPI
+   * \see UserDataReader
    */
         virtual DataReader* clone() const = 0;
 
