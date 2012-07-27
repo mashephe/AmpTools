@@ -6,14 +6,15 @@
 #include "TFile.h"
 #include "TTree.h"
 #include "IUAmpTools/DataReader.h"
+#include "IUAmpTools/UserDataReader.h"
 
 using namespace std;
 
-class DalitzDataReader : public DataReader{
+class DalitzDataReader : public UserDataReader< DalitzDataReader >{
 
 public:
 
-  DalitzDataReader() : DataReader() { }
+  DalitzDataReader() : UserDataReader< DalitzDataReader >() { }
 
   DalitzDataReader( const vector< string >& args );
 
@@ -26,10 +27,6 @@ public:
   virtual unsigned int numEvents() const;
 
   int eventCounter() const { return m_eventCounter; }
-
-  virtual DataReader* newDataReader( const vector< string >& args ) const;
-
-  virtual DataReader* clone() const;
 
 
 private:
