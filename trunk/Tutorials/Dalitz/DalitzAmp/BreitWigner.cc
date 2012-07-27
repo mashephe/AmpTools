@@ -8,7 +8,7 @@
 #include "DalitzAmp/BreitWigner.h"
 
 BreitWigner::BreitWigner( const vector< string >& args ) :
-Amplitude(args)
+UserAmplitude< BreitWigner >(args)
 {
 
   assert( args.size() == 4 );
@@ -56,16 +56,3 @@ BreitWigner::launchGPUKernel( dim3 dimGrid, dim3 dimBlock, GPU_AMP_PROTO ) const
 
 }
 #endif //GPU_ACCELERATION
-
-
-BreitWigner*
-BreitWigner::newAmplitude( const vector< string >& args ) const {
-  return new BreitWigner( args );
-}
-
-BreitWigner*
-BreitWigner::clone() const {
-  return ( isDefault() ? new BreitWigner() : 
-    new BreitWigner( arguments() ) );
-}
-
