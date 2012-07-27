@@ -125,8 +125,13 @@ public:
    * of strings (arguments) into a pointer to a new instance of the
    * users defined amplitude.
    *
+   * The user can avoid writing this method by inheriting from the
+   * UserAmplitude class (which derives from this class).
+   *
    * \param[in] args a list of string arguments that may, for example, be
    * specified in a configuration file
+   *
+   *  \see UserAmplitude
    */
   virtual Amplitude* newAmplitude( const vector< string >& args ) const = 0;
 	
@@ -134,6 +139,11 @@ public:
    * A function that the user must write that indicates how an amplitude
    * can duplicate itself.  It returns a pointer to a new instance of the
    * Amplitude that behaves in exactly the same way as the original.
+   *
+   * The user can avoid writing this method by inheriting from the
+   * UserAmplitude class (which derives from this class).
+   *
+   *  \see UserAmplitude
    */
   virtual Amplitude* clone() const = 0;
   

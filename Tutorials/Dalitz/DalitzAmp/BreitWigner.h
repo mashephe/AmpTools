@@ -2,6 +2,7 @@
 #define BREITWIGNER
 
 #include "IUAmpTools/Amplitude.h"
+#include "IUAmpTools/UserAmplitude.h"
 #include "IUAmpTools/AmpParameter.h"
 #include "GPUManager/GPUCustomTypes.h"
 
@@ -23,11 +24,11 @@ using namespace std;
 
 class Kinematics;
 
-class BreitWigner : public Amplitude{
+class BreitWigner : public UserAmplitude< BreitWigner >{
 
 public:
 
-  BreitWigner() : Amplitude() { }
+  BreitWigner() : UserAmplitude< BreitWigner >() { }
 
   BreitWigner( const vector< string >& args );
 
@@ -36,10 +37,6 @@ public:
   string name() const { return "BreitWigner"; }
 
   complex< GDouble > calcAmplitude( GDouble** pKin ) const;
-
-  BreitWigner* newAmplitude( const vector< string >& args ) const;
-
-  BreitWigner* clone() const;
 
 #ifdef GPU_ACCELERATION
 
