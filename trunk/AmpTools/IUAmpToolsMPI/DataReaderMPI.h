@@ -26,8 +26,8 @@ struct KinStruct {
  * of the instances of this class on the worker nodes will behave as if
  * they have only a subset of the data.  The instance of it on the master
  * node will behave as if it has all of the data.  Be sure that the getEvent, 
- * resetSource, numEvents, newDataReader, and clone methods in the 
- * user-defiend class are declared virtual.
+ * resetSource, and numEvents methods in the user-defined class are declared
+ * virtual.
  *
  * \ingroup IUAmpToolsMPI
  */
@@ -57,9 +57,8 @@ public:
   // important that the methods in the base class be declared virtual!
   
   Kinematics* getEvent();
+
   void resetSource();
-  DataReader* newDataReader( const vector< string >& args ) const;
-  DataReader* clone() const;
   
   unsigned int numEvents() const;
   
@@ -353,25 +352,5 @@ void DataReaderMPI<T>::defineMPIType()
   MPI_Type_commit( &MPI_KinStruct );
   
 }
-
-
-template< class T >
-DataReader*
-DataReaderMPI<T>::newDataReader( const vector< string >& args ) const {
-
-  return new DataReaderMPI<T>( args );
-
-}
-
-
-template< class T >
-DataReader*
-DataReaderMPI<T>::clone() const {
-
-  return ( this->isDefault() ? new DataReaderMPI<T>() : 
-    new DataReaderMPI<T>( this->arguments() ) );
-
-}
-
 
 #endif
