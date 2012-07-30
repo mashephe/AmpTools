@@ -40,4 +40,6 @@ int main(int argc, char** argv){
   ConfigFileParser parser(configfile);
   parser.getConfigurationInfo()->display();
 
+  parser.getConfigurationInfo()->write("testWrite.cfg");
+
 }

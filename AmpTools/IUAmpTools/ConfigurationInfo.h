@@ -388,8 +388,16 @@ public:
    *
    */
   void display(string fileName = "", bool append = false);
-  //void write(string fileName);
-  //void read(string fileName);
+
+
+  /**
+   * This writes the current status of this ConfigurationInfo to a file.
+   * The output can be parsed by a ConfigFileParser object to recreate
+   * this ConfigurationInfo object.
+   *
+   * \see ConfigFileParser
+   */
+  void write(string fileName);
   
   
   // produces a map from amplitude name to a list of other amplitude
