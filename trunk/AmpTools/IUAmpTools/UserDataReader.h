@@ -84,7 +84,7 @@ public:
   /**
    * This method can create a new data reader (of the derived type).
    */
-        DataReader* newDataReader( const vector< string >& args ) const{
+        virtual DataReader* newDataReader( const vector< string >& args ) const{
           return new T( args );
         }
 
@@ -92,7 +92,7 @@ public:
   /**
    * This method can create a clone of a data reader (of the derived type).
    */
-        DataReader* clone() const{
+        virtual DataReader* clone() const{
           return ( isDefault() ? new T() : new T( arguments() ) );
         }
 

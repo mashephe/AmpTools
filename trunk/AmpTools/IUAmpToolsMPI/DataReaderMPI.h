@@ -42,7 +42,7 @@ public:
    * This is the default constructor.
    */
 
-  DataReaderMPI() : T() { }
+  DataReaderMPI() : T() { m_isDefault = true; }
 
   /**
    * This is the constructor for the templated class, which takes as
@@ -61,8 +61,38 @@ public:
   void resetSource();
   
   unsigned int numEvents() const;
+
+  /**
+   * This method can create a new data reader (of the derived type).
+   */
+  virtual DataReader* newDataReader( const vector< string >& args ) const{
+    return new DataReaderMPI<T>( args );
+  }
+
+
+  /**
+   * This method can create a clone of a data reader (of the derived type).
+   */
+  virtual DataReader* clone() const{
+    return ( isDefault() ? new DataReaderMPI<T>() : new DataReaderMPI<T>( arguments() ) );
+  }
+
+  /**
+   * Returns the list of arguments that was passed to the constructor.
+   */
+  virtual vector<string> arguments() const { return m_args; }
+
+  /**
+   * Returns true if this instance was created using the default constructor
+   * and returns false otherwise.
+   */
+  virtual bool isDefault() const { return ( m_isDefault == true ); }
+
   
 private:
+
+          bool m_isDefault;
+          vector<string> m_args;
   
   // some helper functions:
   
@@ -95,7 +125,9 @@ template< class T >
 DataReaderMPI<T>::DataReaderMPI( const vector< string >& args ) : 
   T( args ),
   m_ptrCache( 0 ),
-  m_ptrItr( m_ptrCache.begin() )
+  m_ptrItr( m_ptrCache.begin() ),
+  m_isDefault(false),
+  m_args(args)
 {
    
   MPI_Comm_rank( MPI_COMM_WORLD, &m_rank );
