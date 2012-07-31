@@ -143,13 +143,13 @@ public:
   /**
    * Returns the list of arguments that was passed to the constructor.
    */
-        vector<string> arguments() const { return m_args; }
+        virtual vector<string> arguments() const { return m_args; }
 
   /**
    * Returns true if this instance was created using the default constructor
    * and returns false otherwise.
    */
-        bool isDefault() const { return ( m_isDefault == true ); }
+        virtual bool isDefault() const { return ( m_isDefault == true ); }
 
 
 private:
