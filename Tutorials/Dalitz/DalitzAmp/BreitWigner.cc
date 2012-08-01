@@ -34,11 +34,8 @@ BreitWigner::calcAmplitude( GDouble** pKin ) const {
   HepLorentzVector P2(pKin[m_daughter2-1][1], pKin[m_daughter2-1][2],
                       pKin[m_daughter2-1][3], pKin[m_daughter2-1][0]);
 
-  GDouble m = (P1+P2).m();
-
-  complex<GDouble> bwdenominator(m*m - m_mass*m_mass, m_mass*m_width);
-
-  return  complex<GDouble>(1.0,0.0) / bwdenominator;
+  return  complex<GDouble>(1.0,0.0) /
+          complex<GDouble>((P1+P2).m2() - m_mass*m_mass, m_mass*m_width);
 
 }
 
@@ -47,9 +44,6 @@ BreitWigner::calcAmplitude( GDouble** pKin ) const {
 #ifdef GPU_ACCELERATION
 void
 BreitWigner::launchGPUKernel( dim3 dimGrid, dim3 dimBlock, GPU_AMP_PROTO ) const {
-  
-  // use integers to endcode the string of daughters -- one index in each
-  // decimal place
   
   GPUBreitWigner_exec( dimGrid,  dimBlock, GPU_AMP_ARGS, 
                        m_mass, m_width, m_daughter1, m_daughter2 );
