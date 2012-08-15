@@ -8,6 +8,7 @@
   TH2F* hs12s23  = (TH2F*) gDirectory->FindObjectAny("hs12s23");
   TH1F* hm12  = (TH1F*) gDirectory->FindObjectAny("hm12");
   TH1F* hm23  = (TH1F*) gDirectory->FindObjectAny("hm23");
+  TH1F* hm13  = (TH1F*) gDirectory->FindObjectAny("hm13");
 
   c1->cd(1);
   hs12s23->Draw("colz");
@@ -17,6 +18,9 @@
 
   c1->cd(3);
   hm23->Draw("");
+
+  c1->cd(4);
+  hm13->Draw("");
 
   c1->cd();
 
