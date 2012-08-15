@@ -1,0 +1,206 @@
+      echo
+      echo --------------------------------
+      echo
+      echo COMPLILE AMPTOOLS
+      echo
+      echo --------------------------------
+      echo
+      sleep 3
+
+cd $AMPTOOLS
+make clean
+make
+
+      sleep 1
+      echo
+      echo --------------------------------
+      echo
+      echo COMPLILE DALITZ
+      echo
+      echo --------------------------------
+      echo
+      sleep 3
+
+cd $DALITZ
+make clean
+make
+
+
+      sleep 1
+      echo
+      echo --------------------------------
+      echo
+      echo COMPLILE DALITZEXE
+      echo
+      echo --------------------------------
+      echo
+      sleep 3
+
+cd $DALITZ/DalitzExe
+make clean
+make
+
+
+      sleep 1
+      echo
+      echo --------------------------------
+      echo
+      echo GENERATE PHASE SPACE
+      echo
+      echo --------------------------------
+      echo
+      sleep 3
+
+cd $DALITZ/run
+$DALITZ/DalitzExe/generatePhaseSpace phasespace.gen.root 100000
+
+
+      sleep 1
+      echo
+      echo --------------------------------
+      echo
+      echo MAKE PHASE SPACE PLOTS
+      echo
+      echo --------------------------------
+      echo
+      sleep 3
+
+cd $DALITZ/run
+$DALITZ/DalitzExe/plotData phasespace.gen.root plots.phasespace.gen.root
+
+
+      sleep 1
+      echo
+      echo --------------------------------
+      echo
+      echo SHOW PHASE SPACE PLOTS
+      echo  quit root to continue
+      echo
+      echo --------------------------------
+      echo
+      sleep 3
+
+cd $DALITZ/run
+root -l plots.phasespace.gen.root plotData.C
+
+
+
+      sleep 1
+      echo
+      echo --------------------------------
+      echo
+      echo GENERATE PHYSICS
+      echo
+      echo --------------------------------
+      echo
+      sleep 3
+
+cd $DALITZ/run
+$DALITZ/DalitzExe/generatePhysics dalitz1.cfg physics.gen.root 100000
+
+
+      sleep 1
+      echo
+      echo --------------------------------
+      echo
+      echo MAKE PHYSICS PLOTS
+      echo
+      echo --------------------------------
+      echo
+      sleep 3
+
+cd $DALITZ/run
+$DALITZ/DalitzExe/plotData physics.gen.root plots.physics.gen.root
+
+
+      sleep 1
+      echo
+      echo --------------------------------
+      echo
+      echo SHOW PHYSICS PLOTS
+      echo  quit root to continue
+      echo
+      echo --------------------------------
+      echo
+      sleep 3
+
+cd $DALITZ/run
+root -l plots.physics.gen.root plotData.C
+
+
+      sleep 1
+      echo
+      echo --------------------------------
+      echo
+      echo SEND PHASE SPACE THROUGH DETECTOR
+      echo
+      echo --------------------------------
+      echo
+      sleep 3
+
+cd $DALITZ/run
+$DALITZ/DalitzExe/toyAcceptance phasespace.gen.root phasespace.acc.root
+
+
+      sleep 1
+      echo
+      echo --------------------------------
+      echo
+      echo SEND PHYSICS THROUGH DETECTOR
+      echo
+      echo --------------------------------
+      echo
+      sleep 3
+
+cd $DALITZ/run
+$DALITZ/DalitzExe/toyAcceptance physics.gen.root physics.acc.root
+
+
+
+      sleep 1
+      echo
+      echo --------------------------------
+      echo
+      echo DO A FIT
+      echo
+      echo --------------------------------
+      echo
+      sleep 3
+
+cd $DALITZ/run
+$DALITZ/DalitzExe/fitAmplitudes dalitz1.cfg
+
+
+      sleep 1
+      echo
+      echo --------------------------------
+      echo
+      echo MAKE PLOTS OF RESULTS
+      echo
+      echo --------------------------------
+      echo
+      sleep 3
+
+cd $DALITZ/run
+$DALITZ/DalitzExe/plotResults dalitz1.cfg dalitz1.fit dalitz1.root
+
+
+      sleep 1
+      echo
+      echo --------------------------------
+      echo
+      echo SHOW PLOTS IN ROOT
+      echo
+      echo --------------------------------
+      echo
+      sleep 3
+
+cd $DALITZ/run
+root -l dalitz1.root plotResults.C
+
+
+
+
+
+
+
