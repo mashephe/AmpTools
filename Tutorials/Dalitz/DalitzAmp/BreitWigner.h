@@ -13,7 +13,7 @@
 
 #ifdef GPU_ACCELERATION
 
-void GPUBreitWigner_exec( dim3 dimGrid, dim3 dimBlock, GPU_AMP_PROTO,
+void BreitWigner_exec( dim3 dimGrid, dim3 dimBlock, GPU_AMP_PROTO,
                           GDouble mass, GDouble width,
                           int daughter1, int daughter2 );
 
