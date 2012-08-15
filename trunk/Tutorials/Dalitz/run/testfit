@@ -196,7 +196,7 @@ $DALITZ/DalitzExe/plotResults dalitz1.cfg dalitz1.fit dalitz1.root
       sleep 3
 
 cd $DALITZ/run
-root -l dalitz1.root plotResults.C
+root -l dalitz1.root plotResult.C
 
 
 
