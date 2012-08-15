@@ -45,7 +45,7 @@ BreitWigner::calcAmplitude( GDouble** pKin ) const {
 void
 BreitWigner::launchGPUKernel( dim3 dimGrid, dim3 dimBlock, GPU_AMP_PROTO ) const {
   
-  GPUBreitWigner_exec( dimGrid,  dimBlock, GPU_AMP_ARGS, 
+  BreitWigner_exec( dimGrid,  dimBlock, GPU_AMP_ARGS, 
                        m_mass, m_width, m_daughter1, m_daughter2 );
 
 }
