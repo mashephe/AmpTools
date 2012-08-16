@@ -146,6 +146,35 @@ $DALITZ/DalitzExe/toyAcceptance GPU.phasespace.gen.root GPU.phasespace.acc.root
       echo
       echo --------------------------------
       echo
+      echo MAKE PHASE SPACE PLOTS -- POST-DETECTOR
+      echo
+      echo --------------------------------
+      echo
+      sleep 3
+
+cd $DALITZ/run
+$DALITZ/DalitzExe/plotData GPU.phasespace.acc.root GPU.plots.phasespace.acc.root
+
+
+      sleep 1
+      echo
+      echo --------------------------------
+      echo
+      echo SHOW PHASE SPACE PLOTS -- POST-DETECTOR
+      echo  quit root to continue
+      echo
+      echo --------------------------------
+      echo
+      sleep 3
+
+cd $DALITZ/run
+root -l GPU.plots.phasespace.acc.root plotData.C
+
+
+      sleep 1
+      echo
+      echo --------------------------------
+      echo
       echo SEND PHYSICS THROUGH DETECTOR
       echo
       echo --------------------------------
@@ -154,6 +183,35 @@ $DALITZ/DalitzExe/toyAcceptance GPU.phasespace.gen.root GPU.phasespace.acc.root
 
 cd $DALITZ/run
 $DALITZ/DalitzExe/toyAcceptance GPU.physics.gen.root GPU.physics.acc.root
+
+
+      sleep 1
+      echo
+      echo --------------------------------
+      echo
+      echo MAKE PHYSICS PLOTS -- POST-DETECTOR
+      echo
+      echo --------------------------------
+      echo
+      sleep 3
+
+cd $DALITZ/run
+$DALITZ/DalitzExe/plotData GPU.physics.acc.root GPU.plots.physics.acc.root
+
+
+      sleep 1
+      echo
+      echo --------------------------------
+      echo
+      echo SHOW PHYSICS PLOTS -- POST-DETECTOR
+      echo  quit root to continue
+      echo
+      echo --------------------------------
+      echo
+      sleep 3
+
+cd $DALITZ/run
+root -l GPU.plots.physics.acc.root plotData.C
 
 
 
@@ -196,7 +254,7 @@ $DALITZ/DalitzExe/plotResults GPU.dalitz1.cfg GPU.dalitz1.fit GPU.dalitz1.root
       sleep 3
 
 cd $DALITZ/run
-root -l GPU.dalitz1.root plotResult.C
+root -l GPU.plots.physics.acc.root GPU.dalitz1.root plotResult.C
 
 
 
