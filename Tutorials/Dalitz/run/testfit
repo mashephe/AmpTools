@@ -146,6 +146,35 @@ $DALITZ/DalitzExe/toyAcceptance phasespace.gen.root phasespace.acc.root
       echo
       echo --------------------------------
       echo
+      echo MAKE PHASE SPACE PLOTS -- POST-DETECTOR
+      echo
+      echo --------------------------------
+      echo
+      sleep 3
+
+cd $DALITZ/run
+$DALITZ/DalitzExe/plotData phasespace.acc.root plots.phasespace.acc.root
+
+
+      sleep 1
+      echo
+      echo --------------------------------
+      echo
+      echo SHOW PHASE SPACE PLOTS -- POST-DETECTOR
+      echo  quit root to continue
+      echo
+      echo --------------------------------
+      echo
+      sleep 3
+
+cd $DALITZ/run
+root -l plots.phasespace.acc.root plotData.C
+
+
+      sleep 1
+      echo
+      echo --------------------------------
+      echo
       echo SEND PHYSICS THROUGH DETECTOR
       echo
       echo --------------------------------
@@ -154,6 +183,35 @@ $DALITZ/DalitzExe/toyAcceptance phasespace.gen.root phasespace.acc.root
 
 cd $DALITZ/run
 $DALITZ/DalitzExe/toyAcceptance physics.gen.root physics.acc.root
+
+
+      sleep 1
+      echo
+      echo --------------------------------
+      echo
+      echo MAKE PHYSICS PLOTS -- POST-DETECTOR
+      echo
+      echo --------------------------------
+      echo
+      sleep 3
+
+cd $DALITZ/run
+$DALITZ/DalitzExe/plotData physics.acc.root plots.physics.acc.root
+
+
+      sleep 1
+      echo
+      echo --------------------------------
+      echo
+      echo SHOW PHYSICS PLOTS -- POST-DETECTOR
+      echo  quit root to continue
+      echo
+      echo --------------------------------
+      echo
+      sleep 3
+
+cd $DALITZ/run
+root -l plots.physics.acc.root plotData.C
 
 
 
@@ -196,7 +254,7 @@ $DALITZ/DalitzExe/plotResults dalitz1.cfg dalitz1.fit dalitz1.root
       sleep 3
 
 cd $DALITZ/run
-root -l dalitz1.root plotResult.C
+root -l plots.physics.acc.root dalitz1.root plotResult.C
 
 
 
