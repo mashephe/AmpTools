@@ -464,7 +464,7 @@ AmplitudeManager::calcSumLogIntensity( AmpVecs& a, bool bIsFirstPass ) const
   // taken into account -- the GPU manager has a pointer to m_gpuProdPars
   // we just have to be sure the contents are up to date
   
-  vector< complex< double > > gpuProdPars;
+  vector< complex< double > > gpuProdPars( m_prodAmpVec.size() );
   
   for( int i = 0; i < m_prodAmpVec.size(); ++i ){
     
