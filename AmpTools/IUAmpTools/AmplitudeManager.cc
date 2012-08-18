@@ -461,8 +461,7 @@ AmplitudeManager::calcSumLogIntensity( AmpVecs& a, bool bIsFirstPass ) const
 #else
   
   // need to compute the production coefficients with all scale factors
-  // taken into account -- the GPU manager has a pointer to m_gpuProdPars
-  // we just have to be sure the contents are up to date
+  // taken into account 
   
   vector< complex< double > > gpuProdPars( m_prodAmpVec.size() );
   
