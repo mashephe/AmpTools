@@ -443,7 +443,7 @@ GPUManager::calcSumLogIntensity( const vector< complex< double > >& prodCoef,
 	for( i = 0; i< m_iNAmps; i++) {
 		for( j = 0; j <= i; j++ ) {
       
-			cdFij = prodCoef[i] * prodCoef[j];
+			cdFij = prodCoef[i] * conj( prodCoef[j] );
       
       // here is the transition from double -> GDouble
 			m_pfVRe[i*(i+1)/2+j] = 
