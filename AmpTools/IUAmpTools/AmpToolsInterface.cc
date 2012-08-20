@@ -377,15 +377,5 @@ AmpToolsInterface::~AmpToolsInterface(){
   if (minuitMinimizationManager()) delete minuitMinimizationManager();
   if (parameterManager()) delete parameterManager();
 
-  for (unsigned int i = 0; i < m_userAmplitudes.size(); i++){
-    if (m_userAmplitudes[i]) delete m_userAmplitudes[i];
-  }
-  m_userAmplitudes.clear();
-
-  for (unsigned int i = 0; i < m_userDataReaders.size(); i++){
-    if (m_userDataReaders[i]) delete m_userDataReaders[i];
-  }
-  m_userDataReaders.clear();
-
 }
 
