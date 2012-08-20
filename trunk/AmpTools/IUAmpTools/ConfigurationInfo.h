@@ -371,7 +371,12 @@ public:
    * \see createParameter
    */
   void removeParameter   (const string& parName="");
-  
+
+
+  /**
+   * Set the name of a fit.
+   */
+  void setFitName (const string& fitName) { m_fitName = fitName; }  
   
   
   // Display information to the screen or to a file
