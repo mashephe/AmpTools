@@ -131,6 +131,8 @@ ConfigFileParser::getConfigurationInfo(){
 
     if ((*lineItr).keyword() == "fit") doFit(*lineItr);
 
+    if ((*lineItr).keyword() == "keyword") m_userKeywords.insert((*lineItr).arguments()[0]);
+
   }
 
     cout << "ConfigFileParser INFO:  Finished ZEROTH PASS" << endl;
@@ -152,6 +154,8 @@ ConfigFileParser::getConfigurationInfo(){
 
     if ((*lineItr).keyword() == "reaction") doReaction(*lineItr);
     if ((*lineItr).keyword() == "parameter") doParameter(*lineItr);
+
+    if (m_userKeywords.count((*lineItr).keyword())) doKeyword(*lineItr);
 
   }
 
@@ -400,6 +404,12 @@ ConfigFileParser::doReaction(const ConfigFileLine& line){
   string reaction = arguments[0];
   vector<string> particles (arguments.begin()+1, arguments.end());
   m_configurationInfo->createReaction(reaction,particles);
+}
+
+
+void
+ConfigFileParser::doKeyword(const ConfigFileLine& line){
+  m_configurationInfo->addUserKeyword(line.keyword(),line.arguments());
 }
 
 

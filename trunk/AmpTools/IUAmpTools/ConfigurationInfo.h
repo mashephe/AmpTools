@@ -122,7 +122,26 @@ public:
    * A function to retreive the fit name.
    */
   string fitName() const { return m_fitName; }
-  
+
+  /**
+   * A list of user-defined keywords.
+   *
+   * \see userKeywordArguments
+   * \see addUserKeyword
+   * \see removeUserKeyword
+   */
+  vector< string > userKeywords() const;
+
+  /**
+   * A list of arguments (in the form of vector<string>) associated with a 
+   * given user-defined keyword.
+   *
+   * \see userKeywords
+   * \see addUserKeyword
+   * \see removeUserKeyword
+   */
+  vector< vector<string> > userKeywordArguments(const string& userKeyword) const;
+
   
   // Return lists of reactions, sums, amplitudes, or parameters.
   //   (If an argument to the call is empty, it is treated as
@@ -377,6 +396,28 @@ public:
    * Set the name of a fit.
    */
   void setFitName (const string& fitName) { m_fitName = fitName; }  
+
+
+  /**
+   * Add a user-defined keyword and its arguments.
+   * A user-defined keyword can have multiple sets of arguments.
+   *
+   * \see userKeywords
+   * \see userKeywordArguments
+   * \see removeUserKeyword
+   */
+  void addUserKeyword(const string& uesrKeyword, const vector<string>& arguments);  
+
+
+  /**
+   * Remove a user-defined keyword.
+   * If userKeyword is not specified, all keywords are removed.
+   *
+   * \see userKeywords
+   * \see userKeywordArguments
+   * \see addUserKeyword
+   */
+  void removeUserKeyword(const string& userKeyword="");
   
   
   // Display information to the screen or to a file
@@ -423,6 +464,7 @@ private:
   vector<CoherentSumInfo*> m_sums;
   vector<AmplitudeInfo*>   m_amplitudes;
   vector<ParameterInfo*>   m_parameters;
+  map<string, vector< vector<string> > > m_userKeywordMap;
     
 };
 
