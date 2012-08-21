@@ -90,6 +90,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <set>
 #include <complex>
 #include "IUAmpTools/ConfigurationInfo.h"
 
@@ -146,6 +147,7 @@ class ConfigFileParser
       // Do the setup for each keyword
 
     void doFit           (const ConfigFileLine& line);
+    void doKeyword       (const ConfigFileLine& line);
     void doReaction      (const ConfigFileLine& line);
     void doParameter     (const ConfigFileLine& line);
     void doData          (const ConfigFileLine& line);
@@ -162,6 +164,7 @@ class ConfigFileParser
 
     string                  m_fitName;
     string                  m_configFile;
+    set<string>             m_userKeywords;
     bool                    m_verboseParsing;
     vector<ConfigFileLine>  m_configFileLines;
     ConfigurationInfo*      m_configurationInfo;

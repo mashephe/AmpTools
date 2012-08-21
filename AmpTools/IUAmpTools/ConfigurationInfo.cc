@@ -45,6 +45,29 @@
 #include "IUAmpTools/ConfigurationInfo.h"
 
 
+
+vector< string >
+ConfigurationInfo::userKeywords() const{
+
+  vector<string> keywords;
+  for (map<string, vector< vector<string> > >::const_iterator 
+       mapItr = m_userKeywordMap.begin();
+       mapItr != m_userKeywordMap.end(); mapItr++){
+    keywords.push_back(mapItr->first);
+  }
+  return keywords;
+}
+
+
+vector< vector<string> >
+ConfigurationInfo::userKeywordArguments(const string& userKeyword) const{
+
+  if (m_userKeywordMap.find(userKeyword) != m_userKeywordMap.end())
+    return m_userKeywordMap.find(userKeyword)->second;
+  return vector< vector<string> >();
+}
+
+
 vector<ReactionInfo*>
 ConfigurationInfo::reactionList  (const string& reactionName) const {
 
@@ -176,6 +199,15 @@ ConfigurationInfo::parameter  (const string& parName) const {
 
 
 
+void
+ConfigurationInfo::addUserKeyword(const string& userKeyword, const vector<string>& arguments){
+
+  vector< vector<string> > argList = m_userKeywordMap[userKeyword];
+  argList.push_back(arguments);
+  m_userKeywordMap[userKeyword] = argList;
+}
+
+
 ReactionInfo*
 ConfigurationInfo::createReaction  (const string&         reactionName, 
                                     const vector<string>& particleList){
@@ -258,6 +290,14 @@ ConfigurationInfo::createParameter  (const string&  parName,
   return par;
 }
 
+
+
+void
+ConfigurationInfo::removeUserKeyword(const string& userKeyword){
+
+  if (userKeyword == "") m_userKeywordMap.clear();
+  m_userKeywordMap.erase(userKeyword);
+}
 
 
 void
@@ -614,6 +654,28 @@ ConfigurationInfo::write(string fileName){
   ff << "fit " << fitName() << endl;
 
 
+    // user keywords
+
+  vector<string> keywords = userKeywords();
+  for (unsigned int i = 0; i < keywords.size(); i++){
+    vector< vector<string> > argslist = userKeywordArguments(keywords[i]);
+    int min = 0; int max = 0;
+    for (unsigned int j = 0; j < argslist.size(); j++){
+      if (argslist[j].size() < min) min = argslist[j].size();
+      if (argslist[j].size() > max) max = argslist[j].size();
+    }
+    ff << "keyword " << keywords[i] << " " << min << " " << max << endl;
+    for (unsigned int j = 0; j < argslist.size(); j++){
+      vector<string> args = argslist[j];
+      ff << keywords[i] << " ";
+      for (unsigned int k = 0; k < args.size(); k++){
+	ff << args[k] << " ";
+      }
+      ff << endl;
+    }
+  }
+
+
     // reaction
 
   for (unsigned int i = 0; i < Rs.size(); i++){
@@ -741,6 +803,7 @@ ConfigurationInfo::write(string fileName){
   string ni = R->normIntFile();
   if (ni != ""){
   ff << "normintfile " << R->reactionName() << " " << ni << endl;}}
+
 
   ff.close();
 }
