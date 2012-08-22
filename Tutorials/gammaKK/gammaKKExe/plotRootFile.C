@@ -22,8 +22,6 @@ int plotRootFile(string filename=""){
   gROOT->ForceStyle();
   gStyle->SetTitleSize(0.050,"XYZ"); 
   gStyle->SetTitleOffset(0.850,"XYZ");
-  gStyle->SetLegendBorderSize(0);
-  gStyle->SetLegendFillColor(0);
   gStyle->SetOptStat(0);
 
   if(filename==""){
@@ -50,7 +48,7 @@ int plotRootFile(string filename=""){
   // for each amplitude, and total.
 
   const Int_t NUMTYPES = 3;
-  const Int_t NUMAMPS  = 2;
+  const Int_t NUMAMPS  = 1;
 
   const Int_t mycolors[] = {kRed, kBlue, kGreen, kMagenta, kCyan};
 
