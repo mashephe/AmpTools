@@ -1,2 +1,1 @@
-setenv GAMMAKK /Users/kmoriya/physics/gammaKKAmpTools
-
+setenv GAMMAKK $PWD
