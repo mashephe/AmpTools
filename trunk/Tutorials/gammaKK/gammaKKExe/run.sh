@@ -49,9 +49,9 @@ cd $GAMMAKK/gammaKKExe
 
 #--------------------------------------------------------------------------------------------------
 #
-# 1. generate 10,000,000 phase space events
+# 1. generate 100,000 phase space events
 #
-$GAMMAKK/gammaKKExe/generatePhaseSpace phasespace.gen.root 10000000
+$GAMMAKK/gammaKKExe/generatePhaseSpace phasespace.gen.root 100000
 if( ($?VERBOSE) ) then
     echo "";
     echo "-----------------------------------------------------------";
@@ -98,10 +98,10 @@ endif
 
 #--------------------------------------------------------------------------------------------------
 #
-# 4. generate 1,000,000 physics events
+# 4. generate 10,000 physics events
 #
 # Use gammaKKHelicityAmp.cc to generate spin-0 resonance
-$GAMMAKK/gammaKKExe/generatePhysics helicity0.cfg physics.helicity0.gen.root    1000000 1
+$GAMMAKK/gammaKKExe/generatePhysics helicity0.cfg physics.helicity0.gen.root    10000 1
 
 if( ($?VERBOSE) ) then
     echo "";
