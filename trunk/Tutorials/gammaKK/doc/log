@@ -1,0 +1,120 @@
+This is pdfTeX, Version 3.1415926-2.3-1.40.12 (TeX Live 2011)
+ restricted \write18 enabled.
+entering extended mode
+(./gammaKKdoc.tex
+LaTeX2e <2009/09/24>
+Babel <v3.8l> and hyphenation patterns for english, dumylang, nohyphenation, ge
+rman-x-2009-06-19, ngerman-x-2009-06-19, afrikaans, ancientgreek, ibycus, arabi
+c, armenian, basque, bulgarian, catalan, pinyin, coptic, croatian, czech, danis
+h, dutch, ukenglish, usenglishmax, esperanto, estonian, ethiopic, farsi, finnis
+h, french, galician, german, ngerman, swissgerman, monogreek, greek, hungarian,
+ icelandic, assamese, bengali, gujarati, hindi, kannada, malayalam, marathi, or
+iya, panjabi, tamil, telugu, indonesian, interlingua, irish, italian, kurmanji,
+ lao, latin, latvian, lithuanian, mongolian, mongolianlmc, bokmal, nynorsk, pol
+ish, portuguese, romanian, russian, sanskrit, serbian, serbianc, slovak, sloven
+ian, spanish, swedish, turkish, turkmen, ukrainian, uppersorbian, welsh, loaded
+.
+(/usr/local/texlive/2011/texmf-dist/tex/latex/base/article.cls
+Document Class: article 2007/10/19 v1.4h Standard LaTeX document class
+(/usr/local/texlive/2011/texmf-dist/tex/latex/base/size11.clo))
+(/usr/local/texlive/2011/texmf-dist/tex/latex/amsmath/amsmath.sty
+For additional information on amsmath, use the `?' option.
+(/usr/local/texlive/2011/texmf-dist/tex/latex/amsmath/amstext.sty
+(/usr/local/texlive/2011/texmf-dist/tex/latex/amsmath/amsgen.sty))
+(/usr/local/texlive/2011/texmf-dist/tex/latex/amsmath/amsbsy.sty)
+(/usr/local/texlive/2011/texmf-dist/tex/latex/amsmath/amsopn.sty))
+(/usr/local/texlive/2011/texmf-dist/tex/latex/amsfonts/amssymb.sty
+(/usr/local/texlive/2011/texmf-dist/tex/latex/amsfonts/amsfonts.sty))
+(/usr/local/texlive/2011/texmf-dist/tex/latex/graphics/graphicx.sty
+(/usr/local/texlive/2011/texmf-dist/tex/latex/graphics/keyval.sty)
+(/usr/local/texlive/2011/texmf-dist/tex/latex/graphics/graphics.sty
+(/usr/local/texlive/2011/texmf-dist/tex/latex/graphics/trig.sty)
+(/usr/local/texlive/2011/texmf-dist/tex/latex/latexconfig/graphics.cfg)
+(/usr/local/texlive/2011/texmf-dist/tex/latex/pdftex-def/pdftex.def
+(/usr/local/texlive/2011/texmf-dist/tex/generic/oberdiek/infwarerr.sty)
+(/usr/local/texlive/2011/texmf-dist/tex/generic/oberdiek/ltxcmds.sty))))
+(/usr/local/texlive/2011/texmf-dist/tex/latex/psnfss/pifont.sty
+(/usr/local/texlive/2011/texmf-dist/tex/latex/psnfss/upzd.fd)
+(/usr/local/texlive/2011/texmf-dist/tex/latex/psnfss/upsy.fd))
+(/usr/local/texlive/2011/texmf-dist/tex/latex/graphics/color.sty
+(/usr/local/texlive/2011/texmf-dist/tex/latex/latexconfig/color.cfg))
+(/usr/local/texlive/2011/texmf-dist/tex/latex/subfig/subfig.sty
+(/usr/local/texlive/2011/texmf-dist/tex/latex/caption/caption.sty
+(/usr/local/texlive/2011/texmf-dist/tex/latex/caption/caption3.sty)))
+(./gammaKKdoc.aux)
+(/usr/local/texlive/2011/texmf-dist/tex/context/base/supp-pdf.mkii
+[Loading MPS to PDF converter (version 2006.09.02).]
+) (/usr/local/texlive/2011/texmf-dist/tex/generic/oberdiek/pdftexcmds.sty
+(/usr/local/texlive/2011/texmf-dist/tex/generic/oberdiek/ifluatex.sty)
+(/usr/local/texlive/2011/texmf-dist/tex/generic/oberdiek/ifpdf.sty))
+(/usr/local/texlive/2011/texmf-dist/tex/latex/oberdiek/epstopdf-base.sty
+(/usr/local/texlive/2011/texmf-dist/tex/latex/oberdiek/grfext.sty
+(/usr/local/texlive/2011/texmf-dist/tex/generic/oberdiek/kvdefinekeys.sty))
+(/usr/local/texlive/2011/texmf-dist/tex/latex/oberdiek/kvoptions.sty
+(/usr/local/texlive/2011/texmf-dist/tex/generic/oberdiek/kvsetkeys.sty
+(/usr/local/texlive/2011/texmf-dist/tex/generic/oberdiek/etexcmds.sty)))
+(/usr/local/texlive/2011/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg))
+(/usr/local/texlive/2011/texmf-dist/tex/latex/amsfonts/umsa.fd)
+(/usr/local/texlive/2011/texmf-dist/tex/latex/amsfonts/umsb.fd)
+Overfull \hbox (29.08197pt too wide) in paragraph at lines 66--74
+\OT1/cmr/m/n/10.95 independent anal-y-sis. In re-al-ity, the above re-ac-tion w
+ill be re-stricted to states of $0[]\OML/cmm/m/it/10.95 ; \OT1/cmr/m/n/10.95 2[
+]\OML/cmm/m/it/10.95 ; \OT1/cmr/m/n/10.95 4[]\OML/cmm/m/it/10.95 ; [] $
+
+Overfull \hbox (2.45166pt too wide) in paragraph at lines 99--104
+\OT1/cmr/m/n/10.95 The fi-nal vari-able to set is \OT1/cmtt/m/n/10.95 GAMMAKK\O
+T1/cmr/m/n/10.95 , which can be set by sourc-ing the file setup[]gammaKK.csh
+[1{/usr/local/texlive/2011/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
+(/usr/local/texlive/2011/texmf-dist/tex/latex/base/omscmr.fd) [2] [3] [4]
+[5] [6] [7] [8] [9]
+<helicity_with_helicity.pdf, id=51, 569.12625pt x 343.2825pt>
+<use helicity_with_helicity.pdf>
+<helicity_with_multipole.pdf, id=52, 569.12625pt x 343.2825pt>
+<use helicity_with_multipole.pdf>
+Overfull \hbox (7.29999pt too wide) in paragraph at lines 677--697
+[][]
+
+Overfull \hbox (7.29999pt too wide) in paragraph at lines 677--697
+[] 
+
+LaTeX Warning: Float too large for page by 61.16531pt on input line 699.
+
+<multipole_with_helicity.pdf, id=53, 569.12625pt x 343.2825pt>
+<use multipole_with_helicity.pdf>
+<multipole_with_multipole.pdf, id=54, 569.12625pt x 343.2825pt>
+<use multipole_with_multipole.pdf>
+Overfull \hbox (7.29999pt too wide) in paragraph at lines 708--727
+[][]
+
+Overfull \hbox (7.29999pt too wide) in paragraph at lines 708--727
+[] 
+
+LaTeX Warning: Float too large for page by 61.16531pt on input line 729.
+
+[10] [11 <./helicity_with_helicity.pdf, page is rotated 90 degrees> <./helicity
+_with_multipole.pdf, page is rotated 90 degrees>] [12 <./multipole_with_helicit
+y.pdf, page is rotated 90 degrees> <./multipole_with_multipole.pdf, page is rot
+ated 90 degrees>] [13] (./gammaKKdoc.aux) )
+(see the transcript file for additional information)</usr/local/texlive/2011/te
+xmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/local/texlive/2011/tex
+mf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/local/texlive/2011/texm
+f-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2011/texmf
+-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2011/texmf-
+dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/local/texlive/2011/texmf-d
+ist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/local/texlive/2011/texmf-dis
+t/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/local/texlive/2011/texmf-dist/
+fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2011/texmf-dist/fo
+nts/type1/public/amsfonts/cm/cmr12.pfb></usr/local/texlive/2011/texmf-dist/font
+s/type1/public/amsfonts/cm/cmr17.pfb></usr/local/texlive/2011/texmf-dist/fonts/
+type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2011/texmf-dist/fonts/typ
+e1/public/amsfonts/cm/cmr9.pfb></usr/local/texlive/2011/texmf-dist/fonts/type1/
+public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2011/texmf-dist/fonts/type1/p
+ublic/amsfonts/cm/cmsy6.pfb></usr/local/texlive/2011/texmf-dist/fonts/type1/pub
+lic/amsfonts/cm/cmsy7.pfb></usr/local/texlive/2011/texmf-dist/fonts/type1/publi
+c/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2011/texmf-dist/fonts/type1/public/
+amsfonts/cm/cmti10.pfb></usr/local/texlive/2011/texmf-dist/fonts/type1/public/a
+msfonts/cm/cmtt10.pfb></usr/local/texlive/2011/texmf-dist/fonts/type1/public/am
+sfonts/cm/cmtt12.pfb></usr/local/texlive/2011/texmf-dist/fonts/type1/urw/zapfdi
+ng/uzdr.pfb>
+Output written on gammaKKdoc.pdf (13 pages, 337225 bytes).
+Transcript written on gammaKKdoc.log.
