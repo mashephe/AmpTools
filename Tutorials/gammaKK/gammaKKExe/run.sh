@@ -51,7 +51,7 @@ cd $GAMMAKK/gammaKKExe
 #
 # 1. generate 10,000,000 phase space events
 #
-# $GAMMAKK/gammaKKExe/generatePhaseSpace phasespace.gen.root 10000000
+$GAMMAKK/gammaKKExe/generatePhaseSpace phasespace.gen.root 10000000
 if( ($?VERBOSE) ) then
     echo "";
     echo "-----------------------------------------------------------";
@@ -67,7 +67,7 @@ endif
 #
 # 2. apply toy acceptance to phase space
 #
-# $GAMMAKK/gammaKKExe/toyAcceptance phasespace.gen.root phasespace.acc.root
+$GAMMAKK/gammaKKExe/toyAcceptance phasespace.gen.root phasespace.acc.root
 if( ($?VERBOSE) ) then
     echo "";
     echo "-----------------------------------------------------------";
@@ -82,10 +82,10 @@ endif
 #
 # 3. create plots to compare the flat Dalitz plots
 #
-# mkdir -p ./figures/phasespace.gen.root/
-# mkdir -p ./figures/phasespace.acc.root/
-# $GAMMAKK/gammaKKExe/plotData phasespace.gen.root plots.phasespace.gen.root
-# $GAMMAKK/gammaKKExe/plotData phasespace.acc.root plots.phasespace.acc.root
+mkdir -p ./figures/phasespace.gen.root/
+mkdir -p ./figures/phasespace.acc.root/
+$GAMMAKK/gammaKKExe/plotData phasespace.gen.root plots.phasespace.gen.root
+$GAMMAKK/gammaKKExe/plotData phasespace.acc.root plots.phasespace.acc.root
 if( ($?VERBOSE) ) then
     echo "";
     echo "-----------------------------------------------------------";
@@ -101,9 +101,7 @@ endif
 # 4. generate 1,000,000 physics events
 #
 # Use gammaKKHelicityAmp.cc to generate spin-0 resonance
-# $GAMMAKK/gammaKKExe/generatePhysics helicity0.cfg physics.helicity0.gen.root    1000000 1
-# Use TwoPiAngles to generate E1 transition to spin-0 resonance
-# $GAMMAKK/gammaKKExe/generatePhysics twopiangles0.cfg  physics.twopiangles0.gen.root 1000000 1
+$GAMMAKK/gammaKKExe/generatePhysics helicity0.cfg physics.helicity0.gen.root    1000000 1
 
 if( ($?VERBOSE) ) then
     echo "";
@@ -119,8 +117,7 @@ endif
 #
 # 5. apply toy acceptance to physics
 #
-# $GAMMAKK/gammaKKExe/toyAcceptance physics.helicity0.gen.root physics.helicity0.acc.root
-# $GAMMAKK/gammaKKExe/toyAcceptance physics.twopiangles0.gen.root physics.twopiangles0.acc.root
+$GAMMAKK/gammaKKExe/toyAcceptance physics.helicity0.gen.root physics.helicity0.acc.root
 
 if( ($?VERBOSE) ) then
     echo "";
@@ -137,18 +134,15 @@ endif
 # 6. create plots to compare the physics Dalitz plots
 #
 ### helicity amplitudes for spin-0 resonance
-# mkdir -p ./figures/physics/helicity0.gen.root/
-# mkdir -p ./figures/physics/helicity0.acc.root/
+mkdir -p ./figures/physics/helicity0.gen.root/
+mkdir -p ./figures/physics/helicity0.acc.root/
 
 ### TwoPiAngles amplitudes for spin-0 resonance
-# mkdir -p ./figures/physics/helicity0.gen.root/
-# mkdir -p ./figures/physics/helicity0.acc.root/
+mkdir -p ./figures/physics/helicity0.gen.root/
+mkdir -p ./figures/physics/helicity0.acc.root/
 
 ### helicity amplitudes for spin-0 resonance
-# $GAMMAKK/gammaKKExe/plotData physics.helicity0.gen.root plots.physics.helicity0.gen.root
-
-### TwoPiAngles amplitudes for spin-0 resonance
-# $GAMMAKK/gammaKKExe/plotData physics.twopiangles0.gen.root plots.physics.twopiangles0.gen.root
+$GAMMAKK/gammaKKExe/plotData physics.helicity0.gen.root plots.physics.helicity0.gen.root
 
 if( ($?VERBOSE) ) then
     echo "";
@@ -176,9 +170,6 @@ if( ($?VERBOSE) ) then
     read inputline > /dev/null
 endif
 
-# TwoPiAngles amplitudes for spin-0 resonance
-$GAMMAKK/gammaKKExe/fitAmplitudesATI twopiangles0.fit.cfg
-
 if( ($?VERBOSE) ) then
     echo "";
     echo "-----------------------------------------------------------";
@@ -197,9 +188,6 @@ endif
 # helicity amplitudes for spin-0 resonance
 $GAMMAKK/gammaKKExe/plotResults helicity0.fit.cfg helicity0.fit plots.fitresult.helicity0.root
 
-# TwoPiAngles amplitudes for spin-0 resonance
-$GAMMAKK/gammaKKExe/plotResults twopiangles0.fit.cfg twopiangles0.fit plots.fitresult.twopiangles0.root
-
 if( ($?VERBOSE) ) then
     echo "";
     echo "-----------------------------------------------------------";
@@ -217,9 +205,6 @@ endif
 
 # helicity amplitudes for spin-0 resonance
 root $GAMMAKK/gammaKKExe/plotRootFile.C'("plots.fitresult.helicity0.root")'
-
-# TwoPiAngles amplitudes for spin-0 resonance
-root $GAMMAKK/gammaKKExe/plotRootFile.C'("plots.fitresult.twopiangles0.root")'
 
 if( ($?VERBOSE) ) then
     echo "";
