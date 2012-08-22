@@ -60,9 +60,9 @@ cd $GAMMAKK/gammaKKExe/massBins2
 
 #--------------------------------------------------------------------------------------------------
 #
-# 1. generate 10,000,000 phase space events
+# 1. generate 10,000 phase space events
 #
-# $GAMMAKK/gammaKKExe/generatePhaseSpace phasespace.gen.root 10000000
+$GAMMAKK/gammaKKExe/generatePhaseSpace phasespace.gen.root 100000
 if( ($?VERBOSE) ) then
     echo "";
     echo "-----------------------------------------------------------";
@@ -78,7 +78,7 @@ endif
 #
 # 2. apply toy acceptance to phase space
 #
-# $GAMMAKK/gammaKKExe/toyAcceptance phasespace.gen.root phasespace.acc.root
+$GAMMAKK/gammaKKExe/toyAcceptance phasespace.gen.root phasespace.acc.root
 if( ($?VERBOSE) ) then
     echo "";
     echo "-----------------------------------------------------------";
@@ -91,10 +91,10 @@ endif
 
 #--------------------------------------------------------------------------------------------------
 #
-# 3. generate 1,000,000 physics events
+# 3. generate 10,000 physics events
 #
 # Use gammaKKHelicityAmp.cc to generate spin-0 resonance
-# $GAMMAKK/gammaKKExe/generatePhysics helicity0.cfg physics.helicity0.gen.root    1000000 1
+$GAMMAKK/gammaKKExe/generatePhysics helicity0.cfg physics.helicity0.gen.root    10000 1
 
 if( ($?VERBOSE) ) then
     echo "";
@@ -110,7 +110,7 @@ endif
 #
 # 4. apply toy acceptance to physics
 #
-# $GAMMAKK/gammaKKExe/toyAcceptance physics.helicity0.gen.root physics.helicity0.acc.root
+$GAMMAKK/gammaKKExe/toyAcceptance physics.helicity0.gen.root physics.helicity0.acc.root
 
 if( ($?VERBOSE) ) then
     echo "";
@@ -168,7 +168,7 @@ endif
 #
 
 # helicity amplitudes for spin-0 resonance
-#$GAMMAKK/gammaKKExe/plotResults helicity0.fit.cfg helicity0.fit plots.fitresult.helicity0.root
+# $GAMMAKK/gammaKKExe/plotResults helicity0.fit.cfg helicity0.fit plots.fitresult.helicity0.root
 
 if( ($?VERBOSE) ) then
     echo "";
