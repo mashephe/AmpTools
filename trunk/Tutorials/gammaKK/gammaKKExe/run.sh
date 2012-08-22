@@ -204,7 +204,7 @@ endif
 #
 
 # helicity amplitudes for spin-0 resonance
-root $GAMMAKK/gammaKKExe/plotRootFile.C'("plots.fitresult.helicity0.root")'
+root $GAMMAKK/gammaKKExe/plotRootFile.C'("plots.fitresult.helicity0.root",1)'
 
 if( ($?VERBOSE) ) then
     echo "";

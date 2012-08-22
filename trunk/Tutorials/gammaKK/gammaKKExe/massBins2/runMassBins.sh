@@ -60,7 +60,7 @@ cd $GAMMAKK/gammaKKExe/massBins2
 
 #--------------------------------------------------------------------------------------------------
 #
-# 1. generate 10,000 phase space events
+# 1. generate 100,000 phase space events
 #
 $GAMMAKK/gammaKKExe/generatePhaseSpace phasespace.gen.root 100000
 if( ($?VERBOSE) ) then
