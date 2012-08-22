@@ -179,16 +179,11 @@ int main( int argc, char* argv[] ){
       // cout << "i = " << i ", amp[i] = " << amps[i] << endl;
       // }
 
-      string ampname = reactionName;
-      ampname += "sum1::flat_0";
 
-      for(map<string, complex<double> >::iterator previous_iter = previous_fit.begin();previous_iter != previous_fit.end();previous_iter++){
-	complex<double> prodamp;
-	if((*previous_iter).first==ampname){
-	  prodamp = (*previous_iter).second;
-	  cfgInfo->amplitude(reactionName,"sum1","flat_0")->setValue(prodamp);
-	  cfgInfo->amplitude(reactionName,"sum1","flat_0")->setReal(true);
-	}
+      vector<AmplitudeInfo*> ampInfos = cfgInfo->amplitudeList();
+      for (unsigned int iampInfo = 0; iampInfo < ampInfos.size(); iampInfo++){
+        ampInfos[iampInfo]->setValue(previous_fit[ampInfos[iampInfo]->fullName()]); 
+        ampInfos[iampInfo]->setReal(true); 
       }
     }
 
