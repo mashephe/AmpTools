@@ -17,7 +17,7 @@
 
 #include <iostream>
 
-int plotRootFile(string filename=""){
+int plotRootFile(string filename="", Int_t numAmps = 1){
 
   gROOT->ForceStyle();
   gStyle->SetTitleSize(0.050,"XYZ"); 
@@ -48,7 +48,10 @@ int plotRootFile(string filename=""){
   // for each amplitude, and total.
 
   const Int_t NUMTYPES = 3;
-  const Int_t NUMAMPS  = 1;
+
+  // Take in the number of amplitudes we need to fit to from the
+  // command line.
+  const Int_t NUMAMPS  = numAmps;
 
   const Int_t mycolors[] = {kRed, kBlue, kGreen, kMagenta, kCyan};
 

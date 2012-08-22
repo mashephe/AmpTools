@@ -92,7 +92,13 @@ int main( int argc, char* argv[] ){
   string value;
   ostringstream ss;
 
-  complex<double> previous_flat_0(100,0);
+  // A map that ties together the amplitude name and
+  // the previous fit result (a complex double)
+  //
+  // For each fit done, this will be filled with the fitted
+  // prodcution amplitude
+  map<string, complex<double> > previous_fit;
+  // complex<double> previous_flat_0(100,0);
 
   // This will be used to save the new fit name,
   // which is used to get the fit file
@@ -161,12 +167,38 @@ int main( int argc, char* argv[] ){
     //    4. Finally, initialize the fit parameters according to    //
     //       the previous fit result.                               //
     //////////////////////////////////////////////////////////////////
+    if(i!=0){
+
+      // Create a PlotGenerator so that we can get all of the amplitude names
+      // gammaKKPlotGenerator plotGenerator(cfgInfo,fitfilename);
+      // plotGenerator.enableReaction(reactionName);
+      // vector<string> amps = plotGenerator.fullAmplitudes();
+
+      // Loop over the different amplitudes and find the corresponding production amplitude
+      // for(int i=0;i<amps.size();i++){
+      // cout << "i = " << i ", amp[i] = " << amps[i] << endl;
+      // }
+
+      string ampname = reactionName;
+      ampname += "sum1::flat_0";
+
+      for(map<string, complex<double> >::iterator previous_iter = previous_fit.begin();previous_iter != previous_fit.end();previous_iter++){
+	complex<double> prodamp;
+	if((*previous_iter).first==ampname){
+	  prodamp = (*previous_iter).second;
+	  cfgInfo->amplitude(reactionName,"sum1","flat_0")->setValue(prodamp);
+	  cfgInfo->amplitude(reactionName,"sum1","flat_0")->setReal(true);
+	}
+      }
+    }
+
+
     // For the 1st bin, the values are set in the configuration file.
     // For the other bins, use the previous fit result.
-    if(i!=0){
-      cfgInfo->amplitude(reactionName,"amp1","flat_0")->setValue(previous_flat_0);
-      cfgInfo->amplitude(reactionName,"amp1","flat_0")->setReal(true);
-    }
+    // if(i!=0){
+    // cfgInfo->amplitude(reactionName,"amp1","flat_0")->setValue(previous_flat_0);
+    // cfgInfo->amplitude(reactionName,"amp1","flat_0")->setReal(true);
+    // }
 
     // Show what config info is
     cout << "--------------------------------------------------------------------------" << endl;
@@ -212,17 +244,23 @@ int main( int argc, char* argv[] ){
       vector<string> amps = plotGenerator.fullAmplitudes();
 
       for(int i=0;i<amps.size();i++){
-	previous_flat_0 = ATI.parameterManager()->findParameter(amps[i])->value();
+	// previous_fit = ATI.parameterManager()->findParameter(amps[i])->value();
+	previous_fit[amps[i]] = ATI.parameterManager()->findParameter(amps[i])->value();
 	cout << "amplitude number " << i
 	     << ", ampname =  " << amps[i]
-	     << ", value = " << previous_flat_0 << endl;
+	     << ", value = " << previous_fit[amps[i]] << endl;
       }
     }
+  
+    // previous_flat_0 = ATI.parameterManager()->findParameter(amps[i])->value();
+    // cout << "amplitude number " << i
+    // << ", ampname =  " << amps[i]
+    // << ", value = " << previous_flat_0 << endl;
+    // }
+    // }
     
   } // end of loop over different mass bins
   
   return 0;
 
 }
-
-
