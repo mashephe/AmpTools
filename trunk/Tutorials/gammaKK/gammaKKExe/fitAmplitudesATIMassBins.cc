@@ -208,17 +208,10 @@ int main( int argc, char* argv[] ){
     // For the 1st bin, the values are set in the configuration file.
     // For the other bins, use the previous fit result.
     if(i!=0){
-      string ampname = reactionName;
-      ampname += "sum1::flat_0";
-      
-      // Loop over the different amplitudes and find the corresponding production amplitude
-      for(map<string, complex<double> >::iterator previous_iter = previous_fit.begin();previous_iter != previous_fit.end();previous_iter++){
-	complex<double> prodamp;
-	if((*previous_iter).first==ampname){
-	  prodamp = (*previous_iter).second;
-	  cfgInfo->amplitude(reactionName,"sum1","flat_0")->setValue(prodamp);
-	  cfgInfo->amplitude(reactionName,"sum1","flat_0")->setReal(true);
-	}
+      vector<AmplitudeInfo*> ampInfos = cfgInfo->amplitudeList();
+      for (unsigned int iampInfo = 0; iampInfo < ampInfos.size(); iampInfo++){
+        ampInfos[iampInfo]->setValue(previous_fit[ampInfos[iampInfo]->fullName()]); 
+        ampInfos[iampInfo]->setReal(true); 
       }
     }
 
@@ -266,14 +259,13 @@ int main( int argc, char* argv[] ){
       vector<string> amps = plotGenerator.fullAmplitudes();
 
       for(int i=0;i<amps.size();i++){
-	// previous_fit = ATI.parameterManager()->findParameter(amps[i])->value();
 	previous_fit[amps[i]] = ATI.parameterManager()->findParameter(amps[i])->value();
 	cout << "amplitude number " << i
 	     << ", ampname =  " << amps[i]
 	     << ", value = " << previous_fit[amps[i]] << endl;
       }
     }
-
+    
   } // end of loop over different mass bins
   
   return 0;
