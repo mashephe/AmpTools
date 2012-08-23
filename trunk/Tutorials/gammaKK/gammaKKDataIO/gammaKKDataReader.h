@@ -20,7 +20,7 @@ using namespace std;
  * file name and Tree name in the constructor,
  * and reading in 3 4-vectors for each event.
  * The 4-vectors are formatted in E, x, y, z,
- * for the particles 1, 2, 3.
+ * for the particles 1 (photon), 2 (K+), 3 (K-).
  *
  * The variable m_eventCounter keeps track of
  * where within the set of events we are, and
