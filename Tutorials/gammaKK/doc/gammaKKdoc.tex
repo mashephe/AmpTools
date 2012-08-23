@@ -75,7 +75,7 @@ state.
 This tutorial should have been downloaded together with the
 \AmpTools{} package. Since this tutorial is based on the Dalitz plot
 analysis tutorial also included, it is recommended that the Dalitz
-plot tutorial be worked out first, if you want to familiarize yourself
+plot tutorial be worked out first, to familiarize yourself
 with the \AmpTools{} package.
 
 The overall directory structure is set up as follows. The directories
@@ -155,8 +155,8 @@ This directory contains only gammaKKPlotGenerator, which is used to
 plot the results of a fit done in this tutorial. The
 gammaKKPlotGenerator class inherits from PlotGenerator in \AmpTools,
 and will implement the virtual function {\tt{fillProjections}}. The
-only executable that will use this class is plotResults in
-gammaKKExe.
+executables that will use this class are plotResults and
+fitAmplitudesMassBins in gammaKKExe.
 
 \item gammaKKAmp
 
@@ -198,12 +198,12 @@ Note that due to conservation of angular momentum, $|J - J_{\gamma}|
 $\psi'$. Since the helicity of the photon is always $\lambda = \pm 1$
 due to its having no mass, $J_{\gamma}$ can never be $0$. These put
 restrictions on what values $J_{\gamma}$ can take for a specific
-reaction, and for example, for $J=0$, $J_{\gamma} = 1$, for $J=1$,
+reaction For example, for $J=0$, $J_{\gamma} = 1$ only, for $J=1$,
 $J_{\gamma} = 1, 2$, for $J=2$, $J_{\gamma} = 1, 2, 3$, and so on.
 
 The strength of the multipole amplitudes are related to the helicity
 amplitudes by a unitary transformation that conserves the overall
-strength of the reaction, which is intuitively obvious. Although the
+strength of the reaction. Although the
 multipole basis is rather complicated due to its containing many sums
 and coefficients, physics models can give arguments that the lower
 multipoles will dominate in certain reactions, and in this case it is
@@ -231,13 +231,17 @@ Here we will view the executables that will be used.
       \item number of events
     \end{itemize}
 
-    \comment{Take out TGenPhaseSpace, use NBodyPhaseSpace}
-
-    For the actual generation of phase space events, the ROOT class
-    TGenPhaseSpace is used. This allows for the creation of phase
-    space distributions of up to $20$ particles. Each event is
-    generated with a specific weight, so that when the events are
-    weighted with that weight, we obtain a flat distribution.
+    For the actual generation of phase space events, the class
+    NBodyPhaseSpace contained in the directory gammaKKAmp is
+    used.
+    % // -----------------------------------------------------------
+    % //       This applies to TGenPhaseSpace only                //
+    % This allows for the creation of phase
+    % space distributions of up to $20$ particles.
+    %Each event is
+    %generated with a specific weight, so that when the events are
+    %weighted with that weight, we obtain a flat distribution.
+    % // -----------------------------------------------------------
 
   \item generatePhysics
 
@@ -261,7 +265,8 @@ Here we will view the executables that will be used.
     intensity is saved. Since we want the phase space distribution to
     be filled with each event's weight proportional to its intensity,
     we will throw a random number for each event and keep the event
-    only if the intensity is higher than the maximum intenstiy.
+    only if the intensity is higher than the maximum intenstiy
+    multiplied by the random number.
 
     At the end of the program, the program will report how many events
     have been retained for analysis. The kept events are written into
@@ -322,6 +327,55 @@ Here we will view the executables that will be used.
     gammaKKPlotGenerator. The histograms will be for the data, the
     accepted Monte Carlo events, and the generated Monte Carlo events,
     based on the fit result.
+
+  \item fitAmplitudesATIMassBins and fitAmplitudesATISplitMassBins
+
+    These programs are designed to do a mass-independent fit to the
+    spectrum of $J/\psi \to \gamma K_{S} K_{S}$, where the data is
+    binned in the invariant mass of the $K_{S} K_{S}$ system, and a
+    fit is done independently for each mass bin.
+
+    Since it is sometimes useful to be able to seed the next mass
+    bin's fit by the previous mass bin's fit result, these two
+    programs show examples of how to save the current fit results, and
+    put them back into the next fit. In both cases, information
+    necessary for binning in $K_{S} K_{S}$ mass is given in the same
+    cfg file that will be used in the fit. The keyword ``binning'' is
+    used with three arguments,
+    \begin{itemize}
+      \item the number of mass bin
+      \item the minimum value
+      \item the maximum value
+    \end{itemize}
+    and this information is extracted within the programs using the
+    class ConfigurationInfo.
+
+    fitAmplitudesATIMassBins is designed to read in all of the ROOT
+    files necessary (data, generated Monte Carlo events, accepted
+    Monte Carlo events), and for each mass bin, it will loop over the
+    entire file to determine how many events fit in that mass bin.
+    This is done by passing in three arguments into the
+    gammaKKDataReader, where the first argument is the file name, and
+    the second and third arguments are the mass ranges of the $K_{S}
+    K_{S}$ system.
+
+    As the entire ROOT files are read in and the $K_{S} K_{S}$
+    invariant mass is calculated for each event in each mass bin, the
+    program is rather slow. An example script of using this program is
+    provided in the directory gammaKKExe/massBins1.
+
+    The alternative to this method is to split the necessary ROOT
+    files into $K_{S} K_{S}$ mass bins before starting the fits, and
+    this is what fitAmplitudesATISplitMassBins does. We first need to
+    use the program splitByMass to split each of the ROOT files into
+    however many bins are necessary. Then, for the actual fitting,
+    only the necessary ROOT files for that mass bin are required to be
+    read in.
+
+    This method is the quicker of the two, but the downside is that
+    you end up with many more data files in your directory. An example
+    script using this program is contained in the directory
+    gammaKKExe/massBins2.
 
 \end{itemize}
 
@@ -672,7 +726,7 @@ theory for $\text{E1/M2} = 0.05$.
     \begin{minipage}[c]{\textwidth}
       \centering
       \label{fig:helicity_with_helicity}
-      \includegraphics[width=\columnwidth]{helicity_with_helicity.pdf}
+      \includegraphics[width=0.9\columnwidth]{helicity_with_helicity.pdf}
     \end{minipage}
   }
   \hfill
@@ -680,7 +734,7 @@ theory for $\text{E1/M2} = 0.05$.
     \begin{minipage}[c]{\textwidth}
       \centering
       \label{fig:helicity_with_multipole}
-      \includegraphics[width=\columnwidth]{helicity_with_multipole.pdf}
+      \includegraphics[width=0.9\columnwidth]{helicity_with_multipole.pdf}
     \end{minipage}
   }
   \caption{
@@ -703,7 +757,7 @@ theory for $\text{E1/M2} = 0.05$.
     \begin{minipage}[c]{\textwidth}
       \centering
       \label{fig:multipole_with_helicity}
-      \includegraphics[width=\columnwidth]{multipole_with_helicity.pdf}
+      \includegraphics[width=0.9\columnwidth]{multipole_with_helicity.pdf}
     \end{minipage}
   }
   \hfill
@@ -711,7 +765,7 @@ theory for $\text{E1/M2} = 0.05$.
     \begin{minipage}[c]{\textwidth}
       \centering
       \label{fig:multipole_with_multipole}
-      \includegraphics[width=\columnwidth]{multipole_with_multipole.pdf}
+      \includegraphics[width=0.9\columnwidth]{multipole_with_multipole.pdf}
     \end{minipage}
   }
   \caption{
@@ -748,25 +802,25 @@ what is going on inside each step of the program.
 %                                     Appendix                                       *
 %                                                                                    *
 %*************************************************************************************
-\appendix
-
-\section{Appendix}
-
-This Appendix is a reference for multipole transition papers in
-charmonium for people interested in the multipole expansion.
-
-\subsection{Experimental Papers}
-There have been many papers that discuss the multipole amplitudes of
-charmonium, some of which are listed below.
-
-\begin{enumerate}
-
-\item Crystal Ball@SLAC (1982)
-\item CLEO-c (2009)
-\item BESIII (2011)
-\end{enumerate}
-
-
-\subsection{Theory Papers}
-
+%% \appendix
+%% 
+%% \section{Appendix}
+%% 
+%% This Appendix is a reference for multipole transition papers in
+%% charmonium for people interested in the multipole expansion.
+%% 
+%% \subsection{Experimental Papers}
+%% There have been many papers that discuss the multipole amplitudes of
+%% charmonium, some of which are listed below.
+%% 
+%% \begin{enumerate}
+%% 
+%% \item Crystal Ball@SLAC (1982)
+%% \item CLEO-c (2009)
+%% \item BESIII (2011)
+%% \end{enumerate}
+%% 
+%% 
+%% \subsection{Theory Papers}
+ 
 \end{document}

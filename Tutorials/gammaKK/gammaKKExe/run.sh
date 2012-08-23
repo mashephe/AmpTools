@@ -139,12 +139,8 @@ endif
 # 6. create plots to compare the physics Dalitz plots
 #
 ### helicity amplitudes for spin-0 resonance
-mkdir -p ./figures/physics/helicity0.gen.root/
-mkdir -p ./figures/physics/helicity0.acc.root/
-
-### TwoPiAngles amplitudes for spin-0 resonance
-mkdir -p ./figures/physics/helicity0.gen.root/
-mkdir -p ./figures/physics/helicity0.acc.root/
+mkdir -p ./figures/physics.helicity0.gen.root/
+mkdir -p ./figures/physics.helicity0.acc.root/
 
 ### helicity amplitudes for spin-0 resonance
 $GAMMAKK/gammaKKExe/plotData physics.helicity0.gen.root plots.physics.helicity0.gen.root

@@ -1,18 +1,15 @@
 
 PROJECT = gammaKKdoc
 
-TEX_FILES = $(shell ls *.tex *.bib)
+TEX_FILES = $(shell ls *.tex)
 
 .PHONY all: $(PROJECT)
 
 $(PROJECT): $(TEX_FILES)
-#	cp log log.old
-	@rm -f log
-	pdflatex $@.tex | tee log
-	bibtex   $@ | tee log
-	pdflatex $@.tex | tee log
-	pdflatex $@.tex | tee log
-#	dvipdfm $@.dvi
+	pdflatex $@.tex
+#	bibtex   $@
+	pdflatex $@.tex
+	pdflatex $@.tex
 	open $@.pdf
 
 clean:
@@ -23,4 +20,3 @@ clean:
 	@rm -f *.toc
 	@rm -f *.bbl
 	@rm -f *.blg
-	@rm -f gammaKKdoc.pdf

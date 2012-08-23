@@ -10,7 +10,6 @@
 #include "IUAmpTools/AmpToolsInterface.h"
 #include "gammaKKDataIO/gammaKKDataReader.h"
 #include "gammaKKAmp/gammaKKHelicityAmp.h"
-#include "gammaKKAmp/TwoPiAngles.h"
 #include "gammaKKAmp/MultipoleAmps.h"
 
 using std::complex;
@@ -56,7 +55,6 @@ int main( int argc, char* argv[] ){
     // ************************
 
   AmpToolsInterface::registerAmplitude(gammaKKHelicityAmp());
-  AmpToolsInterface::registerAmplitude(TwoPiAngles());
   AmpToolsInterface::registerAmplitude(MultipoleAmps());
 
   AmpToolsInterface::registerDataReader(gammaKKDataReader());
