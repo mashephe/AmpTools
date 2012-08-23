@@ -7,11 +7,8 @@
 #include "CLHEP/Vector/LorentzVector.h"
 #include "IUAmpTools/Kinematics.h"
 
-// We don't want to rely on MCToolkit for now...
-// The ROOT class TGenPhaseSpace is equivalent.
-// #include "MCToolkit/NBodyPhaseSpaceFactory.h"
+#include "gammaKKAmp/NBodyPhaseSpaceFactory.h"
 #include "TLorentzVector.h"
-#include "TGenPhaseSpace.h"
 #include "TRandom2.h"
 
 #include "gammaKKDataIO/gammaKKDataWriter.h"
@@ -57,6 +54,35 @@ int main(int argc, char** argv){
   cout << "... Finished creating Data Writer" << endl << endl;
 
 
+
+    // ************************
+    // set up an NBodyPhaseSpaceFactory object
+    // ************************
+
+  double parentMass = m_Jpsi;
+  vector<double> daughterMasses;
+  daughterMasses.push_back(m_photon);
+  daughterMasses.push_back(m_KZero);
+  daughterMasses.push_back(m_KZero);
+
+  NBodyPhaseSpaceFactory generator(parentMass, daughterMasses);
+  cout << "generating phase space..." << endl;
+
+  for (int i = 0; i < NEVENTS; i++){
+
+    vector<HepLorentzVector> fourmomenta = generator.generateDecay();
+
+    Kinematics* kin = new Kinematics(fourmomenta);
+
+    // Write out the event to file
+    dataWriter.writeEvent(*kin);
+    if(dataWriter.eventCounter() % 100000==0)
+      cout << "Event counter = " << dataWriter.eventCounter() << endl;
+    
+    delete kin;
+  }
+
+  /*
     // ************************
     // set up an TGenPhaseSpace object (from ROOT)
     // ************************
@@ -135,28 +161,6 @@ int main(int argc, char** argv){
   cout << "Total of " << nRejected << " events rejected (" << NEVENTS << " events generated)" << endl;
   cout << "Rejection rate: " << 1. * nRejected / NEVENTS * 100. << " %" << endl;
 
-  // This taken out since it relies on the MCToolkit/NBodyPhaseSpace class
-  // double parentMass = 3.0;
-  // vector<double> daughterMasses;
-  // daughterMasses.push_back(0.2);
-  // daughterMasses.push_back(0.2);
-  // daughterMasses.push_back(0.2);
-  // 
-  // NBodyPhaseSpaceFactory generator(parentMass, daughterMasses);
-  // // ************************
-  // // use the gammaKKDataWriter object to write events to a file
-  // // ************************
-  // 
-  // for (int i = 0; i < NEVENTS; i++){
-  // 
-  //   vector<HepLorentzVector> fourvectors = generator.generateDecay();
-  // 
-  //   Kinematics kin(fourvectors);
-  // 
-  //   dataWriter.writeEvent(kin);
-  // 
-  //   if (dataWriter.eventCounter() % 1000 == 0)
-  //     cout << "Event counter = " << dataWriter.eventCounter() << endl;
-  // 
-  // }
+*/
+
 }

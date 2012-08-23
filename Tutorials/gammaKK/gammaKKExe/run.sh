@@ -57,6 +57,7 @@ if( ($?VERBOSE) ) then
     echo "-----------------------------------------------------------";
     echo "Finished generating phase space events";
     echo "Press return key to continue";
+    echo "Next step:     apply toy acceptance";
     read inputline > /dev/null
 endif
 
@@ -73,6 +74,7 @@ if( ($?VERBOSE) ) then
     echo "-----------------------------------------------------------";
     echo "Finished applying toy acceptance to phase space events";
     echo "Press return key to continue";
+    echo "Next step:     create plots for phase space MC";
     read inputline > /dev/null
 endif
 #--------------------------------------------------------------------------------------------------
@@ -91,6 +93,7 @@ if( ($?VERBOSE) ) then
     echo "-----------------------------------------------------------";
     echo "Finished making plots for phase space events";
     echo "Press return key to continue";
+    echo "Next step:     generate physics events";
     read inputline > /dev/null
 endif
 #--------------------------------------------------------------------------------------------------
@@ -108,6 +111,7 @@ if( ($?VERBOSE) ) then
     echo "-----------------------------------------------------------";
     echo "Finished generating physics events";
     echo "Press return key to continue";
+    echo "Next step:     apply toy acceptance to data";
     read inputline > /dev/null
 endif
 #--------------------------------------------------------------------------------------------------
@@ -124,6 +128,7 @@ if( ($?VERBOSE) ) then
     echo "-----------------------------------------------------------";
     echo "Finished applying toy acceptance to physics events";
     echo "Press return key to continue";
+    echo "Next step:     create plots for data";
     read inputline > /dev/null
 endif
 #--------------------------------------------------------------------------------------------------
@@ -149,6 +154,7 @@ if( ($?VERBOSE) ) then
     echo "-----------------------------------------------------------";
     echo "Finished creating plots for physics events";
     echo "Press return key to continue";
+    echo "Next step:     fit the data";
     read inputline > /dev/null
 endif
 #--------------------------------------------------------------------------------------------------
@@ -167,14 +173,7 @@ if( ($?VERBOSE) ) then
     echo "-----------------------------------------------------------";
     echo "Finished doing fits to helicity0 events";
     echo "Press return key to continue";
-    read inputline > /dev/null
-endif
-
-if( ($?VERBOSE) ) then
-    echo "";
-    echo "-----------------------------------------------------------";
-    echo "Finished doing fits to twopiangles0 events";
-    echo "Press return key to continue";
+    echo "Next step:     plot fit results";
     read inputline > /dev/null
 endif
 #--------------------------------------------------------------------------------------------------
@@ -193,6 +192,7 @@ if( ($?VERBOSE) ) then
     echo "-----------------------------------------------------------";
     echo "Finished creating ROOT files for fit results";
     echo "Press return key to continue";
+    echo "Next step:     show the histograms created using ROOT macro";
     read inputline > /dev/null
 endif
 #--------------------------------------------------------------------------------------------------
@@ -204,14 +204,15 @@ endif
 #
 
 # helicity amplitudes for spin-0 resonance
+mkdir -p ./figures/plots.fitresult.helicity0.root/
 root $GAMMAKK/gammaKKExe/plotRootFile.C'("plots.fitresult.helicity0.root",1)'
 
 if( ($?VERBOSE) ) then
     echo "";
     echo "-----------------------------------------------------------";
     echo "Finished creating ROOT files for fit results";
-    echo "Press return key to continue";
-    read inputline > /dev/null
+#    echo "Press return key to continue";
+#    read inputline > /dev/null
 endif
 #--------------------------------------------------------------------------------------------------
 
