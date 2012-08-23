@@ -13,7 +13,6 @@
 #include "gammaKKExe/constants.h"
 
 // amplitudes
-#include "gammaKKAmp/TwoPiAngles.h"
 #include "gammaKKAmp/gammaKKHelicityAmp.h"
 #include "gammaKKAmp/MultipoleAmps.h"
 #include "gammaKKAmp/NBodyPhaseSpaceFactory.h"
@@ -73,7 +72,6 @@ int main(int argc, char** argv){
   AmplitudeManager ampMan(reaction->particleList(),reaction->reactionName());
 
   // Register all amplitudes that we could use
-  ampMan.registerAmplitudeFactor( TwoPiAngles() );
   ampMan.registerAmplitudeFactor( gammaKKHelicityAmp() );
   ampMan.registerAmplitudeFactor( MultipoleAmps() );
   ampMan.setupFromConfigurationInfo( cfgInfo );

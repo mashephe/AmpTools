@@ -87,7 +87,7 @@ int plotRootFile(string filename="", Int_t numAmps = 1){
     // MC
     else{
 
-      sprintf(hname,"hPhotonCosTheta%s",datatype,iamp+1);
+      sprintf(hname,"hPhotonCosTheta%s",datatype);
       sprintf(hnewname,"_hPhotonCosTheta%s",datatype);
       htotMCPhotonCosTheta[itype] = (TH1F*)infile->Get(hname)->Clone(hnewname);
 
@@ -143,23 +143,23 @@ int plotRootFile(string filename="", Int_t numAmps = 1){
       legendPhotonCosTheta[itype]->AddEntry(hdataPhotonCosTheta[itype],text,"LP");
 
       // Draw acc MC on top
-      hsumMCPhotonCosTheta[1]->SetLineColor(kViolet);
-      hsumMCPhotonCosTheta[1]->SetLineWidth(2);
-      hsumMCPhotonCosTheta[1]->SetLineStyle(2);
-      hsumMCPhotonCosTheta[1]->Draw("same");
+      htotMCPhotonCosTheta[1]->SetLineColor(kViolet);
+      htotMCPhotonCosTheta[1]->SetLineWidth(2);
+      htotMCPhotonCosTheta[1]->SetLineStyle(1);
+      htotMCPhotonCosTheta[1]->Draw("hist,same");
 
-      sprintf(text,"sum for acc MC");
-      legendPhotonCosTheta[itype]->AddEntry(hsumMCPhotonCosTheta[1],text,"LP");
+      sprintf(text,"total for acc MC");
+      legendPhotonCosTheta[itype]->AddEntry(htotMCPhotonCosTheta[1],text,"LP");
 
       // Draw each amplitude contribution for acc MC
       for(Int_t iamp=0;iamp<NUMAMPS;iamp++){ // for each amplitude
 	hMCPhotonCosTheta[1][iamp]->SetLineColor(mycolors[iamp]);
 	hMCPhotonCosTheta[1][iamp]->SetLineWidth(1);
-	hMCPhotonCosTheta[1][iamp]->SetLineStyle(2);
+	hMCPhotonCosTheta[1][iamp]->SetLineStyle(1);
 	hMCPhotonCosTheta[1][iamp]->SetMarkerColor(mycolors[iamp]);
 	hMCPhotonCosTheta[1][iamp]->SetMarkerSize(0.50);
 	hMCPhotonCosTheta[1][iamp]->SetMarkerStyle(20);
-	hMCPhotonCosTheta[1][iamp]->Draw("same");
+	hMCPhotonCosTheta[1][iamp]->Draw("hist,same");
 	
 	sprintf(text,"for amp %d",iamp+1);
 	legendPhotonCosTheta[itype]->AddEntry(hMCPhotonCosTheta[1][iamp],text,"LP");
@@ -174,16 +174,34 @@ int plotRootFile(string filename="", Int_t numAmps = 1){
       htotMCPhotonCosTheta[itype]->SetMinimum(0);
       htotMCPhotonCosTheta[itype]->GetXaxis()->CenterTitle();
       htotMCPhotonCosTheta[itype]->GetYaxis()->CenterTitle();
-      htotMCPhotonCosTheta[itype]->Draw();
+      htotMCPhotonCosTheta[itype]->Draw("hist");
 
-      hsumMCPhotonCosTheta[itype]->SetLineColor(kRed);
+      sprintf(text,"total fit result for %s MC",datatype);
+      legendPhotonCosTheta[itype]->AddEntry(htotMCPhotonCosTheta[itype],text,"LP");
+
+      /*
+      // It's just confusing to have the sum of individual intensities,
+      // since for the E1/M2 example, this is not too different
+      // from the E1 alone
+      hsumMCPhotonCosTheta[itype]->SetLineColor(kViolet);
       hsumMCPhotonCosTheta[itype]->SetLineWidth(2);
       hsumMCPhotonCosTheta[itype]->SetLineStyle(1);
       hsumMCPhotonCosTheta[itype]->SetMinimum(0);
-      hsumMCPhotonCosTheta[itype]->Draw("same");
+      hsumMCPhotonCosTheta[itype]->Draw("hist,same");
 
-      sprintf(text,"total for %s MC",datatype);
+      sprintf(text,"total sum of individual intensities for %s MC",datatype);
       legendPhotonCosTheta[itype]->AddEntry(hsumMCPhotonCosTheta[itype],text,"LP");
+      */
+
+      for(Int_t iamp=0;iamp<NUMAMPS;iamp++){ // for each amplitude
+	hMCPhotonCosTheta[itype][iamp]->SetLineColor(mycolors[iamp]);
+	hMCPhotonCosTheta[itype][iamp]->SetLineWidth(1);
+	hMCPhotonCosTheta[itype][iamp]->SetLineStyle(1);
+	hMCPhotonCosTheta[itype][iamp]->Draw("hist,same");
+	
+	sprintf(text,"intensity for amp %d",iamp+1);
+	legendPhotonCosTheta[itype]->AddEntry(hMCPhotonCosTheta[itype][iamp],text,"LP");
+      }
 
       // If this is the generated MC, then do a fit to 1 + alpha cos^2 theta
       if(itype==2){
@@ -201,19 +219,9 @@ int plotRootFile(string filename="", Int_t numAmps = 1){
 
 	sprintf(text,"fit with 1+#alpha cos^{2}#theta_{#gamma},#alpha=%7.5f#pm%7.5f",
 		fitFunc->GetParameter(1),fitFunc->GetParError(1));
-	legendPhotonCosTheta[itype]->AddEntry(fitFunc,text,"LP");
+	legendPhotonCosTheta[itype]->AddEntry(fitFunc,text,"L");
       } // end of gen MC
       
-      for(Int_t iamp=0;iamp<NUMAMPS;iamp++){ // for each amplitude
-	hMCPhotonCosTheta[itype][iamp]->SetLineColor(mycolors[iamp]);
-	hMCPhotonCosTheta[itype][iamp]->SetLineWidth(1);
-	hMCPhotonCosTheta[itype][iamp]->SetLineStyle(2);
-	hMCPhotonCosTheta[itype][iamp]->Draw("same");
-	
-	sprintf(text,"intensity for amp %d",iamp+1);
-	legendPhotonCosTheta[itype]->AddEntry(hMCPhotonCosTheta[itype][iamp],text,"LP");
-
-      }
     } // end of MC
     legendPhotonCosTheta[itype]->Draw("same");
 
