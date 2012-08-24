@@ -199,7 +199,7 @@ int plotRootFile(string filename="", Int_t numAmps = 1){
 	hMCPhotonCosTheta[itype][iamp]->SetLineStyle(1);
 	hMCPhotonCosTheta[itype][iamp]->Draw("hist,same");
 	
-	sprintf(text,"intensity for amp %d",iamp+1);
+	sprintf(text,"intensity for amp %d only",iamp+1);
 	legendPhotonCosTheta[itype]->AddEntry(hMCPhotonCosTheta[itype][iamp],text,"LP");
       }
 
