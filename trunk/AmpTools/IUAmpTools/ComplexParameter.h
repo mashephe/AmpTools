@@ -106,6 +106,13 @@ class ComplexParameter : public MIObserver
   void update( const MISubject* callingSubject );
 	
   /**
+   * This sets the value of the parameter.
+   *
+   * \param[in] value the desired value of the complex parameter
+   */
+  void setValue( complex< double > value );
+  
+  /**
    * A function that returns the name of the ComplexParameter
    */
   const string& name() const { return m_name; }
