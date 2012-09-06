@@ -98,3 +98,14 @@ ComplexParameter::update( const MISubject* callingSubject ){
     m_value = complex< double >( real( m_value ), m_imPar->value() );
   }
 }
+
+void
+ComplexParameter::setValue( complex< double > value ){
+  
+  // the set value calls below will trigger the notify() method
+  // of MISubject, which will call the update method above
+  // to set the member data m_value to the new value
+  
+  m_imPar->setValue( imag( value ) );
+  m_realPar->setValue( real( value ) );
+}
