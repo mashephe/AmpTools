@@ -485,9 +485,12 @@ Int_urt URMinuit::Migrad()
 {
 // invokes the MIGRAD minimizer
      Int_urt err;
-     Double_urt tmp = 0;
+  
+// configure command arguments here
+     Double_urt plist[] = { fMaxIterations };
+     Int_urt npar = 1;
 
-     mnexcm( "MIGRAD", &tmp, 0, err );
+     mnexcm( "MIGRAD", plist, npar, err );
 
      return err;
 }
@@ -497,9 +500,12 @@ Int_urt URMinuit::Hesse()
 {
    // invokes the HESSE error evaluation
    Int_urt err;
-   Double_urt tmp = 0;
-   
-   mnexcm( "HESSE", &tmp, 0, err );
+
+  // configure command arguments here
+   Double_urt plist[] = { fMaxIterations };
+   Int_urt npar = 1;
+  
+   mnexcm( "HESSE", plist, npar, err );
    
    return err;
 }
@@ -509,9 +515,12 @@ Int_urt URMinuit::Minos()
 {
    // invokes the MINOS minimizer
    Int_urt err;
-   Double_urt tmp = 0;
+  
+  // configure command arguments here
+   Double_urt plist[] = { fMaxIterations };
+   Int_urt npar = 1;
    
-   mnexcm( "MINOS", &tmp, 0, err );
+   mnexcm( "MINOS", plist, npar, err );
    
    return err;
 }
