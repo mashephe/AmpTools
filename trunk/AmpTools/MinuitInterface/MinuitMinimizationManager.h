@@ -121,6 +121,12 @@ public:
    // change the internal precision of MINUIT (calls SET EPS)
    void setPrecision( double precision );
  
+   // change the maximum number of iterations for certain MINUIT operations (default 500)
+   void setMaxIterations( int maxIter );
+ 
+   // retrieve the setting for maximum number of iterations
+   int getMaxIterations() const;
+  
    // change the minimization strategy -- from the MINUIT manual:
    //   In the current release, this parameter can take on three integer values (0, 1, 2), 
    //   and the default value is 1. Value 0 indicates to Minuit that it should economize 

@@ -116,6 +116,18 @@ MinuitMinimizationManager::setPrecision( double precision ){
   m_fitter.Command( command.str().c_str() );
 }
 
+void
+MinuitMinimizationManager::setMaxIterations( int maxIter ){
+  
+  m_fitter.SetMaxIterations( maxIter );
+}
+
+int
+MinuitMinimizationManager::getMaxIterations() const {
+  
+  return m_fitter.GetMaxIterations();
+}
+
 void 
 MinuitMinimizationManager::setStrategy( int strat ){
   
