@@ -557,14 +557,7 @@ public:
    * \see disableRenormalization
    */
   bool ampsAreRenormalized() const { return m_renormalizeAmps; }
-  
-  /**
-   * This function returns the normalization 
-   */
-  double intensityScale() const { return *m_intensityScale; }
-  
-  void setIntensityScalePtr( const double* scalePtr ) { m_intensityScale = scalePtr; }
-  
+    
 private:
 	
 	// recursive routine to symmetrize final state
@@ -615,11 +608,7 @@ private:
 	// a vector to hold all of the symmetric combinations of final
 	// state particles
 	vector< vector< int > > m_symmCombos;
-  
-  // this tracks the integral of the intensity
-  const double* m_intensityScale;
-  double m_defaultIntensityScale;
-  
+    
   // a flag to track if we are renormalizing the amplitudes
   bool m_renormalizeAmps;
   const NormIntInterface* m_normInt;
