@@ -8,7 +8,7 @@
 //
 //******************************************************************************
 
-INSTALATION AND USE:
+INSTALLATION AND USE:
 
 This package depends on CLHEP.  You should set the environment variable
 CLHEP_INCLUDE_DIR to point to the CLHEP include directory, for example
@@ -29,6 +29,29 @@ installation of CUDA and you may need to adjust the CUDA_FLAGS variable in
 the Makefile for your particular hardware.
 
 RELEASE NOTES:
+
+[current subversion... unreleased -- **modify this with release date**]
+
+Add new "scale" command to the config file and AmplitudeManager that
+allows rescaling an amplitude by a constant or a fit parameter.
+
+Add option to the AmplitudeManager to renormalize the amplitudes.  This
+scales each amplitude such that the absolute square of the production
+parameter (output of MINUIT) is equal to the number of events associated
+with this amplitude.  This provides a more "natural" scale for the fit
+parameters, but it should be used with caution with the constrain command
+as it will will constrain two amplitudes to have the same number of events
+(modulo the set "scale" factor).
+
+Defined new AmpToolsInterface class to create and manage all of the supporting
+objects needed for a fit.  This greatly improves the user experience.
+(See documentation.)
+
+Created templates UserDataReader and UserAmplitude for user defined classes in
+order to reduce the amount of code that user has to write.  (See documentation.)
+
+Fixed MinuitIterface and URMinuit to properly use the maximum number of iterations
+set by the user (default of 500) for certain MINUIT commands (hesse, minos, migrad).
 
 v0.4 (11-July-2012):
 
