@@ -56,6 +56,8 @@ int main(int argc, char** argv){
 
   AmpToolsInterface ATI(cfgInfo);
 
-  ATI.printTestAmplitudes(10,"genMC");
+  ATI.printTestEvents(cfgInfo->reactionList()[0]->reactionName(),
+                      ATI.genMCReader(cfgInfo->reactionList()[0]->reactionName()),
+                      10);
 
 }
