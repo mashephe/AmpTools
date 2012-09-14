@@ -16,7 +16,17 @@ vector<DataReader*> AmpToolsInterface::m_userDataReaders;
 
 AmpToolsInterface::AmpToolsInterface(ConfigurationInfo* configurationInfo){
 
+  resetConfigurationInfo(configurationInfo);
+
+}
+
+
+void
+AmpToolsInterface::resetConfigurationInfo(ConfigurationInfo* configurationInfo){
+
   m_configurationInfo = configurationInfo;
+
+  clear();
 
 
     // ************************
@@ -124,7 +134,6 @@ AmpToolsInterface::AmpToolsInterface(ConfigurationInfo* configurationInfo){
 
 
 
-
 double
 AmpToolsInterface::likelihood (const string& reactionName){
   LikelihoodCalculator* likCalc = likelihoodCalculator(reactionName);
@@ -175,98 +184,6 @@ AmpToolsInterface::finalizeFit(){
   }
 
 }
-
-
-
-void
-AmpToolsInterface::printTestAmplitudes (int nEvents, string dataType){
-
-
-    // ************************
-    // loop over reactions
-    // ************************
-
-  vector<ReactionInfo*> reactions = m_configurationInfo->reactionList();
-
-  for (unsigned int irct = 0; irct < reactions.size(); irct++){
-
-
-      // ************************
-      // find an AmplitudeManager
-      // ************************
-
-    AmplitudeManager* ampMan = amplitudeManager(reactions[irct]->reactionName());
-
-
-      // ************************
-      // create a DataReader
-      // ************************
-
-    DataReader* dataRdr = NULL;
-    if (dataType == "genMC") dataRdr = genMCReader(reactions[irct]->reactionName());
-    if (dataType == "accMC") dataRdr = accMCReader(reactions[irct]->reactionName());
-    if (dataType == "data")  dataRdr =  dataReader(reactions[irct]->reactionName());
-    if (!dataRdr){
-      cout << "AmpToolsInterface:  could not find a data reader for printTestAmplitudes" << endl;
-      return;
-    }
-
-
-      // ************************
-      // print out detailed information for ten events
-      // ************************
-
-    cout << "**********************************************" << endl;
-    cout << "  AMPLITUDES FOR REACTION " << reactions[irct]->reactionName() << endl;
-    cout << "**********************************************" << endl << endl;
-
-    for (unsigned int ievt = 0; ievt < 10; ievt++){
-      Kinematics* kin = dataRdr->getEvent();
-      vector<HepLorentzVector> momenta = kin->particleList();
-
-      cout << "  +++++++++++++++++++++++++++++++++" << endl;
-      cout << "    EVENT NUMBER " << ievt+1 << endl;
-      for (unsigned int imom = 0; imom < momenta.size(); imom++){
-        cout << "        " << reactions[irct]->particleList()[imom] << endl;
-        cout << "          E  = " << momenta[imom].e() << endl;
-        cout << "          Px = " << momenta[imom].px() << endl;
-        cout << "          Py = " << momenta[imom].py() << endl;
-        cout << "          Pz = " << momenta[imom].pz() << endl;
-      }
-      cout << "  +++++++++++++++++++++++++++++++++" << endl << endl;
-
-      vector<string> ampNames = ampMan->getAmpNames();
-      for (unsigned int iamp = 0; iamp < ampNames.size(); iamp++){
-        cout << "    ----------------------------------" << endl;
-        cout << "      AMPLITUDE = " << ampNames[iamp] << endl;
-        cout << "    ----------------------------------" << endl << endl;
-        vector< const Amplitude* > ampFactors = ampMan->getFactors(ampNames[iamp]);
-        vector <vector <int> > permutations = ampMan->getPermutations(ampNames[iamp]);
-        for (unsigned int iperm = 0; iperm < permutations.size(); iperm++){
-          cout << "        PERMUTATION = ";
-          for (unsigned int ipar = 0; ipar < permutations[iperm].size(); ipar++){
-            cout << permutations[iperm][ipar] << " ";
-          }
-          cout << endl << endl;
-          for (unsigned int ifact = 0; ifact < ampFactors.size(); ifact++){
-            cout << "          AMPLITUDE FACTOR = " << ampFactors[ifact]->name() << endl;
-            cout << "          RESULT = " 
-                 << ampFactors[ifact]->calcAmplitude(kin,permutations[iperm]) << endl << endl;
-          }
-        }
-      }
-      cout << "      ---------------------------------" << endl;
-      cout << "        CALCULATING INTENSITY" << endl;
-      cout << "      ---------------------------------" << endl << endl;
-      double intensity = ampMan->calcIntensity(kin);
-      cout << endl << "          INTENSITY = " << intensity << endl << endl << endl;
-
-    }
-
-  }
-
-}
-
 
 
 
@@ -350,7 +267,9 @@ AmpToolsInterface::registerDataReader( const DataReader& dataReader){
 }
 
 
-AmpToolsInterface::~AmpToolsInterface(){
+
+void
+AmpToolsInterface::clear(){
 
   for (unsigned int irct = 0; irct < m_configurationInfo->reactionList().size(); irct++){
 
@@ -373,9 +292,172 @@ AmpToolsInterface::~AmpToolsInterface(){
   m_normIntMap.clear();
   m_likCalcMap.clear();
 
+  m_ampVecs.deallocAmpVecs();
 
   if (minuitMinimizationManager()) delete minuitMinimizationManager();
   if (parameterManager()) delete parameterManager();
+
+}
+
+
+void
+AmpToolsInterface::printKinematics(string reactionName, Kinematics* kin){
+
+  ReactionInfo* reaction = m_configurationInfo->reaction(reactionName);
+  vector<HepLorentzVector> momenta = kin->particleList();
+
+  if (reaction->particleList().size() != momenta.size()){
+    cout << "AmpToolsInterface ERROR:  kinematics incompatible with this reaction" << endl;
+    exit(1);
+  }
+
+  cout << "  +++++++++++++++++++++++++++++++++" << endl;
+  cout << "    EVENT KINEMATICS " << endl;
+  for (unsigned int imom = 0; imom < momenta.size(); imom++){
+    cout << "      particle " << reaction->particleList()[imom] << endl;
+    cout << "          E  = " << momenta[imom].e() << endl;
+    cout << "          Px = " << momenta[imom].px() << endl;
+    cout << "          Py = " << momenta[imom].py() << endl;
+    cout << "          Pz = " << momenta[imom].pz() << endl;
+  }
+  cout << "  +++++++++++++++++++++++++++++++++" << endl << endl;
+
+}
+
+
+void
+AmpToolsInterface::printAmplitudes(string reactionName, Kinematics* kin){
+
+  AmplitudeManager* ampMan = amplitudeManager(reactionName);
+  vector<string> ampNames = ampMan->getAmpNames();
+  for (unsigned int iamp = 0; iamp < ampNames.size(); iamp++){
+    cout << "    ----------------------------------" << endl;
+    cout << "      AMPLITUDE = " << ampNames[iamp] << endl;
+    cout << "    ----------------------------------" << endl << endl;
+    vector< const Amplitude* > ampFactors = ampMan->getFactors(ampNames[iamp]);
+    vector <vector <int> > permutations = ampMan->getPermutations(ampNames[iamp]);
+    for (unsigned int iperm = 0; iperm < permutations.size(); iperm++){
+      cout << "        PERMUTATION = ";
+      for (unsigned int ipar = 0; ipar < permutations[iperm].size(); ipar++){
+        cout << permutations[iperm][ipar] << " ";
+      }
+      cout << endl << endl;
+      for (unsigned int ifact = 0; ifact < ampFactors.size(); ifact++){
+        cout << "          AMPLITUDE FACTOR = " << ampFactors[ifact]->name() << endl;
+        cout << "          RESULT = " 
+             << ampFactors[ifact]->calcAmplitude(kin,permutations[iperm]) << endl << endl;
+      }
+    }
+  }
+
+}
+
+
+void
+AmpToolsInterface::printIntensity(string reactionName, Kinematics* kin){
+
+  AmplitudeManager* ampMan = amplitudeManager(reactionName);
+
+  cout << "      ---------------------------------" << endl;
+  cout << "        CALCULATING INTENSITY" << endl;
+  cout << "      ---------------------------------" << endl << endl;
+  double intensity = ampMan->calcIntensity(kin);
+  cout << endl << "          INTENSITY = " << intensity << endl << endl << endl;
+
+}
+
+
+void
+AmpToolsInterface::printEventDetails(string reactionName, Kinematics* kin){
+
+  printKinematics(reactionName,kin);
+  printAmplitudes(reactionName,kin);
+  printIntensity(reactionName,kin);
+
+}
+
+
+void
+AmpToolsInterface::printTestEvents (string reactionName, DataReader* dataReader, int nEvents){
+
+
+    // ************************
+    // find an AmplitudeManager
+    // ************************
+
+  AmplitudeManager* ampMan = amplitudeManager(reactionName);
+
+
+    // ************************
+    // print out detailed information for a few events
+    // ************************
+
+  cout << "**********************************************" << endl;
+  cout << "  AMPLITUDES FOR REACTION " << reactionName << endl;
+  cout << "**********************************************" << endl << endl;
+
+  for (unsigned int ievt = 0; ievt < nEvents; ievt++){
+    Kinematics* kin = dataReader->getEvent();
+
+    printKinematics(reactionName, kin);
+    printAmplitudes(reactionName, kin);
+    printIntensity (reactionName, kin);
+
+    delete kin;
+
+  }
+
+}
+
+
+double
+AmpToolsInterface::calculateAmplitudes (string reactionName, DataReader* dataReader){
+
+  m_ampVecs.deallocAmpVecs();
+  m_ampVecs.loadData(dataReader);
+
+  m_ampVecsAmpManager = amplitudeManager(reactionName);
+
+  m_ampVecs.allocateAmps(*m_ampVecsAmpManager,true);
+
+  return m_ampVecsAmpManager->calcIntensities(m_ampVecs);
+
+}
+
+
+double
+AmpToolsInterface::intensity(int iEvent){
+
+  if (iEvent >= m_ampVecs.m_iNTrueEvents || iEvent < 0){
+    cout << "AmpToolsInterface ERROR:  out of bounds in intensity call" << endl;
+    exit(1);
+  }
+
+  return m_ampVecs.m_pdIntensity[iEvent];
+
+}
+
+
+complex<double>
+AmpToolsInterface::decayAmplitude (int iEvent, string ampName){
+
+  if (iEvent >= m_ampVecs.m_iNTrueEvents || iEvent < 0){
+    cout << "AmpToolsInterface ERROR:  out of bounds in decayAmplitude call" << endl;
+    exit(1);
+  }
+
+  int iAmp = m_ampVecsAmpManager->ampIndex(ampName);
+
+  return complex<double>
+            (m_ampVecs.m_pdAmps[2*m_ampVecs.m_iNEvents*iAmp+2*iEvent],
+             m_ampVecs.m_pdAmps[2*m_ampVecs.m_iNEvents*iAmp+2*iEvent+1]);
+
+}
+
+complex<double>
+AmpToolsInterface::productionAmplitude (string ampName){
+
+  return parameterManager()->findParameter(ampName)->value();
 
 }
 

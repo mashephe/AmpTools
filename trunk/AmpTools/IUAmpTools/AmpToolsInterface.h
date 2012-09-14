@@ -29,12 +29,16 @@ class AmpToolsInterface{
 
     AmpToolsInterface(ConfigurationInfo* cfgInfo);
 
-    virtual ~AmpToolsInterface();
+    virtual ~AmpToolsInterface() { clear(); }
 
     static void registerAmplitude( const Amplitude& defaultAmplitude);
 
     static void registerDataReader( const DataReader& defaultDataReader);
 
+    void resetConfigurationInfo(ConfigurationInfo* cfgInfo);
+
+    ConfigurationInfo* configurationInfo()
+                                 { return m_configurationInfo; }
 
     MinuitMinimizationManager* minuitMinimizationManager() 
                                  { return m_minuitMinimizationManager; }
@@ -58,22 +62,31 @@ class AmpToolsInterface{
 
     virtual void finalizeFit();
 
-    void printTestAmplitudes (int nEvents = 10, string dataType = "genMC");
+    void printKinematics   (string reactionName, Kinematics* kin);
+    void printAmplitudes   (string reactionName, Kinematics* kin);
+    void printIntensity    (string reactionName, Kinematics* kin);
+    void printEventDetails (string reactionName, Kinematics* kin);
+    void printTestEvents(string reactionName, DataReader* dataReader, int nEvents = 10);
 
+    double calculateAmplitudes(string reactionName, DataReader* dataReader);
 
+    double intensity(int iEvent);
 
-/*
-  calculateIntensities?
-*/
+    complex<double> decayAmplitude (int iEvent, string ampName);
+
+    complex<double> productionAmplitude (string ampName);
 
 
   protected:
+
+    void clear();
 
     ConfigurationInfo*          m_configurationInfo;
     MinuitMinimizationManager*  m_minuitMinimizationManager;
     ParameterManager*           m_parameterManager;
 
     vector<AmplitudeManager*>  m_amplitudeManagers;
+
 
     map<string,DataReader*> m_dataReaderMap;
     map<string,DataReader*> m_genMCReaderMap;
@@ -85,6 +98,9 @@ class AmpToolsInterface{
     static vector<Amplitude*>  m_userAmplitudes;
     static vector<DataReader*> m_userDataReaders;
 
+    AmpVecs m_ampVecs;
+
+    AmplitudeManager* m_ampVecsAmpManager;
 
 };
 
