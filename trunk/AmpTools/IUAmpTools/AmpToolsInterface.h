@@ -68,7 +68,7 @@ class AmpToolsInterface{
     void printEventDetails (string reactionName, Kinematics* kin);
     void printTestEvents(string reactionName, DataReader* dataReader, int nEvents = 10);
 
-    double calculateAmplitudes(string reactionName, DataReader* dataReader);
+    double processEvents(string reactionName, DataReader* dataReader);
 
     double intensity(int iEvent);
 
@@ -76,6 +76,7 @@ class AmpToolsInterface{
 
     complex<double> productionAmplitude (string ampName);
 
+    Kinematics* kinematics(int iEvent) {return m_ampVecs.getEvent(iEvent);}
 
   protected:
 
