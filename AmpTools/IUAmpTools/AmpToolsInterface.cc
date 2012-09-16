@@ -411,7 +411,7 @@ AmpToolsInterface::printTestEvents (string reactionName, DataReader* dataReader,
 
 
 double
-AmpToolsInterface::calculateAmplitudes (string reactionName, DataReader* dataReader){
+AmpToolsInterface::processEvents (string reactionName, DataReader* dataReader){
 
   m_ampVecs.deallocAmpVecs();
   m_ampVecs.loadData(dataReader);
