@@ -544,6 +544,14 @@ public:
    * \see setNormIntFile
    */
   string            normIntFile()     const {return m_normIntFile;}
+
+  /**
+   * Returns a boolean that indicates whether this normIntFile should be
+   * used as input (true) or not (false).
+   *
+   * \see setNormIntFile
+   */
+  bool       normIntFileInput()     const {return m_normIntFileInput;}
   
   
   // Display or clear information for this reaction
@@ -615,10 +623,13 @@ public:
    * Sets the name of the file to use as the normalization integral cache
    *
    * \param[in] normIntFile name of the normalization integral file
+   * \param[in] input use this normIntFile as input
    *
    * \see normIntFile
    */
-  void  setNormIntFile  (const string& normIntFile) {m_normIntFile = normIntFile;}
+  void  setNormIntFile  (const string& normIntFile, bool input = false) 
+                           { m_normIntFile = normIntFile;
+                             m_normIntFileInput = input; }
   
   
 private:
@@ -629,6 +640,7 @@ private:
   pair< string, vector<string> > m_genMC;
   pair< string, vector<string> > m_accMC;
   string                         m_normIntFile;
+  bool                           m_normIntFileInput;
   
 };
 
