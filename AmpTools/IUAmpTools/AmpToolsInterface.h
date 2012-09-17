@@ -68,9 +68,22 @@ class AmpToolsInterface{
     void printEventDetails (string reactionName, Kinematics* kin);
     void printTestEvents(string reactionName, DataReader* dataReader, int nEvents = 10);
 
-    double processEvents(string reactionName, DataReader* dataReader);
+
+    void clearEvents();
+
+    void loadEvents(DataReader* dataReader);
+
+    void loadEvent(Kinematics* kin, int iEvent = 0, int nEventsTotal = 1);
+
+    double processEvents(string reactionName);
+
+
+      // after events have been loaded and processed, access calculations
+
 
     double intensity(int iEvent);
+
+    double alternateIntensity(int iEvent);
 
     complex<double> decayAmplitude (int iEvent, string ampName);
 
@@ -100,8 +113,7 @@ class AmpToolsInterface{
     static vector<DataReader*> m_userDataReaders;
 
     AmpVecs m_ampVecs;
-
-    AmplitudeManager* m_ampVecsAmpManager;
+    string m_ampVecsReactionName;
 
 };
 

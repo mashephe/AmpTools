@@ -16,6 +16,8 @@ vector<DataReader*> AmpToolsInterface::m_userDataReaders;
 
 AmpToolsInterface::AmpToolsInterface(ConfigurationInfo* configurationInfo){
 
+  m_ampVecsReactionName = "";
+
   resetConfigurationInfo(configurationInfo);
 
 }
@@ -410,19 +412,45 @@ AmpToolsInterface::printTestEvents (string reactionName, DataReader* dataReader,
 }
 
 
-double
-AmpToolsInterface::processEvents (string reactionName, DataReader* dataReader){
+void
+AmpToolsInterface::clearEvents(){
+
+  m_ampVecsReactionName = "";
 
   m_ampVecs.deallocAmpVecs();
-  m_ampVecs.loadData(dataReader);
-
-  m_ampVecsAmpManager = amplitudeManager(reactionName);
-
-  m_ampVecs.allocateAmps(*m_ampVecsAmpManager,true);
-
-  return m_ampVecsAmpManager->calcIntensities(m_ampVecs);
 
 }
+
+
+void
+AmpToolsInterface::loadEvents(DataReader* dataReader){
+
+  clearEvents();
+  m_ampVecs.loadData(dataReader);
+
+}
+
+
+void
+AmpToolsInterface::loadEvent(Kinematics* kin, int iEvent, int nEventsTotal){
+
+  m_ampVecs.loadEvent(kin, iEvent, nEventsTotal);
+
+}
+
+double
+AmpToolsInterface::processEvents(string reactionName){
+
+  m_ampVecsReactionName = reactionName;
+
+  AmplitudeManager* ampMan = amplitudeManager(m_ampVecsReactionName);
+
+  m_ampVecs.allocateAmps(*ampMan,true);
+
+  return ampMan->calcIntensities(m_ampVecs);
+
+}
+
 
 
 double
@@ -446,7 +474,9 @@ AmpToolsInterface::decayAmplitude (int iEvent, string ampName){
     exit(1);
   }
 
-  int iAmp = m_ampVecsAmpManager->ampIndex(ampName);
+  AmplitudeManager* ampMan = amplitudeManager(m_ampVecsReactionName);
+
+  int iAmp = ampMan->ampIndex(ampName);
 
   return complex<double>
             (m_ampVecs.m_pdAmps[2*m_ampVecs.m_iNEvents*iAmp+2*iEvent],
@@ -458,6 +488,39 @@ complex<double>
 AmpToolsInterface::productionAmplitude (string ampName){
 
   return parameterManager()->findParameter(ampName)->value();
+
+}
+
+
+double
+AmpToolsInterface::alternateIntensity(int iEvent){
+
+  double runningIntensity = 0.0;
+
+    // loop over sums
+
+  vector<CoherentSumInfo*> sums = m_configurationInfo->coherentSumList(m_ampVecsReactionName);
+  for (unsigned int iSum = 0; iSum < sums.size(); iSum++){
+
+    complex<double> runningAmplitude(0.0,0.0);
+
+    // loop over amps
+
+    vector<AmplitudeInfo*> amps = m_configurationInfo->amplitudeList(m_ampVecsReactionName,sums[iSum]->sumName());
+    for (unsigned int iAmp = 0; iAmp < amps.size(); iAmp++){
+
+      complex<double> P = productionAmplitude(amps[iAmp]->fullName());
+      complex<double> D = decayAmplitude(iEvent,amps[iAmp]->fullName());
+
+      runningAmplitude += P*D;
+
+    }
+
+    runningIntensity += norm(runningAmplitude);
+
+  }
+
+  return runningIntensity;
 
 }
 
