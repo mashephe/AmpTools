@@ -500,6 +500,7 @@ ReactionInfo::display(string fileName, bool append){
   }
   cout << "  NORMALIZATION INTEGRAL FILE: " << endl;
   if (m_normIntFile != "")  cout << "\t\t    " << m_normIntFile << endl;
+  if (m_normIntFileInput)   cout << "\t\t       (use as input)" << endl;
 
   if (fileName != ""){
     outfile.close();
@@ -801,8 +802,10 @@ ConfigurationInfo::write(string fileName){
   for (unsigned int i = 0; i < Rs.size(); i++){
   ReactionInfo* R = Rs[i];
   string ni = R->normIntFile();
-  if (ni != ""){
-  ff << "normintfile " << R->reactionName() << " " << ni << endl;}}
+  if ((ni != "") && !(R->normIntFileInput())){
+  ff << "normintfile " << R->reactionName() << " " << ni << endl;}
+  if ((ni != "") && (R->normIntFileInput())){
+  ff << "normintfile " << R->reactionName() << " " << ni << " input" << endl;}}
 
 
   ff.close();
@@ -890,6 +893,7 @@ ReactionInfo::clear(){
   m_genMC = pair<string, vector<string> >("",empty);
   m_accMC = pair<string, vector<string> >("",empty);
   m_normIntFile = "";
+  m_normIntFileInput = false;
 }
 
 void

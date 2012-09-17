@@ -348,7 +348,7 @@ ConfigFileParser::checkSyntax() const{
   keywordParameters["data"]          = pair<int,int>(2,100);
   keywordParameters["genmc"]         = pair<int,int>(2,100);
   keywordParameters["accmc"]         = pair<int,int>(2,100);
-  keywordParameters["normintfile"]   = pair<int,int>(2,2);
+  keywordParameters["normintfile"]   = pair<int,int>(2,3);
   keywordParameters["sum"]           = pair<int,int>(2,100);
   keywordParameters["amplitude"]     = pair<int,int>(4,100);
   keywordParameters["initialize"]    = pair<int,int>(6,7);
@@ -452,6 +452,8 @@ ConfigFileParser::doNormInt(const ConfigFileLine& line){
   vector<string> arguments = line.arguments();
   string reaction = arguments[0];
   string file = arguments[1];
+  bool input = false;
+  if (arguments.size() > 2 && arguments[2] == "input") input = true;
   ReactionInfo* rct = m_configurationInfo->reaction(reaction);
   if (!rct){
     cout << "ConfigFileParser ERROR:  Can't associate normintfile with a reaction:  " << endl;
@@ -459,7 +461,7 @@ ConfigFileParser::doNormInt(const ConfigFileLine& line){
     exit(1);
   }
   if (line.keyword() == "normintfile"){
-    rct->setNormIntFile(file);
+    rct->setNormIntFile(file, input);
   }
 }
 
