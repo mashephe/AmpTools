@@ -44,7 +44,7 @@
 AmpParameter::AmpParameter( const string& arg ) :
 m_valPtr( &m_defaultValue ),
 m_defaultValue( 1E9 ),
-m_name(""),
+m_name("-"),
 m_hasExternalPtr( false )
 {
     int length = arg.size();
