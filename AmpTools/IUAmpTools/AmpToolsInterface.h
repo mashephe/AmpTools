@@ -1,6 +1,42 @@
 #if !defined(AMPTOOLSINTERFACE)
 #define AMPTOOLSINTERFACE
 
+//******************************************************************************
+// This file is part of AmpTools, a package for performing Amplitude Analysis
+// 
+// Copyright Trustees of Indiana University 2010, all rights reserved
+// 
+// This software written by Matthew Shepherd, Ryan Mitchell, and 
+//                  Hrayr Matevosyan at Indiana University, Bloomington
+// 
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions
+// are met:
+// 1. Redistributions of source code must retain the above copyright
+//    notice and author attribution, this list of conditions and the
+//    following disclaimer. 
+// 2. Redistributions in binary form must reproduce the above copyright
+//    notice and author attribution, this list of conditions and the
+//    following disclaimer in the documentation and/or other materials
+//    provided with the distribution.
+// 3. Neither the name of the University nor the names of its contributors
+//    may be used to endorse or promote products derived from this software
+//    without specific prior written permission.
+// 
+// Creation of derivative forms of this software for commercial
+// utilization may be subject to restriction; written permission may be
+// obtained from the Trustees of Indiana University.
+// 
+// INDIANA UNIVERSITY AND THE AUTHORS MAKE NO REPRESENTATIONS OR WARRANTIES, 
+// EXPRESS OR IMPLIED.  By way of example, but not limitation, INDIANA 
+// UNIVERSITY MAKES NO REPRESENTATIONS OR WARRANTIES OF MERCANTABILITY OR 
+// FITNESS FOR ANY PARTICULAR PURPOSE OR THAT THE USE OF THIS SOFTWARE OR 
+// DOCUMENTATION WILL NOT INFRINGE ANY PATENTS, COPYRIGHTS, TRADEMARKS, 
+// OR OTHER RIGHTS.  Neither Indiana University nor the authors shall be 
+// held liable for any liability with respect to any claim by the user or 
+// any other party arising from use of the program.
+//******************************************************************************
+
 #include <iostream>
 #include <utility>
 #include <string>
@@ -21,75 +57,298 @@
 using namespace std;
 
 
+/** 
+ * A class to set up and interface with other classes within IUAmpTools.
+ *
+ * The constructor takes a pointer to a ConfigurationInfo object;
+ * from there, all the major classes of IUAmpTools are configured and
+ * can be directly accessed via (non-const) pointers through
+ * member functions.
+ *
+ * To reconfigure the AmpToolsInterface class with a new ConfigurationInfo
+ * object, use the resetConfigurationInfo method.  This will recreate 
+ * all the major classes of IUAmpTools.
+ *
+ * Methods such as loadEvents, processEvents, decayAmplitude, and
+ * intensity are provided to perform calculations manually, which can be
+ * useful when generating Monte Carlo, for example.
+ *
+ * For MPI implementations, use the AmpToolsInterfaceMPI class, which 
+ * is derived from this class.
+ *
+ * \ingroup IUAmpTools
+ */
+
+
 class AmpToolsInterface{
 
   public:
 
     AmpToolsInterface() { }
 
+  /** Constructor.
+   * Constructs an AmpToolsInterface
+   *
+   * \param[in] cfgInfo a pointer to a ConfigurationInfo object;  IUAmpTools
+   * classes are set up and configured based on the information contained in this
+   * ConfigurationInfo object.
+   */
+
     AmpToolsInterface(ConfigurationInfo* cfgInfo);
+
+  /** Destructor.
+   */
 
     virtual ~AmpToolsInterface() { clear(); }
 
+  /** Static function to register a user Amplitude class.  For example,
+   *  to register a user-defined BreitWigner amplitude, one would use:
+   *     AmpToolsInterface::registerAmplitude(BreitWigner());
+   */
+
     static void registerAmplitude( const Amplitude& defaultAmplitude);
+
+  /** Static function to register a user DataReader class.  For example,
+   *  to register a user-defined CLEODataReader, one would use:
+   *     AmpToolsInterface::registerDataReader(CLEODataReader());
+   */
 
     static void registerDataReader( const DataReader& defaultDataReader);
 
+  /** Use this method to re-initialize all IUAmpTools classes based on information
+   *  in a new or modified ConfigurationInfo object.
+   */
+
     void resetConfigurationInfo(ConfigurationInfo* cfgInfo);
+
+
+  /** Return the ConfigurationInfo object stored in this class.
+   *  After modifying this object, one can use the resetConfigurationInfo method
+   *  to re-initialize the IUAmpTools classes.
+   */
 
     ConfigurationInfo* configurationInfo()
                                  { return m_configurationInfo; }
 
+
+  /** Pointer to the MinuitMinimizationManager.
+   *  Use the methods in MinuitMinimizationManager to do fits.
+   */
+
     MinuitMinimizationManager* minuitMinimizationManager() 
                                  { return m_minuitMinimizationManager; }
+
+  /** Pointer to the ParameterManager.
+   *  Use this to get fit results, for example.
+   */
 
     ParameterManager*          parameterManager()          
                                  { return m_parameterManager;}
 
 
+  /** Pointer to an AmplitudeManager.  There is one for each defined reaction.
+   *  (Most applications will not likely need to access these.)
+   */
+
     AmplitudeManager*     amplitudeManager     (const string& reactionName);
 
+
+  /** Returns a pointer to a DataReader (for data).
+   *  There is one for each reaction.
+   */
+
     DataReader*           dataReader           (const string& reactionName);
+
+
+  /** Returns a pointer to a DataReader (for accepted Monte Carlo).
+   *  There is one for each reaction.
+   */
+
     DataReader*           accMCReader          (const string& reactionName);
+
+
+  /** Returns a pointer to a DataReader (for generated Monte Carlo).
+   *  There is one for each reaction.
+   */
+
     DataReader*           genMCReader          (const string& reactionName);
+
+
+  /** Pointer to a NormIntInterface (one per reaction).
+   *  Use this to access normalization integrals.
+   */
 
     NormIntInterface*     normIntInterface     (const string& reactionName);
 
+
+  /** Pointer to a Likelihood calculator (one per reaction).
+   *  (Most applications will not likely need to access these.)
+   *  One can also access the likelihood value through the likelihood methods 
+   *  below.
+   *
+   *  \see likelihood
+   */
+
     LikelihoodCalculator* likelihoodCalculator (const string& reactionName);
 
+
+  /** Return the total -2ln(likelihood) (summed over all reactions) using
+   *  the parameters stored in the ParameterManager and the amplitudes
+   *  in the AmplitudeManagers.  Call this before performing a fit to get
+   *  the pre-fit likelihood value and call it after the fit to get the 
+   *  post-fit value.
+   */
+
     double likelihood();
+
+  /** Return the -2ln(likelihood) associated with a particular reaction.
+   */
+
     double likelihood(const string& reactionName);
+
+
+  /** Print final fit results to a file.
+   */
 
     virtual void finalizeFit();
 
-    void printKinematics   (string reactionName, Kinematics* kin);
-    void printAmplitudes   (string reactionName, Kinematics* kin);
-    void printIntensity    (string reactionName, Kinematics* kin);
-    void printEventDetails (string reactionName, Kinematics* kin);
-    void printTestEvents(string reactionName, DataReader* dataReader, int nEvents = 10);
 
+  /** For manual calculations:  clear all events and calculations.
+   *  Call this before loading events from a new reaction or to start
+   *  new calcuations.
+   *
+   *  \see loadEvent
+   *  \see loadEvents
+   *  \see processEvents
+   */
 
     void clearEvents();
 
+  /** For manual calculations:  load event kinematics from a DataReader.
+   *  Call this after clearing old events (clearEvents) and before
+   *  performing calculations (processEvents).
+   *
+   *  \see clearEvents
+   *  \see processEvents
+   */
+
     void loadEvents(DataReader* dataReader);
 
+  /** For manual calculations:  load kinematics one event at a time.
+   *  Clear old events (clearEvents) before loading a new set of events.
+   *  Load all events before performing calculations (processEvents).
+   *
+   * \param[in] kin the kinematics to be loaded
+   * \param[in] iEvent the number of this event (between 0 and nEventsTotal-1)
+   * \param[in] nEventsTotal the total number of events to be loaded
+   *
+   *  \see clearEvents
+   *  \see processEvents
+   */
+
     void loadEvent(Kinematics* kin, int iEvent = 0, int nEventsTotal = 1);
+
+  /** For manual calculations:  perform all calculations on the loaded events.
+   *  Load all events (loadEvent or loadEvents) before performing calculations.
+   *
+   * \param[in] reactionName the name of the reaction that will be calculated
+   *
+   *  \see clearEvents
+   *  \see loadEvent
+   *  \see loadEvents
+   */
 
     double processEvents(string reactionName);
 
 
-      // after events have been loaded and processed, access calculations
-
+  /** Retrieve the intensity calculated for the specified event.
+   *  This requires a prior call to processEvents.
+   *
+   *  \see clearEvents
+   *  \see loadEvent
+   *  \see loadEvents
+   *  \see processEvents
+   */
 
     double intensity(int iEvent);
 
+  /** Perform an alternate calculation of the intensity.  If there are no 
+   *  precision problems, this should be identical to the value returned
+   *  by the intensity method.
+   *  This requires a prior call to processEvents.
+   *
+   *  \see clearEvents
+   *  \see loadEvent
+   *  \see loadEvents
+   *  \see processEvents
+   */
+
     double alternateIntensity(int iEvent);
+
+
+  /** Retrieve a decay amplitude calculated for the specified event.
+   *  This requires a prior call to processEvents.
+   *
+   *  \param[in] ampName  this is the full amplitude name
+   *  (as it appears in AmplitudeInfo::fullName)
+   *
+   *  \see clearEvents
+   *  \see loadEvent
+   *  \see loadEvents
+   *  \see processEvents
+   */
 
     complex<double> decayAmplitude (int iEvent, string ampName);
 
+
+  /** Retrieve the production amplitude associated with a given amplitude.
+   *  Recall that all amplitudes are defined as
+   *    (production amplitude)  x  (decay amplitude)
+   *
+   *  \param[in] ampName  this is the full amplitude name
+   *  (as it appears in AmplitudeInfo::fullName)
+   */
+
     complex<double> productionAmplitude (string ampName);
 
+
+  /** Return the kinematics for a specified event as it was loaded using
+   *  the loadEvent or loadEvents method.
+   *
+   *  \see clearEvents
+   *  \see loadEvent
+   *  \see loadEvents
+   *  \see processEvents
+   */
+
     Kinematics* kinematics(int iEvent) {return m_ampVecs.getEvent(iEvent);}
+
+
+  /** For debugging and diagnostics:  print event kinematics to the screen in 
+   *  a readable format.
+   */
+
+    void printKinematics   (string reactionName, Kinematics* kin);
+
+
+  /** For debugging and diagnostics:  print amplitude values to the screen in 
+   *  a readable format.
+   */
+
+    void printAmplitudes   (string reactionName, Kinematics* kin);
+
+  /** For debugging and diagnostics:  print an intensity to the screen in
+   *  a readable format.
+   */
+
+    void printIntensity    (string reactionName, Kinematics* kin);
+
+  /** For debugging and diagnostics:  print event details to the screen in
+   *  a readable format.
+   */
+
+    void printEventDetails (string reactionName, Kinematics* kin);
+
 
   protected:
 

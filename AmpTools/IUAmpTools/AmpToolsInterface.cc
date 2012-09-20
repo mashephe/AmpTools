@@ -1,3 +1,40 @@
+//******************************************************************************
+// This file is part of AmpTools, a package for performing Amplitude Analysis
+// 
+// Copyright Trustees of Indiana University 2010, all rights reserved
+// 
+// This software written by Matthew Shepherd, Ryan Mitchell, and 
+//                  Hrayr Matevosyan at Indiana University, Bloomington
+// 
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions
+// are met:
+// 1. Redistributions of source code must retain the above copyright
+//    notice and author attribution, this list of conditions and the
+//    following disclaimer. 
+// 2. Redistributions in binary form must reproduce the above copyright
+//    notice and author attribution, this list of conditions and the
+//    following disclaimer in the documentation and/or other materials
+//    provided with the distribution.
+// 3. Neither the name of the University nor the names of its contributors
+//    may be used to endorse or promote products derived from this software
+//    without specific prior written permission.
+// 
+// Creation of derivative forms of this software for commercial
+// utilization may be subject to restriction; written permission may be
+// obtained from the Trustees of Indiana University.
+// 
+// INDIANA UNIVERSITY AND THE AUTHORS MAKE NO REPRESENTATIONS OR WARRANTIES, 
+// EXPRESS OR IMPLIED.  By way of example, but not limitation, INDIANA 
+// UNIVERSITY MAKES NO REPRESENTATIONS OR WARRANTIES OF MERCANTABILITY OR 
+// FITNESS FOR ANY PARTICULAR PURPOSE OR THAT THE USE OF THIS SOFTWARE OR 
+// DOCUMENTATION WILL NOT INFRINGE ANY PATENTS, COPYRIGHTS, TRADEMARKS, 
+// OR OTHER RIGHTS.  Neither Indiana University nor the authors shall be 
+// held liable for any liability with respect to any claim by the user or 
+// any other party arising from use of the program.
+//******************************************************************************
+
+
 #include "IUAmpTools/AmpToolsInterface.h"
 #include "MinuitInterface/MinuitMinimizationManager.h"
 #include "IUAmpTools/AmplitudeManager.h"
@@ -306,115 +343,6 @@ AmpToolsInterface::clear(){
 }
 
 
-void
-AmpToolsInterface::printKinematics(string reactionName, Kinematics* kin){
-
-  ReactionInfo* reaction = m_configurationInfo->reaction(reactionName);
-  vector<HepLorentzVector> momenta = kin->particleList();
-
-  if (reaction->particleList().size() != momenta.size()){
-    cout << "AmpToolsInterface ERROR:  kinematics incompatible with this reaction" << endl;
-    exit(1);
-  }
-
-  cout << "  +++++++++++++++++++++++++++++++++" << endl;
-  cout << "    EVENT KINEMATICS " << endl;
-  for (unsigned int imom = 0; imom < momenta.size(); imom++){
-    cout << "      particle " << reaction->particleList()[imom] << endl;
-    cout << "          E  = " << momenta[imom].e() << endl;
-    cout << "          Px = " << momenta[imom].px() << endl;
-    cout << "          Py = " << momenta[imom].py() << endl;
-    cout << "          Pz = " << momenta[imom].pz() << endl;
-  }
-  cout << "  +++++++++++++++++++++++++++++++++" << endl << endl;
-
-}
-
-
-void
-AmpToolsInterface::printAmplitudes(string reactionName, Kinematics* kin){
-
-  AmplitudeManager* ampMan = amplitudeManager(reactionName);
-  vector<string> ampNames = ampMan->getAmpNames();
-  for (unsigned int iamp = 0; iamp < ampNames.size(); iamp++){
-    cout << "    ----------------------------------" << endl;
-    cout << "      AMPLITUDE = " << ampNames[iamp] << endl;
-    cout << "    ----------------------------------" << endl << endl;
-    vector< const Amplitude* > ampFactors = ampMan->getFactors(ampNames[iamp]);
-    vector <vector <int> > permutations = ampMan->getPermutations(ampNames[iamp]);
-    for (unsigned int iperm = 0; iperm < permutations.size(); iperm++){
-      cout << "        PERMUTATION = ";
-      for (unsigned int ipar = 0; ipar < permutations[iperm].size(); ipar++){
-        cout << permutations[iperm][ipar] << " ";
-      }
-      cout << endl << endl;
-      for (unsigned int ifact = 0; ifact < ampFactors.size(); ifact++){
-        cout << "          AMPLITUDE FACTOR = " << ampFactors[ifact]->name() << endl;
-        cout << "          RESULT = " 
-             << ampFactors[ifact]->calcAmplitude(kin,permutations[iperm]) << endl << endl;
-      }
-    }
-  }
-
-}
-
-
-void
-AmpToolsInterface::printIntensity(string reactionName, Kinematics* kin){
-
-  AmplitudeManager* ampMan = amplitudeManager(reactionName);
-
-  cout << "      ---------------------------------" << endl;
-  cout << "        CALCULATING INTENSITY" << endl;
-  cout << "      ---------------------------------" << endl << endl;
-  double intensity = ampMan->calcIntensity(kin);
-  cout << endl << "          INTENSITY = " << intensity << endl << endl << endl;
-
-}
-
-
-void
-AmpToolsInterface::printEventDetails(string reactionName, Kinematics* kin){
-
-  printKinematics(reactionName,kin);
-  printAmplitudes(reactionName,kin);
-  printIntensity(reactionName,kin);
-
-}
-
-
-void
-AmpToolsInterface::printTestEvents (string reactionName, DataReader* dataReader, int nEvents){
-
-
-    // ************************
-    // find an AmplitudeManager
-    // ************************
-
-  AmplitudeManager* ampMan = amplitudeManager(reactionName);
-
-
-    // ************************
-    // print out detailed information for a few events
-    // ************************
-
-  cout << "**********************************************" << endl;
-  cout << "  AMPLITUDES FOR REACTION " << reactionName << endl;
-  cout << "**********************************************" << endl << endl;
-
-  for (unsigned int ievt = 0; ievt < nEvents; ievt++){
-    Kinematics* kin = dataReader->getEvent();
-
-    printKinematics(reactionName, kin);
-    printAmplitudes(reactionName, kin);
-    printIntensity (reactionName, kin);
-
-    delete kin;
-
-  }
-
-}
-
 
 void
 AmpToolsInterface::clearEvents(){
@@ -528,3 +456,81 @@ AmpToolsInterface::alternateIntensity(int iEvent){
 
 }
 
+
+
+
+void
+AmpToolsInterface::printKinematics(string reactionName, Kinematics* kin){
+
+  ReactionInfo* reaction = m_configurationInfo->reaction(reactionName);
+  vector<HepLorentzVector> momenta = kin->particleList();
+
+  if (reaction->particleList().size() != momenta.size()){
+    cout << "AmpToolsInterface ERROR:  kinematics incompatible with this reaction" << endl;
+    exit(1);
+  }
+
+  cout << "  +++++++++++++++++++++++++++++++++" << endl;
+  cout << "    EVENT KINEMATICS " << endl;
+  for (unsigned int imom = 0; imom < momenta.size(); imom++){
+    cout << "      particle " << reaction->particleList()[imom] << endl;
+    cout << "          E  = " << momenta[imom].e() << endl;
+    cout << "          Px = " << momenta[imom].px() << endl;
+    cout << "          Py = " << momenta[imom].py() << endl;
+    cout << "          Pz = " << momenta[imom].pz() << endl;
+  }
+  cout << "  +++++++++++++++++++++++++++++++++" << endl << endl;
+
+}
+
+
+void
+AmpToolsInterface::printAmplitudes(string reactionName, Kinematics* kin){
+
+  AmplitudeManager* ampMan = amplitudeManager(reactionName);
+  vector<string> ampNames = ampMan->getAmpNames();
+  for (unsigned int iamp = 0; iamp < ampNames.size(); iamp++){
+    cout << "    ----------------------------------" << endl;
+    cout << "      AMPLITUDE = " << ampNames[iamp] << endl;
+    cout << "    ----------------------------------" << endl << endl;
+    vector< const Amplitude* > ampFactors = ampMan->getFactors(ampNames[iamp]);
+    vector <vector <int> > permutations = ampMan->getPermutations(ampNames[iamp]);
+    for (unsigned int iperm = 0; iperm < permutations.size(); iperm++){
+      cout << "        PERMUTATION = ";
+      for (unsigned int ipar = 0; ipar < permutations[iperm].size(); ipar++){
+        cout << permutations[iperm][ipar] << " ";
+      }
+      cout << endl << endl;
+      for (unsigned int ifact = 0; ifact < ampFactors.size(); ifact++){
+        cout << "          AMPLITUDE FACTOR = " << ampFactors[ifact]->name() << endl;
+        cout << "          RESULT = " 
+             << ampFactors[ifact]->calcAmplitude(kin,permutations[iperm]) << endl << endl;
+      }
+    }
+  }
+
+}
+
+
+void
+AmpToolsInterface::printIntensity(string reactionName, Kinematics* kin){
+
+  AmplitudeManager* ampMan = amplitudeManager(reactionName);
+
+  cout << "      ---------------------------------" << endl;
+  cout << "        CALCULATING INTENSITY" << endl;
+  cout << "      ---------------------------------" << endl << endl;
+  double intensity = ampMan->calcIntensity(kin);
+  cout << endl << "          INTENSITY = " << intensity << endl << endl << endl;
+
+}
+
+
+void
+AmpToolsInterface::printEventDetails(string reactionName, Kinematics* kin){
+
+  printKinematics(reactionName,kin);
+  printAmplitudes(reactionName,kin);
+  printIntensity(reactionName,kin);
+
+}
