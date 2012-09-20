@@ -9,6 +9,7 @@
 #include "IUAmpTools/AmplitudeManager.h"
 #include "IUAmpTools/ConfigFileParser.h"
 #include "IUAmpTools/ConfigurationInfo.h"
+#include "IUAmpTools/AmpToolsInterface.h"
 #include "DalitzDataIO/DalitzDataReader.h"
 #include "DalitzDataIO/DalitzDataWriter.h"
 #include "DalitzAmp/BreitWigner.h"
@@ -57,15 +58,15 @@ int main(int argc, char** argv){
 
 
     // ************************
-    // create an AmplitudeManager
+    // create an AmpToolsInterface
     // ************************
 
   cout << endl << endl;
-  cout << "Creating AmplitudeManager for reaction " << reaction->reactionName() << endl;
-  AmplitudeManager ampMan(reaction->particleList(),reaction->reactionName());
-  ampMan.registerAmplitudeFactor( BreitWigner() );
-  ampMan.setupFromConfigurationInfo( cfgInfo );
-  cout << "... Finished creating AmplitudeManager" << endl;
+  cout << "Creating an AmpToolsInterface..." << endl;
+  AmpToolsInterface::registerAmplitude(BreitWigner());
+  AmpToolsInterface::registerDataReader(DalitzDataReader());
+  AmpToolsInterface ATI(cfgInfo);
+  cout << "... Finished creating AmpToolsInterface" << endl;
 
 
     // ************************
@@ -94,8 +95,6 @@ int main(int argc, char** argv){
 
   cout << "generating phase space..." << endl;
 
-  AmpVecs packedSummary;
-
   for (int i = 0; i < nevents; i++){
 
       // generate the decay
@@ -118,15 +117,13 @@ int main(int argc, char** argv){
     Kinematics* kin = new Kinematics(fourvectors);
 
 
-      // load events into the AmpVecs object
+      // load events into the AmpToolsInterface
 
-    packedSummary.loadEvent(kin,i,nevents);
+    ATI.loadEvent(kin,i,nevents);
 
     delete kin;
 
   }
-
-  packedSummary.allocateAmps(ampMan,true);
 
   cout << "... finished generating phase space" << endl;
 
@@ -136,7 +133,7 @@ int main(int argc, char** argv){
     // ************************
 
   cout << "calculating intensities..." << endl;
-  double maxIntensity = 1.2 * ampMan.calcIntensities(packedSummary);
+  double maxIntensity = 1.2 * ATI.processEvents(reaction->reactionName());
   cout << "... finished calculating intensities" << endl;
 
 
@@ -146,10 +143,10 @@ int main(int argc, char** argv){
 
   cout << "doing accept/reject..." << endl;
   for (int i = 0; i < nevents; i++){
-    double intensity = packedSummary.m_pdIntensity[i]; 
+    double intensity = ATI.intensity(i); 
     double rndm = drand48() * maxIntensity;
     if (intensity > rndm){
-      Kinematics* kin = packedSummary.getEvent(i);
+      Kinematics* kin = ATI.kinematics(i);
       dataWriter.writeEvent(*kin);
       delete kin;
     }

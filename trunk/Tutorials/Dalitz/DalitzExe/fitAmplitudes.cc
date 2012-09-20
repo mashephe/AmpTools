@@ -5,14 +5,9 @@
 #include <vector>
 #include <utility>
 #include <map>
-#include "MinuitInterface/MinuitMinimizationManager.h"
-#include "IUAmpTools/AmplitudeManager.h"
-#include "IUAmpTools/Kinematics.h"
-#include "IUAmpTools/NormIntInterface.h"
 #include "IUAmpTools/ConfigFileParser.h"
 #include "IUAmpTools/ConfigurationInfo.h"
-#include "IUAmpTools/ParameterManager.h"
-#include "IUAmpTools/LikelihoodCalculator.h"
+#include "IUAmpTools/AmpToolsInterface.h"
 #include "DalitzDataIO/DalitzDataReader.h"
 #include "DalitzAmp/BreitWigner.h"
 
@@ -54,101 +49,34 @@ int main( int argc, char* argv[] ){
   ConfigurationInfo* cfgInfo = parser.getConfigurationInfo();
   cfgInfo->display();
 
-  ReactionInfo* reaction = cfgInfo->reactionList()[0];
-
 
     // ************************
-    // create an AmplitudeManager
+    // AmpToolsInterface
     // ************************
 
-  cout << endl << endl;
-  cout << "Creating AmplitudeManager for reaction " << reaction->reactionName() << endl;
-  vector<AmplitudeManager*>  ampManagers;
-  ampManagers.push_back(new AmplitudeManager(reaction->particleList(),reaction->reactionName()));
-  ampManagers[0]->registerAmplitudeFactor( BreitWigner() );
-  ampManagers[0]->setupFromConfigurationInfo( cfgInfo );
-  cout << "... Finished creating AmplitudeManager" << endl;
+  AmpToolsInterface::registerAmplitude(BreitWigner());
+  AmpToolsInterface::registerDataReader(DalitzDataReader());
 
+  AmpToolsInterface ATI(cfgInfo);
 
-    // ************************
-    // create a MinuitMinimizationManager
-    // ************************
+  cout << "LIKELIHOOD BEFORE MINIMIZATION:  " << ATI.likelihood() << endl;
 
-  MinuitMinimizationManager* fitManager = new MinuitMinimizationManager(100);
-  fitManager->setPrecision( 1E-13 );
+  MinuitMinimizationManager* fitManager = ATI.minuitMinimizationManager();
+  fitManager->setPrecision(1E-13);
+  fitManager->setStrategy(1);
 
-
-    // ************************
-    // create a ParameterManager
-    // ************************
-
-  ParameterManager parManager( *fitManager, ampManagers );
-  parManager.setupFromConfigurationInfo( cfgInfo );
-
-
-    // ************************
-    // create DataReaders
-    // ************************
-
-  DalitzDataReader dataDataReader(reaction->data().second);
-  DalitzDataReader genDataReader(reaction->genMC().second);
-  DalitzDataReader accDataReader(reaction->accMC().second);
-
-
-    // ************************
-    // create a NormIntInterface
-    // ************************
-
-  NormIntInterface normInt(&genDataReader, &accDataReader, *ampManagers[0]);
-
-
-    // ************************
-    // create a LikelihoodCalculator
-    // ************************
-
-  LikelihoodCalculator likeCalc(*ampManagers[0], normInt, dataDataReader, parManager); 
-  cout << "LIKELIHOOD BEFORE MINIMIZATION:  " << likeCalc() << endl;
-
-
-    // ************************
-    // do the minimization
-    // ************************
-
-  cout << "STARTING MINIMIZATION..." << endl;
-
-  fitManager->setStrategy( 1 );
   fitManager->migradMinimization();
-  
+
   if( fitManager->status() != 0 && fitManager->eMatrixStatus() != 3 ){
     cout << "ERROR: fit failed..." << endl;
-    return 1;
   }
 
-  cout << "LIKELIHOOD AFTER MINIMIZATION:  " << likeCalc() << endl;
+  cout << "LIKELIHOOD AFTER MINIMIZATION:  " << ATI.likelihood() << endl;
 
-
-    // ************************
-    // save fit parameters
-    // ************************
-
-  cout << "WRITING PARAMETERS..." << endl;
-  
-  string outputFile(cfgInfo->fitName());  outputFile += ".fit";
-  ofstream outFile(outputFile.c_str());
-  parManager.writeParameters( outFile );
-
-
-    // ************************
-    // save normalization integrals
-    // ************************
-  
-  cout << "WRITING FINAL NORMALIZATION INTEGRALS.." << endl;
-  
-  normInt.forceCacheUpdate();
-  normInt.exportNormIntCache( reaction->normIntFile() );
-
+  ATI.finalizeFit();
 
   return 0;
+
 }
 
 
