@@ -250,6 +250,7 @@ class AmpToolsInterface{
 
   /** For manual calculations:  perform all calculations on the loaded events.
    *  Load all events (loadEvent or loadEvents) before performing calculations.
+   *  Returns the maximum intensity.
    *
    * \param[in] reactionName the name of the reaction that will be calculated
    *

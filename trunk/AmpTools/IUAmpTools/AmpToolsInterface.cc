@@ -113,6 +113,10 @@ AmpToolsInterface::resetConfigurationInfo(ConfigurationInfo* configurationInfo){
     string reactionName(reaction->reactionName());
     AmplitudeManager* ampMan = amplitudeManager(reactionName);
 
+    if (!ampMan)
+      cout << "AmpToolsInterface WARNING:  not creating an AmplitudeManager for reaction " 
+           << reactionName << endl;
+
 
       // ************************
       // create DataReaders
@@ -132,6 +136,16 @@ AmpToolsInterface::resetConfigurationInfo(ConfigurationInfo* configurationInfo){
     DataReader* dataRdr  =  dataReader(reactionName);
     DataReader* genMCRdr = genMCReader(reactionName);
     DataReader* accMCRdr = accMCReader(reactionName);
+
+    if (!dataRdr)
+      cout << "AmpToolsInterface WARNING:  not creating a DataReader for data associated with reaction " 
+           << reactionName << endl;
+    if (!genMCRdr)
+      cout << "AmpToolsInterface WARNING:  not creating a DataReader for generated MC associated with reaction " 
+           << reactionName << endl;
+    if (!accMCRdr)
+      cout << "AmpToolsInterface WARNING:  not creating a DataReader for accepted MC associated with reaction " 
+           << reactionName << endl;
 
 
       // ************************
@@ -236,8 +250,6 @@ AmpToolsInterface::amplitudeManager(const string& reactionName){
     if (m_amplitudeManagers[i]->reactionName() == reactionName)
       return m_amplitudeManagers[i];
   }
-  cout << "AmpToolsInterface WARNING:  can't find an AmplitudeManager associated with reaction " 
-       << reactionName << endl;
   return (AmplitudeManager*) NULL;
 }
 
@@ -246,8 +258,6 @@ DataReader*
 AmpToolsInterface::dataReader (const string& reactionName){
   if (m_dataReaderMap.find(reactionName) != m_dataReaderMap.end())
     return m_dataReaderMap[reactionName];
-  cout << "AmpToolsInterface WARNING:  can't find a DataReader for data associated with reaction " 
-       << reactionName << endl;
   return (DataReader*) NULL;
 }
 
@@ -256,8 +266,6 @@ DataReader*
 AmpToolsInterface::genMCReader (const string& reactionName){
   if (m_genMCReaderMap.find(reactionName) != m_genMCReaderMap.end())
     return m_genMCReaderMap[reactionName];
-  cout << "AmpToolsInterface WARNING:  can't find a DataReader for genMC associated with reaction " 
-       << reactionName << endl;
   return (DataReader*) NULL;
 }
 
@@ -266,8 +274,6 @@ DataReader*
 AmpToolsInterface::accMCReader (const string& reactionName){
   if (m_accMCReaderMap.find(reactionName) != m_accMCReaderMap.end())
     return m_accMCReaderMap[reactionName];
-  cout << "AmpToolsInterface WARNING:  can't find a DataReader for accMC associated with reaction " 
-       << reactionName << endl;
   return (DataReader*) NULL;
 }
 
@@ -276,8 +282,6 @@ NormIntInterface*
 AmpToolsInterface::normIntInterface (const string& reactionName){
   if (m_normIntMap.find(reactionName) != m_normIntMap.end())
     return m_normIntMap[reactionName];
-  cout << "AmpToolsInterface WARNING:  can't find a NormIntInterface associated with reaction " 
-       << reactionName << endl;
   return (NormIntInterface*) NULL;
 }
 
@@ -286,8 +290,6 @@ LikelihoodCalculator*
 AmpToolsInterface::likelihoodCalculator (const string& reactionName){
   if (m_likCalcMap.find(reactionName) != m_likCalcMap.end())
     return m_likCalcMap[reactionName];
-  cout << "AmpToolsInterface WARNING:  can't find a LikelihoodCalculator associated with reaction " 
-       << reactionName << endl;
   return (LikelihoodCalculator*) NULL;
 }
 
