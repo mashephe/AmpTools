@@ -77,9 +77,6 @@ int main( int argc, char* argv[] ){
     // set up a PlotGenerator and make plots
     // ************************
 
-      //xxxxx once an amplitude is disabled it is always disabled????
-      //        can't turn an amplitude off then back on?????
-
   DalitzPlotGenerator plotGenerator(cfgInfo,parname);
   plotGenerator.enableReaction(reaction->reactionName());
   vector<string> amps = plotGenerator.uniqueAmplitudes();
@@ -162,8 +159,6 @@ int main( int argc, char* argv[] ){
     // print results to the screen
     // ************************
 
-       // xxxxx error on the total intensity < sqrt(intensity) 
-       //         when using 100% acceptance????
 
   cout << "TOTAL EVENTS = " << plotGenerator.intensity().first << " +- "
                             << plotGenerator.intensity().second << endl;
