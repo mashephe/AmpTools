@@ -418,10 +418,7 @@ public:
    * \see addUserKeyword
    */
   void removeUserKeyword(const string& userKeyword="");
-  
-  
-  // Display information to the screen or to a file
-  
+    
   /**
    * This displays a nicely formatted description of the configuration to
    * the screen (when no arguments are specified) or prints to a file named
@@ -443,12 +440,9 @@ public:
    *
    * \see ConfigFileParser
    */
-  void write(string fileName);
-  
-  
-  // produces a map from amplitude name to a list of other amplitude
-  // names that are constrained to have the same production parameter
-  
+  void write( const string& fileName ) const;
+  ostream& write( ostream& output ) const;
+    
   /**
    * This produces a map where the keys are the names of the amplitudes and
    * the values are vectors of the names of the amplitudes whose production
@@ -468,6 +462,11 @@ private:
     
 };
 
+
+inline ostream& operator<<( ostream& output, const ConfigurationInfo& cfgInfo ){
+  
+  return cfgInfo.write( output );
+}
 
 
 /**

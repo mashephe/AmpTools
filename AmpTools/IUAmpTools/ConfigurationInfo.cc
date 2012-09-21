@@ -45,6 +45,11 @@
 #include "IUAmpTools/ConfigurationInfo.h"
 
 
+ConfigurationInfo::~ConfigurationInfo(){
+  removeReaction();
+  removeParameter();
+}
+
 
 vector< string >
 ConfigurationInfo::userKeywords() const{
@@ -415,10 +420,185 @@ ConfigurationInfo::constraintMap() const {
 }
 
 
-ConfigurationInfo::~ConfigurationInfo(){
-  removeReaction();
-  removeParameter();
+void
+ConfigurationInfo::write( const string& fileName ) const {
+  
+  ofstream ff(fileName.c_str());
+  write( ff );
+  ff.close();
 }
+
+ostream&
+ConfigurationInfo::write( ostream& ff ) const {
+  
+  vector<ReactionInfo*>    Rs = reactionList();
+  vector<CoherentSumInfo*> Ss = coherentSumList();
+  vector<AmplitudeInfo*>   As = amplitudeList();
+  vector<ParameterInfo*>   Ps = parameterList();
+  
+  ff << "### FIT CONFIGURATION ###" << endl;
+  
+  
+  // fit
+  
+  ff << "fit " << fitName() << endl;
+  
+  
+  // user keywords
+  
+  vector<string> keywords = userKeywords();
+  for (unsigned int i = 0; i < keywords.size(); i++){
+    vector< vector<string> > argslist = userKeywordArguments(keywords[i]);
+    int min = 0; int max = 0;
+    for (unsigned int j = 0; j < argslist.size(); j++){
+      if (argslist[j].size() < min) min = argslist[j].size();
+      if (argslist[j].size() > max) max = argslist[j].size();
+    }
+    ff << "keyword " << keywords[i] << " " << min << " " << max << endl;
+    for (unsigned int j = 0; j < argslist.size(); j++){
+      vector<string> args = argslist[j];
+      ff << keywords[i] << " ";
+      for (unsigned int k = 0; k < args.size(); k++){
+        ff << args[k] << " ";
+      }
+      ff << endl;
+    }
+  }
+  
+  
+  // reaction
+  
+  for (unsigned int i = 0; i < Rs.size(); i++){
+    ReactionInfo* R = Rs[i];
+    ff << "reaction " << R->reactionName();
+    vector<string> particles = R->particleList();
+    for (unsigned int j = 0; j < particles.size(); j++){ ff << " " << particles[j];}
+    ff << endl;}
+  
+  
+  // sum
+  
+  for (unsigned int i = 0; i < Ss.size(); i++){
+    CoherentSumInfo* S = Ss[i];
+    ff << "sum " << S->fullName() << endl;}
+  
+  
+  // amplitude
+  
+  for (unsigned int i = 0; i < As.size(); i++){
+    AmplitudeInfo* A = As[i];
+    ff << "amplitude " << A->fullName();
+    vector< vector<string> > Fs = A->factors();
+    for (unsigned int j = 0; j < Fs.size(); j++){
+      vector<string> args = Fs[j];
+      for (unsigned int k = 0; k < args.size(); k++){
+        ff << " " << args[k];}}
+    ff << endl;}
+  
+  
+  // parameter
+  
+  for (unsigned int i = 0; i < Ps.size(); i++){
+    ParameterInfo* P = Ps[i];
+    ff << "parameter " << P->parName() << " " << P->value();
+    if (P->fixed()){ ff << " fixed"; }
+    else if (P->bounded()){ ff << " bounded " << P->lowerBound() 
+      << " " << P->upperBound(); }
+    else if (P->gaussianBounded()) { ff << " gaussian " << P->centralValue()
+      << " " << P->gaussianError(); }
+    ff << endl;}
+  
+  
+  // scale
+  
+  for (unsigned int i = 0; i < As.size(); i++){
+    AmplitudeInfo* A = As[i];
+    ff << "scale " << A->fullName() << " " << A->scale() << endl;}
+  
+  
+  // constrain
+  
+  for (unsigned int i = 0; i < As.size(); i++){
+    AmplitudeInfo* A = As[i];
+    vector<AmplitudeInfo*> constr = A->constraints();
+    for (unsigned int j = 0; j < constr.size(); j++){
+      ff << "constrain " << A->fullName() << " " << constr[j]->fullName() << endl;}}
+  
+  
+  // initialize
+  
+  for (unsigned int i = 0; i < As.size(); i++){
+    AmplitudeInfo* A = As[i];
+    ff << "initialize " << A->fullName() << " cartesian " 
+    << A->value().real() << " "
+    << A->value().imag();
+    if (A->fixed()) {ff << " fixed";}
+    else if (A->real()) {ff << " real";}
+    ff << endl;}
+  
+  
+  // permute
+  
+  for (unsigned int i = 0; i < As.size(); i++){
+    AmplitudeInfo* A = As[i];
+    vector< vector<int> > perms = A->permutations();
+    for (unsigned int j = 0; j < perms.size(); j++){
+      ff << "permute " << A->fullName(); 
+      vector<int> perm = perms[j];
+      for (unsigned int k = 0; k < perm.size(); k++){
+        ff << " " << perm[k];}
+      ff << endl;}}
+  
+  
+  // data
+  
+  for (unsigned int i = 0; i < Rs.size(); i++){
+    ReactionInfo* R = Rs[i];
+    string cls = R->data().first;
+    vector<string> args = R->data().second;
+    if (cls != ""){
+      ff << "data " << R->reactionName() << " " << cls;
+      for (unsigned int j = 0; j < args.size(); j++){ ff << " " << args[j];}
+      ff << endl;}}
+  
+  
+  // genmc
+  
+  for (unsigned int i = 0; i < Rs.size(); i++){
+    ReactionInfo* R = Rs[i];
+    string cls = R->genMC().first;
+    vector<string> args = R->genMC().second;
+    if (cls != ""){
+      ff << "genmc " << R->reactionName() << " " << cls;
+      for (unsigned int j = 0; j < args.size(); j++){ ff << " " << args[j];}
+      ff << endl;}}
+  
+  
+  // accmc
+  
+  for (unsigned int i = 0; i < Rs.size(); i++){
+    ReactionInfo* R = Rs[i];
+    string cls = R->accMC().first;
+    vector<string> args = R->accMC().second;
+    if (cls != ""){
+      ff << "accmc " << R->reactionName() << " " << cls;
+      for (unsigned int j = 0; j < args.size(); j++){ ff << " " << args[j];}
+      ff << endl;}}
+  
+  
+  // normintfile
+  
+  for (unsigned int i = 0; i < Rs.size(); i++){
+    ReactionInfo* R = Rs[i];
+    string ni = R->normIntFile();
+    if ((ni != "") && !(R->normIntFileInput())){
+      ff << "normintfile " << R->reactionName() << " " << ni << endl;}
+    if ((ni != "") && (R->normIntFileInput())){
+      ff << "normintfile " << R->reactionName() << " " << ni << " input" << endl;}}
+  
+  return ff;
+}
+
 
 
 void
@@ -635,182 +815,6 @@ ParameterInfo::display(string fileName, bool append){
   }
 
 }
-
-
-
-void
-ConfigurationInfo::write(string fileName){
-
-  vector<ReactionInfo*>    Rs = reactionList();
-  vector<CoherentSumInfo*> Ss = coherentSumList();
-  vector<AmplitudeInfo*>   As = amplitudeList();
-  vector<ParameterInfo*>   Ps = parameterList();
-
-  ofstream ff(fileName.c_str());
-  ff << "#### CONFIGURATIONINFO OUTPUT ####" << endl;
-
-
-    // fit
-
-  ff << "fit " << fitName() << endl;
-
-
-    // user keywords
-
-  vector<string> keywords = userKeywords();
-  for (unsigned int i = 0; i < keywords.size(); i++){
-    vector< vector<string> > argslist = userKeywordArguments(keywords[i]);
-    int min = 0; int max = 0;
-    for (unsigned int j = 0; j < argslist.size(); j++){
-      if (argslist[j].size() < min) min = argslist[j].size();
-      if (argslist[j].size() > max) max = argslist[j].size();
-    }
-    ff << "keyword " << keywords[i] << " " << min << " " << max << endl;
-    for (unsigned int j = 0; j < argslist.size(); j++){
-      vector<string> args = argslist[j];
-      ff << keywords[i] << " ";
-      for (unsigned int k = 0; k < args.size(); k++){
-	ff << args[k] << " ";
-      }
-      ff << endl;
-    }
-  }
-
-
-    // reaction
-
-  for (unsigned int i = 0; i < Rs.size(); i++){
-  ReactionInfo* R = Rs[i];
-  ff << "reaction " << R->reactionName();
-  vector<string> particles = R->particleList();
-  for (unsigned int j = 0; j < particles.size(); j++){ ff << " " << particles[j];}
-  ff << endl;}
-
-
-    // sum
-
-  for (unsigned int i = 0; i < Ss.size(); i++){
-  CoherentSumInfo* S = Ss[i];
-  ff << "sum " << S->fullName() << endl;}
-
-
-    // amplitude
-
-  for (unsigned int i = 0; i < As.size(); i++){
-  AmplitudeInfo* A = As[i];
-  ff << "amplitude " << A->fullName();
-  vector< vector<string> > Fs = A->factors();
-  for (unsigned int j = 0; j < Fs.size(); j++){
-  vector<string> args = Fs[j];
-  for (unsigned int k = 0; k < args.size(); k++){
-  ff << " " << args[k];}}
-  ff << endl;}
-
-
-    // parameter
-
-  for (unsigned int i = 0; i < Ps.size(); i++){
-  ParameterInfo* P = Ps[i];
-  ff << "parameter " << P->parName() << " " << P->value();
-  if (P->fixed()){ ff << " fixed"; }
-  else if (P->bounded()){ ff << " bounded " << P->lowerBound() 
-                                       << " " << P->upperBound(); }
-  else if (P->gaussianBounded()) { ff << " gaussian " << P->centralValue()
-                                       << " " << P->gaussianError(); }
-  ff << endl;}
-
-
-    // scale
-
-  for (unsigned int i = 0; i < As.size(); i++){
-  AmplitudeInfo* A = As[i];
-  ff << "scale " << A->fullName() << " " << A->scale() << endl;}
-
-
-    // constrain
-
-  for (unsigned int i = 0; i < As.size(); i++){
-  AmplitudeInfo* A = As[i];
-  vector<AmplitudeInfo*> constr = A->constraints();
-  for (unsigned int j = 0; j < constr.size(); j++){
-  ff << "constrain " << A->fullName() << " " << constr[j]->fullName() << endl;}}
-
-
-    // initialize
-
-  for (unsigned int i = 0; i < As.size(); i++){
-  AmplitudeInfo* A = As[i];
-  ff << "initialize " << A->fullName() << " cartesian " 
-              << A->value().real() << " "
-              << A->value().imag();
-  if (A->fixed()) {ff << " fixed";}
-  else if (A->real()) {ff << " real";}
-  ff << endl;}
-
-
-    // permute
-
-  for (unsigned int i = 0; i < As.size(); i++){
-  AmplitudeInfo* A = As[i];
-  vector< vector<int> > perms = A->permutations();
-  for (unsigned int j = 0; j < perms.size(); j++){
-  ff << "permute " << A->fullName(); 
-  vector<int> perm = perms[j];
-  for (unsigned int k = 0; k < perm.size(); k++){
-  ff << " " << perm[k];}
-  ff << endl;}}
-
-
-    // data
-
-  for (unsigned int i = 0; i < Rs.size(); i++){
-  ReactionInfo* R = Rs[i];
-  string cls = R->data().first;
-  vector<string> args = R->data().second;
-  if (cls != ""){
-  ff << "data " << R->reactionName() << " " << cls;
-  for (unsigned int j = 0; j < args.size(); j++){ ff << " " << args[j];}
-  ff << endl;}}
-
-
-    // genmc
-
-  for (unsigned int i = 0; i < Rs.size(); i++){
-  ReactionInfo* R = Rs[i];
-  string cls = R->genMC().first;
-  vector<string> args = R->genMC().second;
-  if (cls != ""){
-  ff << "genmc " << R->reactionName() << " " << cls;
-  for (unsigned int j = 0; j < args.size(); j++){ ff << " " << args[j];}
-  ff << endl;}}
-
-
-    // accmc
-
-  for (unsigned int i = 0; i < Rs.size(); i++){
-  ReactionInfo* R = Rs[i];
-  string cls = R->accMC().first;
-  vector<string> args = R->accMC().second;
-  if (cls != ""){
-  ff << "accmc " << R->reactionName() << " " << cls;
-  for (unsigned int j = 0; j < args.size(); j++){ ff << " " << args[j];}
-  ff << endl;}}
-
-
-    // normintfile
-
-  for (unsigned int i = 0; i < Rs.size(); i++){
-  ReactionInfo* R = Rs[i];
-  string ni = R->normIntFile();
-  if ((ni != "") && !(R->normIntFileInput())){
-  ff << "normintfile " << R->reactionName() << " " << ni << endl;}
-  if ((ni != "") && (R->normIntFileInput())){
-  ff << "normintfile " << R->reactionName() << " " << ni << " input" << endl;}}
-
-
-  ff.close();
-}
-
 
 
 void 
