@@ -74,6 +74,8 @@ class LikelihoodCalculator : public MIFunctionContribution
   
   ~LikelihoodCalculator(){}
 	
+  string reactionName() const { return m_ampManager.reactionName(); }
+  
   // this method delivers the likelihood
   double operator()();
    
