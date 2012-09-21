@@ -60,9 +60,16 @@ public:
                        kAbnormalTermination = 4
    };
    
+   enum EMatrixStatus { kNotCalculated = 0,
+                        kApproxNotAccurate = 1,
+                        kFullForcedPosDef = 2,
+                        kFullAccurate = 3 };
+  
    enum Option { kCheckDerivativeCalc, kTrustDerivativeCalc };
  
    enum FitFlag { kComputeDerivatives = 2 };
+  
+   enum Commands { kUnknown = 0, kMigrad = 1, kMinos = 2, kHesse = 3 };
    
    // friends
    friend class MinuitParameterManager;
@@ -89,6 +96,9 @@ public:
    //    11: EXIT or STOP command
    //    12: RETURN command  
    int status() const;
+ 
+   // gets a flag that indicates the last command executed
+   int lastCommand() const;
 
    // error matrix status:
    //   0= not calculated at all
@@ -120,12 +130,13 @@ public:
    
    // change the internal precision of MINUIT (calls SET EPS)
    void setPrecision( double precision );
+   double precision() const;
  
-   // change the maximum number of iterations for certain MINUIT operations (default 500)
+   // change the maximum number of iterations for certain MINUIT operations (default 5000)
    void setMaxIterations( int maxIter );
  
    // retrieve the setting for maximum number of iterations
-   int getMaxIterations() const;
+   int maxIterations() const;
   
    // change the minimization strategy -- from the MINUIT manual:
    //   In the current release, this parameter can take on three integer values (0, 1, 2), 
@@ -137,7 +148,9 @@ public:
    //   to be sure that all values are precise; it is intended for cases where the function 
    //   is evaluated in a very short time and/or where the parameter errors must be 
    //   calculated reliably
+
    void setStrategy( int strategy );
+   int strategy() const;
   
    // serve up the parameterManager for the user to define/delete minuit parameters
    MinuitParameterManager& parameterManager() { return m_parameterManager; }
@@ -174,12 +187,20 @@ private:
    URMinuit m_fitter;
    
    bool m_derivativesEnabled;
-   int m_status;
    void (*m_newFlagFunction)(int);
+
    int m_lastMinuitFlag;
+  
+   int m_lastCommand;
+   int m_status;
+                   
+   int m_strategy;
+  
+   double m_precision;
   
    double m_bestMin;
    double m_estDistToMin;
+ 
    int m_eMatrixStat;
 };
 #endif
