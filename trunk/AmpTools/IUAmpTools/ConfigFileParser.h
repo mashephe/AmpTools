@@ -98,37 +98,57 @@ using namespace std;
 
 class ConfigFileLine;
 
-
+/**
+ *  The ConfigFileParser class fills a ConfigurationInfo object from either
+ *  a file or a stream, depending on the constructor chosen.  It also 
+ *  provides access to the raw config file information through the 
+ *  getConfigFileLines method.
+ */
 
 class ConfigFileParser
 {
 
   public:
 
+      /**
+       *  A constructor that takes the name of a file as input.
+       */
 
     ConfigFileParser(const string& configFile, bool verboseParsing = false);
+
+
+      /**
+       *  A constructor that takes a stream as input.
+       */
+
+    ConfigFileParser(istream& input);
+
+
+      /**
+       *  The destructor.
+       */
 
     ~ConfigFileParser();
 
 
-      // Return the ConfigurationInfo object for this configFile
+      /**
+       *  Return a pointer to a filled ConfigurationInfo object.
+       */
 
     ConfigurationInfo* getConfigurationInfo();
 
 
-      // Get the ConfigFileLines for a specified configFile
-      //   ("include" and "define" statements are NOT expanded)
-
-    vector<ConfigFileLine> getConfigFileLines(const string& configFile) const;
-
-
-      // Get the ConfigFileLines for the main configFile (given in the constructor)
-      //   ("include" and "define" statements are expanded)
+      /**
+       *  Return a vector of ConfigFileLine, which includes all parsed information
+       *   (with expanded "include" and "define" statements).
+       */
 
     vector<ConfigFileLine> getConfigFileLines();
 
 
-      // Display all the lines of the main configFile
+      /**
+       *  Display the final parsed vector of ConfigLileLine.
+       */
 
     void displayConfigFile() const;
 
@@ -137,6 +157,18 @@ class ConfigFileParser
   private:
 
     ConfigFileParser(); // disable default
+
+
+      // read from a stream
+
+    vector<ConfigFileLine> readConfigFileLines(istream& input);
+
+
+      // read from a file
+      //   (note that "include" and "define" statements 
+      //     are NOT expanded at this stage)
+
+    vector<ConfigFileLine> readConfigFileLines(const string& configFile);
 
 
       // Do checks on the syntax, check keywords, etc.
@@ -174,19 +206,16 @@ class ConfigFileParser
 
 
 
+/**
+ *  The ConfigFileLine class holds a line of a parsed config file.
+ *
+ *    A line of the config file has the form:
+ *
+ *        keyword  argument1  argument2  argument3 .....
+ *
+ *    comment() = true for lines starting with # or empty lines
+ */
 
-
-//  **********************************************************************
-//
-//  class ConfigFileLine:  A class to hold a line of a parsed config file.
-//
-//    a line of the config file has the form:
-//
-//        keyword  argument1  argument2  argument3 .....
-//
-//    comment() = true for lines starting with # or empty lines
-//
-//  **********************************************************************
 
 class ConfigFileLine
 {
