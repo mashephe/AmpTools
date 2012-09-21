@@ -228,6 +228,14 @@ public:
 	const vector< string >& getAmpNames() const;
   
   /**
+   * The function returns a reference to the parameter that is acting as the
+   * scale factor for an amplitude.  Even if the user does not set a scale
+   * factor, by default a fixed parameter is created and its value is
+   * inititalized to 1.
+   */
+  const AmpParameter& getScale( const string& name ) const;
+  
+  /**
    * The function returns a list of permutations that will be performed on
    * a particular amplitude when then amplitude is computed.  Each permutation
    * is a list of vectors that specifies how to reorder the particles in the
@@ -352,6 +360,11 @@ public:
    * \param[in] sum (optional) the name of a coherent sum that the amplitude
    * should be added to (for use in cases where multiple coherent sums are
    * needed to construct the intensity).
+   *
+   * \param[in] scale (optional) the name of a parameter to use for the
+   * the scale factor for the full amplitude (not a factor).  This must be
+   * passed in the with the first factor of the amplitude.  
+   * The setupFromConfigurationInfo method does this properly.
    *
    * \see getFactors
    * \see registerAmplitudeFactor
