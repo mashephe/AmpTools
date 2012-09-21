@@ -55,48 +55,62 @@ ConfigFileParser::ConfigFileParser(const string& configFile, bool verboseParsing
 
       // Initial Setup
 
-    cout << endl;
-    cout << "ConfigFileParser INFO:  Setting up new ConfigFileParser with file...  " 
+    if (verboseParsing)
+    cout << endl << "ConfigFileParser INFO:  Setting up new ConfigFileParser with file...  " 
          << configFile << endl;
 
   m_configFile = configFile;
-  m_configFileLines.clear();
   m_verboseParsing = verboseParsing;
 
 
 
       // Read the config file and expand the include files
 
+    if (verboseParsing)
     cout << "ConfigFileParser INFO:  Begin Parsing Files " << endl;
 
   getConfigFileLines();
 
+    if (verboseParsing)
     cout << "ConfigFileParser INFO:  Finished Parsing Files " << endl;
 
 
 
       // Do some quick syntax checks
 
+    if (verboseParsing)
     cout << "ConfigFileParser INFO:  Begin Syntax Checking " << endl;
 
   checkSyntax();
 
+    if (verboseParsing)
     cout << "ConfigFileParser INFO:  Finished Syntax Checking " << endl;
 
 
 
       // Fill the ConfigurationInfo object
 
+    if (verboseParsing)
     cout << "ConfigFileParser INFO:  Begin Filling the ConfigurationInfo Object " << endl;
 
   getConfigurationInfo();
 
+    if (verboseParsing)
     cout << "ConfigFileParser INFO:  Finished Filling the ConfigurationInfo Object " << endl;
 
 
 
-    cout << "ConfigFileParser INFO:  Finished setting up new ConfigFileParser" << endl;
-    cout << endl;
+    if (verboseParsing)
+    cout << "ConfigFileParser INFO:  Finished setting up new ConfigFileParser" << endl << endl;
+
+}
+
+
+ConfigFileParser::ConfigFileParser(istream& input)
+{
+
+  readConfigFileLines(input);
+  ConfigFileParser("stream",false);
 
 }
 
@@ -123,6 +137,7 @@ ConfigFileParser::getConfigurationInfo(){
 
       // ZEROTH PASS ("fit")
   
+    if (m_verboseParsing)
     cout << "ConfigFileParser INFO:  Starting ZEROTH PASS (finding the fit name)" << endl;
 
   for (vector<ConfigFileLine>::iterator lineItr = m_configFileLines.begin();
@@ -135,6 +150,7 @@ ConfigFileParser::getConfigurationInfo(){
 
   }
 
+    if (m_verboseParsing)
     cout << "ConfigFileParser INFO:  Finished ZEROTH PASS" << endl;
 
 
@@ -146,6 +162,7 @@ ConfigFileParser::getConfigurationInfo(){
 
       // FIRST PASS ("reaction")
   
+    if (m_verboseParsing)
     cout << "ConfigFileParser INFO:  Starting FIRST PASS (creating reactions and parameters)" << endl;
 
   for (vector<ConfigFileLine>::iterator lineItr = m_configFileLines.begin();
@@ -159,12 +176,14 @@ ConfigFileParser::getConfigurationInfo(){
 
   }
 
+    if (m_verboseParsing)
     cout << "ConfigFileParser INFO:  Finished FIRST PASS" << endl;
 
 
 
       // SECOND PASS ("sum" and reaction info)
   
+    if (m_verboseParsing)
     cout << "ConfigFileParser INFO:  Starting SECOND PASS (creating sums and filling reactions)" << endl;
 
   for (vector<ConfigFileLine>::iterator lineItr = m_configFileLines.begin();
@@ -184,12 +203,14 @@ ConfigFileParser::getConfigurationInfo(){
 
   }
 
+    if (m_verboseParsing)
     cout << "ConfigFileParser INFO:  Finished SECOND PASS" << endl;
 
 
 
       // THIRD PASS ("amplitude")
   
+    if (m_verboseParsing)
     cout << "ConfigFileParser INFO:  Starting THIRD PASS (creating amplitudes)" << endl;
 
   for (vector<ConfigFileLine>::iterator lineItr = m_configFileLines.begin();
@@ -200,12 +221,14 @@ ConfigFileParser::getConfigurationInfo(){
 
   }
 
+    if (m_verboseParsing)
     cout << "ConfigFileParser INFO:  Finished THIRD PASS" << endl;
 
 
 
       // FOURTH PASS (operations on amplitudes)
   
+    if (m_verboseParsing)
     cout << "ConfigFileParser INFO:  Starting FOURTH PASS (filling amplitudes)" << endl;
 
   for (vector<ConfigFileLine>::iterator lineItr = m_configFileLines.begin();
@@ -222,6 +245,7 @@ ConfigFileParser::getConfigurationInfo(){
 
   }
 
+    if (m_verboseParsing)
     cout << "ConfigFileParser INFO:  Finished FOURTH PASS" << endl;
 
 
@@ -235,11 +259,28 @@ ConfigFileParser::getConfigurationInfo(){
 
 
 
+vector<ConfigFileLine>
+ConfigFileParser::readConfigFileLines(istream& input){
+
+  m_configFileLines.clear();
+  int lineNumber = 0;
+
+  while (!input.eof()){
+    string line;
+    getline(input,line);
+    m_configFileLines.push_back(ConfigFileLine("stream",++lineNumber, line));
+  }
+
+  return m_configFileLines;
+
+}
+
 
 vector<ConfigFileLine>
-ConfigFileParser::getConfigFileLines(const string& configfile) const{
+ConfigFileParser::readConfigFileLines(const string& configfile){
 
-  cout << "ConfigFileParser INFO:  Begin parsing the file...  " << configfile << endl;
+    if (m_verboseParsing)
+    cout << "ConfigFileParser INFO:  Begin parsing the file...  " << configfile << endl;
 
   vector<ConfigFileLine> configFileLines;
   int lineNumber = 0;
@@ -272,7 +313,7 @@ ConfigFileParser::getConfigFileLines(){
 
     // read in the initial config file
 
-  m_configFileLines = getConfigFileLines(m_configFile);
+  m_configFileLines = readConfigFileLines(m_configFile);
 
 
     // flush all "include" lines
@@ -291,7 +332,7 @@ ConfigFileParser::getConfigFileLines(){
         // read in the input config file lines
 
       string inputFile = lineItr->arguments()[0];
-      vector<ConfigFileLine> inputFileLines = getConfigFileLines(inputFile);
+      vector<ConfigFileLine> inputFileLines = readConfigFileLines(inputFile);
 
         // replace the input line
 
