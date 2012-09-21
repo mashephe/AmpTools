@@ -35,53 +35,55 @@
 //******************************************************************************
 
 
-//****************************************************************
-//
-// ConfigFileParser Class:
-//
-//   This class parses config files that follow these rules:
-//
-//#####################################
-//####    THIS IS A CONFIG FILE    ####
-//#####################################
-//##
-//##  Blank lines or lines beginning with a "#" are ignored.
-//##
-//##  Double colons (::) are treated like a space.
-//##	 This is sometimes useful for grouping (for example,
-//##	 grouping strings like "reaction::sum::amplitudeName")
-//##
-//##  All non-comment lines must begin with one of the following keywords.
-//##
-//##  (note:  <word> means necessary 
-//##	      (word) means optional)
-//##
-//##  include	    <file>
-//##  define	    <word> (defn1) (defn2) (defn3) ...
-//##  fit	    <fitname>
-//##  keyword	    <keyword> <min arguments> <max arguments>
-//##  reaction      <reaction> <particle1> <particle2> (particle3) ...
-//##  data          <reaction> <class> (arg1) (arg2) (arg3) ...
-//##  genmc         <reaction> <class> (arg1) (arg2) (arg3) ...
-//##  accmc         <reaction> <class> (arg1) (arg2) (arg3) ...
-//##  normintfile   <reaction> <file> ("input")
-//##  sum	    <reaction> <sum> (sum2) (sum3) ...
-//##  amplitude     <reaction> <sum> <amp> <class> (arg1) (arg2) ([par]) ... 
-//##  initialize    <reaction> <sum> <amp> <"events"/"polar"/"cartesian">
-//##		      <value1> <value2> ("fixed"/"real")
-//##  scale	    <reaction> <sum> <amp> <value or [parameter]>
-//##  constrain     <reaction1> <sum1> <amp1> <reaction2> <sum2> <amp2> ...
-//##  permute	    <reaction> <sum> <amp> <index1> <index2> ...
-//##  parameter     <par> <value> ("fixed"/"bounded"/"gaussian") 
-//##		      (lower/central) (upper/error)
-//##    DEPRECATED:
-//##  datafile      <reaction> <file> (file2) (file3) ...
-//##  genmcfile     <reaction> <file> (file2) (file3) ...
-//##  accmcfile     <reaction> <file> (file2) (file3) ...
-//##
-//#####################################
-//
-//****************************************************************
+/**
+ *  The ConfigFileParser class fills a ConfigurationInfo object from either
+ *  a file or a stream, depending on the constructor chosen.  It also 
+ *  provides access to the raw config file information through the 
+ *  getConfigFileLines method.
+ *
+ *  Config files follow these rules:
+ *
+ * #####################################
+ * ####    THIS IS A CONFIG FILE    ####
+ * #####################################
+ * ##
+ * ##  Blank lines or lines beginning with a "#" are ignored.
+ * ##
+ * ##  Double colons (::) are treated like a space.
+ * ##	 This is sometimes useful for grouping (for example,
+ * ##	 grouping strings like "reaction::sum::amplitudeName")
+ * ##
+ * ##  All non-comment lines must begin with one of the following keywords.
+ * ##
+ * ##  (note:  <word> means necessary 
+ * ##	      (word) means optional)
+ * ##
+ * ##  include	    <file>
+ * ##  define	    <word> (defn1) (defn2) (defn3) ...
+ * ##  fit	    <fitname>
+ * ##  keyword	    <keyword> <min arguments> <max arguments>
+ * ##  reaction      <reaction> <particle1> <particle2> (particle3) ...
+ * ##  data          <reaction> <class> (arg1) (arg2) (arg3) ...
+ * ##  genmc         <reaction> <class> (arg1) (arg2) (arg3) ...
+ * ##  accmc         <reaction> <class> (arg1) (arg2) (arg3) ...
+ * ##  normintfile   <reaction> <file> ("input")
+ * ##  sum	    <reaction> <sum> (sum2) (sum3) ...
+ * ##  amplitude     <reaction> <sum> <amp> <class> (arg1) (arg2) ([par]) ... 
+ * ##  initialize    <reaction> <sum> <amp> <"events"/"polar"/"cartesian">
+ * ##		      <value1> <value2> ("fixed"/"real")
+ * ##  scale	    <reaction> <sum> <amp> <value or [parameter]>
+ * ##  constrain     <reaction1> <sum1> <amp1> <reaction2> <sum2> <amp2> ...
+ * ##  permute	    <reaction> <sum> <amp> <index1> <index2> ...
+ * ##  parameter     <par> <value> ("fixed"/"bounded"/"gaussian") 
+ * ##		      (lower/central) (upper/error)
+ * ##    DEPRECATED:
+ * ##  datafile      <reaction> <file> (file2) (file3) ...
+ * ##  genmcfile     <reaction> <file> (file2) (file3) ...
+ * ##  accmcfile     <reaction> <file> (file2) (file3) ...
+ * ##
+ * #####################################
+ * 
+ */
 
 #if !defined(CONFIGFILEPARSER)
 #define CONFIGFILEPARSER
@@ -98,12 +100,6 @@ using namespace std;
 
 class ConfigFileLine;
 
-/**
- *  The ConfigFileParser class fills a ConfigurationInfo object from either
- *  a file or a stream, depending on the constructor chosen.  It also 
- *  provides access to the raw config file information through the 
- *  getConfigFileLines method.
- */
 
 class ConfigFileParser
 {
@@ -132,14 +128,14 @@ class ConfigFileParser
 
 
       /**
-       *  Return a pointer to a filled ConfigurationInfo object.
+       *  Returns a pointer to a filled ConfigurationInfo object.
        */
 
     ConfigurationInfo* getConfigurationInfo();
 
 
       /**
-       *  Return a vector of ConfigFileLine, which includes all parsed information
+       *  Returns a vector of ConfigFileLine, which includes all parsed information
        *   (with expanded "include" and "define" statements).
        */
 
@@ -147,7 +143,7 @@ class ConfigFileParser
 
 
       /**
-       *  Display the final parsed vector of ConfigLileLine.
+       *  Displays the final parsed vector of ConfigFileLine.
        */
 
     void displayConfigFile() const;
