@@ -765,12 +765,16 @@ AmplitudeManager::registerAmplitudeFactor( const Amplitude& amplitude ){
   m_registeredFactors[amplitude.name()] = amplitude.clone();
 }
 
-
-
 const vector< string >&
 AmplitudeManager::getAmpNames() const {
   
   return m_ampNames;
+}
+
+const AmpParameter&
+AmplitudeManager::getScale( const string& name ) const {
+  
+  return m_ampScaleVec[ampIndex(name)];
 }
 
 int 
