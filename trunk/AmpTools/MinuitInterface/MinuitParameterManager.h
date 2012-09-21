@@ -104,6 +104,8 @@ private:
    
    MinuitMinimizationManager& m_minimizationManager; // the controlling minimization manager   
    bool m_fitInProgress;
+  
+   int m_numFloatingPars;
    
    // ------------ static data members -------------------------
 };
