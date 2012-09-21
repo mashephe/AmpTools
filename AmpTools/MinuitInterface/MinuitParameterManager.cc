@@ -110,71 +110,71 @@ MinuitParameterManager::updateErrors()
 void
 MinuitParameterManager::synchronizeMinuit() 
 {
-   // we'll need the minuitMinimizer to check/modify parameter status
-   URMinuit& theMinimizer = m_minimizationManager.minuitMinimizer();
-   
-   // check that minuit has each parameter's status correct
-   for ( ParamIter parameter = begin(); parameter != end(); ++parameter ) 
-   {
-      int minuitId = parameter->minuitId();
+  // we'll need the minuitMinimizer to check/modify parameter status
+  URMinuit& theMinimizer = m_minimizationManager.minuitMinimizer();
+  
+  m_numFloatingPars = 0;
+  
+  // check that minuit has each parameter's status correct
+  for ( ParamIter parameter = begin(); parameter != end(); ++parameter ) 
+  {
+    int minuitId = parameter->minuitId();
+    
+    // get the current values from minuit
+    string name;
+    double value; 
+    double error; 
+    double lowerLimit;
+    double upperLimit; 
+    int minuitVariableId;
+    theMinimizer.mnpout( minuitId, name, value, error, 
+                        lowerLimit, upperLimit, minuitVariableId );
+    
+    // force the minuit value to the current value of the parameter
+    if ( value != parameter->value() ) 
+    {
+      double commandParameters[]  = { minuitId, parameter->value() };
+      int status;
+      theMinimizer.mnexcm( "SET PAR", commandParameters, 2, status );
+    }
+    
+    // make sure that minuit has all of its parameters held fixed as necessary
+    // Note: a positive minuitVariableId => minuit considers the parameter floating
+    if ( ! parameter->floating() ) {
+      cout << "Need to fix parameter " << minuitId << " MinuitVariableId = " 
+      << minuitVariableId << endl;
+      if ( minuitVariableId > 0 ) {
+        theMinimizer.FixParameter( minuitId );
+      }
+    }
+    else{
       
-      // get the current values from minuit
-      string name;
-      double value; 
-      double error; 
-      double lowerLimit;
-      double upperLimit; 
-      int minuitVariableId;
-      theMinimizer.mnpout( minuitId, name, value, error, 
-			   lowerLimit, upperLimit, minuitVariableId );
-      /*
-      cout << "*********************************************" << endl;
-      cout << "Here in sync at param: " << minuitId << " " 
-	   << name << endl;
-      cout << "*********************************************" << endl;
-      cout << endl;
-      */
-
-      // force the minuit value to the current value of the parameter
-      if ( value != parameter->value() ) 
+      // we'll need this to dimension the error matrix
+      ++m_numFloatingPars;
+    }
+    
+    // check any bounds that are set on the parameter, or unbound if necessary
+    bool updateLimits =  
+    (lowerLimit != parameter->lowerBound()) || 
+    (upperLimit != parameter->upperBound());
+    if ( updateLimits ) 
+    {
+      int status;
+      string limCommand = "SET LIM";
+      if ( ! parameter->bounded() ) 
       {
-         double commandParameters[]  = { minuitId, parameter->value() };
-         int status;
-         theMinimizer.mnexcm( "SET PAR", commandParameters, 2, status );
-      }
-
-      // make sure that minuit has all of its parameters held fixed as necessary
-      // Note: a positive minuitVariableId => minuit considers the parameter floating
-      if ( ! parameter->floating() ) {
-         cout << "Need to fix parameter " << minuitId << " MinuitVariableId = " 
-	      << minuitVariableId << endl;
-         if ( minuitVariableId > 0 ) {
-            theMinimizer.FixParameter( minuitId );
-         }
-      }
-
-      // check any bounds that are set on the parameter, or unbound if necessary
-      bool updateLimits =  
-         (lowerLimit != parameter->lowerBound()) || 
-         (upperLimit != parameter->upperBound());
-      if ( updateLimits ) 
+        double commandParameter = minuitId;
+        theMinimizer.mnexcm( limCommand, &commandParameter, 1, status );
+      } 
+      else 
       {
-         int status;
-         string limCommand = "SET LIM";
-         if ( ! parameter->bounded() ) 
-	 {
-            double commandParameter = minuitId;
-            theMinimizer.mnexcm( limCommand, &commandParameter, 1, status );
-         } 
-	 else 
-	 {
-            double commandParameters[] = {minuitId, parameter->lowerBound(), 
-					  parameter->upperBound()};
-            theMinimizer.mnexcm( limCommand, commandParameters, 3,  status );
-         }
+        double commandParameters[] = {minuitId, parameter->lowerBound(), 
+          parameter->upperBound()};
+        theMinimizer.mnexcm( limCommand, commandParameters, 3,  status );
       }
-      
-   } // end of loop over parameters
+    }
+    
+  } // end of loop over parameters
 }
 
 bool
@@ -246,18 +246,19 @@ MinuitParameterManager::covarianceMatrix(){
 	
 	// allocate space for a square matrix of doubles with 
 	// dimension equal to the number of parameters
-	double* emat = (double*)malloc( size() * size() * sizeof( double ) );
+	double* emat = (double*)malloc( m_numFloatingPars * m_numFloatingPars * 
+                                  sizeof( double ) );
 	
-	m_minimizationManager.minuitMinimizer().mnemat( emat, size() );
+	m_minimizationManager.minuitMinimizer().mnemat( emat, m_numFloatingPars );
 	
 	vector< vector< double > > errorMatrix;
 	
-	for( unsigned int i = 0; i < size(); ++i ){
+	for( unsigned int i = 0; i < m_numFloatingPars; ++i ){
 		
 		errorMatrix.push_back( vector< double >( 0 ) );
-		for( unsigned int j = 0; j < size(); ++j ){
+		for( unsigned int j = 0; j < m_numFloatingPars; ++j ){
 			
-			errorMatrix[i].push_back( emat[i+j*size()] );
+			errorMatrix[i].push_back( emat[i+j*m_numFloatingPars] );
 		}
 	}
 	
