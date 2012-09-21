@@ -56,11 +56,15 @@ MinuitMinimizationManager::MinuitMinimizationManager( int maxParameters ) :
    m_lastMinuitFlag( -1 ),
    m_bestMin( 0 ),
    m_estDistToMin( 0 ),
-   m_eMatrixStat( 0 )
+   m_eMatrixStat( 0 ),
+   m_strategy( 1 ),
+   m_precision( 0 ) // MINUIT determines automatically
 {
 //   m_parameterManager = new MinuitParameterManager( *this );
    // tell the fitter that this object is the function to evaluate
    m_fitter.SetFCN( this );
+  
+  setStrategy( m_strategy );
 }
 
 MinuitMinimizationManager::~MinuitMinimizationManager()
@@ -110,10 +114,18 @@ MinuitMinimizationManager::computeDerivatives( double* grad )
 void 
 MinuitMinimizationManager::setPrecision( double precision ){
  
+  m_precision = precision;
+  
   std::ostringstream command;
   command << "SET EPS " << precision;
 
   m_fitter.Command( command.str().c_str() );
+}
+
+double
+MinuitMinimizationManager::precision() const {
+  
+  return m_precision;
 }
 
 void
@@ -123,7 +135,7 @@ MinuitMinimizationManager::setMaxIterations( int maxIter ){
 }
 
 int
-MinuitMinimizationManager::getMaxIterations() const {
+MinuitMinimizationManager::maxIterations() const {
   
   return m_fitter.GetMaxIterations();
 }
@@ -135,6 +147,12 @@ MinuitMinimizationManager::setStrategy( int strat ){
   command << "SET STRATEGY " << strat;
   
   m_fitter.Command( command.str().c_str() );
+}
+
+int
+MinuitMinimizationManager::strategy() const {
+  
+  return m_strategy;
 }
 
 void
@@ -169,6 +187,7 @@ MinuitMinimizationManager::migradMinimization() {
    int dummyI;
    double dummyD;
    m_lastMinuitFlag = -1;
+   m_lastCommand = kMigrad;
    m_parameterManager.synchronizeMinuit();
    m_parameterManager.fitInProgress();
    m_status = m_fitter.Migrad();
@@ -185,6 +204,7 @@ MinuitMinimizationManager::minosMinimization() {
    int dummyI;
    double dummyD;
    m_lastMinuitFlag = -1;
+   m_lastCommand = kMinos;
    m_parameterManager.synchronizeMinuit();
    m_parameterManager.fitInProgress();
    m_status = m_fitter.Minos();
@@ -201,6 +221,7 @@ MinuitMinimizationManager::hesseEvaluation() {
    int dummyI;
    double dummyD;
    m_lastMinuitFlag = -1;
+   m_lastCommand = kHesse;
    m_parameterManager.synchronizeMinuit();
    m_parameterManager.fitInProgress();
    m_status = m_fitter.Hesse();
@@ -227,7 +248,7 @@ MinuitMinimizationManager::operator()( int &npar, double *grad, double &fval, co
       }
    }
     
-    if( flag = kComputeDerivatives ){
+    if( flag == kComputeDerivatives ){
         
         // fill the grad array with the derivatives
         computeDerivatives( grad );
@@ -240,6 +261,12 @@ int
 MinuitMinimizationManager::status() const {
 
   return m_status;
+}
+
+int
+MinuitMinimizationManager::lastCommand() const {
+  
+  return m_lastCommand;
 }
 
 int
