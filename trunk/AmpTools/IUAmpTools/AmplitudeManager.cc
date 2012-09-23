@@ -986,6 +986,10 @@ AmplitudeManager::updateAmpPar( const string& parName ) const {
   }
 }
 
+/* 
+ * disable these for now until a fix is made to the NormIntInterface to prevent
+ * problems with free parameters in amplitudes
+
 void
 AmplitudeManager::renormalizeAmps( const NormIntInterface* normInt ){
   
@@ -998,6 +1002,7 @@ AmplitudeManager::disableRenormalization(){
 
   m_renormalizeAmps = false;
 }
+*/
 
 // private functions
 

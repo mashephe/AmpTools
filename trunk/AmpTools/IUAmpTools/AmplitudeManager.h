@@ -546,21 +546,27 @@ public:
    * Results of calcAmplitudes or calcIntegrals will remain unchanged.
    * Note that this is necessary to avoid a circular dependency.
    *
+   * (Temporarily disabled until NormIntInterface supports renormalization
+   * of amplitudes with free parameters.)
+   *
    * \param[in] normInt the interface to provide normalization integrals
    *
    * \see disableRenormalization
    * \see ampsAreRenormalized
    */
-  void renormalizeAmps( const NormIntInterface* normInt );
+//  void renormalizeAmps( const NormIntInterface* normInt );
 
   /**
    * This function disables renormalization of amplitudes in the
    * calculation of the intensity.
    *
+   * (Temporarily disabled until NormIntInterface supports renormalization
+   * of amplitudes with free parameters.)
+   *
    * \see renormalizeAmps
    * \see ampsAreRenormalized
    */
-  void disableRenormalization();
+//  void disableRenormalization();
   
   /**
    * This function checks to see whether amplitudes are renormalized
