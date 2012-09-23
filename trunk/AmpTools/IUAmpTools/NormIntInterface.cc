@@ -47,6 +47,37 @@
 #include "IUAmpTools/Kinematics.h"
 #include "IUAmpTools/DataReader.h"
 
+NormIntInterface::NormIntInterface() :
+m_pAmpManager( NULL ),
+m_accMCReader( NULL ),
+m_genMCReader( NULL ),
+m_emptyNormIntCache( true ),
+m_emptyAmpIntCache( true )
+{}
+
+NormIntInterface::NormIntInterface( const string& normIntFile ) :
+m_pAmpManager( NULL ),
+m_accMCReader( NULL ),
+m_genMCReader( NULL ),
+m_emptyNormIntCache( true ),
+m_emptyAmpIntCache( true )
+{
+  
+	cout << "Reading cached normalization integral calculation from: "
+       << normIntFile << endl;
+	
+	ifstream inFile( normIntFile.c_str() );
+  
+  if( !inFile ){
+    cout << "NormIntInterface WARNING:  Could not find file "
+    << normIntFile << endl;
+    assert( false );
+  }
+  
+  inFile >> (*this);
+}
+
+
 NormIntInterface::NormIntInterface( DataReader* genMCData, 
                                     DataReader* accMCData, 
                                     const AmplitudeManager& ampManager ) :
@@ -82,36 +113,21 @@ m_emptyAmpIntCache( true )
   // actually requested -- this avoids unnecessary expensive computations
 }
 
-NormIntInterface::NormIntInterface( const string& normIntFile ) :
-m_pAmpManager( NULL ),
-m_accMCReader( NULL ),
-m_genMCReader( NULL ),
-m_emptyNormIntCache( false ),
-m_emptyAmpIntCache( false )
+
+istream&
+NormIntInterface::loadNormIntCache( istream& input )
 {
-  
-	cout << "Reading cached normalization integral calculation from: "
-	     << normIntFile << endl;
-	
-	ifstream inFile( normIntFile.c_str() );
-  
-  if( !inFile ){
-    cout << "NormIntInterface WARNING:  Could not find file "
-         << normIntFile << endl;
-    assert( false );
-  }
-	
-	inFile >> m_nGenEvents >> m_nAccEvents;
+	input >> m_nGenEvents >> m_nAccEvents;
 	
 	int numAmps;
-	inFile >> numAmps;
+	input >> numAmps;
 	
 	vector<string> ampNames;
 	
 	for( int i = 0; i < numAmps; ++i ){
 		
 		string name;
-		inFile >> name;
+		input >> name;
 		ampNames.push_back( name );
 	}
 
@@ -119,7 +135,7 @@ m_emptyAmpIntCache( false )
 		for( int j = 0; j < numAmps; ++j ){
 			
 			complex< double > integral;
-			inFile >> integral;
+			input >> integral;
 			m_ampIntCache[ampNames[i]][ampNames[j]] = integral;
 		}
 	}
@@ -128,10 +144,13 @@ m_emptyAmpIntCache( false )
 		for( int j = 0; j < numAmps; ++j ){
 			
 			complex< double > integral;
-			inFile >> integral;
+			input >> integral;
 			m_normIntCache[ampNames[i]][ampNames[j]] = integral;
 		}
 	}
+  
+  m_emptyNormIntCache = false;
+  m_emptyAmpIntCache = false;
 }
 
 bool
@@ -234,6 +253,13 @@ NormIntInterface::ampInt( string amp, string conjAmp, bool forceUseCache ) const
          << "    Providing original cached value which may be incorrect if\n"
          << "    the parameter has changed since initialization."
          << endl;
+    
+    // problem: this *is* used in a fit if the renormalizeAmps is turned on
+    // and there is a floating parameter in one of the amplitudes
+    // add code here to load up generated MC and hang onto it
+    // print a notice that we're hogging memory in this configuration
+    // for now renormalize is disabled in AmplitudeManager to avoid
+    // confusing the user
   }
 
 	map< string, map< string, complex < double > > >::const_iterator 
@@ -328,12 +354,17 @@ NormIntInterface::forceCacheUpdate( bool normIntOnly ) const
 }  
 
 void
-NormIntInterface::exportNormIntCache( const string& fileName ) const
+NormIntInterface::exportNormIntCache( const string& fileName, bool renormalize) const
+{
+  ofstream out( fileName.c_str() );
+  exportNormIntCache( out, renormalize );
+}
+
+void
+NormIntInterface::exportNormIntCache( ostream& out, bool renormalize) const
 {
   if( m_emptyNormIntCache || m_emptyAmpIntCache ) forceCacheUpdate();
-  
-	ofstream out( fileName.c_str() );
-	
+  	
 	out << m_nGenEvents << "\t" << m_nAccEvents << endl;
 	
 	out << m_normIntCache.size() << endl;
@@ -357,7 +388,15 @@ NormIntInterface::exportNormIntCache( const string& fileName ) const
 			 conjItr != ampItr->second.end();
 			 ++conjItr ){
 		
-			out << conjItr->second << "\t";
+      complex< double > value = conjItr->second;
+      
+      if( renormalize ){
+        
+        value /= sqrt( ampInt( ampItr->first, ampItr->first ) *
+                       ampInt( conjItr->first, conjItr->first ) );
+      }
+      
+			out << value << "\t";
 		}
 		
 		out << endl;
@@ -374,7 +413,15 @@ NormIntInterface::exportNormIntCache( const string& fileName ) const
 			 conjItr != ampItr->second.end();
 			 ++conjItr ){
 			
-			out << conjItr->second << "\t";
+      complex< double > value = conjItr->second;
+      
+      if( renormalize ){
+        
+        value /= sqrt( ampInt( ampItr->first, ampItr->first ) *
+                       ampInt( conjItr->first, conjItr->first ) );
+      }
+      
+			out << value << "\t";
 		}
 		
 		out << endl;

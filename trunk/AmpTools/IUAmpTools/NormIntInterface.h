@@ -56,10 +56,13 @@ class NormIntInterface
 	
 public:
 	
+  NormIntInterface();
 	NormIntInterface( const string& normIntFile );
 	NormIntInterface( DataReader* genMCData, DataReader* accMCData, 
                    const AmplitudeManager& ampManager );
 	
+  istream& loadNormIntCache( istream& in );
+  
 	int numGenEvents() const { return m_nGenEvents; }
 	int numAccEvents() const { return m_nAccEvents; }
 	
@@ -78,8 +81,9 @@ public:
   // override this function
   virtual void forceCacheUpdate( bool normIntOnly = false ) const;
 
-	void exportNormIntCache( const string& fileName ) const;
-
+	void exportNormIntCache( const string& fileName, bool renormalize = false ) const;
+  void exportNormIntCache( ostream& output, bool renormalize = false ) const;
+  
 	void setGenEvents( int events ) { m_nGenEvents = events; }
 	void setAccEvents( int events ) { m_nAccEvents = events; }
 	
@@ -118,5 +122,10 @@ public:
 	mutable map< string, map< string, complex< double > > > m_normIntCache;
 	mutable map< string, map< string, complex< double > > > m_ampIntCache;
 };
+
+inline istream& operator>>( istream& input, NormIntInterface& normInt ){
+  
+  return normInt.loadNormIntCache( input );
+}
 
 #endif
