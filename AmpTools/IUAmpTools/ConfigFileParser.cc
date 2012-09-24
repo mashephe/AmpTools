@@ -76,7 +76,9 @@ ConfigFileParser::ConfigFileParser(istream& input)
 
 void
 ConfigFileParser::readConfigFile(const string& configFile){
+  if (m_configurationInfo) delete m_configurationInfo;
   m_configFile = configFile;
+  m_fitName = "";
 
   m_configFileLines = expandConfigFileLines(readConfigFileLines(configFile));
   setupConfigurationInfo();
@@ -86,7 +88,9 @@ ConfigFileParser::readConfigFile(const string& configFile){
 
 void
 ConfigFileParser::readConfigFile(istream& input){
+  if (m_configurationInfo) delete m_configurationInfo;
   m_configFile = "stream";
+  m_fitName = "";
 
   m_configFileLines = expandConfigFileLines(readConfigFileLines(input));
   setupConfigurationInfo();
