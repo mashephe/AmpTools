@@ -107,10 +107,17 @@ class ConfigFileParser
   public:
 
       /**
+       *  Default constructor.
+       */
+
+    ConfigFileParser();
+
+
+      /**
        *  A constructor that takes the name of a file as input.
        */
 
-    ConfigFileParser(const string& configFile, bool verboseParsing = false);
+    ConfigFileParser(const string& configFile);
 
 
       /**
@@ -121,17 +128,35 @@ class ConfigFileParser
 
 
       /**
+       *  A method to read configuration information from a file.  Use this 
+       *  in conjunction with the default constructor as an alternative to 
+       *  the ConfigFileParser(string configFile) constructor.
+       */
+
+    void readConfigFile(const string& configFile);
+
+
+      /**
+       *  A method to read configuration information from a stream.  Use this 
+       *  in conjunction with the default constructor as an alternative to 
+       *  the ConfigFileParser(istream input) constructor.
+       */
+
+    void readConfigFile(istream& input);
+
+
+      /**
        *  The destructor.
        */
 
-    ~ConfigFileParser();
+    ~ConfigFileParser() {}
 
 
       /**
        *  Returns a pointer to a filled ConfigurationInfo object.
        */
 
-    ConfigurationInfo* getConfigurationInfo();
+    ConfigurationInfo* getConfigurationInfo() {return m_configurationInfo;}
 
 
       /**
@@ -139,7 +164,7 @@ class ConfigFileParser
        *   (with expanded "include" and "define" statements).
        */
 
-    vector<ConfigFileLine> getConfigFileLines();
+    const vector<ConfigFileLine>& getConfigFileLines() const {return m_configFileLines;}
 
 
       /**
@@ -149,22 +174,36 @@ class ConfigFileParser
     void displayConfigFile() const;
 
 
+      /**
+       *  Control the level of output printed while parsing (useful for debugging).
+       */
+
+    static void setVerboseParsing(bool verboseParsing = false) 
+                                    {m_verboseParsing = verboseParsing;}
+
+
 
   private:
 
-    ConfigFileParser(); // disable default
+
+      // read from a given file
+
+    vector<ConfigFileLine> readConfigFileLines(const string& configFile) const;
 
 
       // read from a stream
 
-    vector<ConfigFileLine> readConfigFileLines(istream& input);
+    vector<ConfigFileLine> readConfigFileLines(istream& input) const;
 
 
-      // read from a file
-      //   (note that "include" and "define" statements 
-      //     are NOT expanded at this stage)
+      // expand the "include" and "define" statements
 
-    vector<ConfigFileLine> readConfigFileLines(const string& configFile);
+    vector<ConfigFileLine> expandConfigFileLines(vector<ConfigFileLine> configFileLines) const;
+
+
+      // set up the ConfigurationInfo object
+
+    void setupConfigurationInfo();
 
 
       // Do checks on the syntax, check keywords, etc.
@@ -193,13 +232,17 @@ class ConfigFileParser
     string                  m_fitName;
     string                  m_configFile;
     set<string>             m_userKeywords;
-    bool                    m_verboseParsing;
+    static bool             m_verboseParsing;
     vector<ConfigFileLine>  m_configFileLines;
     ConfigurationInfo*      m_configurationInfo;
 
 
 };
 
+
+inline istream& operator>>( istream& input, ConfigFileParser& parser ){
+  parser.readConfigFile( input );  return input;
+}
 
 
 /**

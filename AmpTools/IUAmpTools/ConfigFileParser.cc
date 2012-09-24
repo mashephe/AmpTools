@@ -48,91 +48,191 @@
 #include "IUAmpTools/ConfigFileParser.h"
 
 
-ConfigFileParser::ConfigFileParser(const string& configFile, bool verboseParsing)
-  : m_configurationInfo( NULL ), m_fitName(configFile)
-{
+bool ConfigFileParser::m_verboseParsing = false;
 
 
-      // Initial Setup
-
-    if (verboseParsing)
-    cout << endl << "ConfigFileParser INFO:  Setting up new ConfigFileParser with file...  " 
-         << configFile << endl;
-
-  m_configFile = configFile;
-  m_verboseParsing = verboseParsing;
+ConfigFileParser::ConfigFileParser()
+  : m_configurationInfo( NULL ), m_fitName(""), m_configFile(""){
+}
 
 
 
-      // Read the config file and expand the include files
+ConfigFileParser::ConfigFileParser(const string& configFile)
+  : m_configurationInfo( NULL ), m_fitName(""){
 
-    if (verboseParsing)
-    cout << "ConfigFileParser INFO:  Begin Parsing Files " << endl;
-
-  getConfigFileLines();
-
-    if (verboseParsing)
-    cout << "ConfigFileParser INFO:  Finished Parsing Files " << endl;
-
-
-
-      // Do some quick syntax checks
-
-    if (verboseParsing)
-    cout << "ConfigFileParser INFO:  Begin Syntax Checking " << endl;
-
-  checkSyntax();
-
-    if (verboseParsing)
-    cout << "ConfigFileParser INFO:  Finished Syntax Checking " << endl;
-
-
-
-      // Fill the ConfigurationInfo object
-
-    if (verboseParsing)
-    cout << "ConfigFileParser INFO:  Begin Filling the ConfigurationInfo Object " << endl;
-
-  getConfigurationInfo();
-
-    if (verboseParsing)
-    cout << "ConfigFileParser INFO:  Finished Filling the ConfigurationInfo Object " << endl;
-
-
-
-    if (verboseParsing)
-    cout << "ConfigFileParser INFO:  Finished setting up new ConfigFileParser" << endl << endl;
+  readConfigFile(configFile);
 
 }
+
 
 
 ConfigFileParser::ConfigFileParser(istream& input)
-{
+  : m_configurationInfo( NULL ), m_fitName(""){
 
-  readConfigFileLines(input);
-  ConfigFileParser("stream",false);
+  readConfigFile(input);
+
+}
+
+
+void
+ConfigFileParser::readConfigFile(const string& configFile){
+  m_configFile = configFile;
+
+  m_configFileLines = expandConfigFileLines(readConfigFileLines(configFile));
+  setupConfigurationInfo();
+
+}
+
+
+void
+ConfigFileParser::readConfigFile(istream& input){
+  m_configFile = "stream";
+
+  m_configFileLines = expandConfigFileLines(readConfigFileLines(input));
+  setupConfigurationInfo();
+
+}
+
+
+vector<ConfigFileLine>
+ConfigFileParser::readConfigFileLines(const string& configfile) const{
+
+    if (m_verboseParsing)
+    cout << "ConfigFileParser INFO:  Reading from the file...  " << configfile << endl;
+
+  vector<ConfigFileLine> configFileLines;
+  int lineNumber = 0;
+
+  ifstream in(configfile.c_str());
+  if (!in.is_open()){
+    cout << "ConfigFileParser ERROR:  Could not open file: " << configfile << endl;
+    exit(1);
+  }
+  while (!in.eof()){
+    string line;
+    getline(in,line);
+    configFileLines.push_back(ConfigFileLine(configfile,++lineNumber, line));
+      if (m_verboseParsing)
+      configFileLines[configFileLines.size()-1].printLine();
+  }
+  in.close();
+
+    if (m_verboseParsing)
+    cout << "ConfigFileParser INFO:  Finished reading from the file...  " << configfile << endl;
+
+  return configFileLines;
+
+}
+
+
+vector<ConfigFileLine>
+ConfigFileParser::readConfigFileLines(istream& input) const{
+
+    if (m_verboseParsing)
+    cout << "ConfigFileParser INFO:  Reading from a stream...  " << endl;
+
+  vector<ConfigFileLine> configFileLines;
+  int lineNumber = 0;
+
+  while (!input.eof()){
+    string line;
+    getline(input,line);
+    configFileLines.push_back(ConfigFileLine("stream",++lineNumber, line));
+      if (m_verboseParsing)
+      configFileLines[configFileLines.size()-1].printLine();
+  }
+
+    if (m_verboseParsing)
+    cout << "ConfigFileParser INFO:  Finished reading from a stream  " << endl;
+
+  return configFileLines;
 
 }
 
 
 
-ConfigFileParser::~ConfigFileParser(){
+vector<ConfigFileLine>
+ConfigFileParser::expandConfigFileLines(vector<ConfigFileLine> configFileLines) const{
 
-  if( m_configurationInfo != NULL )
-    delete m_configurationInfo;
+    if (m_verboseParsing)
+    cout << "ConfigFileParser INFO:  Starting to expand config file lines..." << endl;
+
+
+    // flush all "include" lines
+
+  for (vector<ConfigFileLine>::iterator lineItr = configFileLines.begin();
+       lineItr != configFileLines.end(); ++lineItr){
+
+    if (lineItr->keyword() == "include"){
+
+      if (lineItr->arguments().size() != 1){
+        cout << "ConfigFileParser ERROR:  Wrong number of arguments for the include statement:" << endl;
+        lineItr->printLine();
+        exit(1);
+      }
+
+        // read in the input config file lines
+
+      string inputFile = lineItr->arguments()[0];
+      vector<ConfigFileLine> inputFileLines = readConfigFileLines(inputFile);
+
+        // replace the input line
+
+      vector<ConfigFileLine>::iterator inputBegin = inputFileLines.begin();
+      vector<ConfigFileLine>::iterator inputEnd   = inputFileLines.end();
+      *lineItr = ConfigFileLine("",0,"##########  INCLUDE FILE " + inputFile + "  ########");
+      configFileLines.insert(++lineItr, inputBegin, inputEnd);
+      lineItr = configFileLines.begin();       
+
+    }
+
+  }
+
+
+    // flush all definitions given by "define" lines
+
+  for (vector<ConfigFileLine>::iterator lineItr = configFileLines.begin();
+       lineItr != configFileLines.end(); ++lineItr){
+
+    if (lineItr->keyword() == "define"){
+
+      if (lineItr->arguments().size() == 0){
+        cout << "ConfigFileParser ERROR:  Wrong number of arguments for the define statement:" << endl;
+        lineItr->printLine();
+        exit(1);
+      }
+
+      vector<string> arguments = lineItr->arguments();
+      string         key       = arguments[0];
+      vector<string> value     (arguments.begin()+1,arguments.end()); 
+
+      for (unsigned int j = 0; j < configFileLines.size(); j++){
+        configFileLines[j].flushDefinition(key,value);
+      }
+
+    }
+  }
+
+
+    if (m_verboseParsing)
+    cout << "ConfigFileParser INFO:  Finished expanding config file lines..." << endl;
+
+    if (m_verboseParsing){
+      for (unsigned int i = 0; i < configFileLines.size(); i++){
+        configFileLines[i].printLine();
+      }
+    }
+
+  return configFileLines;
+
 }
 
 
 
 
-ConfigurationInfo*
-ConfigFileParser::getConfigurationInfo(){
 
-
-    // Check if the ConfigurationInfo object has already been filled.
-
-  if (m_configurationInfo) return m_configurationInfo;
-
+void
+ConfigFileParser::setupConfigurationInfo(){
 
 
       // ZEROTH PASS ("fit")
@@ -142,7 +242,6 @@ ConfigFileParser::getConfigurationInfo(){
 
   for (vector<ConfigFileLine>::iterator lineItr = m_configFileLines.begin();
        lineItr != m_configFileLines.end(); ++lineItr){
-    if (m_verboseParsing) (*lineItr).printLine();
 
     if ((*lineItr).keyword() == "fit") doFit(*lineItr);
 
@@ -156,6 +255,10 @@ ConfigFileParser::getConfigurationInfo(){
 
     // Create a new ConfigurationInfo object
 
+
+    if (m_fitName == "")
+    cout << "ConfigFileParser WARNING:  use the keyword \"fit\" to define a fit name" << endl;
+
   m_configurationInfo = new ConfigurationInfo(m_fitName);
 
 
@@ -167,7 +270,6 @@ ConfigFileParser::getConfigurationInfo(){
 
   for (vector<ConfigFileLine>::iterator lineItr = m_configFileLines.begin();
        lineItr != m_configFileLines.end(); ++lineItr){
-    if (m_verboseParsing) (*lineItr).printLine();
 
     if ((*lineItr).keyword() == "reaction") doReaction(*lineItr);
     if ((*lineItr).keyword() == "parameter") doParameter(*lineItr);
@@ -188,7 +290,6 @@ ConfigFileParser::getConfigurationInfo(){
 
   for (vector<ConfigFileLine>::iterator lineItr = m_configFileLines.begin();
        lineItr != m_configFileLines.end(); ++lineItr){
-    if (m_verboseParsing) (*lineItr).printLine();
 
     if (((*lineItr).keyword() == "datafile")  ||
         ((*lineItr).keyword() == "genmcfile") ||
@@ -215,7 +316,6 @@ ConfigFileParser::getConfigurationInfo(){
 
   for (vector<ConfigFileLine>::iterator lineItr = m_configFileLines.begin();
        lineItr != m_configFileLines.end(); ++lineItr){
-    if (m_verboseParsing) (*lineItr).printLine();
 
     if ((*lineItr).keyword() == "amplitude") doAmplitude(*lineItr);
 
@@ -233,7 +333,6 @@ ConfigFileParser::getConfigurationInfo(){
 
   for (vector<ConfigFileLine>::iterator lineItr = m_configFileLines.begin();
        lineItr != m_configFileLines.end(); ++lineItr){
-    if (m_verboseParsing) (*lineItr).printLine();
 
     if ((*lineItr).keyword() == "constrain") doConstrain(*lineItr);
 
@@ -249,131 +348,22 @@ ConfigFileParser::getConfigurationInfo(){
     cout << "ConfigFileParser INFO:  Finished FOURTH PASS" << endl;
 
 
-      // Return the filled ConfigurationInfo object
-
-  return m_configurationInfo;
-
-}
-
-
-
-
-
-vector<ConfigFileLine>
-ConfigFileParser::readConfigFileLines(istream& input){
-
-  m_configFileLines.clear();
-  int lineNumber = 0;
-
-  while (!input.eof()){
-    string line;
-    getline(input,line);
-    m_configFileLines.push_back(ConfigFileLine("stream",++lineNumber, line));
-  }
-
-  return m_configFileLines;
-
-}
-
-
-vector<ConfigFileLine>
-ConfigFileParser::readConfigFileLines(const string& configfile){
+      // Do some quick syntax checks
 
     if (m_verboseParsing)
-    cout << "ConfigFileParser INFO:  Begin parsing the file...  " << configfile << endl;
+    cout << "ConfigFileParser INFO:  Begin Syntax Checking " << endl;
 
-  vector<ConfigFileLine> configFileLines;
-  int lineNumber = 0;
+  checkSyntax();
 
-  ifstream in(configfile.c_str());
-  if (!in.is_open()){
-    cout << "ConfigFileParser ERROR:  Could not open file: " << configfile << endl;
-    exit(1);
-  }
-  while (!in.eof()){
-    string line;
-    getline(in,line);
-    configFileLines.push_back(ConfigFileLine(configfile,++lineNumber, line));
-  }
-  in.close();
-
-  return configFileLines;
+    if (m_verboseParsing)
+    cout << "ConfigFileParser INFO:  Finished Syntax Checking " << endl;
 
 }
 
 
-vector<ConfigFileLine>
-ConfigFileParser::getConfigFileLines(){
 
 
-    // check if the file is already parsed
 
-  if (m_configFileLines.size() != 0) return m_configFileLines;
-
-
-    // read in the initial config file
-
-  m_configFileLines = readConfigFileLines(m_configFile);
-
-
-    // flush all "include" lines
-
-  for (vector<ConfigFileLine>::iterator lineItr = m_configFileLines.begin();
-       lineItr != m_configFileLines.end(); ++lineItr){
-
-    if (lineItr->keyword() == "include"){
-
-      if (lineItr->arguments().size() != 1){
-        cout << "ConfigFileParser ERROR:  Wrong number of arguments for the include statement:" << endl;
-        lineItr->printLine();
-        exit(1);
-      }
-
-        // read in the input config file lines
-
-      string inputFile = lineItr->arguments()[0];
-      vector<ConfigFileLine> inputFileLines = readConfigFileLines(inputFile);
-
-        // replace the input line
-
-      vector<ConfigFileLine>::iterator inputBegin = inputFileLines.begin();
-      vector<ConfigFileLine>::iterator inputEnd   = inputFileLines.end();
-      *lineItr = ConfigFileLine("",0,"##########  INCLUDE FILE " + inputFile + "  ########");
-      m_configFileLines.insert(++lineItr, inputBegin, inputEnd);
-      lineItr = m_configFileLines.begin();       
-
-    }
-
-  }
-
-
-    // flush all definitions given by "define" lines
-
-  for (vector<ConfigFileLine>::iterator lineItr = m_configFileLines.begin();
-       lineItr != m_configFileLines.end(); ++lineItr){
-
-    if (lineItr->keyword() == "define"){
-
-      if (lineItr->arguments().size() == 0){
-        cout << "ConfigFileParser ERROR:  Wrong number of arguments for the define statement:" << endl;
-        lineItr->printLine();
-        exit(1);
-      }
-
-      vector<string> arguments = lineItr->arguments();
-      string         key       = arguments[0];
-      vector<string> value     (arguments.begin()+1,arguments.end()); 
-
-      for (unsigned int j = 0; j < m_configFileLines.size(); j++){
-        m_configFileLines[j].flushDefinition(key,value);
-      }
-
-    }
-  }
-
-  return m_configFileLines;
-
-}
 
 
 
