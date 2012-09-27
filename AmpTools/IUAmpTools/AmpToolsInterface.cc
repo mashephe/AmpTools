@@ -45,6 +45,7 @@
 #include "IUAmpTools/ParameterManager.h"
 #include "IUAmpTools/LikelihoodCalculator.h"
 #include "IUAmpTools/AmpToolsInterface.h"
+#include "IUAmpTools/FitResults.h"
 
 
 vector<Amplitude*> AmpToolsInterface::m_userAmplitudes;
@@ -186,7 +187,14 @@ AmpToolsInterface::resetConfigurationInfo(ConfigurationInfo* configurationInfo){
     }
 
   }
-
+  
+  // finally make an object to record teh fit results
+  m_fitResults = new FitResults( m_configurationInfo,
+                                 m_amplitudeManagers,
+                                 m_likCalcMap,
+                                 m_normIntMap,
+                                 m_minuitMinimizationManager,
+                                 m_parameterManager );
 }
 
 
@@ -225,6 +233,13 @@ AmpToolsInterface::finalizeFit(){
   ofstream outFile(outputFile.c_str());
   parameterManager()->writeParameters( outFile );
 
+  
+  // for now write two files until the use of the original
+  // ParameterManager output routine is completely depricated
+  outputFile += "_results";
+  
+  m_fitResults->saveResults();
+  m_fitResults->writeResults( outputFile );
 
     // ************************
     // save normalization integrals
@@ -241,7 +256,6 @@ AmpToolsInterface::finalizeFit(){
   }
 
 }
-
 
 
 AmplitudeManager*
