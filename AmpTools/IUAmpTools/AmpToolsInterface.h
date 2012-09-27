@@ -181,6 +181,12 @@ class AmpToolsInterface{
 
     NormIntInterface*     normIntInterface     (const string& reactionName);
 
+  /** Pointer to a FitResults class.
+   * Use this to access information that is stored after finalizeFit() is called.
+   */
+  
+  const FitResults* fitResults() const { return m_fitResults; }
+  
 
   /** Pointer to a Likelihood calculator (one per reaction).
    *  (Most applications will not likely need to access these.)
