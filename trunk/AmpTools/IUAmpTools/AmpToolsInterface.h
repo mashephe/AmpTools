@@ -54,8 +54,9 @@
 #include "IUAmpTools/ParameterManager.h"
 #include "IUAmpTools/LikelihoodCalculator.h"
 
-using namespace std;
+class FitResults;
 
+using namespace std;
 
 /** 
  * A class to set up and interface with other classes within IUAmpTools.
@@ -374,6 +375,8 @@ class AmpToolsInterface{
 
     AmpVecs m_ampVecs;
     string m_ampVecsReactionName;
+   
+  FitResults* m_fitResults;
 
 };
 
