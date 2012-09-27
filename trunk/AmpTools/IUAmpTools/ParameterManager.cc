@@ -96,7 +96,7 @@ ParameterManager::setupFromConfigurationInfo( ConfigurationInfo* cfgInfo ){
   
   vector< AmplitudeInfo* > amps = cfgInfo->amplitudeList();
   
-  addConstraintMap( cfgInfo->constraintMap() );
+  m_constraintMap = cfgInfo->constraintMap();
   
   // separate creation of amplitude parameters from production parameters
   // in order to make the error matrix more easily separable
@@ -369,6 +369,8 @@ ParameterManager::update( const MISubject* parPtr ){
       update( mapItr->first );
     }
   }
+  
+  updateParCovaraince();
 }
 
 void
@@ -381,6 +383,151 @@ ParameterManager::update( const string& parName ){
       ++ampMan ){
     
     (**ampMan).updateAmpPar( parName );
-  }
+  }  
 }  
+
+void
+ParameterManager::updateParCovaraince(){
+    
+  // build a vector that provides the MINUIT parameter index i for
+  // the real parts of the production parameters, if there is an imaginary
+  // part it will have an index of i + 1
   
+  vector< int > prodParMinuitIndex( 0 );
+  int numMinuitPars = 0;
+  for( vector< ComplexParameter* >::const_iterator par = m_prodPtrCache.begin();
+       par != m_prodPtrCache.end();
+       ++par ){
+    
+    prodParMinuitIndex.push_back( numMinuitPars );
+    numMinuitPars += ( (**par).isPurelyReal() ? 1 : 2 );
+  }
+  
+  vector< int > minuitParIndex( 0 );
+  
+  // build the list of parameters by looping over all amplitude managers and looping
+  // over all amplitudes
+
+  m_parList.clear();
+  m_parValues.clear();
+  m_parIndex.clear();
+
+  int index = 0;
+  for( vector< AmplitudeManager* >::const_iterator ampMan = m_ampManagers.begin();
+       ampMan != m_ampManagers.end();
+       ++ampMan ){
+    
+    const vector< string >& ampNames = (**ampMan).getAmpNames();
+    for( vector< string >::const_iterator name = ampNames.begin();
+         name != ampNames.end();
+         ++name ){
+    
+      // this will return the complex parameter associated with
+      // this amplitude or the complex parameter to which this
+      // amplitude is constrained
+      const ComplexParameter* prodPar = findParameter( *name );
+    
+      // now determine the index of this parameter in the cache
+      vector< ComplexParameter* >::const_iterator parItr = 
+        find( m_prodPtrCache.begin(), m_prodPtrCache.end(), prodPar );
+      assert( parItr != m_prodPtrCache.end() );
+      int cacheIndex = parItr - m_prodPtrCache.begin();
+      
+      // and record the corresponding MINUIT parameter index
+      minuitParIndex.push_back( prodParMinuitIndex[cacheIndex] );
+
+      // record the other values
+      m_parList.push_back( (*name) + "_re" );
+      m_parValues.push_back( real( prodPar->value() ) );
+      m_parIndex[m_parList.back()] = index++;
+    
+      // if the parameter is purely real, the imaginary part won't
+      // have a MINUIT index, save kFixedIndex (negative) and watch 
+      // out for this when building the error matrix
+      minuitParIndex.push_back( prodPar->isPurelyReal() ? 
+                                kFixedIndex : prodParMinuitIndex[cacheIndex] + 1 );
+      
+      // record the imaginary parameter info
+      m_parList.push_back( (*name) + "_im" );
+      m_parValues.push_back( imag( prodPar->value() ) );
+      m_parIndex[m_parList.back()] = index++;
+    }
+  }
+  
+  // finish this list by looping over all the amplitude parameters
+  
+  for( vector< MinuitParameter* >::const_iterator ampPar = m_ampPtrCache.begin();
+       ampPar != m_ampPtrCache.end();
+       ++ampPar ){
+    
+    // if the parameter is not floating, it won't have a row in the covariance matrix
+    
+    if( (**ampPar).floating() ){
+    
+      // the MINUIT parameter indices number 
+      // sequentially after the production parameters
+
+      minuitParIndex.push_back( numMinuitPars );
+      ++numMinuitPars;
+    }
+    else{
+      
+      minuitParIndex.push_back( kFixedIndex );
+    }
+      
+    m_parList.push_back( (**ampPar).name() );
+    m_parValues.push_back( (**ampPar).value() );
+    m_parIndex[m_parList.back()] = index++;
+  }
+  
+  // by default amplitude scales are fixed at unity -- we
+  // should add the name of the default AmpParameter
+  // this is done by constructing an AmpParameter in case
+  // that the default name of the AmpParameter changes
+  
+  AmpParameter defaultScale( "1.0" );
+  m_parList.push_back( defaultScale.name() );
+  m_parValues.push_back( defaultScale );
+  m_parIndex[m_parList.back()] = index++;
+  minuitParIndex.push_back( kFixedIndex );
+  
+  // now we have a flat list of all the (real valued) parameters
+  // we need to fill out the covariance matrix
+  
+  int nPar = m_parList.size();
+  
+  const vector< vector< double > >& minCovMtx = 
+      m_minuitManager.parameterManager().covarianceMatrix();
+  
+  m_covMatrix.clear();
+  for( int i = 0; i < nPar; ++i ){
+    
+    // create a new covariance matrix row
+    m_covMatrix.push_back( vector< double >( nPar ) );
+    
+    for( int j = 0; j < nPar; ++j ){
+      
+      int iIndex = minuitParIndex[i];
+      int jIndex = minuitParIndex[j];
+      
+      // if either i or j are a fixed parameter we set the
+      // index 
+      
+      if( iIndex == kFixedIndex || jIndex == kFixedIndex ){
+
+        m_covMatrix[i][j] = 0;
+        continue;
+      }
+      
+      // this shouldn't happen -- if it does, something has
+      // gone wrong with the parameter numbering or the 
+      // construction of the covaraince matrix and we should
+      // crash
+      
+      assert( iIndex < minCovMtx.size() );
+      assert( jIndex < minCovMtx.size() );
+      
+      m_covMatrix[i][j] = minCovMtx[iIndex][jIndex];
+    }
+  }
+}
