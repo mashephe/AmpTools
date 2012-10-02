@@ -382,7 +382,7 @@ class AmpToolsInterface{
     AmpVecs m_ampVecs;
     string m_ampVecsReactionName;
    
-  FitResults* m_fitResults;
+    FitResults* m_fitResults;
 
 };
 
