@@ -52,7 +52,11 @@ vector<Amplitude*> AmpToolsInterface::m_userAmplitudes;
 vector<DataReader*> AmpToolsInterface::m_userDataReaders;
 
 
-AmpToolsInterface::AmpToolsInterface(ConfigurationInfo* configurationInfo){
+AmpToolsInterface::AmpToolsInterface(ConfigurationInfo* configurationInfo):
+    m_configurationInfo(configurationInfo),
+    m_minuitMinimizationManager(NULL),
+    m_parameterManager(NULL),
+    m_fitResults(NULL){
 
   m_ampVecsReactionName = "";
 
@@ -101,7 +105,6 @@ AmpToolsInterface::resetConfigurationInfo(ConfigurationInfo* configurationInfo){
 
   m_parameterManager = new ParameterManager ( *m_minuitMinimizationManager, m_amplitudeManagers );
   m_parameterManager->setupFromConfigurationInfo( m_configurationInfo );
-
 
 
     // ************************
