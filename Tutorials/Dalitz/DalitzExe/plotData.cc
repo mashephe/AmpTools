@@ -65,7 +65,7 @@ int main(int argc, char** argv){
     hm12->SetTitleOffset(1.9,"X");
     hm12->SetTitle("IUAmpTools Dalitz Tutorial");
     hm12->SetXTitle("Mass(P_{1}P_{2}) (GeV/c^{2})");
-    hm12->SetYTitle("Events / 5 MeV/c^{2}");
+    hm12->SetYTitle("Events / 50 MeV/c^{2}");
 
   TH1F* hm23 = new TH1F("hm23","hm23",60,0.0,3.0);
     hm23->SetStats(0);
@@ -73,7 +73,7 @@ int main(int argc, char** argv){
     hm23->SetTitleOffset(1.9,"X");
     hm23->SetTitle("IUAmpTools Dalitz Tutorial");
     hm23->SetXTitle("Mass(P_{2}P_{3}) (GeV/c^{2})");
-    hm23->SetYTitle("Events / 5 MeV/c^{2}");
+    hm23->SetYTitle("Events / 50 MeV/c^{2}");
 
   TH1F* hm13 = new TH1F("hm13","hm13",60,0.0,3.0);
     hm13->SetStats(0);
@@ -81,7 +81,7 @@ int main(int argc, char** argv){
     hm13->SetTitleOffset(1.9,"X");
     hm13->SetTitle("IUAmpTools Dalitz Tutorial");
     hm13->SetXTitle("Mass(P_{1}P_{3}) (GeV/c^{2})");
-    hm13->SetYTitle("Events / 5 MeV/c^{2}");
+    hm13->SetYTitle("Events / 50 MeV/c^{2}");
 
   TH2F* hs12s23 = new TH2F("hs12s23","hs12s23",50,0.0,8.0,50,0.0,8.0);
     hs12s23->SetStats(0);
