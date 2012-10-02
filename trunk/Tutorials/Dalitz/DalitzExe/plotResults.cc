@@ -145,7 +145,7 @@ int main( int argc, char* argv[] ){
     thist.SetTitleOffset(1.9,"X");
     thist.SetTitle("IUAmpTools Dalitz Tutorial");
     thist.SetXTitle(xtitle.c_str());
-    thist.SetYTitle("Events / 5 MeV/c^{2}");
+    thist.SetYTitle("Events / 50 MeV/c^{2}");
     plotfile->cd();
     thist.Write();
 
