@@ -37,7 +37,17 @@ int main(int argc, char** argv){
     // parse the config file
     // ************************
 
-  ConfigFileParser parser(configfile);
+  ConfigFileParser::setVerboseParsing(true);
+
+    // method 1
+  //ConfigFileParser parser(configfile);
+
+    // method 2
+  ConfigFileParser parser;
+  ifstream infile(configfile.c_str());
+  infile >> parser;
+  infile.close();
+
   parser.getConfigurationInfo()->display();
 
   parser.getConfigurationInfo()->write("testWrite.cfg");
