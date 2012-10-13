@@ -337,15 +337,14 @@ NormIntInterface::forceCacheUpdate( bool normIntOnly ) const
     m_mcVecs.allocateAmps( *m_pAmpManager );
     cout << "\tDone." << endl;
   
-    // if the cache wasn't empty then calculation happend back at the start
-    // of this routine and we don't need to update it again
-    if( m_emptyNormIntCache ){
-      
-      cout << "Calculating integrals..." << endl;
-      m_normIntCache = 
-       m_pAmpManager->calcIntegrals( m_mcVecs, m_nGenEvents );
-      cout << "\tDone." << endl;
-    }	
+    // since we have flushed the amplitudes from AmpVecs we need
+    // to recalcualte them or else subsequent calls to calcIntegrals
+    // with firstPass set to false will fail
+    cout << "Calculating integrals..." << endl;
+    m_normIntCache = 
+      m_pAmpManager->calcIntegrals( m_mcVecs, m_nGenEvents );
+
+    cout << "\tDone." << endl;
   }
 
   m_emptyNormIntCache = false;
