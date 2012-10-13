@@ -284,7 +284,7 @@ NormIntInterface::ampInt( string amp, string conjAmp, bool forceUseCache ) const
 void
 NormIntInterface::forceCacheUpdate( bool normIntOnly ) const
 {
-  if( !m_emptyNormIntCache ){
+  if( !m_emptyNormIntCache && normIntOnly ){
 
     // we can assume that m_mcVecs contains the accepted MC since the
     // generated MC is never left in m_mcVecs
@@ -293,32 +293,30 @@ NormIntInterface::forceCacheUpdate( bool normIntOnly ) const
 
     // stop here if we just want the norm ints -- this will likely be the normal
     // mode of operation for NI recalculations during a fit
-    if( normIntOnly ) return;
+    return;
   }
+  
+  // to go further we need to be sure we have access to the data readers
+  // in order to load both generated and accepted MC to recalculate integrals
   
   assert( ( m_genMCReader != NULL ) && ( m_accMCReader != NULL ) );
-    
-  if( !normIntOnly ){
-
-    // flush this if anything is loaded
-    m_mcVecs.deallocAmpVecs();
-
-    cout << "Loading generated Monte Carlo..." << endl;
-    m_mcVecs.loadData( m_genMCReader );
-    m_mcVecs.allocateAmps( *m_pAmpManager );
-    cout << "\tDone.\n" << flush;
-	  
-    cout << "Calculating integrals..." << endl;
-    m_ampIntCache = 
-      m_pAmpManager->calcIntegrals( m_mcVecs, m_nGenEvents );
-    cout << "\tDone." << endl;
-    
-    m_emptyAmpIntCache = false;
-  }
   
-  // the last condition is needed to guarantee that m_ampIntCache has
-  // been correctly filled
-	if( ( m_accMCReader == m_genMCReader ) && !normIntOnly )
+  // flush this if anything is loaded
+  m_mcVecs.deallocAmpVecs();
+
+  cout << "Loading generated Monte Carlo..." << endl;
+  m_mcVecs.loadData( m_genMCReader );
+  m_mcVecs.allocateAmps( *m_pAmpManager );
+  cout << "\tDone.\n" << flush;
+	  
+  cout << "Calculating integrals..." << endl;
+  m_ampIntCache = 
+    m_pAmpManager->calcIntegrals( m_mcVecs, m_nGenEvents );
+  cout << "\tDone." << endl;
+    
+  m_emptyAmpIntCache = false;
+  
+	if( m_accMCReader == m_genMCReader )
 	{    
 		// optimization for perfect acceptance		
 		cout << "Perfect acceptance -- using integrals from generated MC" << endl;
@@ -327,9 +325,7 @@ NormIntInterface::forceCacheUpdate( bool normIntOnly ) const
 	}
 	else
 	{		
-    
-    // reload the accepted MC if needed -- always leave accepted MC in 
-    // memory
+    // load the accepted MC -- always leave accepted MC in memory
     m_mcVecs.deallocAmpVecs();
     
     cout << "Loading acccepted Monte Carlo..." << endl;
