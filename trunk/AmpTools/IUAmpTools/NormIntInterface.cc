@@ -284,6 +284,12 @@ NormIntInterface::ampInt( string amp, string conjAmp, bool forceUseCache ) const
 void
 NormIntInterface::forceCacheUpdate( bool normIntOnly ) const
 {
+ 
+  // if the accepted MC is not available, then the data have likely
+  // not been loaded into AmpVecs and we can't reclaculate the integrals
+  // below
+  assert( m_accMCReader != NULL );
+  
   if( !m_emptyNormIntCache && normIntOnly ){
 
     // we can assume that m_mcVecs contains the accepted MC since the
@@ -296,10 +302,9 @@ NormIntInterface::forceCacheUpdate( bool normIntOnly ) const
     return;
   }
   
-  // to go further we need to be sure we have access to the data readers
-  // in order to load both generated and accepted MC to recalculate integrals
-  
-  assert( ( m_genMCReader != NULL ) && ( m_accMCReader != NULL ) );
+  // now we need to have the generated MC in addition to the accepted
+  // MC in order to be able to continue
+  assert( m_genMCReader != NULL );
   
   // flush this if anything is loaded
   m_mcVecs.deallocAmpVecs();
