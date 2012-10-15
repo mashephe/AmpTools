@@ -253,7 +253,7 @@ AmpToolsInterface::finalizeFit(){
     ReactionInfo* reaction = m_configurationInfo->reactionList()[irct];
     string reactionName(reaction->reactionName());
     NormIntInterface* normInt = normIntInterface(reactionName);
-    normInt->forceCacheUpdate();
+    if (normInt->hasAccessToMC()) normInt->forceCacheUpdate();
     normInt->exportNormIntCache( reaction->normIntFile() );
 
   }
