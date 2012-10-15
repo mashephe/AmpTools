@@ -132,7 +132,7 @@ root -l GPU.plots.physics.gen.root plotData.C
       echo
       echo --------------------------------
       echo
-      echo SEND PHASE SPACE THROUGH DETECTOR
+      echo SEND PHASE SPACE THROUGH TOY DETECTOR
       echo
       echo --------------------------------
       echo
@@ -175,7 +175,7 @@ root -l GPU.plots.phasespace.acc.root plotData.C
       echo
       echo --------------------------------
       echo
-      echo SEND PHYSICS THROUGH DETECTOR
+      echo SEND PHYSICS THROUGH TOY DETECTOR
       echo
       echo --------------------------------
       echo
