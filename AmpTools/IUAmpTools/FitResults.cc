@@ -151,7 +151,7 @@ FitResults::writeResults( const string& outFile ){
     string reac = m_reactionNames[i];
     output << "  " << reac << endl;
     
-    if( m_createdFromFile ){
+    if( m_createdFromFile || !m_normIntMap[reac]->hasAccessToMC() ){
       
       m_normIntMap[reac]->exportNormIntCache( output );
     }
