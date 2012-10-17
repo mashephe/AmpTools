@@ -143,6 +143,8 @@ MinuitMinimizationManager::maxIterations() const {
 void 
 MinuitMinimizationManager::setStrategy( int strat ){
   
+  m_strategy = strat;
+  
   std::ostringstream command;
   command << "SET STRATEGY " << strat;
   
