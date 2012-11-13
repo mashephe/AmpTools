@@ -306,9 +306,16 @@ pair< double, double >
 PlotGenerator::intensity( const vector< string >& amplitudes, bool accCorrected ) const {
   
 	// intensity = sum_a sum_a' V_a V*_a' NI( a, a' )
-	
+
+  // The intensity can consist of multiple coherent sums and the code
+  // below will work fine since the normalization integral matrix
+  // is block diagonal in the case of multiple sums.  Off-diagonal
+  // elements that are from different sums are zero and this results
+  // in the incoherent addition of multiple coherent sums in the
+  // calculation below.
+  
 	// these have dimension twice that of ampNames since they hold
-	// real and imaginary parts independently
+	// real and imaginary parts independently  
 	
 	// a subset of the larger error matrix
 	vector< vector< double > > errorMatrix;
