@@ -46,43 +46,43 @@
 
 void 
 Amplitude::calcAmplitudeAll( GDouble* pdData, GDouble* pdAmps, int iNEvents,
-                             const vector< vector< int > >* pvPermutations ) const
+                            const vector< vector< int > >* pvPermutations ) const
 {
-	complex< GDouble > cRes;
+  complex< GDouble > cRes;
   
-	int iPermutation, iNPermutations = pvPermutations->size();
-	assert( iNPermutations );
-	
-	int iNParticles = pvPermutations->at(0).size();
-	assert( iNParticles );
-	
+  int iPermutation, iNPermutations = pvPermutations->size();
+  assert( iNPermutations );
+  
+  int iNParticles = pvPermutations->at(0).size();
+  assert( iNParticles );
+  
   GDouble** pKin = new GDouble*[iNParticles];
-
-  /*
-  if( m_registeredParams.size() != 0 ) {
-
-    cout << "Current values of parameters: " << endl;
-    for( vector< AmpParameter* >::const_iterator parItr = m_registeredParams.begin();
-        parItr != m_registeredParams.end();
-        ++parItr ){
-      
-      cout << "\t" << (**parItr).name() << ":  " << (**parItr) << endl;
-    }
-  }
-  */
   
-	int i, iEvent;
-	for( iEvent=0; iEvent<iNEvents; iEvent++ ){        
-		
+  /*
+   if( m_registeredParams.size() != 0 ) {
+   
+   cout << "Current values of parameters: " << endl;
+   for( vector< AmpParameter* >::const_iterator parItr = m_registeredParams.begin();
+   parItr != m_registeredParams.end();
+   ++parItr ){
+   
+   cout << "\t" << (**parItr).name() << ":  " << (**parItr) << endl;
+   }
+   }
+   */
+  
+  int i, iEvent;
+  for( iEvent=0; iEvent<iNEvents; iEvent++ ){        
+    
     for( iPermutation = 0; iPermutation < iNPermutations; iPermutation++ ){
-
+      
       m_currentPermutation = (*pvPermutations)[iPermutation];
       
       for( i = 0; i < iNParticles; i++ ){
         
         int j = (*pvPermutations)[iPermutation][i];
         pKin[i] = &(pdData[4*iNParticles*iEvent+4*j]);
-
+        
       }
       
       // pKin is an array of pointers to the particle four-momentum
@@ -91,41 +91,41 @@ Amplitude::calcAmplitudeAll( GDouble* pdData, GDouble* pdAmps, int iNEvents,
       // routine
       
       cRes = calcAmplitude( pKin );
-        
+      
       pdAmps[2*iNEvents*iPermutation+2*iEvent] = cRes.real();
       pdAmps[2*iNEvents*iPermutation+2*iEvent+1] = cRes.imag();
     }
   }
-
+  
   delete[] pKin;
 }
 
 
 complex< GDouble >
 Amplitude::calcAmplitude( const Kinematics* pKin ) const {
-
+  
   vector<int> permutation;
-
+  
   vector<HepLorentzVector> particleList = pKin->particleList();
-
+  
   for (int i = 0; i < particleList.size(); i++){
     permutation.push_back(i);
   }
-
+  
   return calcAmplitude( pKin, permutation );
-
+  
 }
 
 
 complex< GDouble >
 Amplitude::calcAmplitude( const Kinematics* pKin, const vector< int >& permutation) const {
-
+  
   vector<HepLorentzVector> particleList = pKin->particleList();
-
+  
   GDouble** pData = new GDouble*[particleList.size()];
-
+  
   if (particleList.size() != permutation.size()) assert(false);
-
+  
   for (int i = 0; i < particleList.size(); i++){
     pData[i] = new GDouble[4];
     pData[i][0] = particleList[permutation[i]].e();
@@ -133,24 +133,24 @@ Amplitude::calcAmplitude( const Kinematics* pKin, const vector< int >& permutati
     pData[i][2] = particleList[permutation[i]].py();
     pData[i][3] = particleList[permutation[i]].pz();
   }
-
+  
   complex< GDouble > value = calcAmplitude(pData);
-
+  
   for (int i = 0; i < particleList.size(); i++){
     delete[] pData[i];
   }
   delete[] pData;
-
+  
   return value;
-
+  
 }
 
 
 #ifdef GPU_ACCELERATION 
 void
 Amplitude::calcAmplitudeGPU( dim3 dimGrid, dim3 dimBlock, GPU_AMP_PROTO,
-                             const vector< int >& perm ) const {
- 
+                            const vector< int >& perm ) const {
+  
   m_currentPermutation = perm;
   launchGPUKernel( dimGrid, dimBlock, GPU_AMP_ARGS );
 }
@@ -159,7 +159,7 @@ Amplitude::calcAmplitudeGPU( dim3 dimGrid, dim3 dimBlock, GPU_AMP_PROTO,
 
 bool
 Amplitude::containsFreeParameters() const {
-
+  
   bool hasFreeParam = false;
   
   for( vector< AmpParameter* >::const_iterator parItr = m_registeredParams.begin();
@@ -174,13 +174,13 @@ Amplitude::containsFreeParameters() const {
 
 bool
 Amplitude::setParPtr( const string& name, const double* ptr ) const {
- 
+  
   bool foundPar = false;
   
   for( vector< AmpParameter* >::const_iterator parItr = m_registeredParams.begin();
-       parItr != m_registeredParams.end();
-       ++parItr ){
- 
+      parItr != m_registeredParams.end();
+      ++parItr ){
+    
     if( (**parItr).name().compare( name ) == 0 ){
       
       foundPar = true;
@@ -209,7 +209,7 @@ Amplitude::setParValue( const string& name, double val ) const {
       
       foundPar = true;
       (**parItr).setValue( val );
-
+      
       // pass in the name here to
       // use the const member function here so we only have one const-cast
       // that calls the non-const user function
@@ -230,7 +230,7 @@ Amplitude::updatePar( const string& name ) const {
       ++parItr ){
     
     if( (**parItr).name().compare( name ) == 0 ){
-           
+      
       // The const_cast is a little bit undesirable here.  It can be removed
       // at the expensive of requiring the user to declare all member data in
       // the Amplitude class that is updated on a parameter update "mutable."
@@ -246,7 +246,7 @@ Amplitude::updatePar( const string& name ) const {
 
 void
 Amplitude::registerParameter( AmpParameter& par ){
-
+  
   m_registeredParams.push_back( &par );
 }
 

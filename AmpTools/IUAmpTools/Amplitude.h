@@ -46,7 +46,7 @@
 #include "IUAmpTools/Kinematics.h"
 #include "GPUManager/GPUCustomTypes.h"
 
-#ifdef GPU_ACCELERATION	
+#ifdef GPU_ACCELERATION 
 #include "cuda_runtime.h"
 #include "GPUManager/CUDA-Complex.cuh"
 class GPUManager;
@@ -87,26 +87,26 @@ class Amplitude
 {
   
 public:
-
+  
   /**
    * The default constructor.  The user's derived class should contain a
    * default constructor that calls this constructor.
    */
   Amplitude( ) : m_isDefault(true) { }
-
+  
   /**
    * This constructor takes a list of arguments to inititialize an 
    * amplitude and then stores them.  The user's derived class should
    * contain a similar constructor that calls this one.
    */
   Amplitude( const vector< string >& args ) : m_isDefault(false),
-                                              m_args(args){ }
-
+  m_args(args){ }
+  
   /**
    * This is the destructor.
    */
   virtual ~Amplitude(){}
-
+  
   /**
    * Must be overridden by the user to provide the name of the amplitude.
    * This is necessary to connect ConfigurationInfo to specific class
@@ -119,7 +119,7 @@ public:
    * floating parameter.
    */
   bool containsFreeParameters() const;
-	
+  
   /**
    * This must be overriden by the user and indicates how to convert a list
    * of strings (arguments) into a pointer to a new instance of the
@@ -134,7 +134,7 @@ public:
    *  \see UserAmplitude
    */
   virtual Amplitude* newAmplitude( const vector< string >& args ) const = 0;
-	
+  
   /**
    * A function that the user must write that indicates how an amplitude
    * can duplicate itself.  It returns a pointer to a new instance of the
@@ -152,12 +152,12 @@ public:
    * default constructor.
    */
   bool isDefault() const { return ( m_isDefault == true ); }
-
+  
   /**
    * Returns the list of arguments that was passed to the constructor.
    */
   vector<string> arguments() const { return m_args; }
-
+  
   /**
    * The user can override this to do specific one-time tasks that
    * before the fit begins, but after the parameters have been initialized.
@@ -182,7 +182,7 @@ public:
    * \see AmplitudeManager::setAmpParPtr
    */
   bool setParPtr( const string& name, const double* ptr ) const;
-
+  
   /**
    * This tells the AmpParameter with the indicated name to set its
    * value to the specified value.  The function returns true if the
@@ -222,7 +222,7 @@ public:
    */
   
   bool updatePar( const string& name ) const;
-    
+  
   // speed may be enhanced if the two functions below are combined
   // as this avoids an extra function call, but puts more complicated
   // calcAllAmplitudes loops in user code
@@ -268,8 +268,8 @@ public:
    * py, pz for the first particle, pKin[1][0-3] for the second, and so on
    */
   virtual complex< GDouble > calcAmplitude( GDouble** pKin ) const = 0;
-
-
+  
+  
   /**
    * \overload
    *
@@ -281,10 +281,10 @@ public:
    *
    * \see calcAmplitude
    */
-
+  
   complex< GDouble > calcAmplitude( const Kinematics* pKin ) const;
-
-
+  
+  
   /**
    * \overload
    *
@@ -299,20 +299,20 @@ public:
    * \see calcAmplitude
    * \see AmplitudeManager::addAmpPermutation
    */
-
+  
   complex< GDouble > calcAmplitude( const Kinematics* pKin, 
-                                    const vector < int >& permutation ) const;
-
-    
-#ifdef GPU_ACCELERATION	
-
-	/**
+                                   const vector < int >& permutation ) const;
+  
+  
+#ifdef GPU_ACCELERATION 
+  
+  /**
    * If GPU_ACCELERATION flag is set this is the member function that sets
    * the current permutation and then calls the user-defined routine
    * to launch the GPU kernel.  It is the GPU analog of calcAmplitudeAll.
    */
   virtual void calcAmplitudeGPU( dim3 dimGrid, dim3 dimBlock, GPU_AMP_PROTO,
-                                 const vector< int >& perm ) const;
+                                const vector< int >& perm ) const;
   
   /**
    * The user override this route and use it pass any parameters to a global
@@ -323,11 +323,11 @@ public:
     cout << "\nNo GPU function for calculating " << name() << " is defined." << endl;
     assert( false );
   }
-
+  
 #endif //GPU_ACCELERATION
-	
+  
 protected:
-
+  
   /**
    * Any user-defined class derived from Amplitude that has a parameter
    * in the amplitude should register the parameter using this routine.  This
@@ -351,12 +351,12 @@ protected:
    * \see calcAmplitude
    */
   inline const vector< int >& getCurrentPermutation() const { return m_currentPermutation; }
-
-
+  
+  
 private:
-
+  
   bool m_isDefault;
-
+  
   vector<string> m_args;
   
   vector< AmpParameter* > m_registeredParams;

@@ -61,19 +61,19 @@ struct AmpVecs
   /**
    * An integer that stores the number of events.
    */
-	int m_iNEvents;
+  int m_iNEvents;
   
   /**
    * An integer that stores the true number of events.  For GPU calculations
    * it is necessary to pad iNEvents up to the next power of 2.  This integer
    * stores the actual number of unique events.
    */
-	int m_iNTrueEvents;
+  int m_iNTrueEvents;
   
   /**
    * An integer that stores the number of particles in the final state.
    */
-	int m_iNParticles;
+  int m_iNParticles;
   
   /**
    * An integer that stores the number of amplitudes for a particular
@@ -90,41 +90,41 @@ struct AmpVecs
    * \see Amplitude::calcAmplitude
    */
   int m_iNAmpFactorsAndPerms;
-	
+  
   /**
    * An array of length 4 * iNEvents * iNParticles that stores the four-vectors
    * for the entire data set.
    */
-	GDouble* m_pdData;
-
-	/**
+  GDouble* m_pdData;
+  
+  /**
    * An array of length iNEvents that stores the event weights for each event.
    */
   GDouble* m_pdWeights;
-	
+  
   /**
    * An array of length 2 * iNAmps * iNEvents that stores the real and imaginary
    * parts of the complete decay amplitude (product of factors) for each event.
    */
-	GDouble* m_pdAmps;
-
+  GDouble* m_pdAmps;
+  
   /**
    * An array of length 2 * iNAmpFactorsAndPerms * iNEvents that stores the
    * real and imaginary parts for every factor of the decay amplitude and 
    * every permutation.
    */
-	GDouble* m_pdAmpFactors;	
-	
+  GDouble* m_pdAmpFactors; 
+  
   /**
    * An array of length iNEvents that stores the intensity for each event.
    */
-	GDouble* m_pdIntensity;
-	
+  GDouble* m_pdIntensity;
+  
   /**
    * The constructor.  All array pointers are set to zero in the constructor.
    * No memory is allocated at construction time.
    */
-	AmpVecs();
+  AmpVecs();
   
   /**
    * This destructor frees all of the allocated memory that holds all of the
@@ -132,8 +132,8 @@ struct AmpVecs
    *
    * \see deallocAmpVecs
    */
-	~AmpVecs(){ deallocAmpVecs(); }
-
+  ~AmpVecs(){ deallocAmpVecs(); }
+  
   /**
    * This routine allocates space to store the calculated amplitudes and
    * (optionally) the calculated intensities.  It should be passed a reference
@@ -148,7 +148,7 @@ struct AmpVecs
    * the intensity calculation
    */
   void allocateAmps( const AmplitudeManager& ampMan, bool bAllocIntensity = false );
- 
+  
   /**
    * This routine uses the pointer to the data reader that is provided to 
    * allocate and fill the array of data and weights.  The function will
@@ -161,7 +161,7 @@ struct AmpVecs
    * \see DataReader::getEvent
    */
   void loadData( DataReader* pDataReader );
-
+  
   /**
    * This routine fills the arrays of data and weights event by event
    * rather than all at once.  If the data arrays pointers are null, then
@@ -177,7 +177,7 @@ struct AmpVecs
    * \see loadData
    */
   void loadEvent( const Kinematics* pKinematics, int iEvent = 0, int iNTrueEvents = 1 );
-
+  
   /**
    * A helper routine to get an event i from the array of data and weights.
    * This routine allows the AmpVecs class to behave in the same way that
@@ -186,7 +186,7 @@ struct AmpVecs
    * \see DataReader::getEvent
    */
   Kinematics* getEvent( int i );
-
+  
   /**
    * This deallocates all allocated memory, which effective erases the entire
    * contents (data and amplitudes) of AmpVecs

@@ -42,9 +42,9 @@
 
 LikelihoodCalculatorMPI::
 LikelihoodCalculatorMPI( const AmplitudeManager& ampManager,
-			 const NormIntInterface& normInt,
-			 DataReader& dataReader,
-			 ParameterManagerMPI& parManager ) :
+                        const NormIntInterface& normInt,
+                        DataReader& dataReader,
+                        ParameterManagerMPI& parManager ) :
 LikelihoodCalculator( ampManager, normInt, dataReader, parManager ),
 m_ampManager( ampManager ),
 m_parManager( parManager ),
@@ -52,11 +52,11 @@ m_thisId( m_idCounter++ ),
 m_firstPass( true )
 {
   setupMPI();
-
+  
   LikelihoodManagerMPI::registerCalculator( m_thisId, this );
-
+  
   if( !m_isMaster ){
-
+    
     // check back in with the master after registration
     MPI_Send( &m_thisId, 1, MPI_INT, 0, MPITag::kIntSend, MPI_COMM_WORLD );
   }
@@ -80,21 +80,21 @@ m_firstPass( true )
 }
 
 LikelihoodCalculatorMPI::~LikelihoodCalculatorMPI(){
-
+  
   // have the master break all of the workers out of their
   // deliverLikelihood loops
   if( m_isMaster && m_thisId == kFirstId ){
-
+    
     // a two element array to hold commands that go to the workers
     // the first element is the id of the likelihood calculator
     // the second element is the flag of the command
     int cmnd[2];
     cmnd[0] = m_thisId;
-  
+    
     // break the likelihood manager out of its loop on the workers
     cmnd[1] = LikelihoodManagerMPI::kExit;
     for( int i = 1; i < m_numProc; ++i ){
-
+      
       MPI_Send( cmnd, 2, MPI_INT, i, MPITag::kIntSend, MPI_COMM_WORLD );
     }
   }
@@ -104,9 +104,9 @@ double
 LikelihoodCalculatorMPI::operator()()
 {
   assert( m_isMaster );
-
+  
   MPI_Status status;
-
+  
   // a two element array to hold commands that go to the workers
   // the first element is the id of the likelihood calculator
   // the second element is the flag of the command
@@ -129,18 +129,18 @@ LikelihoodCalculatorMPI::operator()()
   // tell all of the workers to send the partial sums 
   cmnd[1] = LikelihoodManagerMPI::kComputeLikelihood;
   for( int i = 1; i < m_numProc; ++i ){
-
+    
     MPI_Send( cmnd, 2, MPI_INT, i, MPITag::kIntSend, MPI_COMM_WORLD );
   }
-
+  
   double lnL = 0;
   double partialSum;
-
+  
   // collect the sums
   for( int i = 1; i < m_numProc; ++i ){
-
+    
     MPI_Recv( &partialSum, 1, MPI_DOUBLE, i, MPITag::kDoubleSend,
-	      MPI_COMM_WORLD, &status );
+             MPI_COMM_WORLD, &status );
     
     lnL += partialSum;
   }
@@ -149,10 +149,10 @@ LikelihoodCalculatorMPI::operator()()
   // will trigger recomputation of NI's -- we need to put the workers in the
   // loop to send the recomputed NI's back to the master
   if( m_ampManager.hasAmpWithFreeParam() || m_firstPass ){
-  
+    
     cmnd[1] = LikelihoodManagerMPI::kComputeIntegrals;
     for( int i = 1; i < m_numProc; ++i ){
-    
+      
       MPI_Send( cmnd, 2, MPI_INT, i, MPITag::kIntSend, MPI_COMM_WORLD );
     }
   }
@@ -161,7 +161,7 @@ LikelihoodCalculatorMPI::operator()()
   // ultimately gets handled by the instance of NormIntInterfaceMPI
   // that is passed into the constructor of this class
   lnL -= normIntTerm();
-
+  
   m_firstPass = false;
   
   return -2 * lnL;
@@ -171,7 +171,7 @@ void
 LikelihoodCalculatorMPI::updateParameters()
 {
   assert( !m_isMaster );
-
+  
   // do the update on the worker nodes
   m_parManager.updateParameters();
 }
@@ -189,7 +189,7 @@ void
 LikelihoodCalculatorMPI::computeLikelihood()
 {
   assert( !m_isMaster );
-
+  
   double lnL = dataTerm();
   MPI_Send( &lnL, 1, MPI_DOUBLE, 0, MPITag::kDoubleSend, MPI_COMM_WORLD );
 }

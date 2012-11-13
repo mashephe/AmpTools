@@ -41,30 +41,30 @@
 
 class NormIntInterfaceMPI : public NormIntInterface
 {
-
- public:
-
+  
+public:
+  
   enum IntType { kNormInt, kAmpInt };
-
+  
   NormIntInterfaceMPI( const string& normIntFile );
   NormIntInterfaceMPI( DataReader* genMCData, DataReader* accMCData, 
-                       const AmplitudeManager& ampManager );
-
+                      const AmplitudeManager& ampManager );
+  
   ~NormIntInterfaceMPI();
-
+  
   // override these methods so that we can trigger a parallel recompuation
   // of normalization integrals in the case that a parameter has changed
   
-	complex< double > normInt( string amp, string conjAmp, bool forceUseCache = false ) const;
+  complex< double > normInt( string amp, string conjAmp, bool forceUseCache = false ) const;
   void forceCacheUpdate( bool normIntOnly = false ) const;
   
- private:
-
+private:
+  
   void setupMPI();
   void sumIntegrals( IntType type ) const;
-
+  
   bool m_mpiSetup;
-
+  
   int m_rank;
   int m_numProc;
   bool m_isMaster;

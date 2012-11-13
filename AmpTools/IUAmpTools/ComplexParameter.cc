@@ -47,12 +47,12 @@ ComplexParameter::ComplexParameter( const string& name,
                                    MinuitMinimizationManager& fitManager,
                                    complex< double > initialValue,
                                    bool purelyReal ) :
-  MIObserver(),
-  m_name( name ),
-  m_value( initialValue ),
-  m_purelyReal( purelyReal )
-{	
-
+MIObserver(),
+m_name( name ),
+m_value( initialValue ),
+m_purelyReal( purelyReal )
+{ 
+  
   assert( &fitManager != 0 );
   
   // be sure we have a valid reference to MinuitMinimizationManager before
@@ -78,23 +78,23 @@ ComplexParameter::ComplexParameter( const string& name,
 ComplexParameter::~ComplexParameter()
 {
   //  not yet supported un UpRootMinuit
-  //	m_realMagPar->unregister();
-  //	m_imPhasePar->unregister();
-
+  // m_realMagPar->unregister();
+  // m_imPhasePar->unregister();
+  
   // problems with double delete?
-  //	delete m_realPar;
-  //	delete m_imPar;
+  // delete m_realPar;
+  // delete m_imPar;
 }
 
 void 
 ComplexParameter::update( const MISubject* callingSubject ){
-		    
-  if( callingSubject == m_realPar ){
   
+  if( callingSubject == m_realPar ){
+    
     m_value = complex< double >( m_realPar->value(), imag( m_value ) );
   }
   else if( callingSubject == m_imPar ){
-   
+    
     m_value = complex< double >( real( m_value ), m_imPar->value() );
   }
 }

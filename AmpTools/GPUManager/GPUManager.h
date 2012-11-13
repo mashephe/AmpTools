@@ -56,37 +56,37 @@ class GPUManager
 {
   
 public:
-	
+  
   GPUManager();
   GPUManager( const AmpVecs& a );
-	~GPUManager();
+  ~GPUManager();
   
-	void clearAll();
-	void clearAmpCalc();
-	void clearLikeCalc();
-
+  void clearAll();
+  void clearAmpCalc();
+  void clearLikeCalc();
+  
   void init( const AmpVecs& a, bool ampCalcOnly = false );
-
-  // Interface Utils
-	// First Amplitude calculation interface
-	void copyDataToGPU( const AmpVecs& a );
   
-	void calcAmplitudeAll( const Amplitude* amp, GDouble* pcResAmp, 
+  // Interface Utils
+  // First Amplitude calculation interface
+  void copyDataToGPU( const AmpVecs& a );
+  
+  void calcAmplitudeAll( const Amplitude* amp, GDouble* pcResAmp, 
                          const vector< vector< int > >* pvPermutations );
   
-	// Now the intensity calculator
-	void copyAmpsToGPU( const AmpVecs& a );
-	double calcSumLogIntensity( const vector< complex< double > >& prodCoef,
+  // Now the intensity calculator
+  void copyAmpsToGPU( const AmpVecs& a );
+  double calcSumLogIntensity( const vector< complex< double > >& prodCoef,
                               const vector< vector< bool > >& cohMtx );
-
-	// General utils:
+  
+  // General utils:
   static int calcNEventsGPU( int iNEvents ){
     
     //Should be a power of 2 for reduction to work, also multiple of GPU_BLOCK_SIZE_SQ    
- 		int iPow = 0;
-		while( ( 1 << iPow ) < iNEvents ) iPow++;
-		return 1 << iPow; 
-	}
+    int iPow = 0;
+    while( ( 1 << iPow ) < iNEvents ) iPow++;
+    return 1 << iPow; 
+  }
   
 private:
   
@@ -94,54 +94,54 @@ private:
   
   bool m_ampCalcOnly;
   
-	// array dimensions
-	unsigned int m_iNParticles;
-	unsigned int m_iNEvents;
-	unsigned int m_iNTrueEvents;
-	unsigned int m_iNAmps;
-	unsigned int m_iNAmpsH;
+  // array dimensions
+  unsigned int m_iNParticles;
+  unsigned int m_iNEvents;
+  unsigned int m_iNTrueEvents;
+  unsigned int m_iNAmps;
+  unsigned int m_iNAmpsH;
   
   // array sizes
-	unsigned int m_iAmpArrSize;
-	unsigned int m_iEventArrSize;
+  unsigned int m_iAmpArrSize;
+  unsigned int m_iEventArrSize;
   unsigned int m_iTrueEventArrSize;
-	unsigned int m_iVArrSize;
-	
-	//Host Arrays
-	GDouble* m_pcCalcAmp;
-	  
-	GDouble* m_pfAmpRe;
-	GDouble* m_pfAmpIm;
-	GDouble* m_pfVRe;
-	GDouble* m_pfVIm;
-	GDouble* m_pfRes;
-	
-	//Device Arrays	
-	GDouble* m_pfDevData;
-  GDouble* m_pfDevWeights;
-	GDouble* m_pcDevCalcAmp;
-	int*     m_piDevPerm;
+  unsigned int m_iVArrSize;
   
-	GDouble* m_pfDevAmpRe;
-	GDouble* m_pfDevAmpIm;
-	GDouble* m_pfDevVRe;
-	GDouble* m_pfDevVIm;
+  //Host Arrays
+  GDouble* m_pcCalcAmp;
+  
+  GDouble* m_pfAmpRe;
+  GDouble* m_pfAmpIm;
+  GDouble* m_pfVRe;
+  GDouble* m_pfVIm;
+  GDouble* m_pfRes;
+  
+  //Device Arrays 
+  GDouble* m_pfDevData;
+  GDouble* m_pfDevWeights;
+  GDouble* m_pcDevCalcAmp;
+  int*     m_piDevPerm;
+  
+  GDouble* m_pfDevAmpRe;
+  GDouble* m_pfDevAmpIm;
+  GDouble* m_pfDevVRe;
+  GDouble* m_pfDevVIm;
   
   // intensity sums maintained at double precision
-	GDouble* m_pfDevRes;
-	GDouble* m_pfDevREDUCE;
-	
-	// CUDA Thread and Grid sizes
-	unsigned int m_iDimGridX;
-	unsigned int m_iDimGridY;
-	unsigned int m_iDimThreadX;
-	unsigned int m_iDimThreadY;
-	
-	unsigned int m_iNBlocks; 
-	unsigned int m_iNThreads;
-	
-	// Internal Utils
-	void calcCUDADims();
+  GDouble* m_pfDevRes;
+  GDouble* m_pfDevREDUCE;
+  
+  // CUDA Thread and Grid sizes
+  unsigned int m_iDimGridX;
+  unsigned int m_iDimGridY;
+  unsigned int m_iDimThreadX;
+  unsigned int m_iDimThreadY;
+  
+  unsigned int m_iNBlocks; 
+  unsigned int m_iNThreads;
+  
+  // Internal Utils
+  void calcCUDADims();
   
 };
 

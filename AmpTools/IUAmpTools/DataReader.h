@@ -56,27 +56,27 @@ class Kinematics;
 
 class DataReader
 {
-
+  
 public:
-	
+  
   /**
    * This is the default constructor.
    */
-	DataReader( ) : 
-                   m_isDefault(true) { }
-
+  DataReader( ) : 
+  m_isDefault(true) { }
+  
   /**
    * This constructor takes a list of arguments and stores them.
    */
-	DataReader( const vector< string >& args ) :
-                    m_isDefault(false),
-                    m_args(args) { }
-
+  DataReader( const vector< string >& args ) :
+  m_isDefault(false),
+  m_args(args) { }
+  
   /**
    * This is the destructor.
    */
-	virtual ~DataReader() {}
-	
+  virtual ~DataReader() {}
+  
   /**
    * The user should override this function with one that provides
    * a pointer to a Kinematics object.  When the end of a source is
@@ -92,7 +92,7 @@ public:
    * \see Kinematics
    * \see DataReaderMPI
    */
-	virtual Kinematics* getEvent() = 0;
+  virtual Kinematics* getEvent() = 0;
   
   /**
    * The user should override this function with one that resets the source
@@ -104,8 +104,8 @@ public:
    *
    * \see DataReaderMPI
    */
-	virtual void resetSource() = 0;	
-
+  virtual void resetSource() = 0; 
+  
   /**
    * The user should override this function with one that returns the number
    * of events in the source.  This is used for allocating memory to store
@@ -116,49 +116,49 @@ public:
    *
    * \see DataReaderMPI
    */
-	virtual unsigned int numEvents() const = 0;
-
+  virtual unsigned int numEvents() const = 0;
+  
   /**
    * The user should override this function with one that returns the 
    * class name of the derived data reader.
    */
-        virtual string name() const = 0;
-
+  virtual string name() const = 0;
+  
   /**
    * This method is overridden by the UserDataReader class and does not
    * need to be defined (or used) by the user.
    *
    * \see UserDataReader
    */
-        virtual DataReader* newDataReader( const vector< string >& args ) const = 0;
-
+  virtual DataReader* newDataReader( const vector< string >& args ) const = 0;
+  
   /**
    * This method is overridden by the UserDataReader class and does not
    * need to be defined (or used) by the user.
    *
    * \see UserDataReader
    */
-        virtual DataReader* clone() const = 0;
-
+  virtual DataReader* clone() const = 0;
+  
   /**
    * Returns the list of arguments that was passed to the constructor.
    */
-        virtual vector<string> arguments() const { return m_args; }
-
+  virtual vector<string> arguments() const { return m_args; }
+  
   /**
    * Returns true if this instance was created using the default constructor
    * and returns false otherwise.
    */
-        virtual bool isDefault() const { return ( m_isDefault == true ); }
-
-
+  virtual bool isDefault() const { return ( m_isDefault == true ); }
+  
+  
 private:
-
+  
   bool m_isDefault;
-
+  
   vector<string> m_args;
-
-    
+  
+  
 };
 
 #endif
