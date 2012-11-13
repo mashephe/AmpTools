@@ -274,7 +274,7 @@ public:
  virtual Int_urt  SetErrorDef( Double_urt up );
 // virtual void   SetFCN(void (*fcn)(Int_urt &, Double_urt *, Double_urt &f, Double_urt *, Int_urt));
  virtual void   SetFCN(URFcn* fcn);
- virtual void   SetMaxIterations(Int_urt maxiter=500) {fMaxIterations = maxiter;}
+ virtual void   SetMaxIterations(Int_urt maxiter=5000) {fMaxIterations = maxiter;}
  virtual Int_urt  SetPrintLevel( Int_urt printLevel=0 );
 
    private:
