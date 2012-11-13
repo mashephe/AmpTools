@@ -60,82 +60,82 @@ m_renormalizeAmps( false ),
 m_normInt( NULL )
 {
   cout << "Creating amplitude manager for reaction:" << endl;
-	
+  
   // a list of index switches needed to generate the symmetrized amplitude
   // group the switches by particle type
   // dump out some information
   map< string, vector< pair< int, int > > > swapsByType;
   for( unsigned int i = 0; i < reaction.size(); ++i ){
-		
+    
     cout << "\t" << reaction[i] << " -->> " << i << endl;
-		
+    
     for( unsigned int j = i + 1; j < reaction.size(); ++j ){
-			
+      
       if( reaction[i] == reaction[j] ){
-				
+        
         swapsByType[reaction[i]].push_back( pair< int, int >( i, j ) );
       }
     }
   }
-	
+  
   // determine how many combinations exist by taking the the product of the
   // number of swaps for each unique final state particle
   int numberOfCombos = 1;
   for( map< string, vector< pair< int, int > > >::iterator partItr = swapsByType.begin();
       partItr != swapsByType.end(); ++partItr ){
-		
+    
     // don't forget the option of leaving the particles unchanged
     int partCombos = partItr->second.size() + 1;
-		
+    
     cout << "There are " << partCombos 
     << " ways of rearranging particles of type: " 
     << partItr->first << endl;
-		
+    
     numberOfCombos *= partCombos;
   }
-	
+  
   // setup the vector of symmetric combinations -- first initialize
   // it with numberOfCombos copies of the default ordering
-  // then go in and make the swaps	
+  // then go in and make the swaps
   vector< int > defaultOrder( reaction.size() );
   for( unsigned int i = 0; i < reaction.size(); ++i ){
-		
+    
     defaultOrder[i] = i;
   }
-	
+  
   // strip away the particle names to build a vector of vector of swaps
   // analagous to the map from particle -> vector of swaps
   vector< vector< pair< int, int > > > swaps;
   for( map< string, vector< pair< int, int > > >::iterator itr = swapsByType.begin();
       itr != swapsByType.end(); ++itr ){
-		
+    
     swaps.push_back( itr->second );
-		
+    
     // for each type of particle, add a swap that leaves particles
     // as they are in the default ordering
     // (this switches particle 0 with 0 which leaves order unchanged
     // for any particle in consideration)
     swaps.back().push_back( pair< int, int >( 0, 0 ) );
   }
-	
+  
   // now use a recursive algorithm to step through the list of swaps for
   // each unique final state particle and add to the vector of symmetric 
   // combinations
   generateSymmetricCombos( vector< pair< int, int > >( 0 ),
                           swaps, defaultOrder );
-	
+  
   cout << "The following " << numberOfCombos << " orderings of the "
-       << "particles are indistinguishable." << endl;
-	
+  << "particles are indistinguishable." << endl;
+  
   for( unsigned int i = 0; i < m_symmCombos.size(); ++i ){
-		
+    
     for( unsigned int j = 0; j < reaction.size(); ++j ){
-			
+      
       cout << "\t" << m_symmCombos[i][j];
     }
     cout << endl;
   }
-	
+  
 }
 
 AmplitudeManager::~AmplitudeManager() {
@@ -148,51 +148,51 @@ AmplitudeManager::~AmplitudeManager() {
   
   for( map< string, vector< const Amplitude* > >::iterator mapItr = m_mapNameToAmps.begin();
       mapItr != m_mapNameToAmps.end(); ++mapItr ){
-		
+    
     for( vector< const Amplitude* >::iterator vecItr = mapItr->second.begin();
         vecItr != mapItr->second.end(); ++vecItr ){
-			
+      
       delete *vecItr;
     }
   }
-	
+  
 }
 
 
 void 
 AmplitudeManager::calcAmplitudes( AmpVecs& a, bool bIsFirstPass, bool useMC ) const
-{	
-	
-	timeval tStart, tIStart, tStop,tSpan;
-	double dTime;
+{
   
-	if( bIsFirstPass ) gettimeofday( &(tIStart), NULL );
+  timeval tStart, tIStart, tStop,tSpan;
+  double dTime;
+  
+  if( bIsFirstPass ) gettimeofday( &(tIStart), NULL );
   
 #ifdef GPU_ACCELERATION
   if( bIsFirstPass ) initGPU( a, useMC );
   GPUManager& gpuMan = ( useMC ? m_mcGPUManGTX : m_dataGPUManGTX );
 #endif
   
-	int iNAmps = m_ampNames.size();
+  int iNAmps = m_ampNames.size();
   
-	assert( iNAmps && a.m_iNEvents && a.m_iNTrueEvents );
-	assert( a.m_pdAmps && a.m_pdAmpFactors);
-	
-	int iAmpIndex, iAmpFactOffset=0;	
-	for( iAmpIndex = 0; iAmpIndex < iNAmps; iAmpIndex++ )
-	{
-        
-		map< string, vector< vector< int > > >::const_iterator permItr = 
-    m_ampPermutations.find( m_ampNames[iAmpIndex] );
-		assert( permItr != m_ampPermutations.end() );		
-		const vector< vector< int > >& vvPermuations = permItr->second;		
-		int iNPermutations = vvPermuations.size();			
+  assert( iNAmps && a.m_iNEvents && a.m_iNTrueEvents );
+  assert( a.m_pdAmps && a.m_pdAmpFactors);
+  
+  int iAmpIndex, iAmpFactOffset=0;
+  for( iAmpIndex = 0; iAmpIndex < iNAmps; iAmpIndex++ )
+  {
     
-		vector< const Amplitude* > vAmps = 
+    map< string, vector< vector< int > > >::const_iterator permItr = 
+    m_ampPermutations.find( m_ampNames[iAmpIndex] );
+    assert( permItr != m_ampPermutations.end() );
+    const vector< vector< int > >& vvPermuations = permItr->second;
+    int iNPermutations = vvPermuations.size();
+    
+    vector< const Amplitude* > vAmps = 
     m_mapNameToAmps.find(m_ampNames.at(iAmpIndex))->second;
-		
-		int iLocalOffset = 0;
-		int iFactor, iNFactors = vAmps.size();
+    
+    int iLocalOffset = 0;
+    int iFactor, iNFactors = vAmps.size();
     
     // if it is not the first pass through and this particular
     // amplitude is fixed, then we can skip to the next amplitude
@@ -205,27 +205,27 @@ AmplitudeManager::calcAmplitudes( AmpVecs& a, bool bIsFirstPass, bool useMC ) co
       iAmpFactOffset += 2 * a.m_iNEvents * iNPermutations * iNFactors;
       continue;
     }
-		
+    
     // cout << "Recomputing amplitude: " << m_ampNames[iAmpIndex] << endl;
     
     // calculate all the factors that make up an amplitude for
     // for all events serially on CPU or in parallel on GPU
     
-		const Amplitude* pCurrAmp = 0;
-		for( iFactor=0; iFactor < iNFactors; 
+    const Amplitude* pCurrAmp = 0;
+    for( iFactor=0; iFactor < iNFactors; 
         iFactor++, iLocalOffset += 2 * a.m_iNEvents * iNPermutations ){
-			
-			pCurrAmp = vAmps.at( iFactor );	
-			
-			if( !bIsFirstPass && !pCurrAmp->containsFreeParameters() )
-				continue;
+      
+      pCurrAmp = vAmps.at( iFactor );
+      
+      if( !bIsFirstPass && !pCurrAmp->containsFreeParameters() )
+        continue;
       
       // cout << "Recomputing factor: " << pCurrAmp->name() << endl;
-			
-			if( bIsFirstPass ) gettimeofday( &(tStart), NULL );
       
-#ifndef	GPU_ACCELERATION			
-			pCurrAmp->
+      if( bIsFirstPass ) gettimeofday( &(tStart), NULL );
+      
+#ifndefGPU_ACCELERATION
+      pCurrAmp->
       calcAmplitudeAll( a.m_pdData, 
                        a.m_pdAmpFactors + iAmpFactOffset + iLocalOffset,
                        a.m_iNEvents, &vvPermuations );
@@ -233,26 +233,26 @@ AmplitudeManager::calcAmplitudes( AmpVecs& a, bool bIsFirstPass, bool useMC ) co
       gpuMan.calcAmplitudeAll( pCurrAmp, 
                               a.m_pdAmpFactors + iAmpFactOffset + iLocalOffset, 
                               &vvPermuations );
-#endif	//GPU_ACCELERATION
-			
+#endif//GPU_ACCELERATION
+      
       if( bIsFirstPass ){
         gettimeofday( &(tStop), NULL );
         timersub( &(tStop), &(tStart), &tSpan );
-        dTime = tSpan.tv_sec + tSpan.tv_usec/1000000.0; // 10^6 uSec per second	
+        dTime = tSpan.tv_sec + tSpan.tv_usec/1000000.0; // 10^6 uSec per second
         
         cout << "-> Seconds spent calculating " 
         << pCurrAmp->name() << " for " << permItr->first << ":  "
         << dTime << endl << flush;
-      }	
+      }
       
       /*
-      // print out amplitudes for the first permutation for the first
-      // ten events
+       // print out amplitudes for the first permutation for the first
+       // ten events
        for( int iEvent = 0; ( iEvent < a.m_iNTrueEvents ) && ( iEvent < 10 ); ++iEvent ){
-         
-         cout << pCurrAmp->name() << " Event " << iEvent << ":  ( " 
-         << a.m_pdAmpFactors[iAmpFactOffset+iLocalOffset+2*iEvent] << ", " 
-         << a.m_pdAmpFactors[iAmpFactOffset+iLocalOffset+2*iEvent+1] << " )" << endl;
+       
+       cout << pCurrAmp->name() << " Event " << iEvent << ":  ( " 
+       << a.m_pdAmpFactors[iAmpFactOffset+iLocalOffset+2*iEvent] << ", " 
+       << a.m_pdAmpFactors[iAmpFactOffset+iLocalOffset+2*iEvent+1] << " )" << endl;
        }
        */
       
@@ -262,60 +262,60 @@ AmplitudeManager::calcAmplitudes( AmpVecs& a, bool bIsFirstPass, bool useMC ) co
     // symmetrized amplitude -- do this for all events for this
     // amplitude (on the CPU)
     
-		GDouble dSymmFactor = 1.0f/sqrt( iNPermutations );
-		GDouble dAmpFacRe, dAmpFacIm, dTRe, dTIm;
-		int iEvent, iPerm;
-		int iOffsetA, iOffsetP, iOffsetF;
+    GDouble dSymmFactor = 1.0f/sqrt( iNPermutations );
+    GDouble dAmpFacRe, dAmpFacIm, dTRe, dTIm;
+    int iEvent, iPerm;
+    int iOffsetA, iOffsetP, iOffsetF;
     
-		// re-ordering of data will be useful to not fall out of (CPU) memory cache!!!
-		
-		// zeroing out the entire range
-		memset( (void*)( a.m_pdAmps + 2 * a.m_iNEvents * iAmpIndex ), 0, 
+    // re-ordering of data will be useful to not fall out of (CPU) memory cache!!!
+    
+    // zeroing out the entire range
+    memset( (void*)( a.m_pdAmps + 2 * a.m_iNEvents * iAmpIndex ), 0, 
            2 * a.m_iNEvents * sizeof(GDouble) );
-		
-		// only sum over the true events from data and skip paddings
-		for( iEvent=0; iEvent < a.m_iNTrueEvents; iEvent++ )
-		{
-			iOffsetA = 2 * a.m_iNEvents * iAmpIndex + 2 * iEvent;
-			
-			for( iPerm = 0; iPerm < iNPermutations; iPerm++ )
-			{		
-				iOffsetP = iAmpFactOffset + 2 * a.m_iNEvents * iPerm + 2 * iEvent;
-				
-				dAmpFacRe = a.m_pdAmpFactors[iOffsetP];
-				dAmpFacIm = a.m_pdAmpFactors[iOffsetP+1];
-				
-				for( iFactor = 1; iFactor < iNFactors; iFactor++ )
-				{
-					iOffsetF = iOffsetP + 2 * a.m_iNEvents * iNPermutations * iFactor;
-					
-					dTRe = dAmpFacRe;
-					dTIm = dAmpFacIm;
-					
-					dAmpFacRe = dTRe * a.m_pdAmpFactors[iOffsetF] - 
-          dTIm * a.m_pdAmpFactors[iOffsetF+1];					
-					dAmpFacIm = dTRe * a.m_pdAmpFactors[iOffsetF+1] + 
-          dTIm * a.m_pdAmpFactors[iOffsetF];
-				}
-				
-				a.m_pdAmps[iOffsetA]   += dAmpFacRe;
-				a.m_pdAmps[iOffsetA+1] += dAmpFacIm;
-			}
-			
-			a.m_pdAmps[iOffsetA]   *= dSymmFactor;
-			a.m_pdAmps[iOffsetA+1] *= dSymmFactor;      
-		}
     
-		//Update the global offset of ampfactor array
-		iAmpFactOffset += iLocalOffset;
-	}
+    // only sum over the true events from data and skip paddings
+    for( iEvent=0; iEvent < a.m_iNTrueEvents; iEvent++ )
+    {
+      iOffsetA = 2 * a.m_iNEvents * iAmpIndex + 2 * iEvent;
+      
+      for( iPerm = 0; iPerm < iNPermutations; iPerm++ )
+      {
+        iOffsetP = iAmpFactOffset + 2 * a.m_iNEvents * iPerm + 2 * iEvent;
+        
+        dAmpFacRe = a.m_pdAmpFactors[iOffsetP];
+        dAmpFacIm = a.m_pdAmpFactors[iOffsetP+1];
+        
+        for( iFactor = 1; iFactor < iNFactors; iFactor++ )
+        {
+          iOffsetF = iOffsetP + 2 * a.m_iNEvents * iNPermutations * iFactor;
+          
+          dTRe = dAmpFacRe;
+          dTIm = dAmpFacIm;
+          
+          dAmpFacRe = dTRe * a.m_pdAmpFactors[iOffsetF] - 
+          dTIm * a.m_pdAmpFactors[iOffsetF+1];
+          dAmpFacIm = dTRe * a.m_pdAmpFactors[iOffsetF+1] + 
+          dTIm * a.m_pdAmpFactors[iOffsetF];
+        }
+        
+        a.m_pdAmps[iOffsetA]   += dAmpFacRe;
+        a.m_pdAmps[iOffsetA+1] += dAmpFacIm;
+      }
+      
+      a.m_pdAmps[iOffsetA]   *= dSymmFactor;
+      a.m_pdAmps[iOffsetA+1] *= dSymmFactor;      
+    }
+    
+    //Update the global offset of ampfactor array
+    iAmpFactOffset += iLocalOffset;
+  }
   
   if( bIsFirstPass ){
     
     gettimeofday( &(tStop), NULL );
     
     timersub( &(tStop), &(tIStart), &tSpan );
-    dTime = tSpan.tv_sec + tSpan.tv_usec/1000000.0; // 10^6 uSec per second	
+    dTime = tSpan.tv_sec + tSpan.tv_usec/1000000.0; // 10^6 uSec per second
     cout << "\t-->> Seconds spent calculating all amplitudes:  " << dTime << endl;
   }
   
@@ -325,57 +325,57 @@ AmplitudeManager::calcAmplitudes( AmpVecs& a, bool bIsFirstPass, bool useMC ) co
 
 double 
 AmplitudeManager::calcIntensities( AmpVecs& a, bool bIsFirstPass ) const
-{	
+{
   // check to be sure destination memory has been allocated
-	assert( a.m_pdIntensity );
-	
+  assert( a.m_pdIntensity );
+  
   double maxInten = 0;
   
-	//First update Amplitudes if needed
-	calcAmplitudes( a, bIsFirstPass );
+  //First update Amplitudes if needed
+  calcAmplitudes( a, bIsFirstPass );
   
-	int iNAmps = m_ampNames.size();
-	
-	//Now pre-calculate ViVj* and include factor of 2 for off-diagonal elements
-	double* pdViVjRe = new double[iNAmps*(iNAmps+1)/2];
-	double* pdViVjIm = new double[iNAmps*(iNAmps+1)/2];
-	
-	int i,j;
-	complex< double > cTmp;
-	for( i = 0; i < iNAmps; i++ ){
-		for( j = 0; j <= i; j++ ){
+  int iNAmps = m_ampNames.size();
+  
+  //Now pre-calculate ViVj* and include factor of 2 for off-diagonal elements
+  double* pdViVjRe = new double[iNAmps*(iNAmps+1)/2];
+  double* pdViVjIm = new double[iNAmps*(iNAmps+1)/2];
+  
+  int i,j;
+  complex< double > cTmp;
+  for( i = 0; i < iNAmps; i++ ){
+    for( j = 0; j <= i; j++ ){
       
-			cTmp = (*m_prodAmpVec[i]) * conj(*m_prodAmpVec[j]);
-            
+      cTmp = (*m_prodAmpVec[i]) * conj(*m_prodAmpVec[j]);
+      
       cTmp *= ( m_ampScaleVec[i] * m_ampScaleVec[j] );
       
       if( m_renormalizeAmps ){
         
         cTmp /= sqrt( m_normInt->ampInt( m_ampNames[i], m_ampNames[i] ) *
-                      m_normInt->ampInt( m_ampNames[j], m_ampNames[j] ) );
+                     m_normInt->ampInt( m_ampNames[j], m_ampNames[j] ) );
       }
       
-			pdViVjRe[i*(i+1)/2+j] = cTmp.real();
-			pdViVjIm[i*(i+1)/2+j] = cTmp.imag();
-			      
-			if( i != j ) {
+      pdViVjRe[i*(i+1)/2+j] = cTmp.real();
+      pdViVjIm[i*(i+1)/2+j] = cTmp.imag();
+      
+      if( i != j ) {
         
-				pdViVjRe[i*(i+1)/2+j] *= 2;
-				pdViVjIm[i*(i+1)/2+j] *= 2;
-			}
-		}
+        pdViVjRe[i*(i+1)/2+j] *= 2;
+        pdViVjIm[i*(i+1)/2+j] *= 2;
+      }
+    }
   }
-	
-	double dIntensity;
-	double cAiAjRe,cAiAjIm;
   
-	//Re-ordering of data will be useful to not fall out of (CPU) memory cache!!!
-	//Only sum over the true events from data and skip paddings	
-	int iEvent;
-	for( iEvent=0; iEvent < a.m_iNTrueEvents; iEvent++ )
-	{	
-		dIntensity = 0;
-		for( i = 0; i < iNAmps; i++ ){
+  double dIntensity;
+  double cAiAjRe,cAiAjIm;
+  
+  //Re-ordering of data will be useful to not fall out of (CPU) memory cache!!!
+  //Only sum over the true events from data and skip paddings
+  int iEvent;
+  for( iEvent=0; iEvent < a.m_iNTrueEvents; iEvent++ )
+  {
+    dIntensity = 0;
+    for( i = 0; i < iNAmps; i++ ){
       for( j = 0; j <= i; j++ ){
         
         // remove cross terms from incoherent amplitudes
@@ -399,12 +399,12 @@ AmplitudeManager::calcIntensities( AmpVecs& a, bool bIsFirstPass ) const
     
     dIntensity *= a.m_pdWeights[iEvent];
     
-		a.m_pdIntensity[iEvent] = dIntensity;
+    a.m_pdIntensity[iEvent] = dIntensity;
     if( dIntensity > maxInten ) maxInten = dIntensity;
-	}
+  }
   
-	delete[] pdViVjRe;
-	delete[] pdViVjIm;
+  delete[] pdViVjRe;
+  delete[] pdViVjIm;
   
   return maxInten;
 }
@@ -414,28 +414,28 @@ AmplitudeManager::calcIntensities( AmpVecs& a, bool bIsFirstPass ) const
 double
 AmplitudeManager::calcIntensity( const Kinematics* kinematics ) const
 {
-
-    // Create and fill an AmpVecs object with a single event
+  
+  // Create and fill an AmpVecs object with a single event
   AmpVecs aVecs;
   aVecs.loadEvent(kinematics);
   aVecs.allocateAmps(*this,true);
-
-    // Calculate the intensity based on this one event
+  
+  // Calculate the intensity based on this one event
   calcIntensities(aVecs,true);
   GDouble intensity = aVecs.m_pdIntensity[0];
-
-    // Deallocate memory and return
+  
+  // Deallocate memory and return
   aVecs.deallocAmpVecs();
-
+  
   return intensity;
-
+  
 }
 
 
 double 
 AmplitudeManager::calcSumLogIntensity( AmpVecs& a, bool bIsFirstPass ) const
-{	
-	// this may be inefficienct since there are two
+{
+  // this may be inefficienct since there are two
   // loops over events, one here and one in the 
   // calculation of intensities -- however, this 
   // streamlines the code a little
@@ -447,7 +447,7 @@ AmplitudeManager::calcSumLogIntensity( AmpVecs& a, bool bIsFirstPass ) const
   
   calcIntensities( a, bIsFirstPass );
   
-  for( int iEvent=0; iEvent < a.m_iNTrueEvents; iEvent++ ){	
+  for( int iEvent=0; iEvent < a.m_iNTrueEvents; iEvent++ ){
     
     // here divide out the weight that was put into the intensity calculation
     // and weight the log -- in practice this just contributes an extra constant
@@ -468,14 +468,14 @@ AmplitudeManager::calcSumLogIntensity( AmpVecs& a, bool bIsFirstPass ) const
   for( int i = 0; i < m_prodAmpVec.size(); ++i ){
     
     gpuProdPars[i] = (*m_prodAmpVec[i]) * 
-        static_cast< double >( m_ampScaleVec[i] );
+    static_cast< double >( m_ampScaleVec[i] );
     
     if( m_renormalizeAmps ){
       
       gpuProdPars[i] /= sqrt( m_normInt->ampInt( m_ampNames[i], m_ampNames[i] ) );
     }
   }
-    
+  
   // need to explicitly do amplitude calculation
   // since intensity and sum is done directly on GPU
   calcAmplitudes( a, bIsFirstPass );
@@ -493,7 +493,7 @@ AmplitudeManager::calcSumLogIntensity( AmpVecs& a, bool bIsFirstPass ) const
 map< string, map< string, complex< double > > >
 AmplitudeManager::calcIntegrals( AmpVecs& a, int iNGenEvents, bool bIsFirstPass ) const
 {    
-
+  
   // this method could be made more efficient by caching a table of
   // integrals associated with each AmpVecs object and then, based on the
   // variables bIsFirstPass and m_vbIsAmpFixed data compute only
@@ -502,18 +502,18 @@ AmplitudeManager::calcIntegrals( AmpVecs& a, int iNGenEvents, bool bIsFirstPass 
   map< string, map< string, complex< double > > > mapNamesToIntegral;
   
   // amp -> amp* -> value
-	assert( iNGenEvents );
-	calcAmplitudes( a, bIsFirstPass, true );
-	int iNAmps = m_ampNames.size();
-	
-	int i, j, iEvent;	
-	for( i = 0; i < iNAmps;i++ )
-	{
+  assert( iNGenEvents );
+  calcAmplitudes( a, bIsFirstPass, true );
+  int iNAmps = m_ampNames.size();
+  
+  int i, j, iEvent;
+  for( i = 0; i < iNAmps;i++ )
+  {
     
-		for( j = 0; j <= i; j++ )
-		{			
+    for( j = 0; j <= i; j++ )
+    {
       double cAiAjRe=0;
-			double cAiAjIm=0;
+      double cAiAjIm=0;
       
       // if two amps don't interfere the relevant integral is zero
       if( m_sumCoherently[i][j] ){
@@ -539,15 +539,15 @@ AmplitudeManager::calcIntegrals( AmpVecs& a, int iNGenEvents, bool bIsFirstPass 
         cAiAjIm /= static_cast< double >( iNGenEvents );
       }
       
-			mapNamesToIntegral[m_ampNames[i]][m_ampNames[j]] = 
+      mapNamesToIntegral[m_ampNames[i]][m_ampNames[j]] = 
       complex< double >( cAiAjRe, cAiAjIm );
       
-			//Complex conjugate 
-			if( i != j )
-				mapNamesToIntegral[m_ampNames[j]][m_ampNames[i]] = 
+      //Complex conjugate 
+      if( i != j )
+        mapNamesToIntegral[m_ampNames[j]][m_ampNames[i]] = 
         complex< double >( cAiAjRe, -cAiAjIm );
-		}	
-	}
+    }
+  }
   
   return( mapNamesToIntegral );
 }
@@ -555,10 +555,10 @@ AmplitudeManager::calcIntegrals( AmpVecs& a, int iNGenEvents, bool bIsFirstPass 
 
 void 
 AmplitudeManager::addAmpFactor( const string& ampName, 
-                                const string& factorName, 
-                                const vector< string >& args, 
-                                const string& sum,
-                                const string& scale ){
+                               const string& factorName, 
+                               const vector< string >& args, 
+                               const string& sum,
+                               const string& scale ){
   
   map< string, Amplitude* >::iterator defaultAmp = 
   m_registeredFactors.find( factorName );
@@ -575,7 +575,7 @@ AmplitudeManager::addAmpFactor( const string& ampName,
   // check to see if this is a new amplitude
   if( find( m_ampNames.begin(), m_ampNames.end(), ampName ) == 
      m_ampNames.end() ){
-		
+    
     // track the name and sum based on index
     m_ampNames.push_back( ampName );
     m_ampSum.push_back( sum );
@@ -589,30 +589,30 @@ AmplitudeManager::addAmpFactor( const string& ampName,
     m_ampScaleVec.push_back( AmpParameter( scale ) );
     
     cout << "Creating new amplitude with name:  " << ampName 
-         << " [Index: " << m_ampIndex[ampName] << "]" << endl;
+    << " [Index: " << m_ampIndex[ampName] << "]" << endl;
     
- 		m_mapNameToAmps[ampName] = vector< const Amplitude* >( 0 );
-		setDefaultProductionAmplitude( ampName, complex< double >( 1, 0 ) );
-		
-		// check to see if permutations have already been added for this
-		// amplitude (before the amplitude was added itself) if so, add
-		// the set of permutations that comes from permuting identical
-		// particles
-		if( m_ampPermutations.find( ampName ) != m_ampPermutations.end() )
-		{
-			// permutations have already been added
-			for( vector< vector< int > >::iterator vecItr = m_symmCombos.begin();
+    m_mapNameToAmps[ampName] = vector< const Amplitude* >( 0 );
+    setDefaultProductionAmplitude( ampName, complex< double >( 1, 0 ) );
+    
+    // check to see if permutations have already been added for this
+    // amplitude (before the amplitude was added itself) if so, add
+    // the set of permutations that comes from permuting identical
+    // particles
+    if( m_ampPermutations.find( ampName ) != m_ampPermutations.end() )
+    {
+      // permutations have already been added
+      for( vector< vector< int > >::iterator vecItr = m_symmCombos.begin();
           vecItr != m_symmCombos.end(); ++vecItr )
-			{
-				m_ampPermutations[ampName].push_back( *vecItr );
-			}
-		}
-		else
-		{
-			// start the set of permutations with those that include
-			// just identical particles
-			m_ampPermutations[ampName] = m_symmCombos;
-		}
+      {
+        m_ampPermutations[ampName].push_back( *vecItr );
+      }
+    }
+    else
+    {
+      // start the set of permutations with those that include
+      // just identical particles
+      m_ampPermutations[ampName] = m_symmCombos;
+    }
     
     // adjust the matrix that determines which amplitudes add coherently
     // by looking at this sum and other sums
@@ -636,11 +636,11 @@ AmplitudeManager::addAmpFactor( const string& ampName,
     lastRow.push_back( true );
     m_sumCoherently.push_back( lastRow );
   }
-	
+  
   m_mapNameToAmps[ampName].push_back( newAmp );
-	
-	//Enable a short-cut if no factors are variable in the amplitude 
-	m_vbIsAmpFixed[m_ampIndex[ampName]] = 
+  
+  //Enable a short-cut if no factors are variable in the amplitude 
+  m_vbIsAmpFixed[m_ampIndex[ampName]] = 
   m_vbIsAmpFixed[m_ampIndex[ampName]] && !newAmp->containsFreeParameters();
 }
 
@@ -675,25 +675,25 @@ AmplitudeManager::setupFromConfigurationInfo( const ConfigurationInfo* configInf
     
     // add production amplitudes
     setDefaultProductionAmplitude(ampName, ampInfoVector[i]->value());
-
+    
     // if the amplitude has parameters we should go ahead and set their
     // values, otherwise they will be set to the default value as defined
     // by the AmpParameter class -- in a fit, the ParameterManager will
     // later reset these pointers to point to floating parameters in MINUIT
     vector< ParameterInfo* > pars = ampInfoVector[i]->parameters();
     for( vector< ParameterInfo* >::iterator parItr = pars.begin();
-         parItr != pars.end();
-         ++parItr ){
-     
+        parItr != pars.end();
+        ++parItr ){
+      
       setAmpParValue( ampName, (**parItr).parName(), (**parItr).value() );
     }
     
     // finally initialize the amplitudes
     vector< const Amplitude* > ampVec = m_mapNameToAmps[ampName];
     for( vector< const Amplitude* >::iterator amp = ampVec.begin();
-         amp != ampVec.end();
-         ++amp ) {
-     
+        amp != ampVec.end();
+        ++amp ) {
+      
       // init needs to be non-const or else the user has to deal with
       // mutable data -- in reality we really want some aspects of the 
       // amplitude like the name, arguments, etc. to never change and
@@ -761,7 +761,7 @@ AmplitudeManager::addAmpPermutation( const string& ampName, const vector< int >&
 
 void
 AmplitudeManager::registerAmplitudeFactor( const Amplitude& amplitude ){
-	
+  
   m_registeredFactors[amplitude.name()] = amplitude.clone();
 }
 
@@ -833,13 +833,13 @@ AmplitudeManager::hasAmpWithFreeParam() const {
 
 complex< double > 
 AmplitudeManager::productionAmp( const string& ampName ) const {
-		
+  
   if( m_prodAmp.find( ampName ) == m_prodAmp.end() ){
-		
+    
     cout << "ERROR: cannot provide production amplitude for " << ampName << endl;
     assert( false );
   }
-	
+  
   return productionAmp( m_ampIndex.at( ampName ) );
 }
 
@@ -847,15 +847,15 @@ complex< double >
 AmplitudeManager::productionAmp( int ampIndex ) const {
   
   return *m_prodAmpVec.at( ampIndex ) * 
-         static_cast< double >( m_ampScaleVec.at( ampIndex ) );
+  static_cast< double >( m_ampScaleVec.at( ampIndex ) );
 }
 
 void 
 AmplitudeManager::setDefaultProductionAmplitude( const string& ampName,
                                                 complex< double > prodAmp )
-{	
+{
   cout << "Setting production amplitude for " << ampName << " to " << prodAmp << endl;
-	
+  
   m_defaultProdAmp[ampName] = prodAmp;
   m_prodAmp[ampName] = &(m_defaultProdAmp[ampName]);
   m_prodAmpVec[m_ampIndex[ampName]] = &(m_defaultProdAmp[ampName]);
@@ -868,15 +868,15 @@ AmplitudeManager::setExternalProductionAmplitude( const string& ampName,
                                                  const complex< double >* prodAmpPtr )
 {
   map< string, const complex< double >* >::iterator prodItr = m_prodAmp.find( ampName );
-	
+  
   if( prodItr == m_prodAmp.end() ){
-		
+    
     cout << "ERROR:  amplitude " << ampName << " has no factors!" << endl;
     assert( false );
   }
-	
+  
   cout << "Production amplitude for " << ampName << " is coming from external source." << endl;
-	
+  
   m_prodAmp[ampName] = prodAmpPtr;
   m_prodAmpVec[m_ampIndex[ampName]] = prodAmpPtr;
 }
@@ -885,11 +885,11 @@ void
 AmplitudeManager::resetProductionAmplitudes()
 {
   cout << "Resetting all produciton amplitudes to default values." << endl;
-	
+  
   for( map< string, complex< double > >::iterator 
       prodItr = m_defaultProdAmp.begin();
       prodItr != m_defaultProdAmp.end();  ++prodItr ){
-		
+    
     m_prodAmp[prodItr->first] = &(m_defaultProdAmp[prodItr->first]);
     m_prodAmpVec[m_ampIndex[prodItr->first]] = &(m_defaultProdAmp[prodItr->first]);
   }
@@ -910,7 +910,7 @@ AmplitudeManager::setAmpParPtr( const string& ampName, const string& parName,
     
     foundParam = true;
   }
-
+  
   // now look for the parameter as part of the amplitude factors
   
   for( vector< const Amplitude* >::iterator factorItr = m_mapNameToAmps[ampName].begin();
@@ -927,28 +927,28 @@ AmplitudeManager::setAmpParPtr( const string& ampName, const string& parName,
   if( !foundParam ){
     
     cout << "NOTICE:  no registered factor in the amplitude " << ampName
-         << " contains the parameter " << parName << "." << endl;
+    << " contains the parameter " << parName << "." << endl;
   }
 }
 
 void
 AmplitudeManager::setAmpParValue( const string& ampName, const string& parName,
-                                  double val ){
+                                 double val ){
   
   bool foundParam = false;
-
+  
   // first check to see if the parameter appears as a scale factor
   // for one of the amplitudes
   
   if( m_ampScaleVec[m_ampIndex[ampName]].name() == parName ){
     
     m_ampScaleVec[m_ampIndex[ampName]].setValue( val );
-
+    
     foundParam = true;
   }
   
   // we will redetermine the status of this variable in the loop below
-
+  
   m_vbIsAmpFixed[m_ampIndex[ampName]] = true;  
   
   // now loop through the amplitude factors looking for the parameter
@@ -960,7 +960,7 @@ AmplitudeManager::setAmpParValue( const string& ampName, const string& parName,
     if( (**factorItr).setParValue( parName, val ) ) foundParam = true;
     
     m_vbIsAmpFixed[m_ampIndex[ampName]] = m_vbIsAmpFixed[m_ampIndex[ampName]] && 
-      !(**factorItr).containsFreeParameters();
+    !(**factorItr).containsFreeParameters();
   }
   
   if( !foundParam ){
@@ -972,7 +972,7 @@ AmplitudeManager::setAmpParValue( const string& ampName, const string& parName,
 
 void
 AmplitudeManager::updateAmpPar( const string& parName ) const {
- 
+  
   for( map< string, vector< const Amplitude* > >::const_iterator mapItr = m_mapNameToAmps.begin();
       mapItr != m_mapNameToAmps.end();
       ++mapItr ){
@@ -989,20 +989,20 @@ AmplitudeManager::updateAmpPar( const string& parName ) const {
 /* 
  * disable these for now until a fix is made to the NormIntInterface to prevent
  * problems with free parameters in amplitudes
-
-void
-AmplitudeManager::renormalizeAmps( const NormIntInterface* normInt ){
-  
-  m_normInt = normInt;
-  m_renormalizeAmps = true;
-}
-
-void
-AmplitudeManager::disableRenormalization(){
-
-  m_renormalizeAmps = false;
-}
-*/
+ 
+ void
+ AmplitudeManager::renormalizeAmps( const NormIntInterface* normInt ){
+ 
+ m_normInt = normInt;
+ m_renormalizeAmps = true;
+ }
+ 
+ void
+ AmplitudeManager::disableRenormalization(){
+ 
+ m_renormalizeAmps = false;
+ }
+ */
 
 // private functions
 
@@ -1010,34 +1010,34 @@ void
 AmplitudeManager::generateSymmetricCombos( const vector< pair< int, int > >& prevSwaps,
                                           vector< vector< pair< int, int > > > remainingSwaps,
                                           const vector< int >& defaultOrder ){
-	
+  
   if( remainingSwaps.size() == 0 ){
-		
+    
     // we've reached the bottom of the list of swaps
     
     // make the swaps to the default ordering
     vector< int > swappedOrder = defaultOrder;
     for( vector< pair< int, int > >::const_iterator swapItr = prevSwaps.begin();
         swapItr != prevSwaps.end(); ++swapItr ){
-			
+      
       int temp = swappedOrder[swapItr->first];
       swappedOrder[swapItr->first] = swappedOrder[swapItr->second];
       swappedOrder[swapItr->second] = temp;
     }
-		
+    
     // and push the combination on the list
     m_symmCombos.push_back( swappedOrder );
   }
-  else{	
-		
+  else{
+    
     // pop off a set of remaining swaps
     vector< pair< int, int > > currentSwaps = remainingSwaps.back();
     remainingSwaps.pop_back();
-		
+    
     // loop through them pushing each swap onto the list of prevSwaps 
     for( vector< pair< int, int > >::iterator itr = currentSwaps.begin();
         itr != currentSwaps.end(); ++itr ){
-			
+      
       vector< pair< int, int > > newPrevSwaps = prevSwaps;
       newPrevSwaps.push_back( *itr );
       generateSymmetricCombos( newPrevSwaps, remainingSwaps, defaultOrder );
