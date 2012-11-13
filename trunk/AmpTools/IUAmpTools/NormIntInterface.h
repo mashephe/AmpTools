@@ -53,74 +53,74 @@ using namespace std;
 
 class NormIntInterface
 {
-	
+  
 public:
-	
+  
   NormIntInterface();
-	NormIntInterface( const string& normIntFile );
-	NormIntInterface( DataReader* genMCData, DataReader* accMCData, 
+  NormIntInterface( const string& normIntFile );
+  NormIntInterface( DataReader* genMCData, DataReader* accMCData, 
                    const AmplitudeManager& ampManager );
-	
+  
   istream& loadNormIntCache( istream& in );
   
-	int numGenEvents() const { return m_nGenEvents; }
-	int numAccEvents() const { return m_nAccEvents; }
-	
+  int numGenEvents() const { return m_nGenEvents; }
+  int numAccEvents() const { return m_nAccEvents; }
+  
   // does this interface have the ability to recalculate integrals?
   bool hasAccessToMC() const;
   
-	// this integral folds in detector acceptance
-	virtual complex< double > normInt( string amp, string conjAmp, bool forceUseCache = false ) const;
-	bool hasNormInt( string amp, string conjAmp ) const;
-
-	// this purely the integral of the amplitude -- perfect acceptance
-	virtual complex< double > ampInt( string amp, string conjAmp, bool forceUseCache = false ) const;
-	bool hasAmpInt( string amp, string conjAmp ) const;
-
+  // this integral folds in detector acceptance
+  virtual complex< double > normInt( string amp, string conjAmp, bool forceUseCache = false ) const;
+  bool hasNormInt( string amp, string conjAmp ) const;
+  
+  // this purely the integral of the amplitude -- perfect acceptance
+  virtual complex< double > ampInt( string amp, string conjAmp, bool forceUseCache = false ) const;
+  bool hasAmpInt( string amp, string conjAmp ) const;
+  
   // needs to be virtual so parallel implementations can properly
   // override this function
   virtual void forceCacheUpdate( bool normIntOnly = false ) const;
-
-	void exportNormIntCache( const string& fileName, bool renormalize = false ) const;
+  
+  void exportNormIntCache( const string& fileName, bool renormalize = false ) const;
   void exportNormIntCache( ostream& output, bool renormalize = false ) const;
   
-	void setGenEvents( int events ) { m_nGenEvents = events; }
-	void setAccEvents( int events ) { m_nAccEvents = events; }
-	
- protected:
-
-	// protected helper functions for parallel implementations
-
+  void setGenEvents( int events ) { m_nGenEvents = events; }
+  void setAccEvents( int events ) { m_nAccEvents = events; }
+  
+protected:
+  
+  // protected helper functions for parallel implementations
+  
   map< string, map< string, complex< double > > > getAmpIntegrals() const;
   map< string, map< string, complex< double > > > getNormIntegrals() const;
-
-
+  
+  
   void setAmpIntegral( string ampName, string cnjName,
-                       complex< double > val ) const;
+                      complex< double > val ) const;
   void setNormIntegral( string ampName, string cnjName,
-                        complex< double > val ) const;
-
+                       complex< double > val ) const;
+  
   const AmplitudeManager* ampManager() const { return m_pAmpManager; }
   
- private:
+private:
   
-	const AmplitudeManager* m_pAmpManager;
+  const AmplitudeManager* m_pAmpManager;
   
   DataReader* m_accMCReader;
   DataReader* m_genMCReader;
   
-	int m_nGenEvents;
+  int m_nGenEvents;
   int m_nAccEvents;
-
+  
   mutable bool m_emptyNormIntCache;
   mutable bool m_emptyAmpIntCache;
   
   // needed to cache accepted MC data for NI recalculation
   mutable AmpVecs m_mcVecs;
-
-	// amp -> amp* -> value
-	mutable map< string, map< string, complex< double > > > m_normIntCache;
-	mutable map< string, map< string, complex< double > > > m_ampIntCache;
+  
+  // amp -> amp* -> value
+  mutable map< string, map< string, complex< double > > > m_normIntCache;
+  mutable map< string, map< string, complex< double > > > m_ampIntCache;
 };
 
 inline istream& operator>>( istream& input, NormIntInterface& normInt ){

@@ -67,9 +67,9 @@ using namespace std;
 
 class ComplexParameter : public MIObserver
 {
-
- public:
-		
+  
+public:
+  
   /**
    * This constructs the ComplexParameter.
    * 
@@ -90,12 +90,12 @@ class ComplexParameter : public MIObserver
                    MinuitMinimizationManager& aManager,
                    complex< double > initialValue = complex< double >( 1, 0 ),
                    bool purelyReal = false );
-	
+  
   /**
    * This is the ComplexParameter destructor.
    */
   ~ComplexParameter();
-	
+  
   /**
    * This is called by the MinuitInterface and triggers the updating of the
    * values of the real and imaginary parts of the complex parameter.
@@ -104,7 +104,7 @@ class ComplexParameter : public MIObserver
    * either the real or imaginary part of the value
    */
   void update( const MISubject* callingSubject );
-	
+  
   /**
    * This sets the value of the parameter.
    *
@@ -116,25 +116,25 @@ class ComplexParameter : public MIObserver
    * A function that returns the name of the ComplexParameter
    */
   const string& name() const { return m_name; }
-
+  
   /**
    * A function that returns the name of the parameter representing the real
    * part of the complex number.
    */
   string realName() const { return m_name + "_re"; }
-
+  
   /**
    * A function that returns the name of the parameter representing the imaginary
    * part of the complex number.
    */
   string imagName() const { return m_name + "_im"; }
-
+  
   /**
    * A function that returns a boolean indicating whether the parameter is
    * purely real or not.
    */
   bool isPurelyReal() const { return m_purelyReal == true; }
-
+  
   /**
    * A function that returns the current value of the complex parameter.
    */
@@ -148,23 +148,23 @@ class ComplexParameter : public MIObserver
    * \see AmplitudeManager::setExternalProductionAmplitude
    */
   const complex< double >* constValuePtr() const { return &m_value; }
-
+  
   /**
    * A function that returns a pointer (not const) to the value of the
    * parameter.
    */
   complex< double >* valuePtr() { return &m_value; }
-
- private:
-	
+  
+private:
+  
   // prevent default construction or copying
   ComplexParameter();
   ComplexParameter( const ComplexParameter& );
-	
+  
   string m_name;
   complex< double > m_value;
   bool m_purelyReal;
-	
+  
   // parameters to hold the two numbers that represent this complex parameter
   MinuitParameter* m_realPar;
   MinuitParameter* m_imPar;

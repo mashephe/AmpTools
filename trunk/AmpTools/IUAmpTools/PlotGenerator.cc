@@ -47,50 +47,50 @@
 #include "IUAmpTools/NormIntInterface.h"
 
 PlotGenerator::PlotGenerator( const ConfigurationInfo* cfgInfo,
-                              const string& parFile ) :
+                             const string& parFile ) :
 m_cfgInfo( cfgInfo ),
 m_fullAmplitudes( 0 ),
 m_uniqueAmplitudes( 0 ),
 m_emptyHist()
 {
   
-	ifstream inPar( parFile.c_str() );
-	
-	unsigned int nProdPars, nAmpPars;
-	inPar >> nProdPars >> nAmpPars;
-	
-	vector< bool > fixedPhase( nProdPars );
-	
+  ifstream inPar( parFile.c_str() );
+  
+  unsigned int nProdPars, nAmpPars;
+  inPar >> nProdPars >> nAmpPars;
+  
+  vector< bool > fixedPhase( nProdPars );
+  
   // first fill in the vector of production amps
   // this comes mainly from fit parameters, but also constrained
   // amplitudes are given an index to the correct production amplitude
-
+  
   int ampIndex = 0;
-	for( unsigned int i = 0; i < nProdPars; ++i ){
+  for( unsigned int i = 0; i < nProdPars; ++i ){
     
-		string ampName;
-		complex< double > value;
-		inPar >> ampName >> value;
+    string ampName;
+    complex< double > value;
+    inPar >> ampName >> value;
     
-		const char* lastChar = ampName.substr( ampName.size() - 1, 1 ).c_str();
+    const char* lastChar = ampName.substr( ampName.size() - 1, 1 ).c_str();
     
-		if( strcmp( lastChar, "+" ) == 0 ){
-			
-			fixedPhase[i] = true;
-			ampName.erase( ampName.size() - 1, 1 );
-		}
-		else{
-			
-			fixedPhase[i] = false;
-		}
-		
-		m_ampIndex[ampName] = ampIndex++;
- 
+    if( strcmp( lastChar, "+" ) == 0 ){
+      
+      fixedPhase[i] = true;
+      ampName.erase( ampName.size() - 1, 1 );
+    }
+    else{
+      
+      fixedPhase[i] = false;
+    }
+    
+    m_ampIndex[ampName] = ampIndex++;
+    
     // need to know where to find the error for this amplitude
     m_eMatIndex[ampName] = i;
     
     // keep vector with original fit values
-		m_fitProdAmps.push_back( value );
+    m_fitProdAmps.push_back( value );
     
     // a parallel vector of zeros
     m_zeroProdAmps.push_back( complex< double >( 0, 0 ) );        
@@ -99,7 +99,7 @@ m_emptyHist()
     // amplitude managers (initially this vector is set to 
     // the original fit values)
     m_prodAmps.push_back( value );
-
+    
     // take apart the amplitude name
     vector<string> ampNameParts = stringSplit(ampName,"::");
     if (ampNameParts.size() != 3){
@@ -111,7 +111,7 @@ m_emptyHist()
     
     // get the AmplitudeInfo
     AmplitudeInfo* ampInfo = m_cfgInfo->amplitude(ampNameParts[0],ampNameParts[1],ampNameParts[2]);
-
+    
     // for any constrained amplitudes create additional entries in the vector
     // of production amplitudes -- this allows the plotter/user to be able
     // to independently turn off and on single amplitudes (individually), even if these
@@ -132,47 +132,47 @@ m_emptyHist()
         m_prodAmps.push_back( value );
         
         m_ampIndex[constraints[icst]->fullName()] = ampIndex++;
-
+        
         // this is the location of the constrained amplitude in the error
         // matrix
         m_eMatIndex[constraints[icst]->fullName()] = i;
       }
     }
-	}
-    
+  }
+  
   // read in any floating parameters in the amplitudes
   for( unsigned int i = 0; i < nAmpPars; ++i ){
-   
+    
     string parName;
     double value;
-
+    
     inPar >> parName >> value;
     m_ampParameters[parName] = value;
   }
-	
+  
   // now load up the error matrix 
-	// the error matrix should have dimension 2 * nProdPars + nAmpPars
-	// fill in zeroes for production parameters with fixed phases
-	for( unsigned int i = 0; i < ( 2 * nProdPars ) + nAmpPars; ++i ){
-		
-		m_errorMatrix.push_back( vector< double >( 0 ) );
-		
-		// read the real row
-		for( unsigned int j = 0; j < ( 2 * nProdPars ) + nAmpPars; ++j ){
-			      
-			if( ( ( j < ( 2 * nProdPars ) ) && fixedPhase[j/2] && ( j % 2 == 1 ) ) ||
-          ( ( i < ( 2 * nProdPars ) ) && fixedPhase[i/2] && ( i % 2 == 1 ) ) ){
-				
-				m_errorMatrix[i].push_back( 0 );
-			}
-			else{
-				
-				double value;
-				inPar >> value;
-				m_errorMatrix[i].push_back( value );
-			}
-		}		
-	}
+  // the error matrix should have dimension 2 * nProdPars + nAmpPars
+  // fill in zeroes for production parameters with fixed phases
+  for( unsigned int i = 0; i < ( 2 * nProdPars ) + nAmpPars; ++i ){
+    
+    m_errorMatrix.push_back( vector< double >( 0 ) );
+    
+    // read the real row
+    for( unsigned int j = 0; j < ( 2 * nProdPars ) + nAmpPars; ++j ){
+      
+      if( ( ( j < ( 2 * nProdPars ) ) && fixedPhase[j/2] && ( j % 2 == 1 ) ) ||
+         ( ( i < ( 2 * nProdPars ) ) && fixedPhase[i/2] && ( i % 2 == 1 ) ) ){
+        
+        m_errorMatrix[i].push_back( 0 );
+      }
+      else{
+        
+        double value;
+        inPar >> value;
+        m_errorMatrix[i].push_back( value );
+      }
+    }  
+  }
   
 }
 
@@ -200,7 +200,7 @@ PlotGenerator::initialize() {
   // build the normalization integrals and amplitude managers
   // for each of the final states
   // this will be useful for generating fit projections
-
+  
   vector<ReactionInfo*> rctInfoVector = m_cfgInfo->reactionList();
   
   for( unsigned int i = 0; i < rctInfoVector.size(); i++ ){
@@ -253,18 +253,18 @@ PlotGenerator::initialize() {
       ampManager->setExternalProductionAmplitude( *ampName, prodPtr );
       
       for( map< string, double >::const_iterator mapItr = m_ampParameters.begin();
-           mapItr != m_ampParameters.end();
+          mapItr != m_ampParameters.end();
           ++mapItr ){
-       
+        
         ampManager->setAmpParValue( *ampName, mapItr->first, mapItr->second );
       }
     }
   }
-
+  
   // buildUniqueAmplitudes will also create an initalize the maps that store
   // the enable/disable status of the amplitudes and sums
   buildUniqueAmplitudes();
-
+  
   recordConfiguration();
 }
 
@@ -305,8 +305,8 @@ PlotGenerator::intensity( bool accCorrected ) const {
 pair< double, double >
 PlotGenerator::intensity( const vector< string >& amplitudes, bool accCorrected ) const {
   
-	// intensity = sum_a sum_a' V_a V*_a' NI( a, a' )
-
+  // intensity = sum_a sum_a' V_a V*_a' NI( a, a' )
+  
   // The intensity can consist of multiple coherent sums and the code
   // below will work fine since the normalization integral matrix
   // is block diagonal in the case of multiple sums.  Off-diagonal
@@ -314,17 +314,17 @@ PlotGenerator::intensity( const vector< string >& amplitudes, bool accCorrected 
   // in the incoherent addition of multiple coherent sums in the
   // calculation below.
   
-	// these have dimension twice that of ampNames since they hold
-	// real and imaginary parts independently  
-	
-	// a subset of the larger error matrix
-	vector< vector< double > > errorMatrix;
+  // these have dimension twice that of ampNames since they hold
+  // real and imaginary parts independently  
   
-	// a vector for the derivatives of the intensity with respect to the
-	// real and imaginary parts of the production amplitudes
-	vector< double > deriv( 2 * amplitudes.size() );
+  // a subset of the larger error matrix
+  vector< vector< double > > errorMatrix;
   
-	double intensity = 0;
+  // a vector for the derivatives of the intensity with respect to the
+  // real and imaginary parts of the production amplitudes
+  vector< double > deriv( 2 * amplitudes.size() );
+  
+  double intensity = 0;
   
   // quick check to make sure amplitudes all are from the same final state
   // FIX ME -- I CRASH FOR DIFFERENT FINAL STATES
@@ -338,7 +338,7 @@ PlotGenerator::intensity( const vector< string >& amplitudes, bool accCorrected 
       cout << "  has the wrong format (must be rct::sum::amp)." << endl;
       assert(false);
     }
-
+    
     string fscheck = ampNameParts[0];
     if ((i > 0) && (fs != fscheck) && (fscheck != "")){
       
@@ -348,69 +348,69 @@ PlotGenerator::intensity( const vector< string >& amplitudes, bool accCorrected 
     
     fs = fscheck;
   }
-
   
-	for( vector< string >::const_iterator amp = amplitudes.begin(); 
+  
+  for( vector< string >::const_iterator amp = amplitudes.begin(); 
       amp != amplitudes.end(); ++amp ){
-		
+    
     // here and below we need the index of the production parameter
     // in the expanded array (free + constrained)
     // but we want the error matrix index for the original error matrix
     // which is just the free production amplitudes
     
-		int ampIndex =  getAmpIndex(*amp);
-		int ampEmatIndex = getErrorMatrixIndex(*amp); 
+    int ampIndex =  getAmpIndex(*amp);
+    int ampEmatIndex = getErrorMatrixIndex(*amp); 
     
-		// index errorMatrix and deriv indicies with lower case
-		// and their corresponding full indicies in upper case
-		int iRe = 2 * ( amp - amplitudes.begin() );
-		int iIm = iRe + 1;
-		int IRe = 2 * ampEmatIndex;
-		int IIm = IRe + 1;		
-		
-		errorMatrix.push_back( vector< double >( 2 * amplitudes.size() ) );
-		errorMatrix.push_back( vector< double >( 2 * amplitudes.size() ) );
+    // index errorMatrix and deriv indicies with lower case
+    // and their corresponding full indicies in upper case
+    int iRe = 2 * ( amp - amplitudes.begin() );
+    int iIm = iRe + 1;
+    int IRe = 2 * ampEmatIndex;
+    int IIm = IRe + 1;  
     
-		deriv[iRe] = 0;
-		deriv[iIm] = 0;
+    errorMatrix.push_back( vector< double >( 2 * amplitudes.size() ) );
+    errorMatrix.push_back( vector< double >( 2 * amplitudes.size() ) );
     
-		for( vector< string >::const_iterator conjAmp = amplitudes.begin(); 
+    deriv[iRe] = 0;
+    deriv[iIm] = 0;
+    
+    for( vector< string >::const_iterator conjAmp = amplitudes.begin(); 
         conjAmp != amplitudes.end(); ++conjAmp ) {
       
       int conjIndex = getAmpIndex(*conjAmp);
-			int conjEmatIndex = getErrorMatrixIndex(*conjAmp);
+      int conjEmatIndex = getErrorMatrixIndex(*conjAmp);
       
-			int jRe = 2 * ( conjAmp - amplitudes.begin() );
-			int jIm = jRe + 1;
-			int JRe = 2 * conjEmatIndex;
-			int JIm = JRe + 1;		
-            
-			complex< double > ampInt;
+      int jRe = 2 * ( conjAmp - amplitudes.begin() );
+      int jIm = jRe + 1;
+      int JRe = 2 * conjEmatIndex;
+      int JIm = JRe + 1;  
+      
+      complex< double > ampInt;
       if (accCorrected)  ampInt = m_normIntMap.find(fs)->second->ampInt( *amp, *conjAmp );
       else               ampInt = m_normIntMap.find(fs)->second->normInt( *amp, *conjAmp );
       
-			errorMatrix[iRe][jRe] = m_errorMatrix[IRe][JRe];
-			errorMatrix[iIm][jIm] = m_errorMatrix[IIm][JIm];
+      errorMatrix[iRe][jRe] = m_errorMatrix[IRe][JRe];
+      errorMatrix[iIm][jIm] = m_errorMatrix[IIm][JIm];
       
-			deriv[iRe] += 2 * ( real( m_prodAmps[conjIndex] ) * real( ampInt ) +
-                     imag( m_prodAmps[conjIndex] ) * imag( ampInt ) );
-			deriv[iIm] += 2 * ( imag( m_prodAmps[conjIndex] ) * real( ampInt ) -
-                     real( m_prodAmps[conjIndex] ) * imag( ampInt ) );
+      deriv[iRe] += 2 * ( real( m_prodAmps[conjIndex] ) * real( ampInt ) +
+                         imag( m_prodAmps[conjIndex] ) * imag( ampInt ) );
+      deriv[iIm] += 2 * ( imag( m_prodAmps[conjIndex] ) * real( ampInt ) -
+                         real( m_prodAmps[conjIndex] ) * imag( ampInt ) );
       
- 			intensity += real( m_prodAmps[ampIndex] * conj( m_prodAmps[conjIndex] ) * ampInt );
-		}
-	}
-	
-	// now compute the error
-	double variance = 0;
-	for( unsigned int i = 0; i < deriv.size(); ++i ){
-		for( unsigned int j = 0; j < deriv.size(); ++j ){
-			
-			variance += deriv[i] * deriv[j] * errorMatrix[i][j];
-		}
-	}
+      intensity += real( m_prodAmps[ampIndex] * conj( m_prodAmps[conjIndex] ) * ampInt );
+    }
+  }
   
-	return pair< double, double >( intensity, sqrt( variance ) );
+  // now compute the error
+  double variance = 0;
+  for( unsigned int i = 0; i < deriv.size(); ++i ){
+    for( unsigned int j = 0; j < deriv.size(); ++j ){
+      
+      variance += deriv[i] * deriv[j] * errorMatrix[i][j];
+    }
+  }
+  
+  return pair< double, double >( intensity, sqrt( variance ) );
 }
 
 // this computes the phase differences between sums of production
@@ -419,28 +419,28 @@ PlotGenerator::intensity( const vector< string >& amplitudes, bool accCorrected 
 double
 PlotGenerator::phaseDiff( const vector< string >& amps1, 
                          const vector< string >& amps2 ){
-	
-	complex< double > amp1( 0, 0 );	
-	for( vector< string >::const_iterator amp = amps1.begin();
+  
+  complex< double > amp1( 0, 0 ); 
+  for( vector< string >::const_iterator amp = amps1.begin();
       amp != amps1.end(); ++amp ){
-		
-		amp1 += m_prodAmps[getAmpIndex(*amp)];
-	}
-	
-	complex< double > amp2( 0, 0 );	
-	for( vector< string >::const_iterator amp = amps2.begin();
+    
+    amp1 += m_prodAmps[getAmpIndex(*amp)];
+  }
+  
+  complex< double > amp2( 0, 0 ); 
+  for( vector< string >::const_iterator amp = amps2.begin();
       amp != amps2.end(); ++amp ){
-		
-		amp2 += m_prodAmps[getAmpIndex(*amp)];
-	}
-	
-	return( phase( amp1 ) - phase( amp2 ) );
+    
+    amp2 += m_prodAmps[getAmpIndex(*amp)];
+  }
+  
+  return( phase( amp1 ) - phase( amp2 ) );
 }
 
 double
 PlotGenerator::phase( const complex< double >& num ) const {
-	
-	return arg( num );
+  
+  return arg( num );
 }
 
 const Histogram& 
@@ -550,9 +550,9 @@ PlotGenerator::haveAmp( const string& amp ) const {
 
 void 
 PlotGenerator::disableAmp( unsigned int uniqueAmpIndex ){
-    
+  
   string amp = m_uniqueAmplitudes[uniqueAmpIndex];
-    
+  
   for( map< string, unsigned int >::iterator mapItr = m_ampIndex.begin();
       mapItr != m_ampIndex.end();
       ++mapItr ){
@@ -562,8 +562,8 @@ PlotGenerator::disableAmp( unsigned int uniqueAmpIndex ){
     
     unsigned int i = mapItr->second;
     
-//     cout << "Setting production amp for " << mapItr->first << " from "
-//          << m_prodAmps[i] << " to " << m_zeroProdAmps[i] << endl;
+    //     cout << "Setting production amp for " << mapItr->first << " from "
+    //          << m_prodAmps[i] << " to " << m_zeroProdAmps[i] << endl;
     
     m_prodAmps[i] = m_zeroProdAmps[i];
     m_ampEnabled[amp] = false;
@@ -574,28 +574,28 @@ PlotGenerator::disableAmp( unsigned int uniqueAmpIndex ){
 
 void
 PlotGenerator::enableAmp( unsigned int uniqueAmpIndex ){
-      
+  
   string amp = m_uniqueAmplitudes[uniqueAmpIndex];
-    
+  
   for( map< string, unsigned int >::iterator mapItr = m_ampIndex.begin();
       mapItr != m_ampIndex.end();
       ++mapItr ){
-          
+    
     vector< string > ampParts = stringSplit( mapItr->first, "::" );
     if( ampParts[2] != amp ) continue;
     
     unsigned int i = mapItr->second;
-
+    
     m_ampEnabled[amp] = true;
-
+    
     // on turn back on the amplitude in the amplitude manager if the
     // sum to which it belogins is also enabled
-      
+    
     if( m_sumEnabled[ampParts[1]] ){
-    
-     //   cout << "Setting production amp for " << mapItr->first << " from "
-     //         << m_prodAmps[i] << " to " << m_fitProdAmps[i] << endl;
-    
+      
+      //   cout << "Setting production amp for " << mapItr->first << " from "
+      //         << m_prodAmps[i] << " to " << m_fitProdAmps[i] << endl;
+      
       m_prodAmps[i] = m_fitProdAmps[i];
     }
   }
@@ -616,9 +616,9 @@ PlotGenerator::disableSum( unsigned int uniqueSumIndex ){
     if( ampParts[1] != sum ) continue;
     
     unsigned int i = mapItr->second;
-
+    
     m_sumEnabled[sum] = false;
-
+    
     // cout << "Setting production amp for " << mapItr->first << " from "
     //      << m_prodAmps[i] << " to " << m_zeroProdAmps[i] << endl;
     
@@ -632,7 +632,7 @@ void
 PlotGenerator::enableSum( unsigned int uniqueSumIndex ){
   
   string sum = m_uniqueSums[uniqueSumIndex];
-    
+  
   for( map< string, unsigned int >::iterator mapItr = m_ampIndex.begin();
       mapItr != m_ampIndex.end();
       ++mapItr ){
@@ -648,10 +648,10 @@ PlotGenerator::enableSum( unsigned int uniqueSumIndex ){
     // is also enabled
     
     if( m_ampEnabled[ampParts[2]] ){
-    
+      
       // cout << "Setting production amp for " << mapItr->first << " from "
       //      << m_prodAmps[i] << " to " << m_fitProdAmps[i] << endl;
-    
+      
       m_prodAmps[i] = m_fitProdAmps[i];
     }
   }
@@ -664,8 +664,8 @@ bool
 PlotGenerator::isAmpEnabled( unsigned int uniqueIndex ) const {
   
   map< string, bool >::const_iterator itr = 
-    m_ampEnabled.find( m_uniqueAmplitudes[uniqueIndex] );
-
+  m_ampEnabled.find( m_uniqueAmplitudes[uniqueIndex] );
+  
   assert( itr != m_ampEnabled.end() );
   
   return itr->second;
@@ -675,7 +675,7 @@ bool
 PlotGenerator::isSumEnabled( unsigned int uniqueIndex ) const {
   
   map< string, bool >::const_iterator itr = 
-    m_sumEnabled.find( m_uniqueSums[uniqueIndex] );
+  m_sumEnabled.find( m_uniqueSums[uniqueIndex] );
   
   assert( itr != m_sumEnabled.end() );
   
@@ -753,11 +753,11 @@ PlotGenerator::buildUniqueAmplitudes(){
        m_uniqueSums.end() ){
       
       m_uniqueSums.push_back( tok[1] );
-
+      
       // if this sum hasn't been added to the sumEnabled list, 
       // then add it and set it to true
       if( m_sumEnabled.find( tok[1] ) == m_sumEnabled.end() ){
-
+        
         m_sumEnabled[tok[1]] = true;
       }
     }
@@ -773,7 +773,7 @@ PlotGenerator::ampManager( const string& reactName ){
 
 vector< string >
 PlotGenerator::reactions() const{
-
+  
   vector<string> rcts;
   vector<ReactionInfo*> rctInfoVector = m_cfgInfo->reactionList();
   for (unsigned int i = 0; i < rctInfoVector.size(); i++){

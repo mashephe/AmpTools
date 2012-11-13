@@ -48,13 +48,13 @@
 #include "GPUManager/GPUCustomTypes.h"
 
 ParameterManager::ParameterManager( MinuitMinimizationManager& minuitManager,
-                                    AmplitudeManager* ampManager ) :
+                                   AmplitudeManager* ampManager ) :
 MIObserver(),
 m_minuitManager( minuitManager ),
 m_ampManagers( 0 )
-{	
+{ 
   m_ampManagers.push_back(ampManager);
-	cout << "Parameter manager initialized." << endl;
+  cout << "Parameter manager initialized." << endl;
 }
 
 ParameterManager::
@@ -63,8 +63,8 @@ ParameterManager( MinuitMinimizationManager& minuitManager,
 MIObserver(),
 m_minuitManager( minuitManager ),
 m_ampManagers( ampManagers )
-{	
-	cout << "Parameter manager initialized." << endl;
+{ 
+  cout << "Parameter manager initialized." << endl;
 }
 
 ParameterManager::~ParameterManager()
@@ -75,7 +75,7 @@ ParameterManager::~ParameterManager()
     
     delete *parItr;
   }
-
+  
   for( vector< MinuitParameter* >::iterator parItr = m_ampPtrCache.begin();
       parItr != m_ampPtrCache.end(); 
       ++parItr ){
@@ -101,18 +101,18 @@ ParameterManager::setupFromConfigurationInfo( ConfigurationInfo* cfgInfo ){
   // separate creation of amplitude parameters from production parameters
   // in order to make the error matrix more easily separable
   // practically, this just means two loops below
-    
+  
   for( vector< AmplitudeInfo* >::iterator ampItr = amps.begin();
-       ampItr != amps.end();
-       ++ampItr ){
- 
+      ampItr != amps.end();
+      ++ampItr ){
+    
     addProductionParameter( (**ampItr).fullName(), (**ampItr).real() );
   }
   
   for( vector< AmplitudeInfo* >::iterator ampItr = amps.begin();
       ampItr != amps.end();
       ++ampItr ){
-      
+    
     vector< ParameterInfo* > pars = (**ampItr).parameters();
     
     for( vector< ParameterInfo* >::iterator parItr = pars.begin();
@@ -144,9 +144,9 @@ ParameterManager::addAmplitudeParameter( const string& ampName, const ParameterI
     
     // attach to allow the parameter to call back this class when it is updated
     parPtr->attach( this );
-
+    
     if( parInfo->fixed() ){
-
+      
       parPtr->fix();
     }
     
@@ -158,8 +158,8 @@ ParameterManager::addAmplitudeParameter( const string& ampName, const ParameterI
     if( parInfo->gaussianBounded() ){
       
       GaussianBound* boundPtr = 
-           new GaussianBound( m_minuitManager, parPtr, parInfo->centralValue(),
-                              parInfo->gaussianError() );
+      new GaussianBound( m_minuitManager, parPtr, parInfo->centralValue(),
+                        parInfo->gaussianError() );
       
       m_boundPtrCache.push_back( boundPtr );
     }
@@ -181,9 +181,9 @@ ParameterManager::addAmplitudeParameter( const string& ampName, const ParameterI
     if( !(*ampManPtr)->hasProductionAmp( ampName ) ) continue;
     
     foundOne = true;
-  
+    
     if( parInfo->fixed() ){
-
+      
       // if it is fixed just go ahead and set the parameter by value
       // this prevents Amplitude class from thinking that is has
       // a free parameter
@@ -215,13 +215,13 @@ ParameterManager::addProductionParameter( const string& ampName, bool real )
   }
   if( ampManPtr == m_ampManagers.end() ){
     cout << "ParameterManager ERROR: Could not find production amplitude for " 
-    << ampName << endl;
+         << ampName << endl;
     assert( false );
   }
   
   // get the parameter's initial value from the amplitude manager
   complex< double > initialValue = (**ampManPtr).productionAmp( ampName );
-    
+  
   // find the ComplexParameter for this amplitude or an amplitude constrained to
   //   be the same as this amplitude
   
@@ -231,7 +231,7 @@ ParameterManager::addProductionParameter( const string& ampName, bool real )
   
   if (!par){
     cout << "ParameterManager:  Creating new complex production amplitude parameter for " 
-    << ampName << endl;
+         << ampName << endl;
     par = new ComplexParameter( ampName, m_minuitManager, initialValue, real );
     m_prodPtrCache.push_back( par );
   }
@@ -281,29 +281,29 @@ ParameterManager::writeParameters( ofstream& outFile ) const
   // the production parameter map that point to the same complex parameter.)
   
   outFile <<  m_prodPtrCache.size() << "\t" <<  m_ampPtrCache.size() << endl;
-	
+  
   for( vector< ComplexParameter* >::const_iterator 
       parItr = m_prodPtrCache.begin();
       parItr != m_prodPtrCache.end(); ++parItr ){
     
     outFile << (**parItr).name() 
-            << ( (**parItr).isPurelyReal() ? "+" : "" ) << "\t"
-            << (**parItr).value() << endl;
+    << ( (**parItr).isPurelyReal() ? "+" : "" ) << "\t"
+    << (**parItr).value() << endl;
   }
-
+  
   for( vector< MinuitParameter* >::const_iterator 
       parItr = m_ampPtrCache.begin();
       parItr != m_ampPtrCache.end(); ++parItr ){
     
     outFile << (**parItr).name() << "\t"
-            << (**parItr).value() << endl;
+    << (**parItr).value() << endl;
   }
   
   vector< vector< double > > errMtx = 
   m_minuitManager.parameterManager().covarianceMatrix();
   for( unsigned int i = 0; i < errMtx.size(); ++i ){
     for( unsigned int j = 0; j < errMtx[i].size(); ++j ){
-			
+      
       outFile << errMtx[i][j] << "\t";
     }
     outFile << endl;
@@ -349,7 +349,7 @@ ParameterManager::findParameter( const string& ampName) const{
 
 void
 ParameterManager::update( const MISubject* parPtr ){
-
+  
   // this method is called whenever any parameter changes
   // if it is an amplitude parameter, we want to notify the
   // amplitude of the change
@@ -365,7 +365,7 @@ ParameterManager::update( const MISubject* parPtr ){
       
       // we found the relevant param -- now notify all amplitude managers that
       // the parameter has changed
-  
+      
       update( mapItr->first );
     }
   }
@@ -388,7 +388,7 @@ ParameterManager::update( const string& parName ){
 
 void
 ParameterManager::updateParCovaraince(){
-    
+  
   // build a vector that provides the MINUIT parameter index i for
   // the real parts of the production parameters, if there is an imaginary
   // part it will have an index of i + 1
@@ -396,8 +396,8 @@ ParameterManager::updateParCovaraince(){
   vector< int > prodParMinuitIndex( 0 );
   int numMinuitPars = 0;
   for( vector< ComplexParameter* >::const_iterator par = m_prodPtrCache.begin();
-       par != m_prodPtrCache.end();
-       ++par ){
+      par != m_prodPtrCache.end();
+      ++par ){
     
     prodParMinuitIndex.push_back( numMinuitPars );
     numMinuitPars += ( (**par).isPurelyReal() ? 1 : 2 );
@@ -407,45 +407,45 @@ ParameterManager::updateParCovaraince(){
   
   // build the list of parameters by looping over all amplitude managers and looping
   // over all amplitudes
-
+  
   m_parList.clear();
   m_parValues.clear();
   m_parIndex.clear();
-
+  
   int index = 0;
   for( vector< AmplitudeManager* >::const_iterator ampMan = m_ampManagers.begin();
-       ampMan != m_ampManagers.end();
-       ++ampMan ){
+      ampMan != m_ampManagers.end();
+      ++ampMan ){
     
     const vector< string >& ampNames = (**ampMan).getAmpNames();
     for( vector< string >::const_iterator name = ampNames.begin();
-         name != ampNames.end();
-         ++name ){
-    
+        name != ampNames.end();
+        ++name ){
+      
       // this will return the complex parameter associated with
       // this amplitude or the complex parameter to which this
       // amplitude is constrained
       const ComplexParameter* prodPar = findParameter( *name );
-    
+      
       // now determine the index of this parameter in the cache
       vector< ComplexParameter* >::const_iterator parItr = 
-        find( m_prodPtrCache.begin(), m_prodPtrCache.end(), prodPar );
+      find( m_prodPtrCache.begin(), m_prodPtrCache.end(), prodPar );
       assert( parItr != m_prodPtrCache.end() );
       int cacheIndex = parItr - m_prodPtrCache.begin();
       
       // and record the corresponding MINUIT parameter index
       minuitParIndex.push_back( prodParMinuitIndex[cacheIndex] );
-
+      
       // record the other values
       m_parList.push_back( (*name) + "_re" );
       m_parValues.push_back( real( prodPar->value() ) );
       m_parIndex[m_parList.back()] = index++;
-    
+      
       // if the parameter is purely real, the imaginary part won't
       // have a MINUIT index, save kFixedIndex (negative) and watch 
       // out for this when building the error matrix
       minuitParIndex.push_back( prodPar->isPurelyReal() ? 
-                                kFixedIndex : prodParMinuitIndex[cacheIndex] + 1 );
+                               kFixedIndex : prodParMinuitIndex[cacheIndex] + 1 );
       
       // record the imaginary parameter info
       m_parList.push_back( (*name) + "_im" );
@@ -457,16 +457,16 @@ ParameterManager::updateParCovaraince(){
   // finish this list by looping over all the amplitude parameters
   
   for( vector< MinuitParameter* >::const_iterator ampPar = m_ampPtrCache.begin();
-       ampPar != m_ampPtrCache.end();
-       ++ampPar ){
+      ampPar != m_ampPtrCache.end();
+      ++ampPar ){
     
     // if the parameter is not floating, it won't have a row in the covariance matrix
     
     if( (**ampPar).floating() ){
-    
+      
       // the MINUIT parameter indices number 
       // sequentially after the production parameters
-
+      
       minuitParIndex.push_back( numMinuitPars );
       ++numMinuitPars;
     }
@@ -474,7 +474,7 @@ ParameterManager::updateParCovaraince(){
       
       minuitParIndex.push_back( kFixedIndex );
     }
-      
+    
     m_parList.push_back( (**ampPar).name() );
     m_parValues.push_back( (**ampPar).value() );
     m_parIndex[m_parList.back()] = index++;
@@ -497,7 +497,7 @@ ParameterManager::updateParCovaraince(){
   int nPar = m_parList.size();
   
   const vector< vector< double > >& minCovMtx = 
-      m_minuitManager.parameterManager().covarianceMatrix();
+  m_minuitManager.parameterManager().covarianceMatrix();
   
   m_covMatrix.clear();
   for( int i = 0; i < nPar; ++i ){
@@ -514,7 +514,7 @@ ParameterManager::updateParCovaraince(){
       // index 
       
       if( iIndex == kFixedIndex || jIndex == kFixedIndex ){
-
+        
         m_covMatrix[i][j] = 0;
         continue;
       }

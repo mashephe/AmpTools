@@ -51,25 +51,25 @@ class ConfigurationInfo;
 
 class ParameterManager : MIObserver
 {
-	
- public:
+  
+public:
   
   // any negative integer -- used note fixed parameters
   // in an array of indices
   enum { kFixedIndex = -1 };
-
+  
   ParameterManager( MinuitMinimizationManager& minuitManager,
-                    AmplitudeManager* ampManager );
-
+                   AmplitudeManager* ampManager );
+  
   ParameterManager( MinuitMinimizationManager& minuitManager,
-		    const vector<AmplitudeManager*>& ampManager );
-	
+                   const vector<AmplitudeManager*>& ampManager );
+  
   ~ParameterManager();
-
+  
   MinuitMinimizationManager& fitManager() const { return m_minuitManager; }
-    
+  
   void setupFromConfigurationInfo( ConfigurationInfo* cfgInfo );
-      
+  
   void writeParameters( ofstream& file ) const;
   
   // these functions provide a list of all known parameters, including those that are
@@ -80,42 +80,42 @@ class ParameterManager : MIObserver
   vector< string > parameterList() const { return m_parList; }
   map< string, int > parameterIndex() const { return m_parIndex; }
   vector< vector< double > > covarianceMatrix() const { return m_covMatrix; }
-
+  
   bool hasConstraints(const string& ampName) const;
   bool hasParameter(const string& ampName) const;
-
+  
   ComplexParameter* findParameter(const string& ampName) const;  
-
+  
   // this gets called whenever an amplitude parameter changes
   void update( const MISubject* parPtr );
-
- protected:
-    
+  
+protected:
+  
   // these functions need to be virtual so that parallel implementations
   // can override their functionality correctly since they are called
   // from within setupFromConfigurationInfo
   
   virtual void addProductionParameter( const string& ampName, bool real = false );  
   virtual void addAmplitudeParameter( const string& ampName, const ParameterInfo* parInfo );
-
+  
   // useful for MPI implementations of ParameterManager
   complex< double >* getProdParPtr( const string& ampName );
   double* getAmpParPtr( const string& parName );
-	
+  
   virtual void update( const string& parName );
   
- private:
-	
+private:
+  
   // stop default
   ParameterManager();
   ParameterManager( const ParameterManager& );
-		
+  
   void updateParCovaraince();
   
   MinuitMinimizationManager& m_minuitManager;
-
+  
   vector< AmplitudeManager* > m_ampManagers;
-
+  
   vector< double > m_parValues;
   vector< string > m_parList;
   map< string, int > m_parIndex;

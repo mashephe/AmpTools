@@ -51,27 +51,27 @@ using namespace std;
 
 class PlotGenerator
 {
-	
+  
 public:
   
   enum PlotType { kData = 0, kAccMC, kGenMC, kNumPlotTypes };
   
   PlotGenerator( const ConfigurationInfo* cfgInfo, 
-                 const string& parFile );
-	
-	virtual ~PlotGenerator();
+                const string& parFile );
+  
+  virtual ~PlotGenerator();
   
   // get intensity for all amplitudes that the plot generator
   // has turned on
   pair< double, double > intensity( bool accCorrected = true ) const;
   // get intensity for a subset of amps **within the same mode**
-	pair< double, double > intensity( const vector< string >& amps,
-                                    bool accCorrected = true ) const;
+  pair< double, double > intensity( const vector< string >& amps,
+                                   bool accCorrected = true ) const;
   
-    // this computes the phase differences between sums of production
-    // coefficients -- it is not clear if this has any meaningful signficance
-    
-	double phaseDiff( const vector< string >& amps1, 
+  // this computes the phase differences between sums of production
+  // coefficients -- it is not clear if this has any meaningful signficance
+  
+  double phaseDiff( const vector< string >& amps1, 
                    const vector< string >& amps2 );
   
   bool haveAmp( const string& amp ) const;
@@ -109,9 +109,9 @@ public:
   
 protected:
   
-	unsigned int getAmpIndex( const string& ampName ) const;
+  unsigned int getAmpIndex( const string& ampName ) const;
   unsigned int getErrorMatrixIndex( const string& ampName ) const;
-
+  
   const AmplitudeManager& ampManager( const string& fsName );
   const NormIntInterface& normIntInterface( const string& fsName );
   
@@ -133,15 +133,15 @@ private:
   vector< string >
   stringSplit(const string& str, const string& delimiters = " ") const;
   
-	const ConfigurationInfo* m_cfgInfo;
+  const ConfigurationInfo* m_cfgInfo;
   
-	map< string, NormIntInterface* > m_normIntMap;
+  map< string, NormIntInterface* > m_normIntMap;
   map< string, AmplitudeManager* > m_ampManagerMap;
   
   // dimension of these vectors is the number of amplitudes (constrained + free)
-	vector< complex< double > > m_fitProdAmps;
-  vector< complex< double > > m_zeroProdAmps;	
-  vector< complex< double > > m_prodAmps;	
+  vector< complex< double > > m_fitProdAmps;
+  vector< complex< double > > m_zeroProdAmps; 
+  vector< complex< double > > m_prodAmps; 
   
   // the fit error matrix, dimension:  2 * nFreeProdAmps + nAmpPars
   // imaginary parts of fixed phase production amps are padded with zeros
@@ -161,7 +161,7 @@ private:
   vector< string > m_uniqueSums;
   
   // index of production parameter for a particular (full) amplitude
-	map< string, unsigned int > m_ampIndex;
+  map< string, unsigned int > m_ampIndex;
   
   // keep track of which amplitudes and final states are enabled
   map< string, bool > m_ampEnabled;
@@ -169,8 +169,8 @@ private:
   map< string, bool > m_reactEnabled;
   
   // a map from ampConfiguration -> final state -> histogram cache
-	mutable map< string, map< string, vector< Histogram > > > m_accMCHistCache;
-	mutable map< string, map< string, vector< Histogram > > > m_genMCHistCache;
+  mutable map< string, map< string, vector< Histogram > > > m_accMCHistCache;
+  mutable map< string, map< string, vector< Histogram > > > m_genMCHistCache;
   // note that for data the ampConfiguration is useless, but keep the
   // same structure for ease of coding -- bypass first string
   // in the code that fetches projections

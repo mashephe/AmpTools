@@ -161,8 +161,8 @@ AmpToolsInterface::resetConfigurationInfo(ConfigurationInfo* configurationInfo){
       normInt = new NormIntInterface(genMCRdr, accMCRdr, *ampMan);
       m_normIntMap[reactionName] = normInt;
       if (reaction->normIntFile() == "")
-	cout << "AmpToolsInterface WARNING:  no name given to NormInt file for reaction " 
-	 << reactionName << endl;
+        cout << "AmpToolsInterface WARNING:  no name given to NormInt file for reaction " 
+        << reactionName << endl;
     }
     else if (reaction->normIntFileInput()){
       normInt = new NormIntInterface(reaction->normIntFile());

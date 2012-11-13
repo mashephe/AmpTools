@@ -401,20 +401,20 @@ ConfigFileParser::checkSyntax() const{
     if (!lineItr->comment()){
       map<string, pair<int,int> >::const_iterator mapItr = keywordParameters.find(lineItr->keyword());
       if (mapItr == keywordParameters.end()){
-	cout << "ConfigFileParser ERROR:  Undefined keyword:  " << lineItr->keyword() << endl;
-	lineItr->printLine();
-	exit(1);
+        cout << "ConfigFileParser ERROR:  Undefined keyword:  " << lineItr->keyword() << endl;
+        lineItr->printLine();
+        exit(1);
       }
       else if (((int)lineItr->arguments().size() > mapItr->second.second) ||
                ((int)lineItr->arguments().size() < mapItr->second.first)){
-	cout << "ConfigFileParser ERROR:  Keyword " << lineItr->keyword() << 
-        	" has the wrong number of arguments: " << endl;
-	lineItr->printLine();
-	exit(1);
+        cout << "ConfigFileParser ERROR:  Keyword " << lineItr->keyword() << 
+        " has the wrong number of arguments: " << endl;
+        lineItr->printLine();
+        exit(1);
       }
       else if (lineItr->keyword() == "keyword"){
         keywordParameters[lineItr->arguments()[0]] = 
-          pair<int,int>(atoi(lineItr->arguments()[1].c_str()),atoi(lineItr->arguments()[2].c_str()));
+        pair<int,int>(atoi(lineItr->arguments()[1].c_str()),atoi(lineItr->arguments()[2].c_str()));
       }
     }
   }

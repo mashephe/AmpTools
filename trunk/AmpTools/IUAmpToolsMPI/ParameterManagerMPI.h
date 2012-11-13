@@ -50,26 +50,26 @@ using namespace std;
 
 class ParameterManagerMPI : public ParameterManager
 {
-
- public:
-
+  
+public:
+  
   enum { kMaxNameLength = 200 };
-
+  
   // since there is only one MinuitMinimizationManager we must add
   // an additional constructor for the worker nodes
-
+  
   // this constructor is called on the head node
   ParameterManagerMPI( MinuitMinimizationManager& minuitManager,
-		       AmplitudeManager* ampManager );
+                      AmplitudeManager* ampManager );
   ParameterManagerMPI( MinuitMinimizationManager& minuitManager,
-		       const vector< AmplitudeManager* >& ampManagers );
-
+                      const vector< AmplitudeManager* >& ampManagers );
+  
   // this constructor should be called on the worker nodes
   ParameterManagerMPI( AmplitudeManager* ampManager );
   ParameterManagerMPI( const vector< AmplitudeManager* >& ampManagers );
-
+  
   ~ParameterManagerMPI();
-
+  
   // override these functions to do the appropriate thing depending
   // on whether this instance is on the head or worker node
   void addProductionParameter( const string& ampName, bool real = false );
@@ -84,25 +84,25 @@ class ParameterManagerMPI : public ParameterManager
   // on the master (function below) will call this directly with the
   // parameter name
   void updateAmpParameter( const string& parName = "" );
-
+  
 protected:
   
   // this overrides the base class function
   void update( const string& parName );
   
 private:
-
+  
   void setupMPI();
-
+  
   vector<AmplitudeManager*> m_ampManagers;
-
+  
   int m_rank;
   int m_numProc;
   bool m_isMaster;
-
+  
   map< string, complex< double >* > m_prodParMap;
   map< string, double* > m_ampParMap;
-
+  
 };
 
 #endif

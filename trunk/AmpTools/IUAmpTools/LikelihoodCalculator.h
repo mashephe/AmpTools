@@ -64,39 +64,39 @@ class MinuitParameter;
 
 class LikelihoodCalculator : public MIFunctionContribution
 {
-
- public:
-	
+  
+public:
+  
   LikelihoodCalculator( const AmplitudeManager& ampManager,
-                        const NormIntInterface& normInt,
-                        DataReader& dataReader,
-                        const ParameterManager& parManager );
+                       const NormIntInterface& normInt,
+                       DataReader& dataReader,
+                       const ParameterManager& parManager );
   
   ~LikelihoodCalculator(){}
-	
+  
   string reactionName() const { return m_ampManager.reactionName(); }
   
   // this method delivers the likelihood
   double operator()();
-   
+  
 protected:
-	
+  
   // helper functions -- also useful for pulling parts of the
   // likelihood calculation in parallel implementations
   double dataTerm();
   double normIntTerm();
-    
+  
 private:
-			
+  
   const AmplitudeManager& m_ampManager;
   const NormIntInterface& m_normInt;
   DataReader& m_dataReader;
-
+  
   bool m_firstPass;
-
+  
   // The flat array of kinematics and amplitudes 
   AmpVecs m_ampVecs;
-		
+  
 };
 
 #endif

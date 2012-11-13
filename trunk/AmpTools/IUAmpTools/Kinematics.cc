@@ -42,30 +42,30 @@
 
 const vector< HepLorentzVector >&
 Kinematics::particleList() const {
-	
-	return m_particleList;
+  
+  return m_particleList;
 }
 
 const HepLorentzVector&
 Kinematics::particle( unsigned int index ) const {
-	
-	if( index >= m_particleList.size() ){
-		
-		cout << "ERROR:  Request for particle index " << index << 
-		", but only " << m_particleList.size() << " particles exist." << endl;
-		
-		assert( false );
-	}
-	
-	return m_particleList[index];
+  
+  if( index >= m_particleList.size() ){
+    
+    cout << "ERROR:  Request for particle index " << index << 
+    ", but only " << m_particleList.size() << " particles exist." << endl;
+    
+    assert( false );
+  }
+  
+  return m_particleList[index];
 }
 
 void
 Kinematics::setParticleList( const vector< HepLorentzVector >& particleList ){
-	
+  
   assert( particleList.size() <= kMaxParticles );
   
-	m_particleList = particleList;
+  m_particleList = particleList;
 }
 
 int Kinematics::m_globalEventID = 0;

@@ -52,9 +52,9 @@
 
 #include "GPUManager/GPUCustomTypes.h"
 
-#ifdef	GPU_ACCELERATION
+#ifdef GPU_ACCELERATION
 #include "GPUManager/GPUManager.h"
-#endif	//GPU_ACCELERATION
+#endif //GPU_ACCELERATION
 
 class Kinematics;
 class NormIntInterface;
@@ -85,7 +85,7 @@ class AmplitudeManager
 {
   
 public:
-	
+  
   /** Constructor.
    * Constructs an AmplitudeManager
    *
@@ -98,13 +98,13 @@ public:
    * \see getPermutations
    * \see addAmpPermutation
    */
-	AmplitudeManager( const vector< string >& finalState, 
-                    const string& reactionName = ""); 
-
+  AmplitudeManager( const vector< string >& finalState, 
+                   const string& reactionName = ""); 
+  
   /** Destructor.
    */
-	~AmplitudeManager();
-		
+  ~AmplitudeManager();
+  
   /*
    * These functions perform computations based on the current state
    * of the AmplitudeManager.  The helper class AmpVecs is used to
@@ -134,7 +134,7 @@ public:
    * \see calcIntegrals
    */
   void calcAmplitudes( AmpVecs& ampVecs, bool bIsFirstPass = true, 
-                       bool useMC = false ) const;
+                      bool useMC = false ) const;
   
   /**
    * This function calculates the intensity (one number) for all events and
@@ -154,8 +154,8 @@ public:
    * \see calcSumLogIntensity
    * \see calcIntegrals
    */
-	double calcIntensities( AmpVecs& ampVecs, bool bIsFirstPass = true ) const;
-
+  double calcIntensities( AmpVecs& ampVecs, bool bIsFirstPass = true ) const;
+  
   /**
    * This function calculates the intensity for one event using a Kinematics
    * object.  This is only useful for diagnostics on a small number of events.  
@@ -165,7 +165,7 @@ public:
    * \param[in] kinematics a pointer to a Kinematics object
    */
   double calcIntensity( const Kinematics* kinematics ) const;
-
+  
   /**
    * This function calculates and returns the sum of the log of the intensities
    * stored in the AmpVecs structure.  The routine will call calcIntensities
@@ -183,7 +183,7 @@ public:
    * \see calcIntensities
    * \see calcIntegrals
    */
-	double calcSumLogIntensity( AmpVecs& ampVecs, bool bIsFirstPass = true ) const;
+  double calcSumLogIntensity( AmpVecs& ampVecs, bool bIsFirstPass = true ) const;
   
   /**
    * This routine calculates a square matrix with dimension equal to the number
@@ -209,9 +209,9 @@ public:
    * \see calcIntensities
    */
   map< string, map< string, complex< double > > >
-     calcIntegrals( AmpVecs& ampVecs, int iNGenEvents, 
-                    bool bIsFirstPass = true ) const;
-
+  calcIntegrals( AmpVecs& ampVecs, int iNGenEvents, 
+                bool bIsFirstPass = true ) const;
+  
   //
   // The functions below all return information that describes the 
   // state and configuration of the AmplitudeManager.
@@ -225,7 +225,7 @@ public:
    *
    * \see ampIndex
    */
-	const vector< string >& getAmpNames() const;
+  const vector< string >& getAmpNames() const;
   
   /**
    * The function returns a reference to the parameter that is acting as the
@@ -288,7 +288,7 @@ public:
    * to the constructor of the AmplitudeManager.
    */
   string reactionName() const {return m_reactionName;}
-
+  
   /**
    * This return returns the complex production amplitude (\f$ V_i\f$) for a
    * a single amplitude.
@@ -300,9 +300,9 @@ public:
    * \see setDefaultProductionAmplitude
    * \see resetProductionAmplitudes
    */
-	complex< double > productionAmp( const string& ampName ) const;
-
-	/**
+  complex< double > productionAmp( const string& ampName ) const;
+  
+  /**
    * \overload
    *
    * \param[in] ampIndex the index of the amplitude
@@ -320,7 +320,7 @@ public:
    * \see setDefaultProductionAmplitude
    * \see resetProductionAmplitudes
    */  
-	bool hasProductionAmp( const string& ampName ) const;
+  bool hasProductionAmp( const string& ampName ) const;
   
   //
   // The functions below modify the state of the AmplitudeManager
@@ -370,10 +370,10 @@ public:
    * \see registerAmplitudeFactor
    * \see Amplitude::newAmplitude
    */  
-	void addAmpFactor( const string& ampName, const string& factorName, 
-                     const vector< string >& args, const string& sum = "",
-                     const string& scale = "1.0" );
-    
+  void addAmpFactor( const string& ampName, const string& factorName, 
+                    const vector< string >& args, const string& sum = "",
+                    const string& scale = "1.0" );
+  
   /**
    * This adds an additional permutation to any amplitude that is has not
    * already been added by the constructor.  Particles with identical names
@@ -414,8 +414,8 @@ public:
    *
    * \see addAmpFactor
    */
-	void registerAmplitudeFactor( const Amplitude& defaultAmplitude );		
-	
+  void registerAmplitudeFactor( const Amplitude& defaultAmplitude );  
+  
   /**
    * This is used to set the default production amplitude (\f$ V_i \f$) for
    * a specific amplitude.  The production amplitude is the complex number
@@ -434,9 +434,9 @@ public:
    * \see setExternalProductionAmplitude
    * \see resetProductionAmplitudes
    */
-	void setDefaultProductionAmplitude( const string& ampName,
+  void setDefaultProductionAmplitude( const string& ampName,
                                      complex< double > prodAmp );
-	
+  
   /**
    * This is used to set the memory location to which the AmplitudeManager
    * should look to find the production amplitude for a particular amplitude.
@@ -457,8 +457,8 @@ public:
    * \see setDefaultProductionAmplitude
    * \see resetProductionAmplitudes
    */
-	void setExternalProductionAmplitude( const string& ampName,
-                                       const complex< double >* prodAmpPtr );
+  void setExternalProductionAmplitude( const string& ampName,
+                                      const complex< double >* prodAmpPtr );
   
   /**
    * This tells an amplitude to use an external pointer to resolve the value
@@ -482,7 +482,7 @@ public:
    * \see Amplitude::setParPtr
    */
   void setAmpParPtr( const string& ampName, const string& parName,
-                     const double* ampParPtr );
+                    const double* ampParPtr );
   
   /**
    * This tells an amplitude to use a particular value for
@@ -505,8 +505,8 @@ public:
    * \see Amplitude::setParValue
    */
   void setAmpParValue( const string& ampName, const string& parName,
-                       double ampParValue );
-	
+                      double ampParValue );
+  
   /**
    * This loops over all amplitudes and notifies them that the parameter passed
    * in as a string has been updated.
@@ -516,15 +516,15 @@ public:
    * \see Amplitude::updatePar
    */
   void updateAmpPar( const string& parName ) const;
-    
+  
   /**
    * This resets all of the production amplitudes to their default values.
    * If production amplitudes were referenced from external pointers, this
    * external referencing is broken by this call and the amplitudes are instead
    * derived by internally stored default values.
    */
-	void resetProductionAmplitudes();
-
+  void resetProductionAmplitudes();
+  
   /**
    * This will cause amplitude manager to renormalize amplitudes <b>in
    * computations of the intensity only</b>.  Each amplitude will be
@@ -554,8 +554,8 @@ public:
    * \see disableRenormalization
    * \see ampsAreRenormalized
    */
-//  void renormalizeAmps( const NormIntInterface* normInt );
-
+  //  void renormalizeAmps( const NormIntInterface* normInt );
+  
   /**
    * This function disables renormalization of amplitudes in the
    * calculation of the intensity.
@@ -566,7 +566,7 @@ public:
    * \see renormalizeAmps
    * \see ampsAreRenormalized
    */
-//  void disableRenormalization();
+  //  void disableRenormalization();
   
   /**
    * This function checks to see whether amplitudes are renormalized
@@ -576,75 +576,75 @@ public:
    * \see disableRenormalization
    */
   bool ampsAreRenormalized() const { return m_renormalizeAmps; }
-    
+  
 private:
-	
-	// recursive routine to symmetrize final state
-	void generateSymmetricCombos( const vector< pair< int, int > >& prevSwaps,
+  
+  // recursive routine to symmetrize final state
+  void generateSymmetricCombos( const vector< pair< int, int > >& prevSwaps,
                                vector< vector< pair< int, int > > > remainingSwaps,
                                const vector< int >& defaultOrder );
   
   string m_reactionName;
   
-	// check to see if amplitudes have already been symmetrized so user can
-	// be warned if additional amplitudes are added after symmetrization is done
-	bool m_symmetrizeCalled; 
+  // check to see if amplitudes have already been symmetrized so user can
+  // be warned if additional amplitudes are added after symmetrization is done
+  bool m_symmetrizeCalled; 
   
-	// amplitude name -> vector of amplitude factors
-	map< string, vector< const Amplitude* > > m_mapNameToAmps;
-	
-	//Vector to short-cut recomputation of amps with all fixed factors
-	vector< bool > m_vbIsAmpFixed;
+  // amplitude name -> vector of amplitude factors
+  map< string, vector< const Amplitude* > > m_mapNameToAmps;
+  
+  //Vector to short-cut recomputation of amps with all fixed factors
+  vector< bool > m_vbIsAmpFixed;
   
   // amplitude name -> vector of particle permutations
   // by default this starts as m_symmCombos for each amp
   map< string, vector< vector< int > > > m_ampPermutations;
-	
-	// amplitude name -> production amplitude
-	map< string, const complex< double >* > m_prodAmp;
+  
+  // amplitude name -> production amplitude
+  map< string, const complex< double >* > m_prodAmp;
   
   // amplitude index -> production amplitude
   vector< const complex< double >* > m_prodAmpVec;
-	
-	// a vector of amplitude names -- keep also a set of amplitude indices 
+  
+  // a vector of amplitude names -- keep also a set of amplitude indices 
   // these can be useful speeding up intesity calculations by removing
   // slower map element look-ups
-	vector< string > m_ampNames;
+  vector< string > m_ampNames;
   map< string, int > m_ampIndex;
-		
+  
   // the sum that each amplitude belongs to indexed on amplitude index
   vector< string > m_ampSum;
   
   // a 2-D vector to track whether or not the two particular amplitudes interfere
   vector< vector< bool > > m_sumCoherently;
   
-	// a map to hold a set of default production amplitudes
-	map< string, complex< double > > m_defaultProdAmp;
-	
-	// this holds "default" amplitudes for all registered amplitudes
-	map< string, Amplitude* > m_registeredFactors;
-	
-	// a vector to hold all of the symmetric combinations of final
-	// state particles
-	vector< vector< int > > m_symmCombos;
-    
+  // a map to hold a set of default production amplitudes
+  map< string, complex< double > > m_defaultProdAmp;
+  
+  // this holds "default" amplitudes for all registered amplitudes
+  map< string, Amplitude* > m_registeredFactors;
+  
+  // a vector to hold all of the symmetric combinations of final
+  // state particles
+  vector< vector< int > > m_symmCombos;
+  
   // a flag to track if we are renormalizing the amplitudes
   bool m_renormalizeAmps;
   const NormIntInterface* m_normInt;
   
   vector< AmpParameter > m_ampScaleVec;
-    
+  
 #ifdef GPU_ACCELERATION
-	
+  
   void initGPU( const AmpVecs& a, bool useMC ) const;
-
+  
   // for amplitudes with floating parameters we need a GPU manager
   // to manage both the data and the accepted Monte Carlo
   
   // cheat for now -- GPUManager class still isn't quite "const correct"
-  mutable GPUManager m_dataGPUManGTX;	
+  mutable GPUManager m_dataGPUManGTX; 
   mutable GPUManager m_mcGPUManGTX;
-  	
+  
 #endif //GPU_ACCELERATION
   
 };
