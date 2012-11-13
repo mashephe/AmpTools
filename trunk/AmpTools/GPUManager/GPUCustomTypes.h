@@ -74,8 +74,13 @@
 // NOTE: 64-bit floating point math is only
 // supported on hardware with 1.3 or higher
 // compute capability
+//
+// single precision should be used with caution;
+// some intensity calculations may be sensitive to
+// cancellation in terms which is difficult to 
+// achieve numerically with single precision
 
-//#define USE_DOUBLE_PRECISION
+#define USE_DOUBLE_PRECISION
 
 #ifdef USE_DOUBLE_PRECISION  // double precision:
 
