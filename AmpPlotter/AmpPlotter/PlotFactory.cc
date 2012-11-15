@@ -194,8 +194,8 @@ PlotFactory::drawPlot( void )
     data->SetMinimum( 0 );
     data->SetTitle( m_availablePlots[m_currentPlot].c_str() );
     data->Draw( "E" );
-    if( haveAcc ) accStack->Draw( "SAME" );
     if( haveGen ) genStack->Draw( "SAME" );
+    if( haveAcc ) accStack->Draw( "SAME" );
     data->Draw( "ESAME" );
   }
   if( !data && ( haveGen || haveAcc ) ){
