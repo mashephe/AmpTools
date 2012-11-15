@@ -240,9 +240,9 @@ AmplitudeManager::calcAmplitudes( AmpVecs& a, bool bIsFirstPass, bool useMC ) co
         timersub( &(tStop), &(tStart), &tSpan );
         dTime = tSpan.tv_sec + tSpan.tv_usec/1000000.0; // 10^6 uSec per second
         
-        cout << "-> Seconds spent calculating " 
-        << pCurrAmp->name() << " for " << permItr->first << ":  "
-        << dTime << endl << flush;
+        //cout << "-> Seconds spent calculating " 
+        //<< pCurrAmp->name() << " for " << permItr->first << ":  "
+        //<< dTime << endl << flush;
       }
       
       /*
@@ -316,7 +316,7 @@ AmplitudeManager::calcAmplitudes( AmpVecs& a, bool bIsFirstPass, bool useMC ) co
     
     timersub( &(tStop), &(tIStart), &tSpan );
     dTime = tSpan.tv_sec + tSpan.tv_usec/1000000.0; // 10^6 uSec per second
-    cout << "\t-->> Seconds spent calculating all amplitudes:  " << dTime << endl;
+    //cout << "\t-->> Seconds spent calculating all amplitudes:  " << dTime << endl;
   }
   
 }
