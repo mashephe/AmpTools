@@ -125,7 +125,7 @@ public:
 
 
   /**
-   * A function to retreive the fit name.
+   * Name of the fit results file.
    */
   string fitOutputFileName() const { return m_fitName + ".fit"; }
 
