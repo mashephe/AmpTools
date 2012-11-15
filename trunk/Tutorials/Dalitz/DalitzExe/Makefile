@@ -1,9 +1,9 @@
 
 INC_DIR :=  -I.. -I$(CLHEP_INCLUDE_DIR) \
-	-I$(ROOTSYS)/include -I$(AMPTOOLS) -I$(DALITZ)
+	-I$(ROOTSYS)/include -I$(AMPTOOLS) -I$(AMPPLOTTER) -I$(DALITZ) 
 
 LIB_DIR := -L$(CLHEP_LIB_DIR) -L$(ROOTSYS)/lib \
-	-L$(AMPTOOLS)/lib -L$(DALITZ)/lib
+	-L$(AMPTOOLS)/lib -L$(AMPPLOTTER)/lib -L$(DALITZ)/lib
 
 ROOTLIBS := $(shell root-config --glibs)
 
@@ -19,20 +19,18 @@ CXX_FLAGS += -DUSEMPI
 
 endif
 
-
-
 ifdef GPU
 
 INC_DIR += -I$(CUDA_INSTALL_PATH)/include
 LIB_DIR += -L$(CUDA_INSTALL_PATH)/lib64
 
-LIBS :=  -lDalitz_GPU -lAmpTools_GPU -lCLHEP $(ROOTLIBS)  \
+LIBS :=  -lDalitz_GPU -lAmpPlotter_GPU -lAmpTools_GPU -lCLHEP $(ROOTLIBS)  \
 	-lcuda -lcudart -lstdc++
 CXX_FLAGS += -DGPU_ACCELERATION
 
 else
 
-LIBS :=  -lDalitz -lAmpTools -lCLHEP $(ROOTLIBS)  \
+LIBS :=  -lDalitz -lAmpPlotter -lAmpTools -lCLHEP $(ROOTLIBS)  \
 	-lstdc++
 
 endif
