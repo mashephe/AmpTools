@@ -224,7 +224,7 @@ AmplitudeManager::calcAmplitudes( AmpVecs& a, bool bIsFirstPass, bool useMC ) co
       
       if( bIsFirstPass ) gettimeofday( &(tStart), NULL );
       
-#ifndefGPU_ACCELERATION
+#ifndef GPU_ACCELERATION
       pCurrAmp->
       calcAmplitudeAll( a.m_pdData, 
                        a.m_pdAmpFactors + iAmpFactOffset + iLocalOffset,
