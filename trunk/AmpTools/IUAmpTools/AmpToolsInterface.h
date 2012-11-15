@@ -278,6 +278,17 @@ class AmpToolsInterface{
                     unsigned int iDataSet = 0);
 
 
+  /** The number of events that have been loaded for manual calculations.
+   *
+   *  \see clearEvents
+   *  \see loadEvent
+   *  \see loadEvents
+   *  \see processEvents
+   */
+
+    int numEvents(unsigned int iDataSet = 0);
+
+
   /** Retrieve the intensity calculated for the specified event.
    *  This requires a prior call to processEvents.
    *
