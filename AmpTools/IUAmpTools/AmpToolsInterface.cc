@@ -420,13 +420,15 @@ AmpToolsInterface::processEvents(string reactionName,
     exit(1);
   }
 
+  bool isFirstPass = (m_ampVecs[iDataSet].m_pdAmps == 0);
+
   m_ampVecsReactionName[iDataSet] = reactionName;
 
   AmplitudeManager* ampMan = amplitudeManager(reactionName);
 
-  m_ampVecs[iDataSet].allocateAmps(*ampMan,true);
+  if (isFirstPass) m_ampVecs[iDataSet].allocateAmps(*ampMan,true);
 
-  return ampMan->calcIntensities(m_ampVecs[iDataSet]);
+  return ampMan->calcIntensities(m_ampVecs[iDataSet], isFirstPass);
 
 }
 
