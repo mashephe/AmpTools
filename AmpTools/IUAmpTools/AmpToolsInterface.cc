@@ -58,8 +58,6 @@ AmpToolsInterface::AmpToolsInterface(ConfigurationInfo* configurationInfo):
     m_parameterManager(NULL),
     m_fitResults(NULL){
 
-  m_ampVecsReactionName = "";
-
   resetConfigurationInfo(configurationInfo);
 
 }
@@ -191,7 +189,10 @@ AmpToolsInterface::resetConfigurationInfo(ConfigurationInfo* configurationInfo){
 
   }
   
-  // finally make an object to record teh fit results
+    // ************************
+    // create FitResults
+    // ************************
+
   m_fitResults = new FitResults( m_configurationInfo,
                                  m_amplitudeManagers,
                                  m_likCalcMap,
@@ -354,7 +355,10 @@ AmpToolsInterface::clear(){
   m_normIntMap.clear();
   m_likCalcMap.clear();
 
-  m_ampVecs.deallocAmpVecs();
+  for (unsigned int i = 0; i < MAXAMPVECS; i++){
+    m_ampVecs[i].deallocAmpVecs();
+    m_ampVecsReactionName[i] = "";
+  }
 
   if (minuitMinimizationManager()) delete minuitMinimizationManager();
   if (parameterManager()) delete parameterManager();
@@ -364,74 +368,121 @@ AmpToolsInterface::clear(){
 
 
 void
-AmpToolsInterface::clearEvents(){
+AmpToolsInterface::clearEvents(unsigned int iDataSet){
 
-  m_ampVecsReactionName = "";
+  if (iDataSet >= MAXAMPVECS){
+    cout << "AmpToolsInterface:  ERROR data set index out of range" << endl;
+    exit(1);
+  }
 
-  m_ampVecs.deallocAmpVecs();
-
-}
-
-
-void
-AmpToolsInterface::loadEvents(DataReader* dataReader){
-
-  clearEvents();
-  m_ampVecs.loadData(dataReader);
+  m_ampVecsReactionName[iDataSet] = "";
+  m_ampVecs[iDataSet].deallocAmpVecs();
 
 }
 
 
 void
-AmpToolsInterface::loadEvent(Kinematics* kin, int iEvent, int nEventsTotal){
+AmpToolsInterface::loadEvents(DataReader* dataReader, 
+                              unsigned int iDataSet){
 
-  m_ampVecs.loadEvent(kin, iEvent, nEventsTotal);
+  if (iDataSet >= MAXAMPVECS){
+    cout << "AmpToolsInterface:  ERROR data set index out of range" << endl;
+    exit(1);
+  }
 
-}
-
-double
-AmpToolsInterface::processEvents(string reactionName){
-
-  m_ampVecsReactionName = reactionName;
-
-  AmplitudeManager* ampMan = amplitudeManager(m_ampVecsReactionName);
-
-  m_ampVecs.allocateAmps(*ampMan,true);
-
-  return ampMan->calcIntensities(m_ampVecs);
+  clearEvents(iDataSet);
+  m_ampVecs[iDataSet].loadData(dataReader);
 
 }
 
 
+void
+AmpToolsInterface::loadEvent(Kinematics* kin, int iEvent, int nEventsTotal,
+                              unsigned int iDataSet){
+
+  if (iDataSet >= MAXAMPVECS){
+    cout << "AmpToolsInterface:  ERROR data set index out of range" << endl;
+    exit(1);
+  }
+
+  m_ampVecs[iDataSet].loadEvent(kin, iEvent, nEventsTotal);
+
+}
+
 
 double
-AmpToolsInterface::intensity(int iEvent){
+AmpToolsInterface::processEvents(string reactionName,
+                              unsigned int iDataSet){
 
-  if (iEvent >= m_ampVecs.m_iNTrueEvents || iEvent < 0){
+  if (iDataSet >= MAXAMPVECS){
+    cout << "AmpToolsInterface:  ERROR data set index out of range" << endl;
+    exit(1);
+  }
+
+  m_ampVecsReactionName[iDataSet] = reactionName;
+
+  AmplitudeManager* ampMan = amplitudeManager(reactionName);
+
+  m_ampVecs[iDataSet].allocateAmps(*ampMan,true);
+
+  return ampMan->calcIntensities(m_ampVecs[iDataSet]);
+
+}
+
+Kinematics*
+AmpToolsInterface::kinematics(int iEvent,
+                    unsigned int iDataSet){
+
+  if (iDataSet >= MAXAMPVECS){
+    cout << "AmpToolsInterface:  ERROR data set index out of range" << endl;
+    exit(1);
+  }
+
+  return m_ampVecs[iDataSet].getEvent(iEvent);
+
+}
+
+
+double
+AmpToolsInterface::intensity(int iEvent,
+                              unsigned int iDataSet){
+
+  if (iDataSet >= MAXAMPVECS){
+    cout << "AmpToolsInterface:  ERROR data set index out of range" << endl;
+    exit(1);
+  }
+
+  if (iEvent >= m_ampVecs[iDataSet].m_iNTrueEvents || iEvent < 0){
     cout << "AmpToolsInterface ERROR:  out of bounds in intensity call" << endl;
     exit(1);
   }
 
-  return m_ampVecs.m_pdIntensity[iEvent];
+  return m_ampVecs[iDataSet].m_pdIntensity[iEvent];
 
 }
 
 
 complex<double>
-AmpToolsInterface::decayAmplitude (int iEvent, string ampName){
+AmpToolsInterface::decayAmplitude (int iEvent, string ampName,
+                              unsigned int iDataSet){
 
-  if (iEvent >= m_ampVecs.m_iNTrueEvents || iEvent < 0){
+  if (iDataSet >= MAXAMPVECS){
+    cout << "AmpToolsInterface:  ERROR data set index out of range" << endl;
+    exit(1);
+  }
+
+  if (iEvent >= m_ampVecs[iDataSet].m_iNTrueEvents || iEvent < 0){
     cout << "AmpToolsInterface ERROR:  out of bounds in decayAmplitude call" << endl;
     exit(1);
   }
 
-  AmplitudeManager* ampMan = amplitudeManager(m_ampVecsReactionName);
+  AmplitudeManager* ampMan = amplitudeManager(m_ampVecsReactionName[iDataSet]);
 
   int iAmp = ampMan->ampIndex(ampName);
 
   return complex<double>
-            (m_ampVecs.m_pdAmps[2*m_ampVecs.m_iNEvents*iAmp+2*iEvent],
-             m_ampVecs.m_pdAmps[2*m_ampVecs.m_iNEvents*iAmp+2*iEvent+1]);
+            (m_ampVecs[iDataSet].m_pdAmps[2*m_ampVecs[iDataSet].m_iNEvents*iAmp+2*iEvent],
+             m_ampVecs[iDataSet].m_pdAmps[2*m_ampVecs[iDataSet].m_iNEvents*iAmp+2*iEvent+1]);
 
 }
 
@@ -444,24 +495,32 @@ AmpToolsInterface::productionAmplitude (string ampName){
 
 
 double
-AmpToolsInterface::alternateIntensity(int iEvent){
+AmpToolsInterface::alternateIntensity(int iEvent,
+                              unsigned int iDataSet){
+
+  if (iDataSet >= MAXAMPVECS){
+    cout << "AmpToolsInterface:  ERROR data set index out of range" << endl;
+    exit(1);
+  }
+
 
   double runningIntensity = 0.0;
 
     // loop over sums
 
-  vector<CoherentSumInfo*> sums = m_configurationInfo->coherentSumList(m_ampVecsReactionName);
+  vector<CoherentSumInfo*> sums = m_configurationInfo->coherentSumList(m_ampVecsReactionName[iDataSet]);
   for (unsigned int iSum = 0; iSum < sums.size(); iSum++){
 
     complex<double> runningAmplitude(0.0,0.0);
 
     // loop over amps
 
-    vector<AmplitudeInfo*> amps = m_configurationInfo->amplitudeList(m_ampVecsReactionName,sums[iSum]->sumName());
+    vector<AmplitudeInfo*> amps =
+      m_configurationInfo->amplitudeList(m_ampVecsReactionName[iDataSet],sums[iSum]->sumName());
     for (unsigned int iAmp = 0; iAmp < amps.size(); iAmp++){
 
       complex<double> P = productionAmplitude(amps[iAmp]->fullName());
-      complex<double> D = decayAmplitude(iEvent,amps[iAmp]->fullName());
+      complex<double> D = decayAmplitude(iEvent,amps[iAmp]->fullName(),iDataSet);
 
       runningAmplitude += P*D;
 
@@ -491,6 +550,7 @@ AmpToolsInterface::printKinematics(string reactionName, Kinematics* kin){
 
   cout << "  +++++++++++++++++++++++++++++++++" << endl;
   cout << "    EVENT KINEMATICS " << endl;
+  streamsize defaultStreamSize = cout.precision(15);
   for (unsigned int imom = 0; imom < momenta.size(); imom++){
     cout << "      particle " << reaction->particleList()[imom] << endl;
     cout << "          E  = " << momenta[imom].e() << endl;
@@ -498,6 +558,7 @@ AmpToolsInterface::printKinematics(string reactionName, Kinematics* kin){
     cout << "          Py = " << momenta[imom].py() << endl;
     cout << "          Pz = " << momenta[imom].pz() << endl;
   }
+  cout.precision(defaultStreamSize);
   cout << "  +++++++++++++++++++++++++++++++++" << endl << endl;
 
 }

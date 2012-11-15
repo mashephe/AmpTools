@@ -185,7 +185,7 @@ class AmpToolsInterface{
    * Use this to access information that is stored after finalizeFit() is called.
    */
   
-  const FitResults* fitResults() const { return m_fitResults; }
+    const FitResults* fitResults() const { return m_fitResults; }
   
 
   /** Pointer to a Likelihood calculator (one per reaction).
@@ -224,22 +224,27 @@ class AmpToolsInterface{
    *  Call this before loading events from a new reaction or to start
    *  new calcuations.
    *
+   * \param[in] iDataSet used to index simultaneous manual calculations
+   *
    *  \see loadEvent
    *  \see loadEvents
    *  \see processEvents
    */
 
-    void clearEvents();
+    void clearEvents(unsigned int iDataSet = 0);
 
   /** For manual calculations:  load event kinematics from a DataReader.
    *  Call this after clearing old events (clearEvents) and before
    *  performing calculations (processEvents).
    *
+   * \param[in] iDataSet used to index simultaneous manual calculations
+   *
    *  \see clearEvents
    *  \see processEvents
    */
 
-    void loadEvents(DataReader* dataReader);
+    void loadEvents(DataReader* dataReader,
+                    unsigned int iDataSet = 0);
 
   /** For manual calculations:  load kinematics one event at a time.
    *  Clear old events (clearEvents) before loading a new set of events.
@@ -248,25 +253,29 @@ class AmpToolsInterface{
    * \param[in] kin the kinematics to be loaded
    * \param[in] iEvent the number of this event (between 0 and nEventsTotal-1)
    * \param[in] nEventsTotal the total number of events to be loaded
+   * \param[in] iDataSet used to index simultaneous manual calculations
    *
    *  \see clearEvents
    *  \see processEvents
    */
 
-    void loadEvent(Kinematics* kin, int iEvent = 0, int nEventsTotal = 1);
+    void loadEvent(Kinematics* kin, int iEvent = 0, int nEventsTotal = 1,
+                    unsigned int iDataSet = 0);
 
   /** For manual calculations:  perform all calculations on the loaded events.
    *  Load all events (loadEvent or loadEvents) before performing calculations.
    *  Returns the maximum intensity.
    *
    * \param[in] reactionName the name of the reaction that will be calculated
+   * \param[in] iDataSet used to index simultaneous manual calculations
    *
    *  \see clearEvents
    *  \see loadEvent
    *  \see loadEvents
    */
 
-    double processEvents(string reactionName);
+    double processEvents(string reactionName,
+                    unsigned int iDataSet = 0);
 
 
   /** Retrieve the intensity calculated for the specified event.
@@ -278,7 +287,9 @@ class AmpToolsInterface{
    *  \see processEvents
    */
 
-    double intensity(int iEvent);
+    double intensity(int iEvent,
+                    unsigned int iDataSet = 0);
+
 
   /** Perform an alternate calculation of the intensity.  If there are no 
    *  precision problems, this should be identical to the value returned
@@ -291,7 +302,8 @@ class AmpToolsInterface{
    *  \see processEvents
    */
 
-    double alternateIntensity(int iEvent);
+    double alternateIntensity(int iEvent,
+                    unsigned int iDataSet = 0);
 
 
   /** Retrieve a decay amplitude calculated for the specified event.
@@ -306,7 +318,8 @@ class AmpToolsInterface{
    *  \see processEvents
    */
 
-    complex<double> decayAmplitude (int iEvent, string ampName);
+    complex<double> decayAmplitude (int iEvent, string ampName,
+                    unsigned int iDataSet = 0);
 
 
   /** Retrieve the production amplitude associated with a given amplitude.
@@ -329,7 +342,8 @@ class AmpToolsInterface{
    *  \see processEvents
    */
 
-    Kinematics* kinematics(int iEvent) {return m_ampVecs.getEvent(iEvent);}
+    Kinematics* kinematics(int iEvent,
+                    unsigned int iDataSet = 0);
 
 
   /** For debugging and diagnostics:  print event kinematics to the screen in 
@@ -379,8 +393,9 @@ class AmpToolsInterface{
     static vector<Amplitude*>  m_userAmplitudes;
     static vector<DataReader*> m_userDataReaders;
 
-    AmpVecs m_ampVecs;
-    string m_ampVecsReactionName;
+    static const int MAXAMPVECS = 50;
+    AmpVecs m_ampVecs[MAXAMPVECS];
+    string  m_ampVecsReactionName[MAXAMPVECS];
    
     FitResults* m_fitResults;
 
