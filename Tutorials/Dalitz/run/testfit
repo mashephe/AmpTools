@@ -1,7 +1,7 @@
       echo
       echo --------------------------------
       echo
-      echo COMPLILE AMPTOOLS
+      echo COMPILE AMPTOOLS
       echo
       echo --------------------------------
       echo
@@ -11,11 +11,26 @@ cd $AMPTOOLS
 make clean
 make
 
+
+      echo
+      echo --------------------------------
+      echo
+      echo COMPILE AMPPLOTTER
+      echo
+      echo --------------------------------
+      echo
+      sleep 3
+
+cd $AMPPLOTTER
+make clean
+make
+
+
       sleep 1
       echo
       echo --------------------------------
       echo
-      echo COMPLILE DALITZ
+      echo COMPILE DALITZ
       echo
       echo --------------------------------
       echo
@@ -30,7 +45,7 @@ make
       echo
       echo --------------------------------
       echo
-      echo COMPLILE DALITZEXE
+      echo COMPILE DALITZEXE
       echo
       echo --------------------------------
       echo
@@ -82,7 +97,6 @@ $DALITZ/DalitzExe/plotData phasespace.gen.root plots.phasespace.gen.root
 
 cd $DALITZ/run
 root -l plots.phasespace.gen.root plotData.C
-
 
 
       sleep 1
@@ -214,7 +228,6 @@ cd $DALITZ/run
 root -l plots.physics.acc.root plotData.C
 
 
-
       sleep 1
       echo
       echo --------------------------------
@@ -255,6 +268,20 @@ $DALITZ/DalitzExe/plotResults dalitz1.cfg dalitz1.fit dalitz1.root
 
 cd $DALITZ/run
 root -l plots.physics.acc.root dalitz1.root plotResult.C
+
+
+      sleep 1
+      echo
+      echo --------------------------------
+      echo
+      echo VIEW FIT RESULTS IN THE AMPPLOTTER GUI
+      echo
+      echo --------------------------------
+      echo
+      sleep 3
+
+cd $DALITZ/run
+$DALITZ/DalitzExe/ampPlotter dalitz1.cfg
 
 
 

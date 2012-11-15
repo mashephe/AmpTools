@@ -19,52 +19,59 @@
 
 typedef DalitzPlotGenerator PlotGen;
 
-//#define NOMPI
-
 using namespace std;
 
-void printUsage( char* exe ){
+int main( int argc, char* argv[] ){
 
-  cout << endl << " Usage for: " << exe << endl << endl;
-  cout << "\t -c \t Config file" << endl << endl;
-}
 
-int main( int argc, char* argv[] ){    
-    
-  string cfgFile( "" );
- 
- // parse command line
-  
-  if( argc == 1 ){
+    // ************************
+    // usage
+    // ************************
 
-    printUsage( argv[0] );
-    exit( 1 );
+  cout << endl << " *** Viewing Results Using AmpPlotter *** " << endl << endl;
+
+  if (argc <= 1){
+    cout << "Usage:" << endl << endl;
+    cout << "\tampPlotter <config file name>" << endl << endl;
+    return 0;
   }
 
-  for (int i = 1; i < argc; i++){
-    
-    string arg(argv[i]);
-    
-    if (arg == "-c"){  
-      if ((i+1 == argc) || (argv[i+1][0] == '-')) arg = "-h";
-    else  cfgFile = argv[++i]; }
-    if( (arg == "-h") ){
-      printUsage( argv[0] );
-      exit(1);
-    }
-  }
-  
-  ConfigFileParser parser( cfgFile );
-  const ConfigurationInfo* cfgInfo = parser.getConfigurationInfo();  
 
-  string parFile( cfgInfo->fitName() );
-  parFile += ".fit";
+    // ************************
+    // parse the command line parameters
+    // ************************
+
+  string cfgname(argv[1]);
+
+  cout << "Config file name    = " << cfgname << endl;
+
+
+    // ************************
+    // parse the config file
+    // ************************
+
+  ConfigFileParser parser(cfgname);
+  ConfigurationInfo* cfgInfo = parser.getConfigurationInfo();
+  cfgInfo->display();
+
+  string parFile( cfgInfo->fitOutputFileName() );
+
+
+    // ************************
+    // set up the plot generator
+    // ************************
+
   
-  cout << ">> Using fit output: " << parFile << endl;
+  cout << "Setting up the plot generator with fit output: " << parFile << endl;
 
   PlotGen plotGen( cfgInfo, parFile );
   
-  cout << ">> Plot generator ready, starting GUI.." << endl;
+
+    // ************************
+    // start the GUI
+    // ************************
+
+  cout << ">> Plot generator ready, starting GUI..." << endl;
 
   int dummy_argc = 0;
   char* dummy_argv[] = {};  
@@ -84,5 +91,6 @@ int main( int argc, char* argv[] ){
   app.Run();
     
   return 0;
+
 }
 
