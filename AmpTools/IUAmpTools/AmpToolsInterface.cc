@@ -233,7 +233,7 @@ AmpToolsInterface::finalizeFit(){
     // save fit parameters
     // ************************
   
-  string outputFile(m_configurationInfo->fitName());  outputFile += ".fit";
+  string outputFile(m_configurationInfo->fitOutputFileName());
   ofstream outFile(outputFile.c_str());
   parameterManager()->writeParameters( outFile );
 
@@ -244,6 +244,7 @@ AmpToolsInterface::finalizeFit(){
   
   m_fitResults->saveResults();
   m_fitResults->writeResults( outputFile );
+
 
     // ************************
     // save normalization integrals
