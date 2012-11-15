@@ -5,7 +5,7 @@ SRCFILES	:= $(wildcard *.cc)
 default: $(LIB)
 
 %.a: $(SRCFILES:.cc=.o) $(CUDAFILES:.cu=.o)
-	ar -rv $@ $^
+	ar -rsv $@ $^ && ranlib $@
 
 %.o : %.cc
 	$(CXX) $(CXX_FLAGS) -M -o $*.d $< $(INC_DIR) ; \
