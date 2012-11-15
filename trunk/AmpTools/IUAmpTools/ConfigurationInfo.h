@@ -123,6 +123,13 @@ public:
    */
   string fitName() const { return m_fitName; }
 
+
+  /**
+   * A function to retreive the fit name.
+   */
+  string fitOutputFileName() const { return m_fitName + ".fit"; }
+
+
   /**
    * A list of user-defined keywords.
    *
