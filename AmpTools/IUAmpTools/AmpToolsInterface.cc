@@ -430,6 +430,20 @@ AmpToolsInterface::processEvents(string reactionName,
 
 }
 
+
+int
+AmpToolsInterface::numEvents(unsigned int iDataSet){
+
+  if (iDataSet >= MAXAMPVECS){
+    cout << "AmpToolsInterface:  ERROR data set index out of range" << endl;
+    exit(1);
+  }
+
+  return m_ampVecs[iDataSet].m_iNTrueEvents;
+
+}
+
+
 Kinematics*
 AmpToolsInterface::kinematics(int iEvent,
                     unsigned int iDataSet){
