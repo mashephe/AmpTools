@@ -7,16 +7,10 @@
 #include <utility>
 #include <map>
 #include "TFile.h"
-#include "MinuitInterface/MinuitMinimizationManager.h"
-#include "IUAmpTools/AmplitudeManager.h"
+#include "IUAmpTools/AmpToolsInterface.h"
 #include "IUAmpTools/Kinematics.h"
-#include "IUAmpTools/NormIntInterface.h"
 #include "IUAmpTools/ConfigFileParser.h"
 #include "IUAmpTools/ConfigurationInfo.h"
-#include "IUAmpTools/ParameterManager.h"
-#include "IUAmpTools/LikelihoodCalculator.h"
-#include "IUAmpTools/PlotGenerator.h"
-#include "IUAmpTools/Histogram.h"
 #include "DalitzDataIO/DalitzDataReader.h"
 #include "DalitzAmp/BreitWigner.h"
 #include "DalitzPlot/DalitzPlotGenerator.h"
@@ -77,7 +71,12 @@ int main( int argc, char* argv[] ){
     // set up a PlotGenerator and make plots
     // ************************
 
-  DalitzPlotGenerator plotGenerator(cfgInfo,parname);
+  AmpToolsInterface::registerDataReader( DalitzDataReader() );
+  AmpToolsInterface::registerAmplitude( BreitWigner() );
+
+  AmpToolsInterface ati( cfgInfo );
+  
+  DalitzPlotGenerator plotGenerator( ati );
   plotGenerator.enableReaction(reaction->reactionName());
   vector<string> amps = plotGenerator.uniqueAmplitudes();
 
@@ -103,13 +102,13 @@ int main( int argc, char* argv[] ){
 
     // loop over data, accMC, and genMC
 
-  for (unsigned int iplot = 0; iplot < 3; iplot++){
+  for (unsigned int iplot = 0; iplot < PlotGenerator::kNumTypes; iplot++){
     if (iamp < amps.size() && iplot == 0) continue;
 
 
     // loop over different variables
 
-  for (unsigned int ivar  = 0; ivar  < 3; ivar++){
+  for (unsigned int ivar  = 0; ivar  < DalitzPlotGenerator::kNumHists; ivar++){
 
              string histname =  "h";
     if (ivar == 0)  histname += "m12";
@@ -123,16 +122,8 @@ int main( int argc, char* argv[] ){
       histname += sdig.str();
     }
 
-    PlotGenerator::PlotType kplot = PlotGenerator::kData;
-            if (iplot == 1) kplot = PlotGenerator::kAccMC;
-            if (iplot == 2) kplot = PlotGenerator::kGenMC;
-
-    DalitzPlotGenerator::HistIndex kvar = DalitzPlotGenerator::khm12; 
-                    if (ivar == 1) kvar = DalitzPlotGenerator::khm13;
-                    if (ivar == 2) kvar = DalitzPlotGenerator::khm23;
-
-    Histogram hist = plotGenerator.projection(kvar,
-                         reaction->reactionName(), kplot);
+    Histogram hist = plotGenerator.projection(ivar,
+                         reaction->reactionName(), iplot);
 
             string xtitle = "Mass(P_{1}P_{2}) (GeV/c^{2})";
     if (ivar == 1) xtitle = "Mass(P_{1}P_{3}) (GeV/c^{2})";
