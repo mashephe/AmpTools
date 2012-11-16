@@ -47,6 +47,8 @@
 #include "IUAmpTools/AmplitudeManager.h"
 #include "IUAmpTools/ConfigurationInfo.h"
 
+class AmpToolsInterface;
+
 using namespace std;
 
 class PlotGenerator
@@ -54,10 +56,9 @@ class PlotGenerator
   
 public:
   
-  enum PlotType { kData = 0, kAccMC, kGenMC, kNumPlotTypes };
+  enum { kData = 0, kGenMC, kAccMC, kNumTypes };
   
-  PlotGenerator( const ConfigurationInfo* cfgInfo, 
-                const string& parFile );
+  PlotGenerator( AmpToolsInterface& ati );
   
   virtual ~PlotGenerator();
   
@@ -78,8 +79,7 @@ public:
   
   const ConfigurationInfo* cfgInfo() const { return m_cfgInfo; }
   
-  // this method overridden by dervied class
-  virtual const vector< string >& availablePlots() const = 0;
+  const vector< string >& availablePlots() const { return m_histTitles; }
   
   // the list with reactions and sums
   const vector< string >& fullAmplitudes()  const { return m_fullAmplitudes;  }
@@ -88,11 +88,11 @@ public:
   // the list of unique sums
   const vector< string >& uniqueSums() const { return m_uniqueSums; }
   
-  // the modes themselves
+  // the reactions themselves
   vector< string > reactions() const;
   
   const Histogram& projection( unsigned int projectionIndex, string fsName,
-                              PlotType type );
+                               unsigned int type );
   
   void disableReaction( const string& fsName );
   void enableReaction( const string& fsName );
@@ -109,21 +109,20 @@ public:
   
 protected:
   
+  void bookHistogram( int index, const string& title, const Histogram& hist );
+  void fillHistogram( int index, double value );
+  
   unsigned int getAmpIndex( const string& ampName ) const;
   unsigned int getErrorMatrixIndex( const string& ampName ) const;
   
-  const AmplitudeManager& ampManager( const string& fsName );
-  const NormIntInterface& normIntInterface( const string& fsName );
-  
-  // this needs to be called by the derived class so that the 
-  // base class can setup amp managers and norm ints
-  void initialize();
-  
 private:
+ 
+  // these functions should be overridden by the derived class
+  // that is written by the user
+  virtual void projectEvent( Kinematics* kin ) = 0;
   
-  // this should be overridden by derived class
-  virtual vector< Histogram > fillProjections( const string& fsName, PlotType type ) = 0;
-  virtual void registerPhysics( AmplitudeManager* ampManager ) = 0;
+  void clearHistograms();
+  void fillProjections( const string& reactName, unsigned int type );
   
   void recordConfiguration();
   void buildUniqueAmplitudes();
@@ -131,8 +130,9 @@ private:
   double phase( const complex< double >& num ) const;
   
   vector< string >
-  stringSplit(const string& str, const string& delimiters = " ") const;
+     stringSplit(const string& str, const string& delimiters = " ") const;
   
+  AmpToolsInterface& m_ati;
   const ConfigurationInfo* m_cfgInfo;
   
   map< string, NormIntInterface* > m_normIntMap;
@@ -163,11 +163,14 @@ private:
   // index of production parameter for a particular (full) amplitude
   map< string, unsigned int > m_ampIndex;
   
+  // index of a particular reaction
+  map< string, unsigned int > m_reactIndex;
+  
   // keep track of which amplitudes and final states are enabled
   map< string, bool > m_ampEnabled;
   map< string, bool > m_sumEnabled;
   map< string, bool > m_reactEnabled;
-  
+    
   // a map from ampConfiguration -> final state -> histogram cache
   mutable map< string, map< string, vector< Histogram > > > m_accMCHistCache;
   mutable map< string, map< string, vector< Histogram > > > m_genMCHistCache;
@@ -175,6 +178,10 @@ private:
   // same structure for ease of coding -- bypass first string
   // in the code that fetches projections
   mutable map< string, map< string, vector< Histogram > > > m_dataHistCache;
+  
+  vector< string > m_histTitles;
+  mutable vector< Histogram > m_histVect;
+  mutable double m_currentEventWeight;
   
   string m_currentConfiguration;
   Histogram m_emptyHist;

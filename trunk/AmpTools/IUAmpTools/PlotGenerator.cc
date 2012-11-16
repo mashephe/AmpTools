@@ -45,14 +45,19 @@
 #include "IUAmpTools/PlotGenerator.h"
 #include "IUAmpTools/AmplitudeManager.h"
 #include "IUAmpTools/NormIntInterface.h"
+#include "IUAmpTools/AmpToolsInterface.h"
 
-PlotGenerator::PlotGenerator( const ConfigurationInfo* cfgInfo,
-                             const string& parFile ) :
-m_cfgInfo( cfgInfo ),
+PlotGenerator::PlotGenerator( AmpToolsInterface& ati ) :
+m_ati( ati ),
+m_cfgInfo( ati.configurationInfo() ),
 m_fullAmplitudes( 0 ),
 m_uniqueAmplitudes( 0 ),
+m_histVect( 0 ),
+m_histTitles( 0 ),
 m_emptyHist()
 {
+
+  string parFile = m_cfgInfo->fitOutputFileName();
   
   ifstream inPar( parFile.c_str() );
   
@@ -174,63 +179,29 @@ m_emptyHist()
     }  
   }
   
-}
-
-PlotGenerator::~PlotGenerator(){
-  
-  for (map<string, NormIntInterface*>::iterator 
-       mapItr = m_normIntMap.begin();
-       mapItr != m_normIntMap.end(); ++mapItr){ 
-    
-    if (mapItr->second) delete mapItr->second;
-  }
-  
-  for( map< string, AmplitudeManager* >::iterator
-      mapItr = m_ampManagerMap.begin();
-      mapItr != m_ampManagerMap.end();
-      ++mapItr ){
-    
-    if (mapItr->second) delete mapItr->second;
-  }        
-}
-
-void
-PlotGenerator::initialize() {
-  
-  // build the normalization integrals and amplitude managers
-  // for each of the final states
-  // this will be useful for generating fit projections
-  
   vector<ReactionInfo*> rctInfoVector = m_cfgInfo->reactionList();
   
   for( unsigned int i = 0; i < rctInfoVector.size(); i++ ){
     
     const ReactionInfo* rctInfo = rctInfoVector[i];
+    string reactName = rctInfo->reactionName();
     
-    m_normIntMap[rctInfo->reactionName()] = new NormIntInterface( rctInfo->normIntFile() );
-    
-    vector< string > fsParticles = rctInfo->particleList();
-    vector< string > ampNames;
-    vector<AmplitudeInfo*> ampInfoVector = m_cfgInfo->amplitudeList(rctInfo->reactionName());
-    for (unsigned int j = 0; j < ampInfoVector.size(); j++){
-      ampNames.push_back(ampInfoVector[j]->fullName());
-    }
-    
-    // create a amplitude manager for this final state
-    AmplitudeManager* ampManager = new AmplitudeManager( fsParticles, rctInfo->reactionName() );
-    
-    // and hang onto it
-    m_ampManagerMap[rctInfo->reactionName()] = ampManager;
+    m_reactIndex[reactName] = i;
     
     // enable the reaction by default
     m_reactEnabled[rctInfo->reactionName()] = true;
     
-    // ask derived class plotters to register their 
-    // amplitudes and contractions
-    registerPhysics( ampManager );
+    // keep a pointer to the NormalizationIntegralInterface
+    m_normIntMap[reactName] = m_ati.normIntInterface( reactName );
     
-    // now put in specific amplitudes
-    ampManager->setupFromConfigurationInfo(m_cfgInfo);
+    // keep a pointer to the AmplitudeManager
+    m_ampManagerMap[reactName] = m_ati.amplitudeManager( reactName );
+    
+    vector< string > ampNames;
+    vector<AmplitudeInfo*> ampInfoVector = m_cfgInfo->amplitudeList( reactName );
+    for (unsigned int j = 0; j < ampInfoVector.size(); j++){
+      ampNames.push_back(ampInfoVector[j]->fullName());
+    }
     
     // tell the amplitude manager to look at member data of this class for
     // the production amplitudes
@@ -250,23 +221,33 @@ PlotGenerator::initialize() {
       }
       
       complex< double >* prodPtr = &(m_prodAmps[m_ampIndex[*ampName]]);
-      ampManager->setExternalProductionAmplitude( *ampName, prodPtr );
+      m_ampManagerMap[reactName]->setExternalProductionAmplitude( *ampName, prodPtr );
       
       for( map< string, double >::const_iterator mapItr = m_ampParameters.begin();
           mapItr != m_ampParameters.end();
           ++mapItr ){
         
-        ampManager->setAmpParValue( *ampName, mapItr->first, mapItr->second );
+        m_ampManagerMap[reactName]->setAmpParValue( *ampName, mapItr->first, mapItr->second );
       }
     }
+    
+    // now load up the data and MC for that reaction
+    m_ati.loadEvents( m_ati.dataReader( reactName ), i * kNumTypes + kData );
+    m_ati.loadEvents( m_ati.accMCReader( reactName ), i * kNumTypes + kAccMC );
+    m_ati.loadEvents( m_ati.genMCReader( reactName ), i * kNumTypes + kGenMC );
+
+    // calculate the amplitudes and intensities for the accepted and generated MC
+    m_ati.processEvents( reactName, i * kNumTypes + kAccMC );
+    m_ati.processEvents( reactName, i * kNumTypes + kGenMC );
   }
   
   // buildUniqueAmplitudes will also create an initalize the maps that store
   // the enable/disable status of the amplitudes and sums
-  buildUniqueAmplitudes();
-  
+  buildUniqueAmplitudes();  
   recordConfiguration();
 }
+
+PlotGenerator::~PlotGenerator(){}
 
 pair< double, double >
 PlotGenerator::intensity( bool accCorrected ) const {
@@ -445,7 +426,7 @@ PlotGenerator::phase( const complex< double >& num ) const {
 
 const Histogram& 
 PlotGenerator::projection( unsigned int projectionIndex, string reactName,
-                          PlotType type ) {
+                           unsigned int type ) {
   
   // return an empty histogram if final state is not enabled
   if( !m_reactEnabled[reactName] ) return m_emptyHist;
@@ -483,12 +464,18 @@ PlotGenerator::projection( unsigned int projectionIndex, string reactName,
   
   // short circuit here so second condition doesn't get a null ptr
   if( ( ampCfg == cachePtr->end() ) || 
-     ( ampCfg->second.find( reactName ) == ampCfg->second.end() ) ) {
+      ( ampCfg->second.find( reactName ) == ampCfg->second.end() ) ) {
     
-    // histograms don't exist -- fill them
+    // histograms don't exist
+
+    // first clear the histogram vector: m_histVect
+    clearHistograms();
     
-    (*cachePtr)[config][reactName] =
+    // this triggers user routines that fill m_histVect
     fillProjections( reactName, type );
+    
+    // now cache the vector of histograms
+    (*cachePtr)[config][reactName] = m_histVect;
     
     // renormalize MC
     if( type != kData ){
@@ -541,6 +528,56 @@ PlotGenerator::getErrorMatrixIndex( const string& ampName) const {
   return mapItr->second;
 }
 
+void
+PlotGenerator::bookHistogram( int index, const string& title, const Histogram& hist ){
+  
+  if( index >= m_histVect.size() ){
+    
+    m_histVect.resize( index + 1 );
+    m_histTitles.resize( index + 1 );
+  }
+  
+  m_histVect[index] = hist;
+  m_histTitles[index] = title;
+}
+
+void
+PlotGenerator::clearHistograms(){
+  
+  for( vector< Histogram >::iterator hist = m_histVect.begin();
+      hist != m_histVect.end();
+      ++hist ){
+    
+    hist->clear();
+  }
+}
+
+void
+PlotGenerator::fillProjections( const string& reactName, unsigned int type ){
+  
+  bool isData = ( type == kData ? true : false );
+  int dataIndex = m_reactIndex[reactName] * kNumTypes + type;
+      
+  // calculate intensities for MC:
+  if( !isData ) m_ati.processEvents( reactName, dataIndex );
+      
+  // loop over ampVecs and fill histograms
+  for( unsigned int i = 0; i < m_ati.numEvents( dataIndex ); ++i ){
+    
+    m_currentEventWeight = ( isData ? 1.0 : m_ati.intensity( i, dataIndex ) );
+
+    // the user defines this function in the derived class and it
+    // calls the fillHistogram method immediately below
+    
+    projectEvent( m_ati.kinematics( i, dataIndex ) );
+  }  
+}
+
+void
+PlotGenerator::fillHistogram( int histIndex, double value ){
+  
+  m_histVect[histIndex].fill( value, m_currentEventWeight );
+}
 
 bool
 PlotGenerator::haveAmp( const string& amp ) const {
@@ -764,13 +801,6 @@ PlotGenerator::buildUniqueAmplitudes(){
   }
 }
 
-const AmplitudeManager& 
-PlotGenerator::ampManager( const string& reactName ){
-  
-  return *(m_ampManagerMap[reactName]);
-}
-
-
 vector< string >
 PlotGenerator::reactions() const{
   
@@ -781,8 +811,6 @@ PlotGenerator::reactions() const{
   }
   return rcts;
 }
-
-
 
 vector< string >
 PlotGenerator::stringSplit(const string& str, const string& delimiters ) const
