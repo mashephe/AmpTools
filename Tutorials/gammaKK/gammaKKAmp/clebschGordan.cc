@@ -165,11 +165,10 @@ double s3j(double j1, double j2, double j3,
 }
 
 
-float clebschGordan(int ij1, int ij2, int im1, int im2, int ij, int im) {
+double clebschGordan(int ij1, int ij2, int im1, int im2, int ij, int im) {
 	
 	int esp;
 	double cgris;
-	float fcgris;
 	double j1,j2,m1,m2,j,m;
 	
 	j1 = (double) ij1;
@@ -186,10 +185,8 @@ float clebschGordan(int ij1, int ij2, int im1, int im2, int ij, int im) {
 	else cgris=-1.0;
 	
 	cgris*=sqrt(2*j+1)*s3j(j1,j2,j,m1,m2,-m);
-	
-	fcgris = (float) cgris;
-	
-	return fcgris;
+		
+	return cgris;
 }
 
 
