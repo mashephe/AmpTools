@@ -28,3 +28,10 @@ The user-specialized application for running the GUI:
 
 Tutorials/Dalitz/DalitzExe/ampPlotter.cc
 
+
+RELEASE NOTES:
+
+v0.5 (16-Nov-12):
+
+First release that includes AmpPlotter.
+
