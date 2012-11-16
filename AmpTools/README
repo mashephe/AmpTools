@@ -1,6 +1,6 @@
 //******************************************************************************
 //
-// See individual source files for licesnse information.
+// See individual source files for license information.
 // 
 // This software written by Matthew Shepherd, Ryan Mitchell, and 
 //                  Hrayr Matevosyan at Indiana University, Bloomington and
@@ -28,9 +28,65 @@ typing 'make GPU=1'.  In this case CUDA_INSTALL_PATH should point to your
 installation of CUDA and you may need to adjust the CUDA_FLAGS variable in 
 the Makefile for your particular hardware.
 
+KNOWN ISSUES/FUTURE DEVELOPMENT:
+
+(0) Building can sometimes be cantankerous.  We are in need of a configure
+system.  Common mistakes are inadvertently mixing 32-bit and 64-bit code
+due to different complier options.  Check library paths in top-level Makefiles.  
+The GPU hardware versions also need to be hard coded in Makefiles.
+
+(1) Error propagation in some cases is unreliable.  Fit parameters and
+covariance matrices are correct, but computation of intensity and fit
+fractions that are printed in some examples do not properly account for
+parameter covariances.  IF RELIABLE ERRORS ARE NEEDED, IT IS ADVISED
+TO DO YOUR OWN ERROR PROPAGATION USING THE FIT PARAMETERS AND COVARIANCE
+MATRIX, rather than rely on the examples. (see note 2)
+
+(2) FitResults:  currently there is redundant fit output.  The old scheme
+is to write out a parameter file and a normalization integral file.  This
+is still supported by AmpToolsInterface.  AmpToolsInterface will also dump
+the FitResults object to a file, which contains all the necessary info
+in a single file with a user interface.  Many of the calculations in
+PlotGenerator need to be transferred to the FitResults and proper error
+propagation (including correlations) needs to be done.  Eventually the
+old scheme of producing both an integral and parameter file will be
+deprecated.
+
+(3) Capability to renormalize amplitudes to unity is disabled.  
+In general, this feature requires a modification of the NormIntInterface 
+to cache the generated MC throughout the fit, as it is needed to recalculate the
+acceptance-corrected amplitude integral to do the normalization.  
+This integral not constant if the amplitude contains free parameters, and
+therefore the generated MC is needed at every fit iteration.  
+(Currently the generated MC is flushed after initialization and 
+only the accepted MC is maintained to save memory.)  If amplitudes
+do not have free parameters, users can experiment with this feature by
+uncommenting the renormalizeAmps method in the AmplitudeManager.
+Do not use for fits with free parameters in amplitudes until a fix is made.
+
+(4) Support for moment fits: a future version will include the capability
+to fit data to a sum of moments.  Currently the only supported scheme
+is fitting to multiple coherent sums of amplitudes.
+
 RELEASE NOTES:
 
-[current subversion... unreleased -- **modify this with release date**]
+v0.5 (16-Nov-2012):
+
+Bundled both Tutorials and AmpPlotter (GUI) with the package. See
+README files in those directories.
+
+Created a new FitResults object to store the results of a fit.  It can
+be written to and read from a text file.  This should provide a nice user
+interface to all information about the fit.  Some features are still
+under development (see note 2 at the top of the file).
+
+Fixed UpRootMinuit module to obey the setMaxIterations command through
+the MinuitMinimizationManager.  The default max iterations has been
+set to 5000.  It was previously unset.
+
+Fixed bug in MinuitParameterManager that causes the error matrix to
+be incorrectly "dimensioned" in the case that one of the amplitude
+parameters is fixed.
 
 Add new "scale" command to the config file and AmplitudeManager that
 allows rescaling an amplitude by a constant or a fit parameter.
@@ -41,17 +97,18 @@ parameter (output of MINUIT) is equal to the number of events associated
 with this amplitude.  This provides a more "natural" scale for the fit
 parameters, but it should be used with caution with the constrain command
 as it will will constrain two amplitudes to have the same number of events
-(modulo the set "scale" factor).
+modulo the set "scale" factor. (CODED BUT DISABLED: see note 3 above.)
 
 Defined new AmpToolsInterface class to create and manage all of the supporting
 objects needed for a fit.  This greatly improves the user experience.
-(See documentation.)
+(See documentation or tutorials.)
 
 Created templates UserDataReader and UserAmplitude for user defined classes in
-order to reduce the amount of code that user has to write.  (See documentation.)
+order to reduce the amount of code that user has to write.  
+(See documentation or tutorials.)
 
 Fixed MinuitIterface and URMinuit to properly use the maximum number of iterations
-set by the user (default of 500) for certain MINUIT commands (hesse, minos, migrad).
+set by the user (default of 5000) for certain MINUIT commands (hesse, minos, migrad).
 
 v0.4 (11-July-2012):
 
