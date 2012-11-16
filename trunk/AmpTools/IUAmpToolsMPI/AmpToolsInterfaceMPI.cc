@@ -11,6 +11,7 @@
 #include "IUAmpTools/ParameterManager.h"
 #include "IUAmpTools/LikelihoodCalculator.h"
 #include "IUAmpTools/AmpToolsInterface.h"
+#include "IUAmpTools/FitResults.h"
 
 #include "IUAmpToolsMPI/AmpToolsInterfaceMPI.h"
 
@@ -106,12 +107,16 @@ AmpToolsInterfaceMPI::AmpToolsInterfaceMPI(ConfigurationInfo* configurationInfo)
 
 
     NormIntInterface* normInt = NULL;
-    if (genMCRdr && accMCRdr && ampMan){
+    if (genMCRdr && accMCRdr && ampMan && !(reaction->normIntFileInput())){
       normInt = new NormIntInterfaceMPI(genMCRdr, accMCRdr, *ampMan);
       m_normIntMap[reactionName] = normInt;
       if (reaction->normIntFile() == "")
 	cout << "AmpToolsInterface WARNING:  no name given to NormInt file for reaction " 
 	 << reactionName << endl;
+    }
+    else if (reaction->normIntFileInput()){
+      normInt = new NormIntInterfaceMPI(reaction->normIntFile());
+      m_normIntMap[reactionName] = normInt;
     }
     else{
       cout << "AmpToolsInterface WARNING:  not creating a NormIntInterface for reaction " 
@@ -130,14 +135,27 @@ AmpToolsInterfaceMPI::AmpToolsInterfaceMPI(ConfigurationInfo* configurationInfo)
       m_likCalcMap[reactionName] = likCalc;
     }
     else{
-      cout << "AmpToolsInterface WARNING:  not creating a LikelihoodCalculator for reaction " 
+      cout << "AmpToolsInterface ERROR:  not creating a LikelihoodCalculator for reaction " 
        << reactionName << endl;
+      exit(1);
     }
 
 
-    if (likCalc && m_rank != 0) LikelihoodManagerMPI::deliverLikelihood();
-
   }
+
+    // ************************
+    // create FitResults
+    // ************************
+
+  m_fitResults = new FitResults( m_configurationInfo,
+                                 m_amplitudeManagers,
+                                 m_likCalcMap,
+                                 m_normIntMap,
+                                 m_minuitMinimizationManager,
+                                 m_parameterManager );
+
+
+  if (m_rank != 0) LikelihoodManagerMPI::deliverLikelihood();
 
 }
 
@@ -149,25 +167,58 @@ void
 AmpToolsInterfaceMPI::finalizeFit(){
 
   if (m_rank != 0){
+
+    // this forceCacheUpdate on the workers executes simultaneously with the
+    // same call in FitResults::writeResults on the master
+
     for (unsigned int irct = 0; irct < m_configurationInfo->reactionList().size(); irct++){
       ReactionInfo* reaction = m_configurationInfo->reactionList()[irct];
       string reactionName(reaction->reactionName());
       NormIntInterface* normInt = normIntInterface(reactionName);
-      normInt->forceCacheUpdate();
+      if (normInt->hasAccessToMC()) normInt->forceCacheUpdate();
     }
-    return;
   }
 
   if (m_rank == 0){
-    for (unsigned int irct = 0; irct < m_configurationInfo->reactionList().size(); irct++){
-      ReactionInfo* reaction = m_configurationInfo->reactionList()[irct];
-      string reactionName(reaction->reactionName());
-      if (m_likCalcMap[reactionName]) delete m_likCalcMap[reactionName];
-    }
-    m_likCalcMap.clear();
+
+      // ************************
+      // save fit parameters
+      // ************************
+
+    string outputFile(m_configurationInfo->fitOutputFileName());
+    ofstream outFile(outputFile.c_str());
+    parameterManager()->writeParameters( outFile );
+
+
+    // for now write two files until the use of the original
+    // ParameterManager output routine is completely depricated
+    outputFile += "_results";
+
+    m_fitResults->saveResults();
+
+      for (unsigned int irct = 0; irct < m_configurationInfo->reactionList().size(); irct++){
+	ReactionInfo* reaction = m_configurationInfo->reactionList()[irct];
+	string reactionName(reaction->reactionName());
+	if (m_likCalcMap[reactionName]) delete m_likCalcMap[reactionName];
+      }
+      m_likCalcMap.clear();
+
+    m_fitResults->writeResults( outputFile );
+ }
+ 
+   // ************************
+   // save normalization integrals
+   // ************************
+
+  // this runs on both the workers and the masters simultaneously
+
+  for (unsigned int irct = 0; irct < m_configurationInfo->reactionList().size(); irct++){
+
+    ReactionInfo* reaction = m_configurationInfo->reactionList()[irct];
+    string reactionName(reaction->reactionName());
+    NormIntInterface* normInt = normIntInterface(reactionName);
+    if (normInt->hasAccessToMC()) normInt->forceCacheUpdate();
+    if( m_rank == 0 ) normInt->exportNormIntCache( reaction->normIntFile() );
   }
-
-  AmpToolsInterface::finalizeFit();
-
 }
 
