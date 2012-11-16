@@ -1,0 +1,30 @@
+//******************************************************************************
+//
+// See individual source files for license information.
+// 
+// This software written by Matthew Shepherd at Indiana University
+//
+//******************************************************************************
+
+This library contains a GUI for plotting both data and fit-weighted MC for
+a single fit.  The user can turn off and on different reactions, coherent sums,
+and amplitudes to see how the various fit components contribute to the
+projection of a variable.  This directory contains only the library that 
+supports the GUI application.  
+
+It should be compiled in the same way that AmpTools is compiled.  Before compiling
+set the environment variable AMPTOOLS to point to the directory where AmpTools is
+installed
+
+The user needs to write a specialized PlotGenerator
+class and also a short executable that invokes the GUI.  Examples of both
+of these can be found in the following locations in this repository:
+
+The class to make the user-defined kinematic projections:
+
+Tutorials/Dalitz/DalitzPlot/DalitzPlotGenerator.h
+
+The user-specialized application for running the GUI:
+
+Tutorials/Dalitz/DalitzExe/ampPlotter.cc
+
