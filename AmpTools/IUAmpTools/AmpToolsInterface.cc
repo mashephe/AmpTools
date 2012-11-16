@@ -225,10 +225,6 @@ AmpToolsInterface::likelihood (){
 void
 AmpToolsInterface::finalizeFit(){
 
-
-  MinuitMinimizationManager* fitManager = minuitMinimizationManager();
-
-
     // ************************
     // save fit parameters
     // ************************
