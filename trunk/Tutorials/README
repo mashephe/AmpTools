@@ -1,0 +1,29 @@
+
+This directory contains a collection of Tutorials that utilize AmpTools and supporting
+libraries.  Each directory contains the types of classes that a user might write to
+do a physics analysis using AmpTools.  Check the doc subdirectory of each tutorial
+for more information.
+
+Dalitz
+------
+
+Author:  Ryan Mitchell (remitche@indiana.edu)
+
+A simple example of a Dalitz plot analysis.  It illustrates generating MC and a toy
+data set for fitting.  This example can also be compiled to use MPI and GPU acceleration.
+
+gammaKK
+-------
+
+Author:  Kei Moriya (kmoriya@indiana.edu)
+
+An example of vector meson radiative decays to gamma K K.  This example performs a fit
+in bins of K K invariant mass.
+
+
+RELEASE NOTES:
+
+v0.5 (16-Nov-12):
+
+First release that includes Tutorials.
+
