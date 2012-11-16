@@ -384,6 +384,9 @@ class AmpToolsInterface{
 
 
   protected:
+  
+    AmpToolsInterface( const AmpToolsInterface& ati );
+    AmpToolsInterface& operator=( AmpToolsInterface& ati );
 
     void clear();
 
