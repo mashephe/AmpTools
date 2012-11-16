@@ -211,7 +211,7 @@ int main( int argc, char* argv[] ){
       ss.str("");
       ss << fitname_new << ".fit";
       string fitfilename = ss.str();
-      gammaKKPlotGenerator plotGenerator(cfgInfo,fitfilename);
+      gammaKKPlotGenerator plotGenerator(ATI);
       plotGenerator.enableReaction(reactionName);
       vector<string> amps = plotGenerator.fullAmplitudes();
 
