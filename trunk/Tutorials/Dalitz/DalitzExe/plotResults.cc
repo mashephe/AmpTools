@@ -103,7 +103,7 @@ int main( int argc, char* argv[] ){
     // loop over data, accMC, and genMC
 
   for (unsigned int iplot = 0; iplot < PlotGenerator::kNumTypes; iplot++){
-    if (iamp < amps.size() && iplot == 0) continue;
+    if (iamp < amps.size() && iplot == PlotGenerator::kData) continue;
 
 
     // loop over different variables
@@ -111,12 +111,12 @@ int main( int argc, char* argv[] ){
   for (unsigned int ivar  = 0; ivar  < DalitzPlotGenerator::kNumHists; ivar++){
 
              string histname =  "h";
-    if (ivar == 0)  histname += "m12";
-    if (ivar == 1)  histname += "m13";
-    if (ivar == 2)  histname += "m23";
-    if (iplot == 0) histname += "dat";
-    if (iplot == 1) histname += "acc";
-    if (iplot == 2) histname += "gen";
+    if (ivar == DalitzPlotGenerator::khm12)  histname += "m12";
+    if (ivar == DalitzPlotGenerator::khm13)  histname += "m13";
+    if (ivar == DalitzPlotGenerator::khm23)  histname += "m23";
+    if (iplot == PlotGenerator::kData) histname += "dat";
+    if (iplot == PlotGenerator::kAccMC) histname += "acc";
+    if (iplot == PlotGenerator::kGenMC) histname += "gen";
     if (iamp < amps.size()){
       ostringstream sdig;  sdig << (iamp + 1);
       histname += sdig.str();
