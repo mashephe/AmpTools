@@ -474,13 +474,22 @@ GPUManager::calcSumLogIntensity( const vector< complex< double > >& prodCoef,
   
   // Now the summation of the results -- do this on the CPU for small
   // numbers of events or cases where double precision GPU is not enabled
+
   double dGPUResult = 0;
+
+  /*
+   There seems to be a bug when doing double precision sums on GPU
+   do them on the GPU for now
+   
   if( m_iNTrueEvents <= m_iNBlocks || sizeof( GDouble ) <= 4 )
   {
+   */
+  
     cudaMemcpy(m_pfRes,m_pfDevRes,m_iTrueEventArrSize,cudaMemcpyDeviceToHost);
     for(i=0; i<m_iNTrueEvents; i++)
       dGPUResult += m_pfRes[i];
-  }
+  
+/*  }  see note above about bug in double precisoin sums
   else
   {
     cudaThreadSynchronize();  
@@ -494,6 +503,8 @@ GPUManager::calcSumLogIntensity( const vector< complex< double > >& prodCoef,
     for(i=0; i<m_iNBlocks; i++) 
       dGPUResult += m_pfRes[i];
   }
+*/
+  
   return dGPUResult;
 }
 
