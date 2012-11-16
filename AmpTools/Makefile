@@ -51,12 +51,12 @@ lib:
 
 libAmpTools.a: $(TARGET_LIBS)
 	$(foreach lib, $(TARGET_LIBS), $(shell cd lib; ar -x $(lib) ) )
-	@cd lib && ar -rv $@ *.o
+	@cd lib && ar -rsv $@ *.o && ranlib $@
 	@cd lib && rm -f *.o
 
 libAmpTools_GPU.a: $(TARGET_LIBS) $(TARGET_LIBS_GPU)
 	$(foreach lib_GPU, $(TARGET_LIBS_GPU), $(shell cd lib; ar -x $(lib_GPU) ) )
-	@cd lib && ar -rv $@ *.o
+	@cd lib && ar -rsv $@ *.o && ranlib $@
 	@cd lib && rm -f *.o
 
 lib%_GPU.a: 
