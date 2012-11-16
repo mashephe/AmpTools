@@ -35,8 +35,6 @@
 //
 
 #include <sstream>
-
-//rcg24, adding this include file
 #include "UpRootMinuit/URMinuit.h"
 
 #include "MinuitInterface/MinuitMinimizationManager.h"
@@ -75,14 +73,20 @@ MinuitMinimizationManager::evaluateFunction() {
 
    m_parameterManager.update();
    notify();
-  
-   double totalContribution = 0;
+
+  double totalContribution = 0;
    MISubject::ObserverList& contributors = observerList();
    for ( MISubject::ObserverList::iterator iter = contributors.begin();
          iter != contributors.end();
          ++iter ) {
-      MIFunctionContribution* contributor = static_cast<MIFunctionContribution*>(*iter);
-      totalContribution += contributor->contribution();
+      MIFunctionContribution* contributor = dynamic_cast<MIFunctionContribution*>(*iter);
+
+      // if the dynamic cast fails, i.e., the MIObserver is
+      // not an MIFunctionContribution then don't ask for 
+      // its contribution
+     
+      if( contributor != NULL )
+        totalContribution += contributor->contribution();
    }
    
    return totalContribution;
@@ -103,7 +107,13 @@ MinuitMinimizationManager::computeDerivatives( double* grad )
         for ( MISubject::ObserverList::iterator iter = observerList().begin();
               iter != observerList().end();
               ++iter ) {
-            MIFunctionContribution* contributor = static_cast<MIFunctionContribution*>(*iter);
+            MIFunctionContribution* contributor = dynamic_cast<MIFunctionContribution*>(*iter);
+          
+          // if the dynamic cast fails, i.e., the MIObserver is
+          // not an MIFunctionContribution then don't ask for 
+          // its contribution
+
+          if( contributor != NULL )
             thisDerivative += contributor->derivative( **par );
         }
         
