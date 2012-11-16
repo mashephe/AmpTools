@@ -6,7 +6,7 @@ SRCFILES := $(wildcard *.cc)
 default: $(LIB)
 
 %.a: $(SRCFILES:.cc=.o)
-	ar -rv $@ $^
+	ar -rsv $@ $^
 
 %.o : %.cc
 	$(CXX) $(CXX_FLAGS) -M -o $*.d $< $(INC_DIR); \
