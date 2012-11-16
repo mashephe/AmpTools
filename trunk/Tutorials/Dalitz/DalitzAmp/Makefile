@@ -11,7 +11,7 @@ endif
 default: $(LIB)
 
 %.a: $(SRCFILES:.cc=.o) $(FORTRAMPS:.f=.o) $(CUDAFILES:.cu=.o)
-	ar -rv $@ $^
+	ar -rsv $@ $^
 
 %.o : %.f
 	gfortran -c -O3 -o $@ $<
