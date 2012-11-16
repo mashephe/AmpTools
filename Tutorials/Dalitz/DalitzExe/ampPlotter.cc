@@ -11,13 +11,26 @@
 
 #include "IUAmpTools/ConfigFileParser.h"
 #include "IUAmpTools/ConfigurationInfo.h"
+#include "IUAmpTools/AmpToolsInterface.h"
 
 #include "AmpPlotter/PlotterMainWindow.h"
 #include "AmpPlotter/PlotFactory.h"
 
 #include "DalitzPlot/DalitzPlotGenerator.h"
+#include "DalitzDataIO/DalitzDataReader.h"
+#include "DalitzAmp/BreitWigner.h"
 
 typedef DalitzPlotGenerator PlotGen;
+
+void atiSetup(){
+  
+  AmpToolsInterface::registerAmplitude( BreitWigner() );
+  AmpToolsInterface::registerDataReader( DalitzDataReader() );
+}
+
+
+//  THE USER SHOULD NOT HAVE TO CHANGE ANYTHING BELOW THIS LINE
+// *************************************************************
 
 using namespace std;
 
@@ -63,9 +76,11 @@ int main( int argc, char* argv[] ){
 
   
   cout << "Setting up the plot generator with fit output: " << parFile << endl;
-
-  PlotGen plotGen( cfgInfo, parFile );
   
+  atiSetup();
+  
+  AmpToolsInterface ati( cfgInfo );
+  PlotGen plotGen( ati );
 
     // ************************
     // start the GUI
