@@ -7,18 +7,15 @@
 #include <utility>
 #include <map>
 #include "TFile.h"
-#include "MinuitInterface/MinuitMinimizationManager.h"
-#include "IUAmpTools/AmplitudeManager.h"
+#include "IUAmpTools/AmpToolsInterface.h"
 #include "IUAmpTools/Kinematics.h"
-#include "IUAmpTools/NormIntInterface.h"
 #include "IUAmpTools/ConfigFileParser.h"
 #include "IUAmpTools/ConfigurationInfo.h"
-#include "IUAmpTools/ParameterManager.h"
-#include "IUAmpTools/LikelihoodCalculator.h"
-#include "IUAmpTools/PlotGenerator.h"
-#include "IUAmpTools/Histogram.h"
 #include "gammaKKDataIO/gammaKKDataReader.h"
 #include "gammaKKPlot/gammaKKPlotGenerator.h"
+#include "gammaKKAmp/MultipoleAmps.h"
+#include "gammaKKAmp/TwoPiAngles.h"
+#include "gammaKKAmp/gammaKKHelicityAmp.h"
 
 using std::complex;
 using namespace std;
@@ -76,12 +73,17 @@ int main( int argc, char* argv[] ){
     // set up a PlotGenerator and make plots
     // ************************
 
-      //xxxxx once an amplitude is disabled it is always disabled????
-      //        can't turn an amplitude off then back on?????
+  AmpToolsInterface::registerDataReader( gammaKKDataReader() );
+  AmpToolsInterface::registerAmplitude( MultipoleAmps() );
+  AmpToolsInterface::registerAmplitude( TwoPiAngles() );
+  AmpToolsInterface::registerAmplitude( gammaKKHelicityAmp() );
 
-  gammaKKPlotGenerator plotGenerator(cfgInfo,parname);
+  AmpToolsInterface ati( cfgInfo );
+  
+  gammaKKPlotGenerator plotGenerator( ati );
   plotGenerator.enableReaction(reaction->reactionName());
   vector<string> amps = plotGenerator.uniqueAmplitudes();
+
 
   for(int i=0;i<amps.size();i++){
     cout << "amps[" << i << "] = " << amps[i] << endl;
@@ -109,47 +111,32 @@ int main( int argc, char* argv[] ){
 
     // loop over data, accMC, and genMC
 
-    for (unsigned int iplot = 0; iplot < PlotGenerator::kNumPlotTypes; iplot++){
-    if (iamp < amps.size() && iplot == 0) continue;
+    for (unsigned int iplot = 0; iplot < PlotGenerator::kNumTypes; iplot++){
+    if (iamp < amps.size() && iplot == PlotGenerator::kData) continue;
 
 
     // loop over different variables
 
-    for (unsigned int ivar  = 0; ivar  < gammaKKPlotGenerator::kNumHist; ivar++){
+    for (unsigned int ivar  = 0; ivar  < gammaKKPlotGenerator::kNumHists; ivar++){
 
              string histname =  "h";
-    if (ivar == 0)  histname += "m12";
-    if (ivar == 1)  histname += "m13";
-    if (ivar == 2)  histname += "m23";
-    if (ivar == 3)  histname += "PhotonCosTheta";
-    if (ivar == 4)  histname += "PhotonPhi";
-    if (ivar == 5)  histname += "KaonCosTheta";
-    if (ivar == 6)  histname += "KaonPhi";
-
-    if (iplot == 0) histname += "dat";
-    if (iplot == 1) histname += "acc";
-    if (iplot == 2) histname += "gen";
+    if (ivar == gammaKKPlotGenerator::khm12)  histname += "m12";
+    if (ivar == gammaKKPlotGenerator::khm13)  histname += "m13";
+    if (ivar == gammaKKPlotGenerator::khm23)  histname += "m23";
+    if (ivar == gammaKKPlotGenerator::khPhotonCosTheta)  histname += "PhotonCosTheta";
+    if (ivar == gammaKKPlotGenerator::khPhotonPhi)  histname += "PhotonPhi";
+    if (ivar == gammaKKPlotGenerator::khKaonCosTheta)  histname += "KaonCosTheta";
+    if (ivar == gammaKKPlotGenerator::khKaonPhi)  histname += "KaonPhi";
+    if (iplot == PlotGenerator::kData) histname += "dat";
+    if (iplot == PlotGenerator::kAccMC) histname += "acc";
+    if (iplot == PlotGenerator::kGenMC) histname += "gen";
     if (iamp < amps.size()){
       ostringstream sdig;  sdig << (iamp + 1);
       histname += sdig.str();
     }
-
-    // data type
-    PlotGenerator::PlotType kplot = PlotGenerator::kData;
-    if (iplot == 1) kplot = PlotGenerator::kAccMC;
-    if (iplot == 2) kplot = PlotGenerator::kGenMC;
-
-    // histogram type    
-    gammaKKPlotGenerator::HistIndex kvar = gammaKKPlotGenerator::khm12; 
-    if (ivar == 1) kvar = gammaKKPlotGenerator::khm13;
-    if (ivar == 2) kvar = gammaKKPlotGenerator::khm23;
-    if (ivar == 3) kvar = gammaKKPlotGenerator::khPhotonCosTheta;
-    if (ivar == 4) kvar = gammaKKPlotGenerator::khPhotonPhi;
-    if (ivar == 5) kvar = gammaKKPlotGenerator::khKaonCosTheta;
-    if (ivar == 6) kvar = gammaKKPlotGenerator::khKaonPhi;
     
-    Histogram hist = plotGenerator.projection(kvar,
-					      reaction->reactionName(), kplot);
+    Histogram hist = plotGenerator.projection(ivar,
+					      reaction->reactionName(), iplot);
     
     string xtitle = "Mass(P_{1}P_{2}) (GeV/c^{2})";
     if (ivar == 1) xtitle = "Mass(P_{1}P_{3}) (GeV/c^{2})";
@@ -180,8 +167,6 @@ int main( int argc, char* argv[] ){
     // print results to the screen
     // ************************
 
-       // xxxxx error on the total intensity < sqrt(intensity) 
-       //         when using 100% acceptance????
 
   cout << "TOTAL EVENTS = " << plotGenerator.intensity().first << " +- "
                             << plotGenerator.intensity().second << endl;
