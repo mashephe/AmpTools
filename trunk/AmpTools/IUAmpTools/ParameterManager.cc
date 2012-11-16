@@ -53,6 +53,7 @@ MIObserver(),
 m_minuitManager( minuitManager ),
 m_ampManagers( 0 )
 { 
+  m_minuitManager.attach( this );
   m_ampManagers.push_back(ampManager);
   cout << "Parameter manager initialized." << endl;
 }
@@ -64,6 +65,7 @@ MIObserver(),
 m_minuitManager( minuitManager ),
 m_ampManagers( ampManagers )
 { 
+  m_minuitManager.attach( this );
   cout << "Parameter manager initialized." << endl;
 }
 
