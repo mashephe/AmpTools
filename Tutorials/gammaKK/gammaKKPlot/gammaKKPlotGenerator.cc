@@ -4,8 +4,6 @@
 
 #include "gammaKKExe/constants.h"
 #include "gammaKKPlot/gammaKKPlotGenerator.h"
-#include "gammaKKAmp/gammaKKHelicityAmp.h"
-#include "gammaKKAmp/MultipoleAmps.h"
 
 // Include ROOT 2D histograms currently impossible,
 // as gammaKKPlotGenerator::fillProjections
