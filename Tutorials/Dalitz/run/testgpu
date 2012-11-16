@@ -1,47 +1,62 @@
       echo
       echo --------------------------------
       echo
-      echo COMPLILE AMPTOOLS
+      echo COMPILE AMPTOOLS
       echo
       echo --------------------------------
       echo
-      sleep 3
+      #sleep 3
 
 cd $AMPTOOLS
 make clean
 make GPU=1
 
-      sleep 1
+
       echo
       echo --------------------------------
       echo
-      echo COMPLILE DALITZ
+      echo COMPILE AMPPLOTTER
       echo
       echo --------------------------------
       echo
-      sleep 3
+      #sleep 3
+
+cd $AMPPLOTTER
+make clean
+make GPU=1
+
+
+      #sleep 1
+      echo
+      echo --------------------------------
+      echo
+      echo COMPILE DALITZ
+      echo
+      echo --------------------------------
+      echo
+      #sleep 3
 
 cd $DALITZ
 make clean
 make GPU=1
 
 
-      sleep 1
+      #sleep 1
       echo
       echo --------------------------------
       echo
-      echo COMPLILE DALITZEXE
+      echo COMPILE DALITZEXE
       echo
       echo --------------------------------
       echo
-      sleep 3
+      #sleep 3
 
 cd $DALITZ/DalitzExe
 make clean
 make GPU=1
 
 
-      sleep 1
+      #sleep 1
       echo
       echo --------------------------------
       echo
@@ -49,13 +64,13 @@ make GPU=1
       echo
       echo --------------------------------
       echo
-      sleep 3
+      #sleep 3
 
 cd $DALITZ/run
 $DALITZ/DalitzExe/generatePhaseSpace GPU.phasespace.gen.root 100000
 
 
-      sleep 1
+      #sleep 1
       echo
       echo --------------------------------
       echo
@@ -63,13 +78,13 @@ $DALITZ/DalitzExe/generatePhaseSpace GPU.phasespace.gen.root 100000
       echo
       echo --------------------------------
       echo
-      sleep 3
+      #sleep 3
 
 cd $DALITZ/run
 $DALITZ/DalitzExe/plotData GPU.phasespace.gen.root GPU.plots.phasespace.gen.root
 
 
-      sleep 1
+      #sleep 1
       echo
       echo --------------------------------
       echo
@@ -78,14 +93,13 @@ $DALITZ/DalitzExe/plotData GPU.phasespace.gen.root GPU.plots.phasespace.gen.root
       echo
       echo --------------------------------
       echo
-      sleep 3
+      #sleep 3
 
 cd $DALITZ/run
-root -l GPU.plots.phasespace.gen.root plotData.C
+#root -l GPU.plots.phasespace.gen.root plotData.C
 
 
-
-      sleep 1
+      #sleep 1
       echo
       echo --------------------------------
       echo
@@ -93,13 +107,13 @@ root -l GPU.plots.phasespace.gen.root plotData.C
       echo
       echo --------------------------------
       echo
-      sleep 3
+      #sleep 3
 
 cd $DALITZ/run
 $DALITZ/DalitzExe/generatePhysics GPU.dalitz1.cfg GPU.physics.gen.root 100000
 
 
-      sleep 1
+      #sleep 1
       echo
       echo --------------------------------
       echo
@@ -107,13 +121,13 @@ $DALITZ/DalitzExe/generatePhysics GPU.dalitz1.cfg GPU.physics.gen.root 100000
       echo
       echo --------------------------------
       echo
-      sleep 3
+      #sleep 3
 
 cd $DALITZ/run
 $DALITZ/DalitzExe/plotData GPU.physics.gen.root GPU.plots.physics.gen.root
 
 
-      sleep 1
+      #sleep 1
       echo
       echo --------------------------------
       echo
@@ -122,13 +136,13 @@ $DALITZ/DalitzExe/plotData GPU.physics.gen.root GPU.plots.physics.gen.root
       echo
       echo --------------------------------
       echo
-      sleep 3
+      #sleep 3
 
 cd $DALITZ/run
-root -l GPU.plots.physics.gen.root plotData.C
+#root -l GPU.plots.physics.gen.root plotData.C
 
 
-      sleep 1
+      #sleep 1
       echo
       echo --------------------------------
       echo
@@ -136,13 +150,13 @@ root -l GPU.plots.physics.gen.root plotData.C
       echo
       echo --------------------------------
       echo
-      sleep 3
+      #sleep 3
 
 cd $DALITZ/run
 $DALITZ/DalitzExe/toyAcceptance GPU.phasespace.gen.root GPU.phasespace.acc.root
 
 
-      sleep 1
+      #sleep 1
       echo
       echo --------------------------------
       echo
@@ -150,13 +164,13 @@ $DALITZ/DalitzExe/toyAcceptance GPU.phasespace.gen.root GPU.phasespace.acc.root
       echo
       echo --------------------------------
       echo
-      sleep 3
+      #sleep 3
 
 cd $DALITZ/run
 $DALITZ/DalitzExe/plotData GPU.phasespace.acc.root GPU.plots.phasespace.acc.root
 
 
-      sleep 1
+      #sleep 1
       echo
       echo --------------------------------
       echo
@@ -165,13 +179,13 @@ $DALITZ/DalitzExe/plotData GPU.phasespace.acc.root GPU.plots.phasespace.acc.root
       echo
       echo --------------------------------
       echo
-      sleep 3
+      #sleep 3
 
 cd $DALITZ/run
-root -l GPU.plots.phasespace.acc.root plotData.C
+#root -l GPU.plots.phasespace.acc.root plotData.C
 
 
-      sleep 1
+      #sleep 1
       echo
       echo --------------------------------
       echo
@@ -179,13 +193,13 @@ root -l GPU.plots.phasespace.acc.root plotData.C
       echo
       echo --------------------------------
       echo
-      sleep 3
+      #sleep 3
 
 cd $DALITZ/run
 $DALITZ/DalitzExe/toyAcceptance GPU.physics.gen.root GPU.physics.acc.root
 
 
-      sleep 1
+      #sleep 1
       echo
       echo --------------------------------
       echo
@@ -193,13 +207,13 @@ $DALITZ/DalitzExe/toyAcceptance GPU.physics.gen.root GPU.physics.acc.root
       echo
       echo --------------------------------
       echo
-      sleep 3
+      #sleep 3
 
 cd $DALITZ/run
 $DALITZ/DalitzExe/plotData GPU.physics.acc.root GPU.plots.physics.acc.root
 
 
-      sleep 1
+      #sleep 1
       echo
       echo --------------------------------
       echo
@@ -208,14 +222,13 @@ $DALITZ/DalitzExe/plotData GPU.physics.acc.root GPU.plots.physics.acc.root
       echo
       echo --------------------------------
       echo
-      sleep 3
+      #sleep 3
 
 cd $DALITZ/run
-root -l GPU.plots.physics.acc.root plotData.C
+#root -l GPU.plots.physics.acc.root plotData.C
 
 
-
-      sleep 1
+      #sleep 1
       echo
       echo --------------------------------
       echo
@@ -223,13 +236,13 @@ root -l GPU.plots.physics.acc.root plotData.C
       echo
       echo --------------------------------
       echo
-      sleep 3
+      #sleep 3
 
 cd $DALITZ/run
 $DALITZ/DalitzExe/fitAmplitudes GPU.dalitz1.cfg
 
 
-      sleep 1
+      #sleep 1
       echo
       echo --------------------------------
       echo
@@ -237,13 +250,13 @@ $DALITZ/DalitzExe/fitAmplitudes GPU.dalitz1.cfg
       echo
       echo --------------------------------
       echo
-      sleep 3
+      #sleep 3
 
 cd $DALITZ/run
 $DALITZ/DalitzExe/plotResults GPU.dalitz1.cfg GPU.dalitz1.fit GPU.dalitz1.root
 
 
-      sleep 1
+      #sleep 1
       echo
       echo --------------------------------
       echo
@@ -251,10 +264,24 @@ $DALITZ/DalitzExe/plotResults GPU.dalitz1.cfg GPU.dalitz1.fit GPU.dalitz1.root
       echo
       echo --------------------------------
       echo
-      sleep 3
+      #sleep 3
 
 cd $DALITZ/run
 root -l GPU.plots.physics.acc.root GPU.dalitz1.root plotResult.C
+
+
+      #sleep 1
+      echo
+      echo --------------------------------
+      echo
+      echo VIEW FIT RESULTS IN THE AMPPLOTTER GUI
+      echo
+      echo --------------------------------
+      echo
+      #sleep 3
+
+cd $DALITZ/run
+$DALITZ/DalitzExe/ampPlotter GPU.dalitz1.cfg
 
 
 
