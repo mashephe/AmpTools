@@ -40,7 +40,7 @@ This document introduces several of the core features of the {\tt AmpTools} pack
 
 \section{Introduction}
 
-The {\tt AmpTools} package is a versatile set of tools that allows a user to define custom amplitudes, which can then be used to generate Monte Carlo distributions, to fit data, and to make plots, among other tasks.  As the tools are both physics and experiment agnostic, the user has the freedom to write applications that are highly customizable.  But in turn, the user must provide a number of derived classes to write data to files (Section~\ref{sec:dw}: {\tt DalitzDataIO/DalitzDataWriter}), to read data from files (Section~\ref{sec:dr}: {\tt DalitzDataIO/ DalitzDataReader}), to calculate amplitudes (Section~\ref{sec:bw}: {\tt DalitzAmp/BreitWigner}), and to plot fit results (Section~\ref{sec:dpg}: {\tt DalitzPlot/DalitzPlotGenerator}).  The Dalitz tutorial provides a simple example, from beginning to end, of how to write these derived classes, and how to then build executables from the resulting libraries.
+The {\tt AmpTools} package is a versatile set of tools that allows a user to define custom amplitudes, which can then be used to generate Monte Carlo distributions, to fit data, and to make plots, among other tasks.  As the tools are both physics and experiment agnostic, the user has the freedom to write applications that are highly customizable.  But in return, the user must provide a number of derived classes to write data to files (Section~\ref{sec:dw}: {\tt DalitzDataIO/DalitzDataWriter}), to read data from files (Section~\ref{sec:dr}: {\tt DalitzDataIO/ DalitzDataReader}), to calculate amplitudes (Section~\ref{sec:bw}: {\tt DalitzAmp/BreitWigner}), and to plot fit results (Section~\ref{sec:dpg}: {\tt DalitzPlot/DalitzPlotGenerator}).  The Dalitz tutorial provides a simple example, from beginning to end, of how to write these derived classes, and how to then build executables from the resulting libraries.
 
 The Dalitz tutorial considers a fictitious decay of a $3.0~\gevcc$ particle to three $200~\mevcc$ particles.  Two-body Breit-Wigner distributions are used to illustrate amplitude construction.
 
@@ -50,18 +50,25 @@ This tutorial could be used as a starting point for new analyses.  It is recomme
 
 \section{Preliminaries}
 
-Four packages are required to run the Dalitz tutorial: {\tt ROOT}, {\tt CLHEP}, {\tt AmpTools}, and {\tt Dalitz} (this tutorial).  Once they are installed, the following environment variables should be set:
+Two external packages are required to run the Dalitz tutorial: {\tt ROOT} and {\tt CLHEP}. Once they are installed (directions for installation can be found elsewhere), the following environment variables should be set:
 \begin{verbatim}
   > setenv ROOTSYS [top ROOT directory]
   > setenv CLHEP_INCLUDE_DIR [directory of CLHEP header files]
   > setenv CLHEP_LIB_DIR [directory of CLHEP libraries]
-  > setenv AMPTOOLS [top AmpTools directory]
-  > setenv DALITZ [top Dalitz directory]
 \end{verbatim}
 
-Directions for how to compile the {\tt ROOT} and {\tt CLHEP} libraries can be found elsewhere.  To compile the others, the following should work (after perhaps modifying Makefiles to account for different computing platforms):
+The latest fixed release of the {\tt AmpTools} code, along with related packages and tutorials, can be downloaded as a tarball from {\tt sourceforge.net/projects/amptools}.  Once unpacking the tarball, set the following:
+\begin{verbatim}
+  > setenv AMPTOOLS [top directory]/AmpTools
+  > setenv AMPPLOTTER [top directory]/AmpPlotter
+  > setenv DALITZ [top directory]/Tutorials/Dalitz
+\end{verbatim}
+
+The {\tt \$AMPTOOLS} directory contains the source code for the {\tt AmpTools} framework;  {\tt \$AMPPLOTTER} contains code for a GUI to view fit results; and {\tt \$DALITZ} contains the Dalitz tutorial to be discussed in this document.  To compile these, the following should work (after perhaps modifying Makefiles to account for different computing platforms):
 \begin{verbatim}
   > cd $AMPTOOLS
+  > make
+  > cd $AMPPLOTTER
   > make
   > cd $DALITZ
   > make
@@ -200,7 +207,7 @@ The {\tt parseConfigFile} application is a simple example showing how to parse a
   > cd $DALITZ/run
   > $DALITZ/DalitzExe/parseConfigFile dalitz1.cfg
 \end{verbatim}
-This parses and displays information from the {\tt dalitz1.cfg} file found in the {\tt run} directory.  The {\tt dalitz3.cfg} file is a more complicated configuration file that includes free parameters:
+This parses and displays information from the {\tt dalitz1.cfg} file found in the {\tt run} directory.  The {\tt dalitz3.cfg} file is a more complicated configuration file that includes additional free parameters:
 \begin{verbatim}
   > $DALITZ/DalitzExe/parseConfigFile dalitz3.cfg
 \end{verbatim}
@@ -208,7 +215,7 @@ This parses and displays information from the {\tt dalitz1.cfg} file found in th
 \section{Printing Amplitude Values: \\
 {\tt DalitzExe/printAmplitudes}}
 
-The {\tt printAmplitudes} example parses a configuration file using the {\tt ConfigFileParser}, reads in events using the {\tt DalitzDataReader}, sets up an {\tt AmplitudeManager}, calculates {\tt BreitWigner} amplitudes and total intensities, and then prints amplitude and intensity values to the screen. This can be a useful way to make sure amplitudes are coded correctly.  Compile and run in the usual way:
+The {\tt printAmplitudes} example parses a configuration file using the {\tt ConfigFileParser}, reads in events using the {\tt DalitzDataReader}, sets up an {\tt AmpToolsInterface}, calculates {\tt BreitWigner} amplitudes and total intensities, and then prints amplitude and intensity values to the screen. This can be a useful way to make sure amplitudes are coded correctly.  Compile and run in the usual way:
 \begin{verbatim}
   > cd $DALITZ/DalitzExe
   > make printAmplitudes_exe
@@ -221,7 +228,7 @@ This takes as input the {\tt dalitz1.cfg} configuration file~(Section~\ref{sec:c
 {\tt DalitzExe/generatePhysics}}
 \label{sec:physics}
 
-The {\tt generatePhysics} example generates events according to amplitudes specified in a configuration file.  To do so, it parses a configuration file using the {\tt ConfigFileParser}, sets up an {\tt AmplitudeManager}, generates phase space events using the {\tt TGenPhaseSpace} class from {\tt ROOT}, calculates intensities from those events and uses an accept/reject method to mimic the desired physics distribution, then writes the resulting events to a data file using a {\tt DalitzDataWriter}.  To compile and run, use:
+The {\tt generatePhysics} example generates events according to amplitudes specified in a configuration file.  To do so, it parses a configuration file using the {\tt ConfigFileParser}, sets up an {\tt AmpToolsInterface}, generates phase space events using the {\tt TGenPhaseSpace} class from {\tt ROOT}, calculates intensities from those events and uses an accept/reject method to mimic the desired physics distribution, then writes the resulting events to a data file using a {\tt DalitzDataWriter}.  To compile and run, use:
 \begin{verbatim}
   > cd $DALITZ/DalitzExe
   > make generatePhysics_exe
@@ -245,7 +252,7 @@ The results are shown in Figures~\ref{fig:dalitz}c and~\ref{fig:dalitz}d, respec
 {\tt DalitzExe/fitAmplitudes}}
 \label{sec:fit}
 
-Amplitudes can be fit to data following the {\tt fitAmplitudes} example.  The example shows how to set up an {\tt AmplitudeManager}, a {\tt MinuitMinimizationManager}, a {\tt ParameterManager}, a {\tt NormIntInterface}, and a {\tt LikelihoodCalculator}, perform a fit, and then output results to a text file:
+Amplitudes can be fit to data following the {\tt fitAmplitudes} example.  The example shows how to set up an {\tt AmpToolsInterface} class, perform a fit, and then output results to a text file:
 \begin{verbatim}
   > cd $DALITZ/DalitzExe
   > make fitAmplitudes_exe
