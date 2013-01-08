@@ -51,6 +51,14 @@
 vector<Amplitude*> AmpToolsInterface::m_userAmplitudes;
 vector<DataReader*> AmpToolsInterface::m_userDataReaders;
 
+AmpToolsInterface::AmpToolsInterface() :
+ m_minuitMinimizationManager(NULL),
+ m_parameterManager(NULL),
+ m_fitResults(NULL)
+{
+
+}
+
 
 AmpToolsInterface::AmpToolsInterface(ConfigurationInfo* configurationInfo):
     m_configurationInfo(configurationInfo),
@@ -582,26 +590,71 @@ AmpToolsInterface::printAmplitudes(string reactionName, Kinematics* kin){
 
   AmplitudeManager* ampMan = amplitudeManager(reactionName);
   vector<string> ampNames = ampMan->getAmpNames();
-  for (unsigned int iamp = 0; iamp < ampNames.size(); iamp++){
+
+  // we need to use the AmplitudeManager for this call in order to
+  // exercise the GPU code for the amplitude calculation
+  
+  AmpVecs aVecs;
+  aVecs.loadEvent(kin);
+  aVecs.allocateAmps(*ampMan,true);
+
+  ampMan->calcAmplitudes(aVecs,true);
+  
+  int nAmps = ampNames.size();
+  
+  // indexing of AmpVecs factors is tricky -- follow directly the code
+  // in AmplitudeManager::calcAmplitudes with the assumption that
+  // the number of events is 1 and we are working with event index 0
+  
+  int iAmpFactOffset = 0;
+  
+  for (unsigned int iamp = 0; iamp < nAmps; iamp++){
+    
     cout << "    ----------------------------------" << endl;
     cout << "      AMPLITUDE = " << ampNames[iamp] << endl;
     cout << "    ----------------------------------" << endl << endl;
+    
     vector< const Amplitude* > ampFactors = ampMan->getFactors(ampNames[iamp]);
     vector <vector <int> > permutations = ampMan->getPermutations(ampNames[iamp]);
-    for (unsigned int iperm = 0; iperm < permutations.size(); iperm++){
+    
+    int nPerm = permutations.size();
+    int nFact = ampFactors.size();
+    
+    int iLocalOffset = 0;
+    
+    for (unsigned int iperm = 0; iperm < nPerm; iperm++){
+
       cout << "        PERMUTATION = ";
       for (unsigned int ipar = 0; ipar < permutations[iperm].size(); ipar++){
         cout << permutations[iperm][ipar] << " ";
       }
+      
       cout << endl << endl;
-      for (unsigned int ifact = 0; ifact < ampFactors.size(); ifact++){
+      
+      int iOffsetP = iAmpFactOffset + 2 * iperm;
+      
+      for (unsigned int ifact = 0; ifact < nFact; ifact++){
+        
+        int iOffsetF = iOffsetP + 2 * nPerm * ifact;
+
         cout << "          AMPLITUDE FACTOR = " << ampFactors[ifact]->name() << endl;
-        cout << "          RESULT = " 
-             << ampFactors[ifact]->calcAmplitude(kin,permutations[iperm]) << endl << endl;
+        cout << "          RESULT = ( "
+             << aVecs.m_pdAmpFactors[iOffsetF] << ", "
+             << aVecs.m_pdAmpFactors[iOffsetF+1] << " )"
+             << endl << endl;
+      
+        iLocalOffset += 2;
       }
     }
+    
+    // since there is only one event, we should be incrementing iAmpFactOffset
+    // by 2 * nPerm * nFact for each amplitude in the loop
+    
+    iAmpFactOffset += iLocalOffset;
   }
 
+  // Deallocate memory and return
+  aVecs.deallocAmpVecs();
 }
 
 

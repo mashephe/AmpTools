@@ -85,8 +85,8 @@ class AmpToolsInterface{
 
   public:
 
-    AmpToolsInterface() { }
-
+  AmpToolsInterface();
+  
   /** Constructor.
    * Constructs an AmpToolsInterface
    *
