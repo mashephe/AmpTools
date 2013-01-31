@@ -86,6 +86,8 @@ protected:
   double dataTerm();
   double normIntTerm();
   
+  const NormIntInterface& normInt() const { return m_normInt; }
+  
 private:
   
   const AmplitudeManager& m_ampManager;
