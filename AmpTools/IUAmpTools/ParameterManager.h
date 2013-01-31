@@ -91,6 +91,16 @@ public:
   
 protected:
   
+  // MPI implementations on the worker nodes need to be able
+  // to create a ParameterManager without attaching it to
+  // a MinuitMinimizationManager - no one else should be using
+  // these constructors.  Use of these constructors requires
+  // overriding the other functions below to avoid dereferencing
+  // a null pointer to the MinuitMinimizationManager.
+
+  ParameterManager( AmplitudeManager* ampManager );
+  ParameterManager( const vector<AmplitudeManager*>& ampManager );
+  
   // these functions need to be virtual so that parallel implementations
   // can override their functionality correctly since they are called
   // from within setupFromConfigurationInfo
@@ -103,10 +113,10 @@ protected:
   double* getAmpParPtr( const string& parName );
   
   virtual void update( const string& parName );
-  
-private:
-  
-  // stop default
+
+ private:
+
+  // stop default and copy
   ParameterManager();
   ParameterManager( const ParameterManager& );
   
