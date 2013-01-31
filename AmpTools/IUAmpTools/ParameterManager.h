@@ -105,7 +105,7 @@ protected:
   // can override their functionality correctly since they are called
   // from within setupFromConfigurationInfo
   
-  virtual void addProductionParameter( const string& ampName, bool real = false );  
+  virtual void addProductionParameter( const string& ampName, bool real = false, bool fixed = false );
   virtual void addAmplitudeParameter( const string& ampName, const ParameterInfo* parInfo );
   
   // useful for MPI implementations of ParameterManager
