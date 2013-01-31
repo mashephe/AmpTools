@@ -70,6 +70,16 @@ is fitting to multiple coherent sums of amplitudes.
 
 RELEASE NOTES:
 
+v0.5.1 (31-Jan-2013):
+
+Fix bug in ParameterManager and ParamaterManagerMPI that caused MPI 
+versions of the code to segfault.
+
+The AmpToolsInterface now uses the AmpVecs structure in the printAmplitudes
+routine.  This allows one to test GPU computations of amplitudes.
+
+
+
 v0.5 (16-Nov-2012):
 
 Bundled both Tutorials and AmpPlotter (GUI) with the package. See
