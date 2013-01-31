@@ -69,6 +69,30 @@ m_ampManagers( ampManagers )
   cout << "Parameter manager initialized." << endl;
 }
 
+// protected constructors: these are used in MPI implementations where
+// the ParameterManager is created on a worker node that does not have
+// a MinuitMinimizationManager.  The reference must be initialized, so
+// it is initialized to NULL but never used.  The class using these
+// constructors must override any method that uses the
+// MinuitMinimizationManager in order to avoid dereferencing a null
+// pointer.
+
+ParameterManager::ParameterManager( AmplitudeManager* ampManager ) :
+  m_minuitManager( *static_cast< MinuitMinimizationManager* >( NULL ) ),
+  m_ampManagers( 0 )
+{ 
+  m_ampManagers.push_back(ampManager);
+  cout << "Parameter manager initialized." << endl;
+}
+
+ParameterManager::
+ParameterManager( const vector<AmplitudeManager*>& ampManagers ) :
+  m_minuitManager( *static_cast< MinuitMinimizationManager* >( NULL ) ),
+  m_ampManagers( ampManagers )
+{ 
+  cout << "Parameter manager initialized." << endl;
+}
+
 ParameterManager::~ParameterManager()
 {
   for( vector< ComplexParameter* >::iterator parItr = m_prodPtrCache.begin();
