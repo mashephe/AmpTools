@@ -132,7 +132,7 @@ ParameterManager::setupFromConfigurationInfo( ConfigurationInfo* cfgInfo ){
       ampItr != amps.end();
       ++ampItr ){
     
-    addProductionParameter( (**ampItr).fullName(), (**ampItr).real() );
+    addProductionParameter( (**ampItr).fullName(), (**ampItr).real(), (**ampItr).fixed() );
   }
   
   for( vector< AmplitudeInfo* >::iterator ampItr = amps.begin();
@@ -230,7 +230,7 @@ ParameterManager::addAmplitudeParameter( const string& ampName, const ParameterI
 }
 
 void 
-ParameterManager::addProductionParameter( const string& ampName, bool real )
+ParameterManager::addProductionParameter( const string& ampName, bool real, bool fixed )
 {
   
   // find the Amplitude Manager that has this amplitude
