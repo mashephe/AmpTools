@@ -67,7 +67,11 @@ complex< double >
 NormIntInterfaceMPI::normInt( string amp, string conjAmp, bool forceUseCache ) const {
   
   // in the case that we have a free parameter, recompute the NI's in parallel
-  if( ampManager()->hasAmpWithFreeParam() && !forceUseCache ) forceCacheUpdate( true );
+  // note that evaluation order is important; if the NI interface comes from a file
+  // the the ampManager pointer will be NULL. We rely on hasAccessToMC to short
+  // circuit the evaluation to avoid a segmentation fault.
+  if( hasAccessToMC() && ampManager()->hasAmpWithFreeParam() && !forceUseCache )
+    forceCacheUpdate( true );
   
   // then we can use the parent class to return the value from the 
   // updated cache
