@@ -75,10 +75,7 @@ ParameterManager( minuitManager, ampManagers )
 
 ParameterManagerMPI::
 ParameterManagerMPI( AmplitudeManager* ampManager ) :
-// feed the ParameterManager constructor a bogus reference,
-// this is OK as long as we override calls that use this reference
-ParameterManager( *( static_cast< MinuitMinimizationManager* >( NULL ) ),
-                 ampManager ),
+ParameterManager( ampManager ),
 m_ampManagers( 0 )
 {
   setupMPI();
@@ -93,12 +90,10 @@ m_ampManagers( 0 )
   
   m_ampManagers.push_back( ampManager );
 }
+
 ParameterManagerMPI::
 ParameterManagerMPI( const vector< AmplitudeManager* >& ampManagers ) :
-// feed the ParameterManager constructor a bogus reference,
-// this is OK as long as we override calls that use this reference
-ParameterManager( *( static_cast< MinuitMinimizationManager* >( NULL ) ),
-                 ampManagers ),
+ParameterManager( ampManagers ),
 m_ampManagers( ampManagers )
 {
   setupMPI();
@@ -137,7 +132,7 @@ ParameterManagerMPI::setupMPI()
 {
   MPI_Comm_rank( MPI_COMM_WORLD, &m_rank );
   MPI_Comm_size( MPI_COMM_WORLD, &m_numProc );
-  
+
   m_isMaster = ( m_rank == 0 );
 }
 
