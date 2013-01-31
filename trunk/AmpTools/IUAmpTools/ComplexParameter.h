@@ -113,6 +113,18 @@ public:
   void setValue( complex< double > value );
   
   /**
+   * This fixes the parameter at its current value.
+   *
+   */
+  void fix();
+  
+  /**
+   * This allows the parameter to float.
+   *
+   */
+  void free();
+  
+  /**
    * A function that returns the name of the ComplexParameter
    */
   const string& name() const { return m_name; }
