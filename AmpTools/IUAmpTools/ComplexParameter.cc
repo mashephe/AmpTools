@@ -50,7 +50,9 @@ ComplexParameter::ComplexParameter( const string& name,
 MIObserver(),
 m_name( name ),
 m_value( initialValue ),
-m_purelyReal( purelyReal )
+m_purelyReal( purelyReal ),
+m_realPar( NULL ),
+m_imPar( NULL )
 { 
   
   assert( &fitManager != 0 );
@@ -106,6 +108,21 @@ ComplexParameter::setValue( complex< double > value ){
   // of MISubject, which will call the update method above
   // to set the member data m_value to the new value
   
-  m_imPar->setValue( imag( value ) );
   m_realPar->setValue( real( value ) );
+  if( !m_purelyReal ) m_imPar->setValue( imag( value ) );
 }
+
+void
+ComplexParameter::fix(){
+  
+  m_realPar->fix();
+  if( !m_purelyReal ) m_imPar->fix();
+}
+
+void
+ComplexParameter::free(){
+  
+  m_realPar->free();
+  if( !m_purelyReal ) m_imPar->free();
+}
+
