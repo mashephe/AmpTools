@@ -136,14 +136,14 @@ ParameterManagerMPI::setupMPI()
   m_isMaster = ( m_rank == 0 );
 }
 
-void ParameterManagerMPI::addProductionParameter( const string& ampName, 
-                                                  bool real )
+void ParameterManagerMPI::addProductionParameter( const string& ampName,
+                                                  bool real, bool fixed )
 {
   
   if( m_isMaster ){
     
     // utilize the base class functionality for the master node
-    ParameterManager::addProductionParameter( ampName, real );
+    ParameterManager::addProductionParameter( ampName, real, fixed );
   
     // then use member data to hang onto a pointer to the complex number
     m_prodParMap[ ampName ] = getProdParPtr( ampName );
