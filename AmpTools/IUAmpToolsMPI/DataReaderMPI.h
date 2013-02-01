@@ -1,6 +1,8 @@
 #ifndef DATAREADERMPI
 #define DATAREADERMPI
 
+#include "mpi.h"
+
 #include "IUAmpTools/Kinematics.h"
 #include "IUAmpToolsMPI/MPITag.h"
 
@@ -31,6 +33,8 @@ struct KinStruct {
  *
  * \ingroup IUAmpToolsMPI
  */
+
+class DataReader;
 
 template < class T >
 class DataReaderMPI : public T
