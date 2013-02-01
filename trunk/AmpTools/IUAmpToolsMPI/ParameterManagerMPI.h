@@ -72,7 +72,7 @@ public:
   
   // override these functions to do the appropriate thing depending
   // on whether this instance is on the head or worker node
-  void addProductionParameter( const string& ampName, bool real = false );
+  void addProductionParameter( const string& ampName, bool real = false, bool fixed = false );
   void addAmplitudeParameter( const string& ampName, const ParameterInfo* parInfo );
   
   // the likelihood calculator will need to call this routine in order
