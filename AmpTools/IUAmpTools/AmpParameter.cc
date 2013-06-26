@@ -107,6 +107,8 @@ AmpParameter::operator=( const AmpParameter& ampPar ){
 bool
 AmpParameter::operator==( const AmpParameter& otherPar ) const {
   
+  if( otherPar.name() != m_name ) return false;
+  
   if( hasExternalPtr() && otherPar.hasExternalPtr() ){
     
     return( m_valPtr == otherPar.valPtr() );
