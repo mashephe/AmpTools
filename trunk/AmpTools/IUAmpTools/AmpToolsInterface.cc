@@ -51,7 +51,9 @@
 vector<Amplitude*> AmpToolsInterface::m_userAmplitudes;
 vector<DataReader*> AmpToolsInterface::m_userDataReaders;
 
-AmpToolsInterface::AmpToolsInterface() :
+AmpToolsInterface::AmpToolsInterface( FunctionalityFlag flag ) :
+ m_functionality( flag ),
+ m_configurationInfo( NULL ),
  m_minuitMinimizationManager(NULL),
  m_parameterManager(NULL),
  m_fitResults(NULL)
@@ -60,7 +62,8 @@ AmpToolsInterface::AmpToolsInterface() :
 }
 
 
-AmpToolsInterface::AmpToolsInterface(ConfigurationInfo* configurationInfo):
+AmpToolsInterface::AmpToolsInterface(ConfigurationInfo* configurationInfo, FunctionalityFlag flag ):
+    m_functionality( flag ),
     m_configurationInfo(configurationInfo),
     m_minuitMinimizationManager(NULL),
     m_parameterManager(NULL),
@@ -78,14 +81,15 @@ AmpToolsInterface::resetConfigurationInfo(ConfigurationInfo* configurationInfo){
 
   clear();
 
-
+  if( m_functionality == kFull ){
+    
     // ************************
     // create a MinuitMinimizationManager
     // ************************
 
-  m_minuitMinimizationManager = new MinuitMinimizationManager(100);
-  m_minuitMinimizationManager->setPrecision( 1E-13 );
-
+    m_minuitMinimizationManager = new MinuitMinimizationManager(100);
+    m_minuitMinimizationManager->setPrecision( 1E-13 );
+  }
 
     // ************************
     // create an AmplitudeManager for each reaction
@@ -105,14 +109,17 @@ AmpToolsInterface::resetConfigurationInfo(ConfigurationInfo* configurationInfo){
 
   }
 
+  if( m_functionality == kFull ){
+  
     // ************************
     // create a ParameterManager
     // ************************
 
-  m_parameterManager = new ParameterManager ( *m_minuitMinimizationManager, m_amplitudeManagers );
-  m_parameterManager->setupFromConfigurationInfo( m_configurationInfo );
+    m_parameterManager = new ParameterManager ( *m_minuitMinimizationManager, m_amplitudeManagers );
+    m_parameterManager->setupFromConfigurationInfo( m_configurationInfo );
 
-
+  }
+  
     // ************************
     // loop over reactions
     // ************************
@@ -128,91 +135,103 @@ AmpToolsInterface::resetConfigurationInfo(ConfigurationInfo* configurationInfo){
            << reactionName << endl;
 
 
+    if( m_functionality == kFull || m_functionality == kPlotGeneration ){
+      
       // ************************
       // create DataReaders
       // ************************
 
-    for (unsigned int i = 0; i < m_userDataReaders.size(); i++){
-      if (reaction->data().first == m_userDataReaders[i]->name()) 
-        m_dataReaderMap[reactionName] 
+      for (unsigned int i = 0; i < m_userDataReaders.size(); i++){
+        if (reaction->data().first == m_userDataReaders[i]->name())
+          m_dataReaderMap[reactionName]
           = m_userDataReaders[i]->newDataReader(reaction->data().second);
-      if (reaction->genMC().first == m_userDataReaders[i]->name()) 
-        m_genMCReaderMap[reactionName]
+        if (reaction->genMC().first == m_userDataReaders[i]->name())
+          m_genMCReaderMap[reactionName]
           = m_userDataReaders[i]->newDataReader(reaction->genMC().second);
-      if (reaction->accMC().first == m_userDataReaders[i]->name()) 
-        m_accMCReaderMap[reactionName]
+        if (reaction->accMC().first == m_userDataReaders[i]->name())
+          m_accMCReaderMap[reactionName]
           = m_userDataReaders[i]->newDataReader(reaction->accMC().second);
-    }
-    DataReader* dataRdr  =  dataReader(reactionName);
-    DataReader* genMCRdr = genMCReader(reactionName);
-    DataReader* accMCRdr = accMCReader(reactionName);
-
-    if (!dataRdr)
-      cout << "AmpToolsInterface WARNING:  not creating a DataReader for data associated with reaction " 
-           << reactionName << endl;
-    if (!genMCRdr)
-      cout << "AmpToolsInterface WARNING:  not creating a DataReader for generated MC associated with reaction " 
-           << reactionName << endl;
-    if (!accMCRdr)
-      cout << "AmpToolsInterface WARNING:  not creating a DataReader for accepted MC associated with reaction " 
-           << reactionName << endl;
+      }
+      DataReader* dataRdr  =  dataReader(reactionName);
+      DataReader* genMCRdr = genMCReader(reactionName);
+      DataReader* accMCRdr = accMCReader(reactionName);
+      
+      if (!dataRdr)
+        cout << "AmpToolsInterface WARNING:  not creating a DataReader for data associated with reaction "
+        << reactionName << endl;
+      if (!genMCRdr)
+        cout << "AmpToolsInterface WARNING:  not creating a DataReader for generated MC associated with reaction "
+        << reactionName << endl;
+      if (!accMCRdr)
+        cout << "AmpToolsInterface WARNING:  not creating a DataReader for accepted MC associated with reaction "
+        << reactionName << endl;
 
 
       // ************************
       // create a NormIntInterface
       // ************************
-
-    NormIntInterface* normInt = NULL;
-    if (genMCRdr && accMCRdr && ampMan && !(reaction->normIntFileInput())){
-      normInt = new NormIntInterface(genMCRdr, accMCRdr, *ampMan);
-      m_normIntMap[reactionName] = normInt;
-      if (reaction->normIntFile() == "")
-        cout << "AmpToolsInterface WARNING:  no name given to NormInt file for reaction " 
+      
+      NormIntInterface* normInt = NULL;
+      if (genMCRdr && accMCRdr && ampMan && !(reaction->normIntFileInput())){
+        normInt = new NormIntInterface(genMCRdr, accMCRdr, *ampMan);
+        m_normIntMap[reactionName] = normInt;
+        if (reaction->normIntFile() == "")
+          cout << "AmpToolsInterface WARNING:  no name given to NormInt file for reaction "
+          << reactionName << endl;
+      }
+      else if (reaction->normIntFileInput()){
+        normInt = new NormIntInterface(reaction->normIntFile());
+        m_normIntMap[reactionName] = normInt;
+      }
+      else{
+        cout << "AmpToolsInterface WARNING:  not creating a NormIntInterface for reaction "
         << reactionName << endl;
-    }
-    else if (reaction->normIntFileInput()){
-      normInt = new NormIntInterface(reaction->normIntFile());
-      m_normIntMap[reactionName] = normInt;
-    }
-    else{
-      cout << "AmpToolsInterface WARNING:  not creating a NormIntInterface for reaction " 
-       << reactionName << endl;
-    }
+      }
 
+      if( m_functionality == kFull ){
 
+        // ************************
+        // create a LikelihoodCalculator
+        // ************************
 
-      // ************************
-      // create a LikelihoodCalculator
-      // ************************
-
-    LikelihoodCalculator* likCalc = NULL;
-    if (ampMan && normInt && dataRdr && m_parameterManager){
-      likCalc = new LikelihoodCalculator(*ampMan, *normInt, *dataRdr, *m_parameterManager); 
-      m_likCalcMap[reactionName] = likCalc;
+        LikelihoodCalculator* likCalc = NULL;
+        if (ampMan && normInt && dataRdr && m_parameterManager){
+          likCalc = new LikelihoodCalculator(*ampMan, *normInt, *dataRdr, *m_parameterManager);
+          m_likCalcMap[reactionName] = likCalc;
+        }
+        else{
+          cout << "AmpToolsInterface WARNING:  not creating a LikelihoodCalculator for reaction "
+          << reactionName << endl;
+        }
+      }
     }
-    else{
-      cout << "AmpToolsInterface WARNING:  not creating a LikelihoodCalculator for reaction " 
-       << reactionName << endl;
-    }
-
   }
   
     // ************************
     // create FitResults
     // ************************
 
-  m_fitResults = new FitResults( m_configurationInfo,
-                                 m_amplitudeManagers,
-                                 m_likCalcMap,
-                                 m_normIntMap,
-                                 m_minuitMinimizationManager,
-                                 m_parameterManager );
+  
+  if( m_functionality == kFull ){
+    
+    m_fitResults = new FitResults( m_configurationInfo,
+                                   m_amplitudeManagers,
+                                   m_likCalcMap,
+                                   m_normIntMap,
+                                   m_minuitMinimizationManager,
+                                   m_parameterManager );
+  }
+  else if( m_functionality == kPlotGeneration ){
+    
+    string inputResultsFile(m_configurationInfo->fitOutputFileName());
+    m_fitResults = new FitResults( inputResultsFile );
+  }
 }
 
 
 
 double
-AmpToolsInterface::likelihood (const string& reactionName){
+AmpToolsInterface::likelihood (const string& reactionName) const {
   LikelihoodCalculator* likCalc = likelihoodCalculator(reactionName);
   if (likCalc) return (*likCalc)();
   return 0.0;
@@ -220,7 +239,7 @@ AmpToolsInterface::likelihood (const string& reactionName){
 
 
 double
-AmpToolsInterface::likelihood (){
+AmpToolsInterface::likelihood () const {
   double L = 0.0;
   for (unsigned int irct = 0; irct < m_configurationInfo->reactionList().size(); irct++){
     ReactionInfo* reaction = m_configurationInfo->reactionList()[irct];
@@ -238,14 +257,7 @@ AmpToolsInterface::finalizeFit(){
     // ************************
   
   string outputFile(m_configurationInfo->fitOutputFileName());
-  ofstream outFile(outputFile.c_str());
-  parameterManager()->writeParameters( outFile );
-
-  
-  // for now write two files until the use of the original
-  // ParameterManager output routine is completely depricated
-  outputFile += "_results";
-  
+  ofstream outFile(outputFile.c_str());  
   m_fitResults->saveResults();
   m_fitResults->writeResults( outputFile );
 
@@ -257,18 +269,21 @@ AmpToolsInterface::finalizeFit(){
   for (unsigned int irct = 0; irct < m_configurationInfo->reactionList().size(); irct++){
 
     ReactionInfo* reaction = m_configurationInfo->reactionList()[irct];
-    string reactionName(reaction->reactionName());
-    NormIntInterface* normInt = normIntInterface(reactionName);
-    if (normInt->hasAccessToMC()) normInt->forceCacheUpdate();
-    normInt->exportNormIntCache( reaction->normIntFile() );
 
+    if( !reaction->normIntFileInput() ){
+      string reactionName(reaction->reactionName());
+      NormIntInterface* normInt = normIntInterface(reactionName);
+      // the call to FitResults::writeResults will force a cache update
+      // there is no need to do it twice
+      //      if (normInt->hasAccessToMC()) normInt->forceCacheUpdate();
+      normInt->exportNormIntCache( reaction->normIntFile() );
+    }
   }
-
 }
 
 
 AmplitudeManager*
-AmpToolsInterface::amplitudeManager(const string& reactionName){
+AmpToolsInterface::amplitudeManager(const string& reactionName) const {
   for (unsigned int i = 0; i < m_amplitudeManagers.size(); i++){
     if (m_amplitudeManagers[i]->reactionName() == reactionName)
       return m_amplitudeManagers[i];
@@ -278,41 +293,41 @@ AmpToolsInterface::amplitudeManager(const string& reactionName){
 
 
 DataReader*
-AmpToolsInterface::dataReader (const string& reactionName){
+AmpToolsInterface::dataReader (const string& reactionName) const {
   if (m_dataReaderMap.find(reactionName) != m_dataReaderMap.end())
-    return m_dataReaderMap[reactionName];
+    return m_dataReaderMap.find(reactionName)->second;
   return (DataReader*) NULL;
 }
 
 
 DataReader*
-AmpToolsInterface::genMCReader (const string& reactionName){
+AmpToolsInterface::genMCReader (const string& reactionName) const {
   if (m_genMCReaderMap.find(reactionName) != m_genMCReaderMap.end())
-    return m_genMCReaderMap[reactionName];
+    return m_genMCReaderMap.find(reactionName)->second;
   return (DataReader*) NULL;
 }
 
 
 DataReader*
-AmpToolsInterface::accMCReader (const string& reactionName){
+AmpToolsInterface::accMCReader (const string& reactionName) const {
   if (m_accMCReaderMap.find(reactionName) != m_accMCReaderMap.end())
-    return m_accMCReaderMap[reactionName];
+    return m_accMCReaderMap.find(reactionName)->second;
   return (DataReader*) NULL;
 }
 
 
 NormIntInterface*
-AmpToolsInterface::normIntInterface (const string& reactionName){
+AmpToolsInterface::normIntInterface (const string& reactionName) const {
   if (m_normIntMap.find(reactionName) != m_normIntMap.end())
-    return m_normIntMap[reactionName];
+    return m_normIntMap.find(reactionName)->second;
   return (NormIntInterface*) NULL;
 }
 
 
 LikelihoodCalculator*
-AmpToolsInterface::likelihoodCalculator (const string& reactionName){
+AmpToolsInterface::likelihoodCalculator (const string& reactionName) const {
   if (m_likCalcMap.find(reactionName) != m_likCalcMap.end())
-    return m_likCalcMap[reactionName];
+    return m_likCalcMap.find(reactionName)->second;
   return (LikelihoodCalculator*) NULL;
 }
 
@@ -339,18 +354,20 @@ AmpToolsInterface::registerDataReader( const DataReader& dataReader){
 void
 AmpToolsInterface::clear(){
 
-  for (unsigned int irct = 0; irct < m_configurationInfo->reactionList().size(); irct++){
+  if( m_configurationInfo != NULL ){
+    
+    for (unsigned int irct = 0; irct < m_configurationInfo->reactionList().size(); irct++){
 
-    ReactionInfo* reaction = m_configurationInfo->reactionList()[irct];
-    string reactionName(reaction->reactionName());
+      ReactionInfo* reaction = m_configurationInfo->reactionList()[irct];
+      string reactionName(reaction->reactionName());
 
-    if (m_likCalcMap[reactionName]) delete m_likCalcMap[reactionName];
-    if (amplitudeManager(reactionName)) delete amplitudeManager(reactionName);
-    if (dataReader(reactionName)) delete dataReader(reactionName);
-    if (accMCReader(reactionName)) delete accMCReader(reactionName);
-    if (genMCReader(reactionName)) delete genMCReader(reactionName);
-    if (normIntInterface(reactionName)) delete normIntInterface(reactionName);
-
+      if (m_likCalcMap[reactionName]) delete m_likCalcMap[reactionName];
+      if (amplitudeManager(reactionName)) delete amplitudeManager(reactionName);
+      if (dataReader(reactionName)) delete dataReader(reactionName);
+      if (accMCReader(reactionName)) delete accMCReader(reactionName);
+      if (genMCReader(reactionName)) delete genMCReader(reactionName);
+      if (normIntInterface(reactionName)) delete normIntInterface(reactionName);
+    }
   }
 
   m_amplitudeManagers.clear();
@@ -417,7 +434,7 @@ AmpToolsInterface::loadEvent(Kinematics* kin, int iEvent, int nEventsTotal,
 
 double
 AmpToolsInterface::processEvents(string reactionName,
-                              unsigned int iDataSet){
+                              unsigned int iDataSet) {
 
   if (iDataSet >= MAXAMPVECS){
     cout << "AmpToolsInterface:  ERROR data set index out of range" << endl;
@@ -438,7 +455,7 @@ AmpToolsInterface::processEvents(string reactionName,
 
 
 int
-AmpToolsInterface::numEvents(unsigned int iDataSet){
+AmpToolsInterface::numEvents(unsigned int iDataSet) const {
 
   if (iDataSet >= MAXAMPVECS){
     cout << "AmpToolsInterface:  ERROR data set index out of range" << endl;
@@ -466,7 +483,7 @@ AmpToolsInterface::kinematics(int iEvent,
 
 double
 AmpToolsInterface::intensity(int iEvent,
-                              unsigned int iDataSet){
+                              unsigned int iDataSet) const {
 
   if (iDataSet >= MAXAMPVECS){
     cout << "AmpToolsInterface:  ERROR data set index out of range" << endl;
@@ -485,7 +502,7 @@ AmpToolsInterface::intensity(int iEvent,
 
 complex<double>
 AmpToolsInterface::decayAmplitude (int iEvent, string ampName,
-                              unsigned int iDataSet){
+                                   unsigned int iDataSet) const {
 
   if (iDataSet >= MAXAMPVECS){
     cout << "AmpToolsInterface:  ERROR data set index out of range" << endl;
@@ -508,16 +525,20 @@ AmpToolsInterface::decayAmplitude (int iEvent, string ampName,
 }
 
 complex<double>
-AmpToolsInterface::productionAmplitude (string ampName){
+AmpToolsInterface::scaledProductionAmplitude (string ampName, unsigned int iDataSet) const {
 
-  return parameterManager()->findParameter(ampName)->value();
-
+  const AmplitudeManager* ampMan = amplitudeManager(m_ampVecsReactionName[iDataSet]);
+  
+  double scale = ampMan->getScale( ampName );
+  complex< double > prodAmp = ampMan->productionAmp( ampName );
+  
+  return scale * prodAmp;
 }
 
 
 double
 AmpToolsInterface::alternateIntensity(int iEvent,
-                              unsigned int iDataSet){
+                                      unsigned int iDataSet) const {
 
   if (iDataSet >= MAXAMPVECS){
     cout << "AmpToolsInterface:  ERROR data set index out of range" << endl;
@@ -540,7 +561,7 @@ AmpToolsInterface::alternateIntensity(int iEvent,
       m_configurationInfo->amplitudeList(m_ampVecsReactionName[iDataSet],sums[iSum]->sumName());
     for (unsigned int iAmp = 0; iAmp < amps.size(); iAmp++){
 
-      complex<double> P = productionAmplitude(amps[iAmp]->fullName());
+      complex<double> P = scaledProductionAmplitude(amps[iAmp]->fullName());
       complex<double> D = decayAmplitude(iEvent,amps[iAmp]->fullName(),iDataSet);
 
       runningAmplitude += P*D;
@@ -552,14 +573,10 @@ AmpToolsInterface::alternateIntensity(int iEvent,
   }
 
   return runningIntensity;
-
 }
 
-
-
-
 void
-AmpToolsInterface::printKinematics(string reactionName, Kinematics* kin){
+AmpToolsInterface::printKinematics(string reactionName, Kinematics* kin) const {
 
   ReactionInfo* reaction = m_configurationInfo->reaction(reactionName);
   vector<HepLorentzVector> momenta = kin->particleList();
@@ -586,7 +603,7 @@ AmpToolsInterface::printKinematics(string reactionName, Kinematics* kin){
 
 
 void
-AmpToolsInterface::printAmplitudes(string reactionName, Kinematics* kin){
+AmpToolsInterface::printAmplitudes(string reactionName, Kinematics* kin) const {
 
   AmplitudeManager* ampMan = amplitudeManager(reactionName);
   vector<string> ampNames = ampMan->getAmpNames();
@@ -659,7 +676,7 @@ AmpToolsInterface::printAmplitudes(string reactionName, Kinematics* kin){
 
 
 void
-AmpToolsInterface::printIntensity(string reactionName, Kinematics* kin){
+AmpToolsInterface::printIntensity(string reactionName, Kinematics* kin) const {
 
   AmplitudeManager* ampMan = amplitudeManager(reactionName);
 
@@ -673,7 +690,7 @@ AmpToolsInterface::printIntensity(string reactionName, Kinematics* kin){
 
 
 void
-AmpToolsInterface::printEventDetails(string reactionName, Kinematics* kin){
+AmpToolsInterface::printEventDetails(string reactionName, Kinematics* kin) const {
 
   printKinematics(reactionName,kin);
   printAmplitudes(reactionName,kin);

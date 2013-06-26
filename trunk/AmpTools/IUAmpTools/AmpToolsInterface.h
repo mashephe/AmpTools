@@ -85,7 +85,9 @@ class AmpToolsInterface{
 
   public:
 
-  AmpToolsInterface();
+  enum FunctionalityFlag { kFull, kMCGeneration, kPlotGeneration };
+
+  AmpToolsInterface( FunctionalityFlag flag = kFull );
   
   /** Constructor.
    * Constructs an AmpToolsInterface
@@ -95,7 +97,7 @@ class AmpToolsInterface{
    * ConfigurationInfo object.
    */
 
-    AmpToolsInterface(ConfigurationInfo* cfgInfo);
+    AmpToolsInterface( ConfigurationInfo* cfgInfo, FunctionalityFlag flag = kFull );
 
   /** Destructor.
    */
@@ -128,7 +130,7 @@ class AmpToolsInterface{
    *  to re-initialize the IUAmpTools classes.
    */
 
-    ConfigurationInfo* configurationInfo()
+    ConfigurationInfo* configurationInfo() const
                                  { return m_configurationInfo; }
 
 
@@ -136,14 +138,14 @@ class AmpToolsInterface{
    *  Use the methods in MinuitMinimizationManager to do fits.
    */
 
-    MinuitMinimizationManager* minuitMinimizationManager() 
+    MinuitMinimizationManager* minuitMinimizationManager() const
                                  { return m_minuitMinimizationManager; }
 
   /** Pointer to the ParameterManager.
    *  Use this to get fit results, for example.
    */
 
-    ParameterManager*          parameterManager()          
+    ParameterManager*          parameterManager() const
                                  { return m_parameterManager;}
 
 
@@ -151,35 +153,35 @@ class AmpToolsInterface{
    *  (Most applications will not likely need to access these.)
    */
 
-    AmplitudeManager*     amplitudeManager     (const string& reactionName);
+    AmplitudeManager*     amplitudeManager     (const string& reactionName) const;
 
 
   /** Returns a pointer to a DataReader (for data).
    *  There is one for each reaction.
    */
 
-    DataReader*           dataReader           (const string& reactionName);
+    DataReader*           dataReader           (const string& reactionName) const;
 
 
   /** Returns a pointer to a DataReader (for accepted Monte Carlo).
    *  There is one for each reaction.
    */
 
-    DataReader*           accMCReader          (const string& reactionName);
+    DataReader*           accMCReader          (const string& reactionName) const;
 
 
   /** Returns a pointer to a DataReader (for generated Monte Carlo).
    *  There is one for each reaction.
    */
 
-    DataReader*           genMCReader          (const string& reactionName);
+    DataReader*           genMCReader          (const string& reactionName) const;
 
 
   /** Pointer to a NormIntInterface (one per reaction).
    *  Use this to access normalization integrals.
    */
 
-    NormIntInterface*     normIntInterface     (const string& reactionName);
+    NormIntInterface*     normIntInterface     (const string& reactionName) const;
 
   /** Pointer to a FitResults class.
    * Use this to access information that is stored after finalizeFit() is called.
@@ -196,7 +198,7 @@ class AmpToolsInterface{
    *  \see likelihood
    */
 
-    LikelihoodCalculator* likelihoodCalculator (const string& reactionName);
+    LikelihoodCalculator* likelihoodCalculator (const string& reactionName) const;
 
 
   /** Return the total -2ln(likelihood) (summed over all reactions) using
@@ -206,12 +208,12 @@ class AmpToolsInterface{
    *  post-fit value.
    */
 
-    double likelihood();
+    double likelihood() const;
 
   /** Return the -2ln(likelihood) associated with a particular reaction.
    */
 
-    double likelihood(const string& reactionName);
+    double likelihood(const string& reactionName) const;
 
 
   /** Print final fit results to a file.
@@ -286,7 +288,7 @@ class AmpToolsInterface{
    *  \see processEvents
    */
 
-    int numEvents(unsigned int iDataSet = 0);
+    int numEvents(unsigned int iDataSet = 0) const;
 
 
   /** Retrieve the intensity calculated for the specified event.
@@ -299,7 +301,7 @@ class AmpToolsInterface{
    */
 
     double intensity(int iEvent,
-                    unsigned int iDataSet = 0);
+                    unsigned int iDataSet = 0) const;
 
 
   /** Perform an alternate calculation of the intensity.  If there are no 
@@ -314,7 +316,7 @@ class AmpToolsInterface{
    */
 
     double alternateIntensity(int iEvent,
-                    unsigned int iDataSet = 0);
+                    unsigned int iDataSet = 0) const;
 
 
   /** Retrieve a decay amplitude calculated for the specified event.
@@ -330,18 +332,24 @@ class AmpToolsInterface{
    */
 
     complex<double> decayAmplitude (int iEvent, string ampName,
-                    unsigned int iDataSet = 0);
+                    unsigned int iDataSet = 0) const;
 
 
   /** Retrieve the production amplitude associated with a given amplitude.
    *  Recall that all amplitudes are defined as
    *    (production amplitude)  x  (decay amplitude)
    *
+   *  The production amplitude that is returned is scaled by the scale
+   *  factor that is set for that amplitude (if one has been set).
+   *
    *  \param[in] ampName  this is the full amplitude name
    *  (as it appears in AmplitudeInfo::fullName)
+   *
+   * \see AmplitudeManager::getScale
    */
 
-    complex<double> productionAmplitude (string ampName);
+    complex<double> scaledProductionAmplitude (string ampName,
+                                               unsigned int iDataSet = 0) const;
 
 
   /** Return the kinematics for a specified event as it was loaded using
@@ -354,33 +362,33 @@ class AmpToolsInterface{
    */
 
     Kinematics* kinematics(int iEvent,
-                    unsigned int iDataSet = 0);
+                           unsigned int iDataSet = 0);
 
 
   /** For debugging and diagnostics:  print event kinematics to the screen in 
    *  a readable format.
    */
 
-    void printKinematics   (string reactionName, Kinematics* kin);
+    void printKinematics   (string reactionName, Kinematics* kin) const;
 
 
   /** For debugging and diagnostics:  print amplitude values to the screen in 
    *  a readable format.
    */
 
-    void printAmplitudes   (string reactionName, Kinematics* kin);
+    void printAmplitudes   (string reactionName, Kinematics* kin) const;
 
   /** For debugging and diagnostics:  print an intensity to the screen in
    *  a readable format.
    */
 
-    void printIntensity    (string reactionName, Kinematics* kin);
+    void printIntensity    (string reactionName, Kinematics* kin) const;
 
   /** For debugging and diagnostics:  print event details to the screen in
    *  a readable format.
    */
 
-    void printEventDetails (string reactionName, Kinematics* kin);
+    void printEventDetails (string reactionName, Kinematics* kin) const;
 
 
   protected:
@@ -388,6 +396,8 @@ class AmpToolsInterface{
     AmpToolsInterface( const AmpToolsInterface& ati );
     AmpToolsInterface& operator=( AmpToolsInterface& ati );
 
+    FunctionalityFlag m_functionality;
+  
     void clear();
 
     ConfigurationInfo*          m_configurationInfo;
