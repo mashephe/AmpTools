@@ -59,7 +59,8 @@ m_reactionName(reactionName),
 m_renormalizeAmps( false ),
 m_normInt( NULL )
 {
-  cout << "Creating amplitude manager for reaction:" << endl;
+  cout << endl << "## AMPLITUDE MANAGER INITIALIZATION ##" << endl;
+  cout << " Creating amplitude manager for reaction:  " << reactionName << endl;
   
   // a list of index switches needed to generate the symmetrized amplitude
   // group the switches by particle type
@@ -67,7 +68,7 @@ m_normInt( NULL )
   map< string, vector< pair< int, int > > > swapsByType;
   for( unsigned int i = 0; i < reaction.size(); ++i ){
     
-    cout << "\t" << reaction[i] << " -->> " << i << endl;
+    cout << "\t particle index assignment:  " << reaction[i] << " -->> " << i << endl;
     
     for( unsigned int j = i + 1; j < reaction.size(); ++j ){
       
@@ -124,8 +125,8 @@ m_normInt( NULL )
   generateSymmetricCombos( vector< pair< int, int > >( 0 ),
                           swaps, defaultOrder );
   
-  cout << "The following " << numberOfCombos << " orderings of the "
-  << "particles are indistinguishable." << endl;
+  cout << "The following " << numberOfCombos << " ordering(s) of the particles are" << endl
+       << "indistinguishable and will be permuted when computing amplitudes." << endl;
   
   for( unsigned int i = 0; i < m_symmCombos.size(); ++i ){
     
@@ -133,7 +134,7 @@ m_normInt( NULL )
       
       cout << "\t" << m_symmCombos[i][j];
     }
-    cout << endl;
+    cout << endl << endl;
   }
   
 }
@@ -157,7 +158,6 @@ AmplitudeManager::~AmplitudeManager() {
   }
   
 }
-
 
 void 
 AmplitudeManager::calcAmplitudes( AmpVecs& a, bool bIsFirstPass, bool useMC ) const
@@ -320,8 +320,6 @@ AmplitudeManager::calcAmplitudes( AmpVecs& a, bool bIsFirstPass, bool useMC ) co
   }
   
 }
-
-
 
 double 
 AmplitudeManager::calcIntensities( AmpVecs& a, bool bIsFirstPass ) const
@@ -585,11 +583,11 @@ AmplitudeManager::addAmpFactor( const string& ampName,
     
     m_prodAmpVec.push_back( static_cast< complex< double >* >( 0 ) );
     m_vbIsAmpFixed.push_back( true );
-    
+  
     m_ampScaleVec.push_back( AmpParameter( scale ) );
     
-    cout << "Creating new amplitude with name:  " << ampName 
-    << " [Index: " << m_ampIndex[ampName] << "]" << endl;
+//    cout << "Creating new amplitude with name:  " << ampName
+//         << " [Index: " << m_ampIndex[ampName] << "]" << endl;
     
     m_mapNameToAmps[ampName] = vector< const Amplitude* >( 0 );
     setDefaultProductionAmplitude( ampName, complex< double >( 1, 0 ) );
@@ -714,7 +712,7 @@ AmplitudeManager::addAmpPermutation( const string& ampName, const vector< int >&
   if( mapItr == m_ampPermutations.end() ){
     
     cout << "WARNING:  adding permutation for nonexistent amplitude " << ampName 
-    << endl;
+         << endl;
     
     m_ampPermutations[ampName] = vector< vector< int > >( 0 );
     m_ampPermutations[ampName].push_back( permutation );
@@ -854,7 +852,7 @@ void
 AmplitudeManager::setDefaultProductionAmplitude( const string& ampName,
                                                 complex< double > prodAmp )
 {
-  cout << "Setting production amplitude for " << ampName << " to " << prodAmp << endl;
+//  cout << "Setting production amplitude for " << ampName << " to " << prodAmp << endl;
   
   m_defaultProdAmp[ampName] = prodAmp;
   m_prodAmp[ampName] = &(m_defaultProdAmp[ampName]);
@@ -875,7 +873,7 @@ AmplitudeManager::setExternalProductionAmplitude( const string& ampName,
     assert( false );
   }
   
-  cout << "Production amplitude for " << ampName << " is coming from external source." << endl;
+//  cout << "Production amplitude for " << ampName << " is coming from external source." << endl;
   
   m_prodAmp[ampName] = prodAmpPtr;
   m_prodAmpVec[m_ampIndex[ampName]] = prodAmpPtr;
@@ -884,7 +882,7 @@ AmplitudeManager::setExternalProductionAmplitude( const string& ampName,
 void
 AmplitudeManager::resetProductionAmplitudes()
 {
-  cout << "Resetting all produciton amplitudes to default values." << endl;
+//  cout << "Resetting all produciton amplitudes to default values." << endl;
   
   for( map< string, complex< double > >::iterator 
       prodItr = m_defaultProdAmp.begin();
@@ -926,8 +924,8 @@ AmplitudeManager::setAmpParPtr( const string& ampName, const string& parName,
   
   if( !foundParam ){
     
-    cout << "NOTICE:  no registered factor in the amplitude " << ampName
-    << " contains the parameter " << parName << "." << endl;
+//    cout << "NOTICE:  no registered factor in the amplitude " << ampName << endl
+//         << "   contains the parameter " << parName << "." << endl;
   }
 }
 
@@ -965,8 +963,8 @@ AmplitudeManager::setAmpParValue( const string& ampName, const string& parName,
   
   if( !foundParam ){
     
-    // cout << "NOTICE:  no registered factor in the amplitude " << ampName
-    //      << " contains the parameter " << parName << "." << endl;
+//     cout << "NOTICE:  no registered factor in the amplitude " << ampName
+//          << " contains the parameter " << parName << "." << endl;
   }
 }
 
