@@ -137,6 +137,13 @@ public:
    */
   void setValue( double val );
   
+  /**
+   * A function to change the name of the parmeter.
+   *
+   * \param[in] name the new name of the parameter
+   */
+  void setName( const string& name ) { m_name = name; }
+  
 private:
   
   const double* m_valPtr;
