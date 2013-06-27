@@ -297,45 +297,6 @@ ParameterManager::getAmpParPtr( const string& parName ){
   return mapItr->second->valuePtr();
 }
 
-void
-ParameterManager::writeParameters( ofstream& outFile ) const
-{
-  
-  // loop over the vectors that have a one-to-one correspondence
-  // with MINUIT parameters
-  // (For example, because of constraints, there may be additional entries in
-  // the production parameter map that point to the same complex parameter.)
-  
-  outFile <<  m_prodPtrCache.size() << "\t" <<  m_ampPtrCache.size() << endl;
-  
-  for( vector< ComplexParameter* >::const_iterator 
-      parItr = m_prodPtrCache.begin();
-      parItr != m_prodPtrCache.end(); ++parItr ){
-    
-    outFile << (**parItr).name() 
-    << ( (**parItr).isPurelyReal() ? "+" : "" ) << "\t"
-    << (**parItr).value() << endl;
-  }
-  
-  for( vector< MinuitParameter* >::const_iterator 
-      parItr = m_ampPtrCache.begin();
-      parItr != m_ampPtrCache.end(); ++parItr ){
-    
-    outFile << (**parItr).name() << "\t"
-    << (**parItr).value() << endl;
-  }
-  
-  vector< vector< double > > errMtx = 
-  m_minuitManager.parameterManager().covarianceMatrix();
-  for( unsigned int i = 0; i < errMtx.size(); ++i ){
-    for( unsigned int j = 0; j < errMtx[i].size(); ++j ){
-      
-      outFile << errMtx[i][j] << "\t";
-    }
-    outFile << endl;
-  }
-}
-
 bool
 ParameterManager::hasConstraints( const string& ampName ) const{
   map<string, vector<string> >::const_iterator
@@ -505,17 +466,6 @@ ParameterManager::updateParCovaraince(){
     m_parValues.push_back( (**ampPar).value() );
     m_parIndex[m_parList.back()] = index++;
   }
-  
-  // by default amplitude scales are fixed at unity -- we
-  // should add the name of the default AmpParameter
-  // this is done by constructing an AmpParameter in case
-  // that the default name of the AmpParameter changes
-  
-  AmpParameter defaultScale( "1.0" );
-  m_parList.push_back( defaultScale.name() );
-  m_parValues.push_back( defaultScale );
-  m_parIndex[m_parList.back()] = index++;
-  minuitParIndex.push_back( kFixedIndex );
   
   // now we have a flat list of all the (real valued) parameters
   // we need to fill out the covariance matrix
