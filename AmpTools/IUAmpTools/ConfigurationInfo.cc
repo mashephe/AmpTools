@@ -487,13 +487,13 @@ ConfigurationInfo::write( ostream& ff ) const {
   
   for (unsigned int i = 0; i < As.size(); i++){
     AmplitudeInfo* A = As[i];
-    ff << "amplitude " << A->fullName();
     vector< vector<string> > Fs = A->factors();
     for (unsigned int j = 0; j < Fs.size(); j++){
+      ff << "amplitude " << A->fullName();
       vector<string> args = Fs[j];
       for (unsigned int k = 0; k < args.size(); k++){
-        ff << " " << args[k];}}
-    ff << endl;}
+        ff << " " << args[k];}
+      ff << endl;}}
   
   
   // parameter
