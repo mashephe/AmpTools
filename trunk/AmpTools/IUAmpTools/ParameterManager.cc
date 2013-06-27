@@ -357,7 +357,7 @@ ParameterManager::update( const MISubject* parPtr ){
     }
   }
   
-  updateParCovaraince();
+  updateParCovariance();
 }
 
 void
@@ -374,7 +374,7 @@ ParameterManager::update( const string& parName ){
 }  
 
 void
-ParameterManager::updateParCovaraince(){
+ParameterManager::updateParCovariance(){
   
   // build a vector that provides the MINUIT parameter index i for
   // the real parts of the production parameters, if there is an imaginary
@@ -497,7 +497,7 @@ ParameterManager::updateParCovaraince(){
       
       // this shouldn't happen -- if it does, something has
       // gone wrong with the parameter numbering or the 
-      // construction of the covaraince matrix and we should
+      // construction of the covariance matrix and we should
       // crash
       
       assert( iIndex < minCovMtx.size() );
