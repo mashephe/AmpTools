@@ -11,6 +11,7 @@
 #include "IUAmpTools/Kinematics.h"
 #include "IUAmpTools/ConfigFileParser.h"
 #include "IUAmpTools/ConfigurationInfo.h"
+#include "IUAmpTools/FitResults.h"
 #include "DalitzDataIO/DalitzDataReader.h"
 #include "DalitzAmp/BreitWigner.h"
 #include "DalitzPlot/DalitzPlotGenerator.h"
@@ -28,9 +29,9 @@ int main( int argc, char* argv[] ){
 
   cout << endl << " *** Plotting Results from the Fit *** " << endl << endl;
 
-  if (argc <= 3){
+  if (argc < 3){
     cout << "Usage:" << endl << endl;
-    cout << "\tplotResults <config file name> <fit results file> <output file name>" << endl << endl;
+    cout << "\tplotResults <fit results name> <output file name>" << endl << endl;
     return 0;
   }
 
@@ -39,24 +40,21 @@ int main( int argc, char* argv[] ){
     // parse the command line parameters
     // ************************
 
-  string cfgname(argv[1]);
-  string parname(argv[2]);
-  string outname(argv[3]);
+  string resultsname(argv[1]);
+  string outname(argv[2]);
 
-  cout << "Config file name    = " << cfgname << endl;
-  cout << "Parameter file name = " << parname << endl << endl;
+  cout << "Fit results file name    = " << resultsname << endl;
   cout << "Output file name    = " << outname << endl << endl;
 
 
     // ************************
-    // parse the config file
+    // load the results and display the configuration info
     // ************************
 
-  ConfigFileParser parser(cfgname);
-  ConfigurationInfo* cfgInfo = parser.getConfigurationInfo();
-  cfgInfo->display();
-
-  ReactionInfo* reaction = cfgInfo->reactionList()[0];
+  FitResults results( resultsname );
+  results.configInfo()->display();
+  
+  string reactionName = results.reactionList()[0];
 
 
     // ************************
@@ -73,11 +71,9 @@ int main( int argc, char* argv[] ){
 
   AmpToolsInterface::registerDataReader( DalitzDataReader() );
   AmpToolsInterface::registerAmplitude( BreitWigner() );
-
-  AmpToolsInterface ati( cfgInfo );
   
-  DalitzPlotGenerator plotGenerator( ati );
-  plotGenerator.enableReaction(reaction->reactionName());
+  DalitzPlotGenerator plotGenerator( results );
+  plotGenerator.enableReaction( reactionName );
   vector<string> amps = plotGenerator.uniqueAmplitudes();
 
 
@@ -123,7 +119,7 @@ int main( int argc, char* argv[] ){
     }
 
     Histogram hist = plotGenerator.projection(ivar,
-                         reaction->reactionName(), iplot);
+                         reactionName, iplot);
 
             string xtitle = "Mass(P_{1}P_{2}) (GeV/c^{2})";
     if (ivar == 1) xtitle = "Mass(P_{1}P_{3}) (GeV/c^{2})";
@@ -151,16 +147,16 @@ int main( int argc, char* argv[] ){
     // ************************
 
 
-  cout << "TOTAL EVENTS = " << plotGenerator.intensity().first << " +- "
-                            << plotGenerator.intensity().second << endl;
+  cout << "TOTAL EVENTS = " << results.intensity().first << " +- "
+                            << results.intensity().second << endl;
   vector<string> fullamps = plotGenerator.fullAmplitudes();
   for (unsigned int i = 0; i < fullamps.size(); i++){
     vector<string> useamp;  useamp.push_back(fullamps[i]);
     cout << "FIT FRACTION " << i+1 << " = "
-         << plotGenerator.intensity(useamp).first /
-            plotGenerator.intensity().first <<  " +- "
-         << plotGenerator.intensity(useamp).second /
-            plotGenerator.intensity().first <<  endl;
+         << results.intensity(useamp).first /
+            results.intensity().first <<  " +- "
+         << results.intensity(useamp).second /
+            results.intensity().first <<  endl;
   }
 
   return 0;
