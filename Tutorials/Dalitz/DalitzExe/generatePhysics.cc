@@ -65,7 +65,7 @@ int main(int argc, char** argv){
   cout << "Creating an AmpToolsInterface..." << endl;
   AmpToolsInterface::registerAmplitude(BreitWigner());
   AmpToolsInterface::registerDataReader(DalitzDataReader());
-  AmpToolsInterface ATI(cfgInfo);
+  AmpToolsInterface ATI(cfgInfo,AmpToolsInterface::kMCGeneration);
   cout << "... Finished creating AmpToolsInterface" << endl;
 
 
