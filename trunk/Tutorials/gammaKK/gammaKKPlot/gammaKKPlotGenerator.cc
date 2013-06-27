@@ -11,8 +11,8 @@
 // be used in PlotGenerator???
 // #include "TH2F.h"
 
-gammaKKPlotGenerator::gammaKKPlotGenerator( AmpToolsInterface& ati ) :
-PlotGenerator( ati )
+gammaKKPlotGenerator::gammaKKPlotGenerator( const FitResults& results ) :
+PlotGenerator( results )
 {
   bookHistogram( khm12, "Mass( 1 2 )", Histogram( 60, 0.0, 3.0 ) );
   bookHistogram( khm13, "Mass( 1 3 )", Histogram( 60, 0.0, 3.0 ) );

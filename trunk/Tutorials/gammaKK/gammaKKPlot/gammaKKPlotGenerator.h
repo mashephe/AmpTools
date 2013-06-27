@@ -3,7 +3,7 @@
 
 #include "IUAmpTools/PlotGenerator.h"
 
-class AmpToolsInterface;
+class FitResults;
 class Kinematics;
 
 using namespace std;
@@ -13,7 +13,7 @@ class gammaKKPlotGenerator : public PlotGenerator
     
 public:
     
-  gammaKKPlotGenerator( AmpToolsInterface& ati );
+  gammaKKPlotGenerator( const FitResults& results );
 
   enum { 
     khm12 = 0, khm13, khm23,
