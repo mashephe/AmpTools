@@ -253,7 +253,7 @@ $DALITZ/DalitzExe/fitAmplitudes dalitz1.cfg
       sleep 3
 
 cd $DALITZ/run
-$DALITZ/DalitzExe/plotResults dalitz1.cfg dalitz1.fit dalitz1.root
+$DALITZ/DalitzExe/plotResults dalitz1.fit dalitz1.root
 
 
       sleep 1
@@ -281,7 +281,7 @@ root -l plots.physics.acc.root dalitz1.root plotResult.C
       sleep 3
 
 cd $DALITZ/run
-$DALITZ/DalitzExe/ampPlotter dalitz1.cfg
+$DALITZ/DalitzExe/ampPlotter dalitz1.fit
 
 
 
