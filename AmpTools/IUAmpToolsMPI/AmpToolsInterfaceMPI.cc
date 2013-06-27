@@ -185,21 +185,15 @@ AmpToolsInterfaceMPI::finalizeFit(){
 
     string outputFile(m_configurationInfo->fitOutputFileName());
     ofstream outFile(outputFile.c_str());
-    parameterManager()->writeParameters( outFile );
-
-
-    // for now write two files until the use of the original
-    // ParameterManager output routine is completely depricated
-    outputFile += "_results";
-
     m_fitResults->saveResults();
 
-      for (unsigned int irct = 0; irct < m_configurationInfo->reactionList().size(); irct++){
-	ReactionInfo* reaction = m_configurationInfo->reactionList()[irct];
-	string reactionName(reaction->reactionName());
-	if (m_likCalcMap[reactionName]) delete m_likCalcMap[reactionName];
+      for (unsigned int irct = 0;
+           irct < m_configurationInfo->reactionList().size(); irct++){
+        ReactionInfo* reaction = m_configurationInfo->reactionList()[irct];
+        string reactionName(reaction->reactionName());
+        if (m_likCalcMap[reactionName]) delete m_likCalcMap[reactionName];
       }
-      m_likCalcMap.clear();
+    m_likCalcMap.clear();
 
     m_fitResults->writeResults( outputFile );
  }
@@ -215,7 +209,9 @@ AmpToolsInterfaceMPI::finalizeFit(){
     ReactionInfo* reaction = m_configurationInfo->reactionList()[irct];
     string reactionName(reaction->reactionName());
     NormIntInterface* normInt = normIntInterface(reactionName);
-    if (normInt->hasAccessToMC()) normInt->forceCacheUpdate();
+    // the call to FitResults::writeResults will force a cache update
+    // there is no need to do it twice
+    //      if (normInt->hasAccessToMC()) normInt->forceCacheUpdate();
     if( m_rank == 0 ) normInt->exportNormIntCache( reaction->normIntFile() );
   }
 }
