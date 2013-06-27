@@ -13,7 +13,7 @@ class DalitzPlotGenerator : public PlotGenerator
     
 public:
     
-  DalitzPlotGenerator( AmpToolsInterface& ati );
+  DalitzPlotGenerator( const FitResults& results );
 
   enum { 
     khm12 = 0, khm13, khm23, 

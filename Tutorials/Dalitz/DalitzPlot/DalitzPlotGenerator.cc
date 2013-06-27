@@ -3,8 +3,8 @@
 #include "IUAmpTools/Histogram.h"
 #include "IUAmpTools/Kinematics.h"
 
-DalitzPlotGenerator::DalitzPlotGenerator( AmpToolsInterface& ati ) :
-PlotGenerator( ati )
+DalitzPlotGenerator::DalitzPlotGenerator( const FitResults& results ) :
+PlotGenerator( results )
 {
   bookHistogram( khm12, "Mass( 1 2 )", Histogram( 60, 0.0, 3.0 ) );
   bookHistogram( khm13, "Mass( 1 3 )", Histogram( 60, 0.0, 3.0 ) );
