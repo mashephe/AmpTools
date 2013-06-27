@@ -599,10 +599,23 @@ ConfigurationInfo::write( ostream& ff ) const {
   return ff;
 }
 
-
+void
+ConfigurationInfo::display(string fileName, bool append) const {
+  
+  // this is a display function - it should not modify ConfiguraitonInfo
+  // but all of the accessor functions are non-const to allow
+  // flexibility in manipulating the configuration info so we will
+  // cast away the constness and call the private non-const diplsay
+  // function
+  
+  ConfigurationInfo* ci = const_cast< ConfigurationInfo* >( this );
+  
+  ci->display( fileName, append );
+}
 
 void
 ConfigurationInfo::display(string fileName, bool append){
+  
 
   ofstream outfile;
   streambuf* cout_sbuf = cout.rdbuf();

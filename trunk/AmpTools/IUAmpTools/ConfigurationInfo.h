@@ -435,8 +435,8 @@ public:
    * \param[in] fileName (optional) name of file to write info
    * \param[in] append (optional) set to true to append to the file, default
    * is to overwrite the file
-   *
    */
+  void display(string fileName = "", bool append = false) const;
   void display(string fileName = "", bool append = false);
 
 
