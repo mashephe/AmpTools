@@ -44,10 +44,12 @@
 
 #include "IUAmpTools/Histogram.h"
 #include "IUAmpTools/NormIntInterface.h"
+#include "IUAmpTools/AmpToolsInterface.h"
 #include "IUAmpTools/AmplitudeManager.h"
 #include "IUAmpTools/ConfigurationInfo.h"
 
 class AmpToolsInterface;
+class FitResults;
 
 using namespace std;
 
@@ -58,22 +60,12 @@ public:
   
   enum { kData = 0, kGenMC, kAccMC, kNumTypes };
   
-  PlotGenerator( AmpToolsInterface& ati );
+  PlotGenerator( const FitResults& fitResults );
   
   virtual ~PlotGenerator();
   
-  // get intensity for all amplitudes that the plot generator
-  // has turned on
+  // get intensity for all amplitudes that are turned on
   pair< double, double > intensity( bool accCorrected = true ) const;
-  // get intensity for a subset of amps **within the same mode**
-  pair< double, double > intensity( const vector< string >& amps,
-                                   bool accCorrected = true ) const;
-  
-  // this computes the phase differences between sums of production
-  // coefficients -- it is not clear if this has any meaningful signficance
-  
-  double phaseDiff( const vector< string >& amps1, 
-                   const vector< string >& amps2 );
   
   bool haveAmp( const string& amp ) const;
   
@@ -113,11 +105,10 @@ protected:
   void fillHistogram( int index, double value );
   
   unsigned int getAmpIndex( const string& ampName ) const;
-  unsigned int getErrorMatrixIndex( const string& ampName ) const;
   
 private:
  
-  // these functions should be overridden by the derived class
+  // this function should be overridden by the derived class
   // that is written by the user
   virtual void projectEvent( Kinematics* kin ) = 0;
   
@@ -126,13 +117,12 @@ private:
   
   void recordConfiguration();
   void buildUniqueAmplitudes();
-  
-  double phase( const complex< double >& num ) const;
-  
+    
   vector< string >
      stringSplit(const string& str, const string& delimiters = " ") const;
   
-  AmpToolsInterface& m_ati;
+  const FitResults& m_fitResults;
+  AmpToolsInterface m_ati;
   const ConfigurationInfo* m_cfgInfo;
   
   map< string, NormIntInterface* > m_normIntMap;
@@ -143,17 +133,10 @@ private:
   vector< complex< double > > m_zeroProdAmps; 
   vector< complex< double > > m_prodAmps; 
   
-  // the fit error matrix, dimension:  2 * nFreeProdAmps + nAmpPars
-  // imaginary parts of fixed phase production amps are padded with zeros
-  vector< vector< double > > m_errorMatrix;
-  // a map from amplitude / parameter name to the error matrix row/column
-  map< string, unsigned int > m_eMatIndex;
-  
   // a vector of amplitude parameters
   map< string, double > m_ampParameters;
   
-  // these amplitudes include reaction name separated
-  // by a '::'
+  // these amplitudes include reaction name separated by a '::'
   vector< string > m_fullAmplitudes;
   
   // these lists are independent of reaction
