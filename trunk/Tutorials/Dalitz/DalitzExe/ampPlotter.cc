@@ -9,9 +9,8 @@
 #include "TStyle.h"
 #include "TClass.h"
 
-#include "IUAmpTools/ConfigFileParser.h"
-#include "IUAmpTools/ConfigurationInfo.h"
 #include "IUAmpTools/AmpToolsInterface.h"
+#include "IUAmpTools/FitResults.h"
 
 #include "AmpPlotter/PlotterMainWindow.h"
 #include "AmpPlotter/PlotFactory.h"
@@ -24,6 +23,10 @@ typedef DalitzPlotGenerator PlotGen;
 
 void atiSetup(){
   
+  // the PlotGenerator will create an AmpToolsInterface in order
+  // to create plots - this setup must happen before the
+  // AmpToolsInterface is created
+
   AmpToolsInterface::registerAmplitude( BreitWigner() );
   AmpToolsInterface::registerDataReader( DalitzDataReader() );
 }
@@ -44,43 +47,30 @@ int main( int argc, char* argv[] ){
   cout << endl << " *** Viewing Results Using AmpPlotter *** " << endl << endl;
 
   if (argc <= 1){
+    
     cout << "Usage:" << endl << endl;
-    cout << "\tampPlotter <config file name>" << endl << endl;
+    cout << "\tampPlotter <fit results name>" << endl << endl;
     return 0;
   }
-
 
     // ************************
     // parse the command line parameters
     // ************************
 
-  string cfgname(argv[1]);
-
-  cout << "Config file name    = " << cfgname << endl;
-
-
-    // ************************
-    // parse the config file
-    // ************************
-
-  ConfigFileParser parser(cfgname);
-  ConfigurationInfo* cfgInfo = parser.getConfigurationInfo();
-  cfgInfo->display();
-
-  string parFile( cfgInfo->fitOutputFileName() );
-
+  string resultsName(argv[1]);
+  FitResults results( resultsName );
+  if( !results.valid() ){
+    
+    cout << "Invalid fit results in file:  " << resultsName << endl;
+    exit( 1 );
+  }
 
     // ************************
     // set up the plot generator
     // ************************
 
-  
-  cout << "Setting up the plot generator with fit output: " << parFile << endl;
-  
-  atiSetup();
-  
-  AmpToolsInterface ati( cfgInfo );
-  PlotGen plotGen( ati );
+  atiSetup();  
+  PlotGen plotGen( results );
 
     // ************************
     // start the GUI
