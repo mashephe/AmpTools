@@ -5,7 +5,7 @@ using namespace std;
 
 #include "IUAmpTools/PlotGenerator.h"
 
-class AmpToolsInterface;
+class FitResults;
 class Kinematics;
 
 class DalitzPlotGenerator : public PlotGenerator
