@@ -10,8 +10,8 @@
 #include "IUAmpTools/ConfigFileParser.h"
 #include "IUAmpTools/ConfigurationInfo.h"
 #include "IUAmpTools/AmpToolsInterface.h"
+#include "IUAmpTools/FitResults.h"
 
-#include "gammaKKPlot/gammaKKPlotGenerator.h"
 #include "gammaKKDataIO/gammaKKDataReader.h"
 #include "gammaKKAmp/gammaKKHelicityAmp.h"
 #include "gammaKKAmp/MultipoleAmps.h"
@@ -206,20 +206,14 @@ int main( int argc, char* argv[] ){
     if(fitSuccess == true){
       // If the fit succeeded, save the current fit value
       // so we can use it for the next fit
-
-      ss.clear();
-      ss.str("");
-      ss << fitname_new << ".fit";
-      string fitfilename = ss.str();
-      gammaKKPlotGenerator plotGenerator(ATI);
-      plotGenerator.enableReaction(reactionName);
-      vector<string> amps = plotGenerator.fullAmplitudes();
-
+      vector<string> amps = ATI.fitResults()->ampList();
+      
       for(int i=0;i<amps.size();i++){
-	previous_fit[amps[i]] = ATI.parameterManager()->findParameter(amps[i])->value();
-	cout << "amplitude number " << i
-	     << ", ampname =  " << amps[i]
-	     << ", value = " << previous_fit[amps[i]] << endl;
+        previous_fit[amps[i]] =
+        ATI.fitResults()->productionParameter(amps[i]);
+        cout << "amplitude number " << i
+	           << ", ampname =  " << amps[i]
+	           << ", value = " << previous_fit[amps[i]] << endl;
       }
     }
     
