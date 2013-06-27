@@ -82,8 +82,6 @@ public:
   bool hasConstraints(const string& ampName) const;
   bool hasParameter(const string& ampName) const;
   
-  ComplexParameter* findParameter(const string& ampName) const;  
-  
   // this gets called whenever an amplitude parameter changes
   void update( const MISubject* parPtr );
   
@@ -118,6 +116,7 @@ protected:
   ParameterManager();
   ParameterManager( const ParameterManager& );
   
+  ComplexParameter* findParameter(const string& ampName) const;
   void updateParCovaraince();
   
   MinuitMinimizationManager& m_minuitManager;
