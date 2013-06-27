@@ -71,7 +71,7 @@ public:
   void setupFromConfigurationInfo( ConfigurationInfo* cfgInfo );
     
   // these functions provide a list of all known parameters, including those that are
-  // constrained to other parameters in addition to a covaraince matrix that
+  // constrained to other parameters in addition to a covariance matrix that
   // incorporates those constraints
   
   vector< double > parameterValues() const { return m_parValues; }
@@ -117,7 +117,7 @@ protected:
   ParameterManager( const ParameterManager& );
   
   ComplexParameter* findParameter(const string& ampName) const;
-  void updateParCovaraince();
+  void updateParCovariance();
   
   MinuitMinimizationManager& m_minuitManager;
   
