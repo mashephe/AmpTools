@@ -142,7 +142,7 @@ FitResults::intensity( const vector< string >& amplitudes, bool accCorrected ) c
       << "*   parameters that were floating in the fit.  Unless the par-*" << endl
       << "*   ameters are amplitude scale factors only, THE ERROR ON    *" << endl
       << "*   THE INTENSITY SHOULD BE CONSIDERED UNRELIABLE because the *" << endl
-      << "*   software is assuming that the derivative of the normali-  *" << endl
+      << "*   software is assuming that the derivatives of the normali- *" << endl
       << "*   zation integrals with respect to the parameters are equal *" << endl
       << "*   to zero.  (Fixing this involves numercially computing the *" << endl
       << "*   derivatives, which will be implemented in future versions *" << endl
