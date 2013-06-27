@@ -253,7 +253,7 @@ $DALITZ/DalitzExe/fitAmplitudes GPU.dalitz1.cfg
       #sleep 3
 
 cd $DALITZ/run
-$DALITZ/DalitzExe/plotResults GPU.dalitz1.cfg GPU.dalitz1.fit GPU.dalitz1.root
+$DALITZ/DalitzExe/plotResults GPU.dalitz1.fit GPU.dalitz1.root
 
 
       #sleep 1
@@ -281,7 +281,7 @@ root -l GPU.plots.physics.acc.root GPU.dalitz1.root plotResult.C
       #sleep 3
 
 cd $DALITZ/run
-$DALITZ/DalitzExe/ampPlotter GPU.dalitz1.cfg
+$DALITZ/DalitzExe/ampPlotter GPU.dalitz1.fit
 
 
 
