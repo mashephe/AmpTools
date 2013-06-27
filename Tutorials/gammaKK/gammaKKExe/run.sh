@@ -181,7 +181,7 @@ endif
 #
 
 # helicity amplitudes for spin-0 resonance
-$GAMMAKK/gammaKKExe/plotResults helicity0.fit.cfg helicity0.fit plots.fitresult.helicity0.root
+$GAMMAKK/gammaKKExe/plotResults helicity0.fit plots.fitresult.helicity0.root
 
 if( ($?VERBOSE) ) then
     echo "";
