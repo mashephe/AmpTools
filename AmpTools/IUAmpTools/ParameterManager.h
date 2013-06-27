@@ -69,9 +69,7 @@ public:
   MinuitMinimizationManager& fitManager() const { return m_minuitManager; }
   
   void setupFromConfigurationInfo( ConfigurationInfo* cfgInfo );
-  
-  void writeParameters( ofstream& file ) const;
-  
+    
   // these functions provide a list of all known parameters, including those that are
   // constrained to other parameters in addition to a covaraince matrix that
   // incorporates those constraints
