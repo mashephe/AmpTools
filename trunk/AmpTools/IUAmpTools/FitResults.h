@@ -414,6 +414,15 @@ public:
   void writeResults( const string& fileName ) const;
   
   /**
+   * Writes a file that is useful for seeding the results of subsequent fits.
+   * The file contains commands to initalize the production parameters of
+   * the amplitudes to the current values stored in the FitResults object.
+   *
+   * \param[in] fileName the name of the output file
+   */
+  void writeSeed( const string& fileName ) const;
+  
+  /**
    * Reconstitutues a FitResults object from a file.  Users will typically
    * not use this function directly, but instead use the constructor
    * that calls this function. It remains public for convenience.
