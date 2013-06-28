@@ -125,18 +125,20 @@ m_normInt( NULL )
   generateSymmetricCombos( vector< pair< int, int > >( 0 ),
                           swaps, defaultOrder );
   
-  cout << "The following " << numberOfCombos << " ordering(s) of the particles are" << endl
-       << "indistinguishable and will be permuted when computing amplitudes." << endl;
-  
-  for( unsigned int i = 0; i < m_symmCombos.size(); ++i ){
+  if( m_symmCombos.size() > 1 ){
     
-    for( unsigned int j = 0; j < reaction.size(); ++j ){
+    cout << "The following " << numberOfCombos << " orderings of the particles are" << endl
+         << "indistinguishable and will be permuted when computing amplitudes." << endl;
+
+    for( unsigned int i = 0; i < m_symmCombos.size(); ++i ){
+    
+      for( unsigned int j = 0; j < reaction.size(); ++j ){
       
-      cout << "\t" << m_symmCombos[i][j];
+        cout << "\t" << m_symmCombos[i][j];
+      }
+      cout << endl;
     }
-    cout << endl << endl;
   }
-  
 }
 
 AmplitudeManager::~AmplitudeManager() {
@@ -621,7 +623,7 @@ AmplitudeManager::addAmpFactor( const string& ampName,
     // (since matrix is symmetric)
     for( int i = 0; i < nAmps; ++i ){
       
-      bool coh = ( strcmp( m_ampSum[i].c_str(), sum.c_str() ) == 0 );
+      bool coh = ( m_ampSum[i] == sum );
       
       if( i < nAmps - 1 ){
         
