@@ -23,6 +23,11 @@ in bins of K K invariant mass.
 
 RELEASE NOTES:
 
+v0.6 (28-Jun-13):
+
+Modify to make compatible with v0.6 of AmpTools.  This mainly involves more complete
+utilization of the new FitResults class.
+
 v0.5 (16-Nov-12):
 
 First release that includes Tutorials.
