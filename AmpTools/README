@@ -96,7 +96,7 @@ to tailor the intended function of the interface.  By default this
 is set to fully-functioning, for fitting.  When plotting results or
 generating MC, reduced or different functionality is desireable.
 
-Numerours other small changes to either fix bugs or reduce the quantity
+Numerous other small changes to either fix bugs or reduce the quantity
 of output/diagnostic text that is printed to the screen during
 normal operations. 
 
