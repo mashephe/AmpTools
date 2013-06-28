@@ -35,6 +35,7 @@
 //******************************************************************************
 
 #include <iostream>
+#include <algorithm>
 
 #include "IUAmpTools/FitResults.h"
 #include "IUAmpTools/AmpParameter.h"
@@ -105,6 +106,19 @@ FitResults::intensity( bool accCorrected ) const {
 
 pair< double, double >
 FitResults::intensity( const vector< string >& amplitudes, bool accCorrected ) const {
+  
+  // first make sure we know about all the amplitudes:
+  vector< string > knownAmps = ampList();
+  for( vector< string >::const_iterator amp = amplitudes.begin();
+      amp != amplitudes.end(); ++amp ){
+
+    if( find( knownAmps.begin(), knownAmps.end(), *amp ) == knownAmps.end() ){
+      
+      cout << "FitResults ERROR:  request to compute intensity for unknown amplitude:\n\t"
+           << *amp << endl;
+      assert( false );
+    }
+  }
   
   // intensity = sum_a sum_a' s_a s_a' V_a V*_a' NI( a, a' )
     
@@ -197,7 +211,7 @@ FitResults::intensity( const vector< string >& amplitudes, bool accCorrected ) c
     
     for( vector< string >::const_iterator conjAmp = amplitudes.begin();
         conjAmp != amplitudes.end(); ++conjAmp ) {
-
+      
       vector<string> conjAmpNameParts = stringSplit( *conjAmp, "::" );
       assert( conjAmpNameParts.size() == 3 );
       string conjReaction = ampNameParts[0];
@@ -219,7 +233,7 @@ FitResults::intensity( const vector< string >& amplitudes, bool accCorrected ) c
       // for amplitudes from different sums within the same reaction, this happens
       // automatically in the normalization integral interface
       complex< double > ampInt;
-      if( strcmp( reaction.c_str(), conjReaction.c_str() ) == 0 ){
+      if( reaction == conjReaction ){
         
         if (accCorrected)  ampInt = m_normIntMap.find(reaction)->second->ampInt( *amp, *conjAmp );
         else               ampInt = m_normIntMap.find(reaction)->second->normInt( *amp, *conjAmp );
@@ -276,6 +290,15 @@ FitResults::intensity( const vector< string >& amplitudes, bool accCorrected ) c
 pair< double, double >
 FitResults::phaseDiff( const string& amp1, const string& amp2 ) const {
   
+  vector< string > knownAmps = ampList();
+  if( ( find( knownAmps.begin(), knownAmps.end(), amp1 ) == knownAmps.end() ) ||
+      ( find( knownAmps.begin(), knownAmps.end(), amp2 ) == knownAmps.end() ) ){
+    
+    cout << "FitResults ERROR:  unkown amplitude(s) in phase difference calculation\n\t"
+         << amp1 << " and/or " << amp2 << endl;
+    assert( false );
+  }
+  
   vector<string> ampNameParts = stringSplit( amp1, "::" );
   assert( ampNameParts.size() == 3 );
   string reaction1 = ampNameParts[0];
@@ -286,8 +309,7 @@ FitResults::phaseDiff( const string& amp1, const string& amp2 ) const {
   string reaction2 = ampNameParts[0];
   string sum2 = ampNameParts[1];
 
-  if( ( strcmp( reaction1.c_str(), reaction2.c_str() ) != 0 ) ||
-      ( strcmp( sum1.c_str(), sum2.c_str() ) != 0 ) ){
+  if( ( reaction1 != reaction2 ) || ( sum1 != sum2 ) ){
     
     cout << "FitResults WARNING:: request to compute phase difference of " << endl
          << "                     amplitudes from different sums or different" << endl
@@ -297,16 +319,15 @@ FitResults::phaseDiff( const string& amp1, const string& amp2 ) const {
     
     return pair< double, double >( 0, 0 );
   }
-
   
   // The phase difference depends only on two parameters, the real and imaginary
   // components of the two amplitudes.  It is independent of the scale of the
   // amplitudes.
   vector< int > idx( 4 );
-  idx[0] = m_parIndex.find( amp1 + "_re" )->second;
-  idx[1] = m_parIndex.find( amp1 + "_im" )->second;
-  idx[2] = m_parIndex.find( amp2 + "_re" )->second;
-  idx[3] = m_parIndex.find( amp2 + "_im" )->second;
+  idx[0] = m_parIndex.find( realProdParName( amp1 ) )->second;
+  idx[1] = m_parIndex.find( imagProdParName( amp1 ) )->second;
+  idx[2] = m_parIndex.find( realProdParName( amp2 ) )->second;
+  idx[3] = m_parIndex.find( imagProdParName( amp2 ) )->second;
 
   // this makes the code a little easier to read
   double a1Re = m_parValues[idx[0]];
@@ -655,6 +676,57 @@ FitResults::writeResults( const string& outFile ) const {
 }
 
 void
+FitResults::writeSeed( const string& outFile ) const {
+  
+  ofstream output( outFile.c_str() );
+  output.precision( 15 );
+  
+  vector< string > amps = ampList();
+  for( vector< string >::const_iterator amp = amps.begin();
+       amp != amps.end();
+       ++amp ){
+    
+    vector<string> parts = stringSplit( *amp, "::" );
+    assert( parts.size() == 3 );
+    AmplitudeInfo* ampInfo =
+      m_cfgInfo->amplitude( parts[0], parts[1], parts[2] );
+    
+    output << "initialize " << *amp << " cartesian "
+           << parValue( realProdParName( *amp ) ) << " "
+           << parValue( imagProdParName( *amp ) );
+    
+    if( ampInfo->fixed() )
+      output << " fixed";
+    
+    if( ampInfo->real() )
+      output << " real";
+
+    output << endl;
+  }
+  
+  map< string, double > ampPars = ampParMap();
+  for( map< string, double >::const_iterator par = ampPars.begin();
+       par != ampPars.end();
+       ++par ){
+    
+    output << "parameter " << par->first << " " << par->second;
+    
+    ParameterInfo* parInfo = m_cfgInfo->parameter( par->first );
+
+    if( parInfo->fixed() )
+      output << " fixed";
+
+    if( parInfo->bounded() )
+      output << " bounded " << parInfo->lowerBound()
+           << " " << parInfo->upperBound();
+
+    if( parInfo->gaussianBounded() )
+      output << " gaussian " << parInfo->centralValue()
+           << " " << parInfo->gaussianError();
+  }
+}
+
+void
 FitResults::loadResults( const string& inFile ){
   
   enum { kMaxLine = 256 };
@@ -789,25 +861,36 @@ FitResults::recordAmpSetup(){
   m_ampNames.clear();
   m_ampScaleNames.clear();
   m_ampScaleValues.clear();
+
+  m_reacIndex.clear();
+  m_ampIndex.clear();
   
-  for( vector< AmplitudeManager* >::iterator ampMan = m_ampManVec.begin();
-       ampMan != m_ampManVec.end();
-       ++ampMan ){
-  
-    m_reactionNames.push_back( (**ampMan).reactionName() );
+//  for( vector< AmplitudeManager* >::iterator ampMan = m_ampManVec.begin();
+//       ampMan != m_ampManVec.end();
+//       ++ampMan ){
     
-    vector< string > ampNames = (**ampMan).getAmpNames();
+  for( int i = 0; i < m_ampManVec.size(); ++i ){
+  
+    AmplitudeManager* ampMan = m_ampManVec[i];
+    
+    m_reacIndex[ampMan->reactionName()] = i;
+    m_reactionNames.push_back( ampMan->reactionName() );
+    
+    vector< string > ampNames = ampMan->getAmpNames();
     
     m_ampNames.push_back( ampNames );
+    m_ampIndex.push_back( map< string, int >() );
     m_numAmps.push_back( ampNames.size() );
     
     vector< string > ampScaleNames( 0 );
     vector< double > ampScaleValues( 0 );
     
-    for( int i = 0; i < ampNames.size(); ++i ){
+    for( int j = 0; j < ampNames.size(); ++j ){
       
-      ampScaleNames.push_back( (**ampMan).getScale( ampNames[i] ).name() );
-      ampScaleValues.push_back( (**ampMan).getScale( ampNames[i] ) );
+      ampScaleNames.push_back( ampMan->getScale( ampNames[j] ).name() );
+      ampScaleValues.push_back( ampMan->getScale( ampNames[j] ) );
+
+      m_ampIndex[i][ampNames[j]] = j;
     }
     
     m_ampScaleNames.push_back( ampScaleNames );
