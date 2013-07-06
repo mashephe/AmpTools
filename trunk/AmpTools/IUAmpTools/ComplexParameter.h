@@ -148,6 +148,11 @@ public:
   bool isPurelyReal() const { return m_purelyReal == true; }
   
   /**
+   * A function to see if the parameter is floating.  
+   */
+  bool isFixed() const;
+   
+  /**
    * A function that returns the current value of the complex parameter.
    */
   complex< double > value() const { return m_value; }
