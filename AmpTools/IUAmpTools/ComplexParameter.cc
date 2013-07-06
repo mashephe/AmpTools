@@ -126,3 +126,9 @@ ComplexParameter::free(){
   if( !m_purelyReal ) m_imPar->free();
 }
 
+bool
+ComplexParameter::isFixed() const {
+
+  return !m_realPar->floating();
+}
+
