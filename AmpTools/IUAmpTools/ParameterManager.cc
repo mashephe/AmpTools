@@ -262,6 +262,7 @@ ParameterManager::addProductionParameter( const string& ampName, bool real, bool
     m_prodPtrCache.push_back( par );
   }
   
+  if( fixed ) par->fix();
   
   // update the amplitude manager
   
@@ -386,6 +387,10 @@ ParameterManager::updateParCovariance(){
       par != m_prodPtrCache.end();
       ++par ){
     
+    // if the production parameter is fixed, then it won't appear in
+    // the covariance matrix
+    if( (**par).isFixed() ) continue;
+    
     prodParMinuitIndex.push_back( numMinuitPars );
     numMinuitPars += ( (**par).isPurelyReal() ? 1 : 2 );
   }
@@ -420,19 +425,22 @@ ParameterManager::updateParCovariance(){
       assert( parItr != m_prodPtrCache.end() );
       int cacheIndex = parItr - m_prodPtrCache.begin();
       
-      // and record the corresponding MINUIT parameter index
-      minuitParIndex.push_back( prodParMinuitIndex[cacheIndex] );
+      // if the parameter is fixed, the real part won't
+      // have a MINUIT index, save kFixedIndex (negative) and watch
+      // out for this when building the error matrix
+      minuitParIndex.push_back( prodPar->isFixed() ?
+                                kFixedIndex : prodParMinuitIndex[cacheIndex] );
       
       // record the other values
       m_parList.push_back( (*name) + "_re" );
       m_parValues.push_back( real( prodPar->value() ) );
       m_parIndex[m_parList.back()] = index++;
       
-      // if the parameter is purely real, the imaginary part won't
+      // if the parameter is purely real or fixed, the imaginary part won't
       // have a MINUIT index, save kFixedIndex (negative) and watch 
       // out for this when building the error matrix
-      minuitParIndex.push_back( prodPar->isPurelyReal() ? 
-                               kFixedIndex : prodParMinuitIndex[cacheIndex] + 1 );
+      minuitParIndex.push_back( prodPar->isPurelyReal() || prodPar->isFixed() ?
+                                kFixedIndex : prodParMinuitIndex[cacheIndex] + 1 );
       
       // record the imaginary parameter info
       m_parList.push_back( (*name) + "_im" );
