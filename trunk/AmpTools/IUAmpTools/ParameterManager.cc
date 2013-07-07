@@ -387,12 +387,20 @@ ParameterManager::updateParCovariance(){
       par != m_prodPtrCache.end();
       ++par ){
     
-    // if the production parameter is fixed, then it won't appear in
-    // the covariance matrix
-    if( (**par).isFixed() ) continue;
-    
-    prodParMinuitIndex.push_back( numMinuitPars );
-    numMinuitPars += ( (**par).isPurelyReal() ? 1 : 2 );
+    if( (**par).isFixed() ){
+
+      // if the production parameter is fixed, then it won't
+      // have a MINUIT index and were going to set this to kFixedIndex
+      // later in building minuitParIndex, but we need an entry in this
+      // vector for that ComplexParameter
+      
+      prodParMinuitIndex.push_back( kFixedIndex );
+    }
+    else{
+  
+      prodParMinuitIndex.push_back( numMinuitPars );
+      numMinuitPars += ( (**par).isPurelyReal() ? 1 : 2 );
+    }
   }
   
   vector< int > minuitParIndex( 0 );
@@ -428,6 +436,9 @@ ParameterManager::updateParCovariance(){
       // if the parameter is fixed, the real part won't
       // have a MINUIT index, save kFixedIndex (negative) and watch
       // out for this when building the error matrix
+      // (this is a redundant check since the check has already been
+      //  done above in building prodParMinuitIndex, but it helps
+      //  to make the code a little clearer)
       minuitParIndex.push_back( prodPar->isFixed() ?
                                 kFixedIndex : prodParMinuitIndex[cacheIndex] );
       
