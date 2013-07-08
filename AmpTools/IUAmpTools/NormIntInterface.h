@@ -62,7 +62,8 @@ public:
                    const AmplitudeManager& ampManager );
   
   istream& loadNormIntCache( istream& in );
-  
+  void operator+=( const NormIntInterface& nii );
+
   int numGenEvents() const { return m_nGenEvents; }
   int numAccEvents() const { return m_nAccEvents; }
   
