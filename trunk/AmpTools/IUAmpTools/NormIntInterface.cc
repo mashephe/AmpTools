@@ -153,6 +153,43 @@ NormIntInterface::loadNormIntCache( istream& input )
   m_emptyAmpIntCache = false;
 }
 
+void
+NormIntInterface::operator+=( const NormIntInterface& nii )
+{
+  
+  double nAccEvts = nii.numAccEvents();
+  double nGenEvts = nii.numGenEvents();
+  
+  double totalAccEvts = nAccEvts + m_nAccEvents;
+  double totalGenEvts = nGenEvts + m_nGenEvents;
+  
+  string ampName, conjAmpName;
+  
+  for( map< string, map< string, complex< double > > >::const_iterator ampItr = m_ampIntCache.begin(); ampItr != m_ampIntCache.end(); ++ampItr ){
+    
+    ampName = ampItr->first;
+    
+    for( map< string, complex< double > >::const_iterator conjItr = ampItr->second.begin(); conjItr != ampItr->second.end(); ++conjItr ){
+      
+      conjAmpName = conjItr->first;
+      
+      m_ampIntCache[ampName][conjAmpName] *= m_nAccEvents;
+      m_ampIntCache[ampName][conjAmpName] += nAccEvts * nii.ampInt( ampName, conjAmpName );
+      m_ampIntCache[ampName][conjAmpName] /= totalAccEvts;
+      
+      m_normIntCache[ampName][conjAmpName] *= m_nGenEvents;
+      m_normIntCache[ampName][conjAmpName] += nGenEvts * nii.normInt( ampName, conjAmpName );
+      m_normIntCache[ampName][conjAmpName] /= totalGenEvts;
+    }
+  }
+  
+  m_nAccEvents = totalAccEvts;
+  m_nGenEvents = totalGenEvts;
+  
+  m_emptyNormIntCache = false;
+  m_emptyAmpIntCache = false;
+}
+
 bool
 NormIntInterface::hasAccessToMC() const
 {
