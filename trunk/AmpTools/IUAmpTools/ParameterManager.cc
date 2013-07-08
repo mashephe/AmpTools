@@ -246,7 +246,11 @@ ParameterManager::addProductionParameter( const string& ampName, bool real, bool
   }
   
   // get the parameter's initial value from the amplitude manager
-  complex< double > initialValue = (**ampManPtr).productionAmp( ampName );
+  // (The productionAmp method will return the scaled production amplitude
+  // we need to divide out the scale to get the production parameter initial
+  // value that was specified in the configuration file.)
+  complex< double > initialValue = (**ampManPtr).productionAmp( ampName ) /
+        (double)(**ampManPtr).getScale( ampName );
   
   // find the ComplexParameter for this amplitude or an amplitude constrained to
   //   be the same as this amplitude
