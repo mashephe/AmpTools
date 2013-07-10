@@ -431,6 +431,17 @@ public:
    */
   void loadResults( const string& fileName );
 
+  /**
+   * Rotates the results of a fit to have the following phase convention:
+   *
+   * 1. In a loop over the amplitudes, the first one which is constrained to 
+   *      be real must have a positive value
+   * 2. The total amplitude must have a positive phase
+   *
+   */
+  void rotateResults();
+  void writeFitResults( const string& fileName );
+
 protected:
   
   /**

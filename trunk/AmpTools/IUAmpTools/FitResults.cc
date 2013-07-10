@@ -36,6 +36,7 @@
 
 #include <iostream>
 #include <algorithm>
+#include <cmath>
 
 #include "IUAmpTools/FitResults.h"
 #include "IUAmpTools/AmpParameter.h"
@@ -354,11 +355,31 @@ FitResults::phaseDiff( const string& amp1, const string& amp2 ) const {
                                  sqrt(pVar) );
 }
 
+const NormIntInterface*
+FitResults::normInt( const string& reactionName ) const {
+  
+  map< string, NormIntInterface* >::const_iterator nameNormInt =
+     m_normIntMap.find( reactionName );
+  
+  if( nameNormInt == m_normIntMap.end() ){
+    
+    cout << "FitResults ERROR:  requesting NormIntInterface for reaction "
+         << "that does not exist: " << reactionName << endl;
+    
+    cout << "  Returning a NULL pointer that may result in a segfault."
+         << endl;
+    
+    return NULL;
+  }
+
+  return nameNormInt->second;
+}
+
 string
 FitResults::realProdParName( const string& amplitude ) const {
   
   string parName = amplitude + "_re";
-  
+
   // be sure the parameter actually exists before returning its name
   // if this fails, then a bogus amplitude name was passed in
   assert( m_parIndex.find( parName ) != m_parIndex.end() );
@@ -941,6 +962,153 @@ FitResults::recordFitStats(){
   m_bestMin = m_minManager->bestMinimum();
 }
 
+void
+FitResults::rotateResults()
+{
+  
+  string reactionName;
+  
+  // loop over the reactions
+  vector< ReactionInfo* > reactionInfo = m_cfgInfo->reactionList();
+  for( vector< ReactionInfo* >::const_iterator reactionInfoItr = reactionInfo.begin(); reactionInfoItr != reactionInfo.end(); ++reactionInfoItr ){
+    
+    reactionName = (**reactionInfoItr).reactionName();
+    
+    // get a list of the coherent sums
+    vector< string > sumNames;
+    vector< CoherentSumInfo* > sumInfo = m_cfgInfo->coherentSumList( reactionName );
+    for( vector< CoherentSumInfo* >::const_iterator sumInfoItr = sumInfo.begin(); sumInfoItr != sumInfo.end(); ++sumInfoItr ){
+      sumNames.push_back( (**sumInfoItr).sumName() );
+    }
+    
+    // loop over the coherent sums
+    for( unsigned int sum = 0; sum < sumNames.size(); sum++ ){
+      
+      // flags to determine whether a rotation of reflection is necessary
+      bool rotate = false;
+      bool foundRealAmp = false;
+      bool reflect = false;
+      double totalRe = 0.0, totalIm = 0.0;
+      
+      // make a list of the amplitudes
+      vector< string > ampNames;
+      vector< AmplitudeInfo* > ampInfo = m_cfgInfo->amplitudeList( reactionName, sumNames[sum] );
+      for( vector< AmplitudeInfo* >::const_iterator ampInfoItr = ampInfo.begin(); ampInfoItr != ampInfo.end(); ++ampInfoItr ){
+        
+        ampNames.push_back( (**ampInfoItr).fullName() );
+        
+        string reParName = realProdParName( (**ampInfoItr).fullName() );
+        string imParName = imagProdParName( (**ampInfoItr).fullName() );
+        
+        int reIndex = m_parIndex.find( reParName )->second;
+        int imIndex = m_parIndex.find( imParName )->second;
+        
+        // check if a rotation is necessary
+        if( (**ampInfoItr).real() == true && foundRealAmp == false ){
+          foundRealAmp = true;
+          if( m_parValues[reIndex] < 0 )
+            rotate = true;
+        }
+        
+        // if the amplitude is not constrained to be real, check if
+        // it is constrained to be the same as any real amplitudes
+        if( foundRealAmp == false ){
+          const vector< AmplitudeInfo* > constraints = (**ampInfoItr).constraints();
+          for( vector< AmplitudeInfo* >::const_iterator conInfoItr = constraints.begin(); conInfoItr != constraints.end(); ++conInfoItr ){
+            if( (**conInfoItr).real() == true && foundRealAmp == false ){
+              foundRealAmp = true;
+              if( m_parValues[reIndex] < 0 )
+                rotate = true;
+            }
+          }
+        }
+        
+        totalRe += m_parValues[reIndex];
+        totalIm += m_parValues[imIndex];
+      }
+      
+      // check if a reflection is necessary
+      if( atan2( totalIm, totalRe ) < 0 ) reflect = true;
+      
+      // if not, move on to the next sum
+      if( rotate == false && reflect == false ) continue;
+      
+      // loop over amplitudes and make any necessary changes
+      for( unsigned int amp = 0; amp < ampNames.size(); amp++ ){
+        
+        string reParName = realProdParName( ampNames[amp] );
+        string imParName = imagProdParName( ampNames[amp] );
+        
+        int reIndex = m_parIndex.find( reParName )->second;
+        int imIndex = m_parIndex.find( imParName )->second;
+        
+        if( rotate == true )
+          m_parValues[reIndex] *= -1.0;
+        
+        if( reflect == true && m_parValues[imIndex] != 0.0 )
+          m_parValues[imIndex] *= -1.0;
+        
+        // also make the necessary changes to the covariance matrix
+        for( unsigned int conjAmp = 0; conjAmp < ampNames.size(); conjAmp++ ){
+          
+          string reConjParName = realProdParName( ampNames[conjAmp] );
+          string imConjParName = imagProdParName( ampNames[conjAmp] );
+          
+          int reConjIndex = m_parIndex.find( reConjParName )->second;
+          int imConjIndex = m_parIndex.find( imConjParName )->second;
+          
+          if( rotate == true ){
+            m_covMatrix[reIndex][imConjIndex] *= -1.0;
+            m_covMatrix[imConjIndex][reIndex] *= -1.0;
+          }
+          
+          if( reflect == true ){
+            m_covMatrix[imIndex][reConjIndex] *= -1.0;
+            m_covMatrix[reConjIndex][imIndex] *= -1.0;
+          }
+        }
+      } // end of nested loop over amplitudes
+    } // end of loop over sums
+  } // end of loop over reactions
+}
+
+void
+FitResults::writeFitResults( const string& outFile ){
+
+  ofstream output( outFile.c_str() );
+
+  output << m_numAmps[0]/4. << "\t0" << endl;
+
+  for( unsigned int i = 0; i < m_parNames.size()-1; i++ ){
+    const char* reactName = m_parNames[i].substr( 8, 4 ).c_str(); 
+    if( strcmp( reactName, "amp1" ) != 0 ) continue;
+    const char* lastChars = m_parNames[i].substr( m_parNames[i].size() - 2, 2 ).c_str();    
+    if( strcmp( lastChars, "im" ) == 0 ){
+      output << m_parNames[i].substr( 0, m_parNames[i].size() - 3 ); 
+      if( m_parValues[i] == 0 && m_covMatrix[i][i] == 0 ) output << "+";
+      output << "\t(" << m_parValues[i-1] << "," << m_parValues[i] << ")" << endl;
+    }
+  }
+
+  for( unsigned int i = 0; i < m_parNames.size()-1; i++ ){
+    const char* reactNamei = m_parNames[i].substr( 8, 4 ).c_str(); 
+    if( strcmp( reactNamei, "amp1" ) != 0 ) continue;
+    const char* lastCharsi = m_parNames[i].substr( m_parNames[i].size() - 2, 2 ).c_str();
+    if( strcmp( lastCharsi, "im" ) == 0 && m_parValues[i] == 0 && m_covMatrix[i][i] == 0 ) continue;
+    for( unsigned int j = 0; j < m_parNames.size()-1; j++ ){
+      const char* reactNamej = m_parNames[j].substr( 8, 4 ).c_str(); 
+      if( strcmp( reactNamej, "amp1" ) == 0 ){
+        const char* lastCharsj = m_parNames[j].substr( m_parNames[j].size() - 2, 2 ).c_str();
+        if( strcmp( lastCharsj, "im" ) == 0 && m_parValues[j] == 0 && m_covMatrix[j][j] == 0 ) continue;
+        output << m_covMatrix[i][j] << "\t";
+      }
+    }
+    output << endl;
+  }
+
+  output.close();
+}
+
 vector< string >
 FitResults::stringSplit(const string& str, const string& delimiters ) const
 {
@@ -959,5 +1127,3 @@ FitResults::stringSplit(const string& str, const string& delimiters ) const
   
   return tokens;
 }
-
-
