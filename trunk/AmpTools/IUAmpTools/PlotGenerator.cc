@@ -72,7 +72,7 @@ m_emptyHist()
     m_ampIndex[amps[i]] = i;
     
     // keep vector with orginal fit values
-    m_fitProdAmps.push_back( m_fitResults.scaledProductionParameter( amps[i] ) );
+    m_fitProdAmps.push_back( m_fitResults.productionParameter( amps[i] ) );
 
     // a parallel vector of zeros
     m_zeroProdAmps.push_back( complex< double >( 0, 0 ) );
