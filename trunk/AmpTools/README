@@ -71,6 +71,19 @@ is fitting to multiple coherent sums of amplitudes.
 
 RELEASE NOTES:
 
+v0.6.1 (11-Jul-2013):
+
+An operator+= was defined for NormIntInterface that allows one to add
+statistically independent normalization integrals together to enhance the
+statistical precision of integrals.
+
+Implement a rotateResults function in FitResults that allows the user to
+consistently remove a four-fold ambiguity that that is always present
+when fitting for complex amplitudes.  See documentation in FitResults.
+
+Numerous bugs were fixed that caused trouble when one or more of the production
+amplitudes in a fit were fixed.
+
 v0.6.0 (28-Jun-2013):
 
 A bug was fixed that resulted in improper consideration of correlations
