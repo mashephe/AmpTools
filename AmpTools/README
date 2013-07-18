@@ -71,6 +71,11 @@ is fitting to multiple coherent sums of amplitudes.
 
 RELEASE NOTES:
 
+v0.6.2 (18-Jul-2013):
+
+Fixed bug that caused an incorrect covariance matrix after rotateResults
+was called in the FitResults object.
+
 v0.6.1 (11-Jul-2013):
 
 An operator+= was defined for NormIntInterface that allows one to add
