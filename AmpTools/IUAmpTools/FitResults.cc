@@ -37,6 +37,7 @@
 #include <iostream>
 #include <algorithm>
 #include <cmath>
+#include <iomanip>
 
 #include "IUAmpTools/FitResults.h"
 #include "IUAmpTools/AmpParameter.h"
@@ -980,7 +981,17 @@ FitResults::rotateResults()
     for( vector< CoherentSumInfo* >::const_iterator sumInfoItr = sumInfo.begin(); sumInfoItr != sumInfo.end(); ++sumInfoItr ){
       sumNames.push_back( (**sumInfoItr).sumName() );
     }
-    
+
+    // Get all of the amplitudes, independent of sums
+    vector< string > allAmpNames;
+    vector< AmplitudeInfo* > ampInfoEachSum;
+    for( unsigned int sum = 0; sum < sumNames.size(); sum++ ){
+      ampInfoEachSum = m_cfgInfo->amplitudeList( reactionName, sumNames[sum] );
+      for( vector< AmplitudeInfo* >::const_iterator ampInfoItr = ampInfoEachSum.begin(); ampInfoItr != ampInfoEachSum.end(); ++ampInfoItr ){
+	allAmpNames.push_back( (**ampInfoItr).fullName() );
+      }
+    }
+
     // loop over the coherent sums
     for( unsigned int sum = 0; sum < sumNames.size(); sum++ ){
       
@@ -1049,19 +1060,19 @@ FitResults::rotateResults()
           m_parValues[imIndex] *= -1.0;
         
         // also make the necessary changes to the covariance matrix
-        for( unsigned int conjAmp = 0; conjAmp < ampNames.size(); conjAmp++ ){
+        for( unsigned int conjAmp = 0; conjAmp < allAmpNames.size(); conjAmp++ ){
           
-          string reConjParName = realProdParName( ampNames[conjAmp] );
-          string imConjParName = imagProdParName( ampNames[conjAmp] );
-          
-          int reConjIndex = m_parIndex.find( reConjParName )->second;
+          string imConjParName = imagProdParName( allAmpNames[conjAmp] );
           int imConjIndex = m_parIndex.find( imConjParName )->second;
           
           if( rotate == true ){
             m_covMatrix[reIndex][imConjIndex] *= -1.0;
             m_covMatrix[imConjIndex][reIndex] *= -1.0;
           }
-          
+
+          string reConjParName = realProdParName( allAmpNames[conjAmp] );
+          int reConjIndex = m_parIndex.find( reConjParName )->second;
+
           if( reflect == true ){
             m_covMatrix[imIndex][reConjIndex] *= -1.0;
             m_covMatrix[reConjIndex][imIndex] *= -1.0;
