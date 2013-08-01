@@ -40,7 +40,7 @@
 #include "GPUManager/GPUCustomTypes.h"
 
 class DataReader;
-class AmplitudeManager;
+class IntensityManager;
 class Kinematics;
 
 /**
@@ -79,17 +79,7 @@ struct AmpVecs
    * An integer that stores the number of amplitudes for a particular
    * configuration of the AmplitudeManager.
    */
-  int m_iNAmps;
-  
-  /**
-   * An integer that stores the number of unique amplitudes and permutations
-   * for a particular configuration of the AmplitudeManager.  This is equivalent
-   * to the number calcAmplitude calls that must be made for each event in order
-   * to compute the intensity.
-   *
-   * \see Amplitude::calcAmplitude
-   */
-  int m_iNAmpFactorsAndPerms;
+  int m_iNTerms;
   
   /**
    * An array of length 4 * iNEvents * iNParticles that stores the four-vectors
@@ -135,19 +125,19 @@ struct AmpVecs
   ~AmpVecs(){ deallocAmpVecs(); }
   
   /**
-   * This routine allocates space to store the calculated amplitudes and
+   * This routine allocates space to store the calculated terms and
    * (optionally) the calculated intensities.  It should be passed a reference
-   * to the AmplitudeManager after the AmplitudeManager has been setup and
-   * configured to compute the intensity as it needs to know, for example,
-   * the number of permutations for each amplitude.
+   * to the IntensityManager AFTER the IntensityManager has been setup and
+   * configured to compute the intensity.
    *
-   * \param[in] ampMan a reference to the AmplitudeManager to use as a guide
-   * for allocating the arrays for amplitudes, factors, and intensities
+   * \param[in] intenMan a reference to the IntensityManager to use as a guide
+   * for allocating the arrays for terms, factors, and intensities
    *
    * \param[in] bAllocIntensity if set to true this will allocate space for
    * the intensity calculation
    */
-  void allocateAmps( const AmplitudeManager& ampMan, bool bAllocIntensity = false );
+  void allocateTerms( const IntensityManager& intenMan,
+                      bool bAllocIntensity = false );
   
   /**
    * This routine uses the pointer to the data reader that is provided to 

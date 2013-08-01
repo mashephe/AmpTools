@@ -46,7 +46,7 @@
 #include "IUAmpTools/AmpVecs.h"
 
 class Kinematics;
-class AmplitudeManager;
+class IntensityManager;
 class DataReader;
 
 using namespace std;
@@ -59,7 +59,7 @@ public:
   NormIntInterface();
   NormIntInterface( const string& normIntFile );
   NormIntInterface( DataReader* genMCData, DataReader* accMCData, 
-                   const AmplitudeManager& ampManager );
+                    const IntensityManager& ampManager );
   
   istream& loadNormIntCache( istream& in );
   void operator+=( const NormIntInterface& nii );
@@ -101,11 +101,11 @@ protected:
   void setNormIntegral( string ampName, string cnjName,
                        complex< double > val ) const;
   
-  const AmplitudeManager* ampManager() const { return m_pAmpManager; }
+  const IntensityManager* intenManager() const { return m_pIntenManager; }
   
 private:
   
-  const AmplitudeManager* m_pAmpManager;
+  const IntensityManager* m_pIntenManager;
   
   DataReader* m_accMCReader;
   DataReader* m_genMCReader;

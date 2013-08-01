@@ -46,7 +46,9 @@
 #include <fstream>
 
 #include "MinuitInterface/MinuitMinimizationManager.h"
-#include "IUAmpTools/AmplitudeManager.h"
+#include "IUAmpTools/IntensityManager.h"
+#include "IUAmpTools/Amplitude.h"
+#include "IUAmpTools/AmpVecs.h"
 #include "IUAmpTools/Kinematics.h"
 #include "IUAmpTools/NormIntInterface.h"
 #include "IUAmpTools/ConfigFileParser.h"
@@ -149,11 +151,11 @@ class AmpToolsInterface{
                                  { return m_parameterManager;}
 
 
-  /** Pointer to an AmplitudeManager.  There is one for each defined reaction.
+  /** Pointer to an IntensityManager.  There is one for each defined reaction.
    *  (Most applications will not likely need to access these.)
    */
 
-    AmplitudeManager*     amplitudeManager     (const string& reactionName) const;
+    IntensityManager*     intensityManager     (const string& reactionName) const;
 
 
   /** Returns a pointer to a DataReader (for data).
@@ -404,7 +406,7 @@ class AmpToolsInterface{
     MinuitMinimizationManager*  m_minuitMinimizationManager;
     ParameterManager*           m_parameterManager;
 
-    vector<AmplitudeManager*>  m_amplitudeManagers;
+    vector<IntensityManager*>  m_intensityManagers;
 
 
     map<string,DataReader*> m_dataReaderMap;

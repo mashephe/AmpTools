@@ -39,15 +39,17 @@
 
 #include <map>
 #include <vector>
+#include <string>
 
 #include "IUAmpTools/ComplexParameter.h"
 #include "MinuitInterface/MinuitMinimizationManager.h"
 #include "MinuitInterface/GaussianBound.h"
 #include "MinuitInterface/MIObserver.h"
 #include "MinuitInterface/MISubject.h"
-#include "IUAmpTools/AmplitudeManager.h"
+#include "IUAmpTools/IntensityManager.h"
 
 class ConfigurationInfo;
+class ParameterInfo;
 
 class ParameterManager : MIObserver
 {
@@ -59,10 +61,10 @@ public:
   enum { kFixedIndex = -1 };
   
   ParameterManager( MinuitMinimizationManager& minuitManager,
-                   AmplitudeManager* ampManager );
+                    IntensityManager* intenManager );
   
   ParameterManager( MinuitMinimizationManager& minuitManager,
-                   const vector<AmplitudeManager*>& ampManager );
+                   const vector<IntensityManager*>& intenManagers );
   
   ~ParameterManager();
   
@@ -94,8 +96,8 @@ protected:
   // overriding the other functions below to avoid dereferencing
   // a null pointer to the MinuitMinimizationManager.
 
-  ParameterManager( AmplitudeManager* ampManager );
-  ParameterManager( const vector<AmplitudeManager*>& ampManager );
+  ParameterManager( IntensityManager* intenManager );
+  ParameterManager( const vector<IntensityManager*>& intenManager );
   
   // these functions need to be virtual so that parallel implementations
   // can override their functionality correctly since they are called
@@ -121,7 +123,7 @@ protected:
   
   MinuitMinimizationManager& m_minuitManager;
   
-  vector< AmplitudeManager* > m_ampManagers;
+  vector< IntensityManager* > m_intenManagers;
   
   vector< double > m_parValues;
   vector< string > m_parList;

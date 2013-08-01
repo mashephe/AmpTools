@@ -37,14 +37,16 @@
 // any other party arising from use of the program.
 //******************************************************************************
 
+#include <string>
 
-#include "IUAmpTools/AmplitudeManager.h"
-#include "IUAmpTools/NormIntInterface.h"
-#include "IUAmpTools/ParameterManager.h"
-#include "IUAmpTools/DataReader.h"
+#include "IUAmpTools/AmpVecs.h"
+#include "IUAmpTools/IntensityManager.h"
 
 #include "MinuitInterface/MIFunctionContribution.h"
 
+class NormIntInterface;
+class ParameterManager;
+class DataReader;
 class MinuitMinimizationManager;
 class MinuitParameter;
 
@@ -62,19 +64,21 @@ class MinuitParameter;
  * \ingroup IUAmpTools
  */
 
+using namespace std;
+
 class LikelihoodCalculator : public MIFunctionContribution
 {
   
 public:
   
-  LikelihoodCalculator( const AmplitudeManager& ampManager,
-                       const NormIntInterface& normInt,
-                       DataReader& dataReader,
-                       const ParameterManager& parManager );
+  LikelihoodCalculator( const IntensityManager& intenManager,
+                        const NormIntInterface& normInt,
+                        DataReader& dataReader,
+                        const ParameterManager& parManager );
   
   ~LikelihoodCalculator(){}
   
-  string reactionName() const { return m_ampManager.reactionName(); }
+  string reactionName() const { return m_intenManager.reactionName(); }
   
   // this method delivers the likelihood
   double operator()();
@@ -88,7 +92,7 @@ protected:
   
 private:
   
-  const AmplitudeManager& m_ampManager;
+  const IntensityManager& m_intenManager;
   const NormIntInterface& m_normInt;
   DataReader& m_dataReader;
   

@@ -38,32 +38,33 @@
 #include <iostream>
 #include <fstream>
 #include <cassert>
+#include <string>
 
 #include "IUAmpTools/ParameterManager.h"
 #include "IUAmpTools/ComplexParameter.h"
-#include "IUAmpTools/AmplitudeManager.h"
+#include "IUAmpTools/IntensityManager.h"
 #include "IUAmpTools/ConfigurationInfo.h"
 #include "MinuitInterface/MinuitMinimizationManager.h"
 #include "MinuitInterface/MinuitParameterManager.h"
 #include "GPUManager/GPUCustomTypes.h"
 
 ParameterManager::ParameterManager( MinuitMinimizationManager& minuitManager,
-                                   AmplitudeManager* ampManager ) :
+                                    IntensityManager* intenManager ) :
 MIObserver(),
 m_minuitManager( minuitManager ),
-m_ampManagers( 0 )
+m_intenManagers( 0 )
 { 
   m_minuitManager.attach( this );
-  m_ampManagers.push_back(ampManager);
+  m_intenManagers.push_back(intenManager);
   cout << "Parameter manager initialized." << endl;
 }
 
 ParameterManager::
 ParameterManager( MinuitMinimizationManager& minuitManager,
-                 const vector<AmplitudeManager*>& ampManagers ) :
+                 const vector<IntensityManager*>& intenManagers ) :
 MIObserver(),
 m_minuitManager( minuitManager ),
-m_ampManagers( ampManagers )
+m_intenManagers( intenManagers )
 { 
   m_minuitManager.attach( this );
   cout << "Parameter manager initialized." << endl;
@@ -77,18 +78,18 @@ m_ampManagers( ampManagers )
 // MinuitMinimizationManager in order to avoid dereferencing a null
 // pointer.
 
-ParameterManager::ParameterManager( AmplitudeManager* ampManager ) :
+ParameterManager::ParameterManager( IntensityManager* ampManager ) :
   m_minuitManager( *static_cast< MinuitMinimizationManager* >( NULL ) ),
-  m_ampManagers( 0 )
+  m_intenManagers( 0 )
 { 
-  m_ampManagers.push_back(ampManager);
+  m_intenManagers.push_back(ampManager);
   cout << "Parameter manager initialized." << endl;
 }
 
 ParameterManager::
-ParameterManager( const vector<AmplitudeManager*>& ampManagers ) :
+ParameterManager( const vector<IntensityManager*>& intenManagers ) :
   m_minuitManager( *static_cast< MinuitMinimizationManager* >( NULL ) ),
-  m_ampManagers( ampManagers )
+  m_intenManagers( intenManagers )
 { 
   cout << "Parameter manager initialized." << endl;
 }
@@ -141,7 +142,7 @@ ParameterManager::setupFromConfigurationInfo( ConfigurationInfo* cfgInfo ){
     
     vector< ParameterInfo* > pars = (**ampItr).parameters();
     
-    for( vector< ParameterInfo* >::iterator parItr = pars.begin();
+    for( vector< ParameterInfo* >::const_iterator parItr = pars.begin();
         parItr != pars.end();
         ++parItr ){
       
@@ -152,7 +153,7 @@ ParameterManager::setupFromConfigurationInfo( ConfigurationInfo* cfgInfo ){
 
 
 void
-ParameterManager::addAmplitudeParameter( const string& ampName, const ParameterInfo* parInfo ){
+ParameterManager::addAmplitudeParameter( const string& termName, const ParameterInfo* parInfo ){
   
   const string& parName = parInfo->parName();
   
@@ -201,10 +202,10 @@ ParameterManager::addAmplitudeParameter( const string& ampName, const ParameterI
   
   // find the Amplitude Manager that has the relevant amplitude
   bool foundOne = false;
-  vector< AmplitudeManager* >::iterator ampManPtr = m_ampManagers.begin();
-  for( ; ampManPtr != m_ampManagers.end(); ++ampManPtr ){
+  vector< IntensityManager* >::iterator intenManPtr = m_intenManagers.begin();
+  for( ; intenManPtr != m_intenManagers.end(); ++intenManPtr ){
     
-    if( !(*ampManPtr)->hasProductionAmp( ampName ) ) continue;
+    if( !(*intenManPtr)->hasTerm( termName ) ) continue;
     
     foundOne = true;
     
@@ -214,34 +215,34 @@ ParameterManager::addAmplitudeParameter( const string& ampName, const ParameterI
       // this prevents Amplitude class from thinking that is has
       // a free parameter
       
-      (**ampManPtr).setAmpParValue( ampName, parName, parInfo->value() );
+      (**intenManPtr).setParValue( termName, parName, parInfo->value() );
     }
     else{
       
-      (**ampManPtr).setAmpParPtr( ampName, parName, parPtr->constValuePtr() );
+      (**intenManPtr).setParPtr( termName, parName, parPtr->constValuePtr() );
     }
   }
   
   if( !foundOne ){
     
-    cout << "WARNING:  could not find amplitude named " << ampName 
+    cout << "WARNING:  could not find amplitude named " << termName 
          << " while trying to set parameter " << parName << endl;
   }
 }
 
 void 
-ParameterManager::addProductionParameter( const string& ampName, bool real, bool fixed )
+ParameterManager::addProductionParameter( const string& termName, bool real, bool fixed )
 {
   
   // find the Amplitude Manager that has this amplitude
   
-  vector< AmplitudeManager* >::iterator ampManPtr = m_ampManagers.begin();
-  for( ; ampManPtr != m_ampManagers.end(); ++ampManPtr ){
-    if( (*ampManPtr)->hasProductionAmp( ampName ) ) break;
+  vector< IntensityManager* >::iterator intenManPtr = m_intenManagers.begin();
+  for( ; intenManPtr != m_intenManagers.end(); ++intenManPtr ){
+    if( (*intenManPtr)->hasTerm( termName ) ) break;
   }
-  if( ampManPtr == m_ampManagers.end() ){
+  if( intenManPtr == m_intenManagers.end() ){
     cout << "ParameterManager ERROR: Could not find production amplitude for " 
-         << ampName << endl;
+         << termName << endl;
     assert( false );
   }
   
@@ -249,20 +250,20 @@ ParameterManager::addProductionParameter( const string& ampName, bool real, bool
   // (The productionAmp method will return the scaled production amplitude
   // we need to divide out the scale to get the production parameter initial
   // value that was specified in the configuration file.)
-  complex< double > initialValue = (**ampManPtr).productionAmp( ampName ) /
-        (double)(**ampManPtr).getScale( ampName );
+  complex< double > initialValue = (**intenManPtr).productionFactor( termName ) /
+        (double)(**intenManPtr).getScale( termName );
   
   // find the ComplexParameter for this amplitude or an amplitude constrained to
   //   be the same as this amplitude
   
-  ComplexParameter* par = findParameter(ampName);
+  ComplexParameter* par = findParameter(termName);
   
   // create ComplexParameter from scratch if it doesn't already exist
   
   if (!par){
     cout << "ParameterManager:  Creating new complex production amplitude parameter for " 
-         << ampName << endl;
-    par = new ComplexParameter( ampName, m_minuitManager, initialValue, real );
+         << termName << endl;
+    par = new ComplexParameter( termName, m_minuitManager, initialValue, real );
     m_prodPtrCache.push_back( par );
   }
   
@@ -270,20 +271,20 @@ ParameterManager::addProductionParameter( const string& ampName, bool real, bool
   
   // update the amplitude manager
   
-  (**ampManPtr).setExternalProductionAmplitude( ampName, 
+  (**intenManPtr).setExternalProductionFactor( termName,
                                                par->constValuePtr() );
   
   // record this parameter
   
-  m_prodParams[ampName] = par;
+  m_prodParams[termName] = par;
   
 }
 
 complex< double >* 
-ParameterManager::getProdParPtr( const string& ampName ){
+ParameterManager::getProdParPtr( const string& termName ){
   
   map< string, ComplexParameter* >::iterator mapItr 
-  = m_prodParams.find( ampName );
+  = m_prodParams.find( termName );
   
   // make sure we found one
   assert( mapItr != m_prodParams.end() );
@@ -303,31 +304,31 @@ ParameterManager::getAmpParPtr( const string& parName ){
 }
 
 bool
-ParameterManager::hasConstraints( const string& ampName ) const{
+ParameterManager::hasConstraints( const string& termName ) const{
   map<string, vector<string> >::const_iterator
-  mapItr = m_constraintMap.find(ampName);
+  mapItr = m_constraintMap.find(termName);
   return (mapItr != m_constraintMap.end()) ? true : false;
 }
 
 bool
-ParameterManager::hasParameter( const string& ampName ) const{
+ParameterManager::hasParameter( const string& termName ) const{
   map<string, ComplexParameter* >::const_iterator
-  mapItr = m_prodParams.find(ampName);
+  mapItr = m_prodParams.find(termName);
   return (mapItr != m_prodParams.end()) ? true : false;
 }
 
 ComplexParameter*
-ParameterManager::findParameter( const string& ampName) const{
+ParameterManager::findParameter( const string& termName) const{
   
   // return the parameter associated with this amplitude if it is already defined
   
-  map<string, ComplexParameter*>::const_iterator pItr = m_prodParams.find(ampName);
+  map<string, ComplexParameter*>::const_iterator pItr = m_prodParams.find(termName);
   if (pItr != m_prodParams.end()) return pItr->second;
   
   // otherwise look for a parameter associated with an amplitude that is
   //   constrained to be the same as this amplitude
   
-  map<string, vector<string> >::const_iterator cItr = m_constraintMap.find(ampName);
+  map<string, vector<string> >::const_iterator cItr = m_constraintMap.find(termName);
   if (cItr == m_constraintMap.end()) return NULL;
   
   vector<string> constraints = cItr->second; 
@@ -370,11 +371,11 @@ ParameterManager::update( const string& parName ){
   
   // useful to have this method available to update by name
   
-  for( vector< AmplitudeManager* >::const_iterator ampMan = m_ampManagers.begin();
-      ampMan != m_ampManagers.end();
-      ++ampMan ){
+  for( vector< IntensityManager* >::const_iterator intenMan = m_intenManagers.begin();
+      intenMan != m_intenManagers.end();
+      ++intenMan ){
     
-    (**ampMan).updateAmpPar( parName );
+    (**intenMan).updatePar( parName );
   }  
 }  
 
@@ -417,13 +418,13 @@ ParameterManager::updateParCovariance(){
   m_parIndex.clear();
   
   int index = 0;
-  for( vector< AmplitudeManager* >::const_iterator ampMan = m_ampManagers.begin();
-      ampMan != m_ampManagers.end();
-      ++ampMan ){
+  for( vector< IntensityManager* >::const_iterator intenMan = m_intenManagers.begin();
+      intenMan != m_intenManagers.end();
+      ++intenMan ){
     
-    const vector< string >& ampNames = (**ampMan).getAmpNames();
-    for( vector< string >::const_iterator name = ampNames.begin();
-        name != ampNames.end();
+    const vector< string >& termNames = (**intenMan).getTermNames();
+    for( vector< string >::const_iterator name = termNames.begin();
+        name != termNames.end();
         ++name ){
       
       // this will return the complex parameter associated with

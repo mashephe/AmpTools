@@ -126,7 +126,7 @@ private:
   const ConfigurationInfo* m_cfgInfo;
   
   map< string, NormIntInterface* > m_normIntMap;
-  map< string, AmplitudeManager* > m_ampManagerMap;
+  map< string, IntensityManager* > m_intenManagerMap;
   
   // dimension of these vectors is the number of amplitudes (constrained + free)
   vector< complex< double > > m_fitProdAmps;

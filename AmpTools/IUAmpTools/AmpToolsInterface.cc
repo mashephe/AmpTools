@@ -38,6 +38,7 @@
 #include "IUAmpTools/AmpToolsInterface.h"
 #include "MinuitInterface/MinuitMinimizationManager.h"
 #include "IUAmpTools/AmplitudeManager.h"
+#include "IUAmpTools/AmpVecs.h"
 #include "IUAmpTools/Kinematics.h"
 #include "IUAmpTools/NormIntInterface.h"
 #include "IUAmpTools/ConfigFileParser.h"
@@ -105,7 +106,7 @@ AmpToolsInterface::resetConfigurationInfo(ConfigurationInfo* configurationInfo){
       ampMan->registerAmplitudeFactor( *m_userAmplitudes[i] );
     }
     ampMan->setupFromConfigurationInfo( m_configurationInfo );
-    m_amplitudeManagers.push_back(ampMan);
+    m_intensityManagers.push_back(ampMan);
 
   }
 
@@ -115,7 +116,7 @@ AmpToolsInterface::resetConfigurationInfo(ConfigurationInfo* configurationInfo){
     // create a ParameterManager
     // ************************
 
-    m_parameterManager = new ParameterManager ( *m_minuitMinimizationManager, m_amplitudeManagers );
+    m_parameterManager = new ParameterManager ( *m_minuitMinimizationManager, m_intensityManagers );
     m_parameterManager->setupFromConfigurationInfo( m_configurationInfo );
 
   }
@@ -128,9 +129,9 @@ AmpToolsInterface::resetConfigurationInfo(ConfigurationInfo* configurationInfo){
 
     ReactionInfo* reaction = m_configurationInfo->reactionList()[irct];
     string reactionName(reaction->reactionName());
-    AmplitudeManager* ampMan = amplitudeManager(reactionName);
+    IntensityManager* intenMan = intensityManager(reactionName);
 
-    if (!ampMan)
+    if (!intenMan)
       cout << "AmpToolsInterface WARNING:  not creating an AmplitudeManager for reaction " 
            << reactionName << endl;
 
@@ -172,8 +173,8 @@ AmpToolsInterface::resetConfigurationInfo(ConfigurationInfo* configurationInfo){
       // ************************
       
       NormIntInterface* normInt = NULL;
-      if (genMCRdr && accMCRdr && ampMan && !(reaction->normIntFileInput())){
-        normInt = new NormIntInterface(genMCRdr, accMCRdr, *ampMan);
+      if (genMCRdr && accMCRdr && intenMan && !(reaction->normIntFileInput())){
+        normInt = new NormIntInterface(genMCRdr, accMCRdr, *intenMan);
         m_normIntMap[reactionName] = normInt;
         if (reaction->normIntFile() == "")
           cout << "AmpToolsInterface WARNING:  no name given to NormInt file for reaction "
@@ -195,8 +196,8 @@ AmpToolsInterface::resetConfigurationInfo(ConfigurationInfo* configurationInfo){
         // ************************
 
         LikelihoodCalculator* likCalc = NULL;
-        if (ampMan && normInt && dataRdr && m_parameterManager){
-          likCalc = new LikelihoodCalculator(*ampMan, *normInt, *dataRdr, *m_parameterManager);
+        if (intenMan && normInt && dataRdr && m_parameterManager){
+          likCalc = new LikelihoodCalculator(*intenMan, *normInt, *dataRdr, *m_parameterManager);
           m_likCalcMap[reactionName] = likCalc;
         }
         else{
@@ -215,7 +216,7 @@ AmpToolsInterface::resetConfigurationInfo(ConfigurationInfo* configurationInfo){
   if( m_functionality == kFull ){
     
     m_fitResults = new FitResults( m_configurationInfo,
-                                   m_amplitudeManagers,
+                                   m_intensityManagers,
                                    m_likCalcMap,
                                    m_normIntMap,
                                    m_minuitMinimizationManager,
@@ -282,13 +283,13 @@ AmpToolsInterface::finalizeFit(){
 }
 
 
-AmplitudeManager*
-AmpToolsInterface::amplitudeManager(const string& reactionName) const {
-  for (unsigned int i = 0; i < m_amplitudeManagers.size(); i++){
-    if (m_amplitudeManagers[i]->reactionName() == reactionName)
-      return m_amplitudeManagers[i];
+IntensityManager*
+AmpToolsInterface::intensityManager(const string& reactionName) const {
+  for (unsigned int i = 0; i < m_intensityManagers.size(); i++){
+    if (m_intensityManagers[i]->reactionName() == reactionName)
+      return m_intensityManagers[i];
   }
-  return (AmplitudeManager*) NULL;
+  return (IntensityManager*) NULL;
 }
 
 
@@ -362,7 +363,7 @@ AmpToolsInterface::clear(){
       string reactionName(reaction->reactionName());
 
       if (m_likCalcMap[reactionName]) delete m_likCalcMap[reactionName];
-      if (amplitudeManager(reactionName)) delete amplitudeManager(reactionName);
+      if (intensityManager(reactionName)) delete intensityManager(reactionName);
       if (dataReader(reactionName)) delete dataReader(reactionName);
       if (accMCReader(reactionName)) delete accMCReader(reactionName);
       if (genMCReader(reactionName)) delete genMCReader(reactionName);
@@ -370,7 +371,7 @@ AmpToolsInterface::clear(){
     }
   }
 
-  m_amplitudeManagers.clear();
+  m_intensityManagers.clear();
   m_dataReaderMap.clear();
   m_genMCReaderMap.clear();
   m_accMCReaderMap.clear();
@@ -445,11 +446,11 @@ AmpToolsInterface::processEvents(string reactionName,
 
   m_ampVecsReactionName[iDataSet] = reactionName;
 
-  AmplitudeManager* ampMan = amplitudeManager(reactionName);
+  IntensityManager* intenMan = intensityManager(reactionName);
 
-  if (isFirstPass) m_ampVecs[iDataSet].allocateAmps(*ampMan,true);
+  if (isFirstPass) m_ampVecs[iDataSet].allocateTerms(*intenMan,true);
 
-  return ampMan->calcIntensities(m_ampVecs[iDataSet], isFirstPass);
+  return intenMan->calcIntensities(m_ampVecs[iDataSet], isFirstPass);
 
 }
 
@@ -514,10 +515,13 @@ AmpToolsInterface::decayAmplitude (int iEvent, string ampName,
     exit(1);
   }
 
-  AmplitudeManager* ampMan = amplitudeManager(m_ampVecsReactionName[iDataSet]);
+  IntensityManager* intenMan = intensityManager(m_ampVecsReactionName[iDataSet]);
 
-  int iAmp = ampMan->ampIndex(ampName);
+  int iAmp = intenMan->termIndex(ampName);
 
+  // fix!! this experession is not generally correct for all intensity
+  // managers -- put as helper function in AmpVecs?
+  
   return complex<double>
             (m_ampVecs[iDataSet].m_pdAmps[2*m_ampVecs[iDataSet].m_iNEvents*iAmp+2*iEvent],
              m_ampVecs[iDataSet].m_pdAmps[2*m_ampVecs[iDataSet].m_iNEvents*iAmp+2*iEvent+1]);
@@ -527,10 +531,10 @@ AmpToolsInterface::decayAmplitude (int iEvent, string ampName,
 complex<double>
 AmpToolsInterface::scaledProductionAmplitude (string ampName, unsigned int iDataSet) const {
 
-  const AmplitudeManager* ampMan = amplitudeManager(m_ampVecsReactionName[iDataSet]);
+  const IntensityManager* intenMan = intensityManager(m_ampVecsReactionName[iDataSet]);
   
-  double scale = ampMan->getScale( ampName );
-  complex< double > prodAmp = ampMan->productionAmp( ampName );
+  double scale = intenMan->getScale( ampName );
+  complex< double > prodAmp = intenMan->productionFactor( ampName );
   
   return scale * prodAmp;
 }
@@ -605,17 +609,27 @@ AmpToolsInterface::printKinematics(string reactionName, Kinematics* kin) const {
 void
 AmpToolsInterface::printAmplitudes(string reactionName, Kinematics* kin) const {
 
-  AmplitudeManager* ampMan = amplitudeManager(reactionName);
-  vector<string> ampNames = ampMan->getAmpNames();
+  IntensityManager* intenMan = intensityManager(reactionName);
+  
+  if( intenMan->type() != IntensityManager::kAmplitude ){
+    
+    cout << "NOTE:  printAmplitudes is being called for a reaction "
+         << "       that is not setup for an amplitude fit."
+         << "       (Nothing more will be printed.)" << endl;
+  }
+  
+  AmplitudeManager* ampMan = dynamic_cast< AmplitudeManager* >( intenMan );
+  
+  vector<string> ampNames = ampMan->getTermNames();
 
   // we need to use the AmplitudeManager for this call in order to
   // exercise the GPU code for the amplitude calculation
   
   AmpVecs aVecs;
   aVecs.loadEvent(kin);
-  aVecs.allocateAmps(*ampMan,true);
+  aVecs.allocateTerms(*intenMan,true);
 
-  ampMan->calcAmplitudes(aVecs,true);
+  ampMan->calcTerms(aVecs,true);
   
   int nAmps = ampNames.size();
   
@@ -678,12 +692,12 @@ AmpToolsInterface::printAmplitudes(string reactionName, Kinematics* kin) const {
 void
 AmpToolsInterface::printIntensity(string reactionName, Kinematics* kin) const {
 
-  AmplitudeManager* ampMan = amplitudeManager(reactionName);
+  IntensityManager* intenMan = intensityManager(reactionName);
 
   cout << "      ---------------------------------" << endl;
   cout << "        CALCULATING INTENSITY" << endl;
   cout << "      ---------------------------------" << endl << endl;
-  double intensity = ampMan->calcIntensity(kin);
+  double intensity = intenMan->calcIntensity(kin);
   cout << endl << "          INTENSITY = " << intensity << endl << endl << endl;
 
 }

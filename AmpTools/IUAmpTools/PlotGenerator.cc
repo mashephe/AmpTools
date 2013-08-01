@@ -102,7 +102,7 @@ m_emptyHist()
     m_normIntMap[reactName] = m_ati.normIntInterface( reactName );
     
     // keep a pointer to the AmplitudeManager
-    m_ampManagerMap[reactName] = m_ati.amplitudeManager( reactName );
+    m_intenManagerMap[reactName] = m_ati.intensityManager( reactName );
     
     vector< string > ampNames;
     vector<AmplitudeInfo*> ampInfoVector = m_cfgInfo->amplitudeList( reactName );
@@ -128,7 +128,7 @@ m_emptyHist()
       }
       
       complex< double >* prodPtr = &(m_prodAmps[m_ampIndex[*ampName]]);
-      m_ampManagerMap[reactName]->setExternalProductionAmplitude( *ampName, prodPtr );
+      m_intenManagerMap[reactName]->setExternalProductionFactor( *ampName, prodPtr );
       
       for( map< string, double >::const_iterator mapItr = m_ampParameters.begin();
           mapItr != m_ampParameters.end();
@@ -136,7 +136,7 @@ m_emptyHist()
         
         cout << "setting parameter " << mapItr->first << " to " << mapItr->second << endl;
         
-        m_ampManagerMap[reactName]->setAmpParValue( *ampName, mapItr->first, mapItr->second );
+        m_intenManagerMap[reactName]->setParValue( *ampName, mapItr->first, mapItr->second );
       }
     }
     
