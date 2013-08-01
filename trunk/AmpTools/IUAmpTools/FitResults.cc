@@ -38,22 +38,26 @@
 #include <algorithm>
 #include <cmath>
 #include <iomanip>
+#include <cassert>
 
 #include "IUAmpTools/FitResults.h"
+#include "IUAmpTools/AmplitudeManager.h"
+#include "IUAmpTools/ParameterManager.h"
 #include "IUAmpTools/AmpParameter.h"
 #include "IUAmpTools/LikelihoodCalculator.h"
 #include "IUAmpTools/NormIntInterface.h"
 #include "IUAmpTools/ConfigFileParser.h"
+#include "MinuitInterface/MinuitMinimizationManager.h"
 
 FitResults::FitResults( ConfigurationInfo* cfgInfo,
-                        vector< AmplitudeManager* > ampManVec,
+                        vector< IntensityManager* > intenManVec,
                         map< string, LikelihoodCalculator* > likCalcMap,
                         map< string, NormIntInterface* > normIntMap,
                         MinuitMinimizationManager* minManager,
                         ParameterManager* parManager) :
 m_likelihoodTotal( 0 ),
 m_cfgInfo( cfgInfo ),
-m_ampManVec( ampManVec ),
+m_intenManVec( intenManVec ),
 m_likCalcMap( likCalcMap ),
 m_normIntMap( normIntMap ),
 m_minManager( minManager ),
@@ -686,7 +690,7 @@ FitResults::writeResults( const string& outFile ) const {
     else{
       ni->forceCacheUpdate();
       ni->exportNormIntCache( output,
-                              m_ampManVec[i]->ampsAreRenormalized() );
+                              m_intenManVec[i]->termsAreRenormalized() );
     }
   }
   
@@ -876,7 +880,7 @@ FitResults::loadResults( const string& inFile ){
 void
 FitResults::recordAmpSetup(){
   
-  m_numReactions = m_ampManVec.size();
+  m_numReactions = m_intenManVec.size();
   
   m_numAmps.clear();
   m_reactionNames.clear();
@@ -886,19 +890,15 @@ FitResults::recordAmpSetup(){
 
   m_reacIndex.clear();
   m_ampIndex.clear();
+    
+  for( int i = 0; i < m_intenManVec.size(); ++i ){
   
-//  for( vector< AmplitudeManager* >::iterator ampMan = m_ampManVec.begin();
-//       ampMan != m_ampManVec.end();
-//       ++ampMan ){
+    IntensityManager* intenMan = m_intenManVec[i];
     
-  for( int i = 0; i < m_ampManVec.size(); ++i ){
-  
-    AmplitudeManager* ampMan = m_ampManVec[i];
+    m_reacIndex[intenMan->reactionName()] = i;
+    m_reactionNames.push_back( intenMan->reactionName() );
     
-    m_reacIndex[ampMan->reactionName()] = i;
-    m_reactionNames.push_back( ampMan->reactionName() );
-    
-    vector< string > ampNames = ampMan->getAmpNames();
+    vector< string > ampNames = intenMan->getTermNames();
     
     m_ampNames.push_back( ampNames );
     m_ampIndex.push_back( map< string, int >() );
@@ -909,8 +909,8 @@ FitResults::recordAmpSetup(){
     
     for( int j = 0; j < ampNames.size(); ++j ){
       
-      ampScaleNames.push_back( ampMan->getScale( ampNames[j] ).name() );
-      ampScaleValues.push_back( ampMan->getScale( ampNames[j] ) );
+      ampScaleNames.push_back( intenMan->getScale( ampNames[j] ).name() );
+      ampScaleValues.push_back( intenMan->getScale( ampNames[j] ) );
 
       m_ampIndex[i][ampNames[j]] = j;
     }

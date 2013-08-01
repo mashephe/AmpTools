@@ -36,21 +36,25 @@
 
 #include <sys/time.h>
 #include <cassert>
+#include <string>
+
 #include "IUAmpTools/LikelihoodCalculator.h"
+#include "IUAmpTools/IntensityManager.h"
 #include "IUAmpTools/DataReader.h"
 #include "IUAmpTools/Kinematics.h"
 #include "IUAmpTools/NormIntInterface.h"
+#include "IUAmpTools/ParameterManager.h"
 
 #include "MinuitInterface/MinuitMinimizationManager.h"
 #include "MinuitInterface/MinuitParameterManager.h"
 #include "MinuitInterface/MinuitParameter.h"
 
-LikelihoodCalculator::LikelihoodCalculator( const AmplitudeManager& ampManager,
+LikelihoodCalculator::LikelihoodCalculator( const IntensityManager& intenManager,
                                             const NormIntInterface& normInt,
                                             DataReader& dataReader,
                                             const ParameterManager& parManager ) :
 MIFunctionContribution( parManager.fitManager() ),
-m_ampManager( ampManager ),
+m_intenManager( intenManager ),
 m_normInt( normInt ),
 m_dataReader( dataReader ),
 m_firstPass( true )
@@ -79,9 +83,9 @@ LikelihoodCalculator::normIntTerm(){
   // check to be sure we can actually perform a computation of the
   // normalization integrals in case we have floating parameters
   
-  if( m_ampManager.hasAmpWithFreeParam() && !m_normInt.hasAccessToMC() ){
+  if( m_intenManager.hasTermWithFreeParam() && !m_normInt.hasAccessToMC() ){
     
-    cout << "ERROR: AmplitudeManager has amplitudes with floating parameters\n"
+    cout << "ERROR: IntensityManager has terms with floating parameters\n"
     << "       but NormIntInterface has not been provided with MC." << endl;
     
     assert( false );
@@ -93,31 +97,48 @@ LikelihoodCalculator::normIntTerm(){
   
   bool useCachedIntegrals = false;
   
-  complex< double > normTerm( 0, 0 );
-  vector< string > ampNames = m_ampManager.getAmpNames();
-  for( vector< string >::iterator amp = ampNames.begin();
-      amp != ampNames.end(); ++amp ){
-    
-    for( vector< string >::iterator conjAmp = ampNames.begin();
-        conjAmp != ampNames.end(); ++conjAmp ){
-      
-      complex< double > thisTerm( 0, 0 );
+  vector< string > termNames = m_intenManager.getTermNames();
 
-      thisTerm = ( m_ampManager.productionAmp( *amp ) * 
-                   conj( m_ampManager.productionAmp( *conjAmp ) ) *
-                  m_normInt.normInt( *amp, *conjAmp, useCachedIntegrals ) );
-              
-      if( m_ampManager.ampsAreRenormalized() ){
+  complex< double > normTerm( 0, 0 );
+  
+  switch( m_intenManager.type() ){
+      
+    case IntensityManager::kAmplitude:
+      
+      for( vector< string >::iterator amp = termNames.begin();
+          amp != termNames.end(); ++amp ){
         
-        thisTerm /=
-          sqrt( real( m_normInt.ampInt( *amp, *amp, useCachedIntegrals ) ) *
-                real( m_normInt.ampInt( *conjAmp, *conjAmp, useCachedIntegrals ) ) );
+        for( vector< string >::iterator conjAmp = termNames.begin();
+            conjAmp != termNames.end(); ++conjAmp ){
+          
+          complex< double > thisTerm( 0, 0 );
+          
+          thisTerm = ( m_intenManager.productionFactor( *amp ) *
+                      conj( m_intenManager.productionFactor( *conjAmp ) ) *
+                      m_normInt.normInt( *amp, *conjAmp, useCachedIntegrals ) );
+          
+          if( m_intenManager.termsAreRenormalized() ){
+            
+            thisTerm /=
+            sqrt( real( m_normInt.ampInt( *amp, *amp, useCachedIntegrals ) ) *
+                  real( m_normInt.ampInt( *conjAmp, *conjAmp, useCachedIntegrals ) ) );
+          }
+          
+          normTerm += thisTerm;
+          useCachedIntegrals = true;
+        }
       }
+      break;
       
-      normTerm += thisTerm;
+    case IntensityManager::kMoment:
       
-      useCachedIntegrals = true;
-    }
+      break;
+      
+    default:
+      
+      cout << "LikelihoodCalculator ERROR:  unkown IntensityManager type" << endl;
+      assert( false );
+      break;
   }
   
   // normTerm should be purely real by construction
@@ -132,14 +153,14 @@ LikelihoodCalculator::dataTerm(){
     // first calculation -- need to load the data
     
     cout << "Allocating Data and Amplitude Array in LikelihoodCalculator for " 
-         << m_ampManager.reactionName() << "..." << endl;
+         << m_intenManager.reactionName() << "..." << endl;
     
     m_ampVecs.loadData( &m_dataReader );
-    m_ampVecs.allocateAmps( m_ampManager, true );  
+    m_ampVecs.allocateTerms( m_intenManager, true );
     cout << "\tDone." << endl;
   }
   
-  double sumLnI = m_ampManager.calcSumLogIntensity( m_ampVecs, m_firstPass );
+  double sumLnI = m_intenManager.calcSumLogIntensity( m_ampVecs, m_firstPass );
   
   m_firstPass = false;
   

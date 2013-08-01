@@ -46,7 +46,7 @@
 class LikelihoodCalculator;
 class ParameterManager;
 class MinuitMinimizationManager;
-class AmplitudeManager;
+class IntensityManager;
 class NormIntInterface;
 class ConfigurationInfo;
 
@@ -84,14 +84,14 @@ public:
    * not the constructor that a user would use.
    *
    * \param[in] cfgInfo pointer to ConfigurationInfo class
-   * \param[in] ampManVec vector of AmplitudeManager pointers, one for each reaction
+   * \param[in] intenManVec vector of IntensityManager pointers, one for each reaction
    * \param[in] likCalcMap map from reaction name to LikelihoodCalculator pointer
    * \param[in] normIntMap map from reaction name to NormIntInterface pointer
    * \param[in] parManager a pointer to the ParameterManager used in the fit
    */
 
   FitResults( ConfigurationInfo* cfgInfo,
-              vector< AmplitudeManager* > ampManVec,
+              vector< IntensityManager* > intenManVec,
               map< string, LikelihoodCalculator* > likCalcMap,
               map< string, NormIntInterface* > normIntMap,
               MinuitMinimizationManager* minManager,
@@ -512,7 +512,7 @@ private:
   // hold pointers to the classes that are needed to fetch the results
   
   ConfigurationInfo* m_cfgInfo;
-  vector< AmplitudeManager* > m_ampManVec;
+  vector< IntensityManager* > m_intenManVec;
   map< string, LikelihoodCalculator* > m_likCalcMap;
   map< string, NormIntInterface* > m_normIntMap;
   MinuitMinimizationManager* m_minManager;

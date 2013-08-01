@@ -37,7 +37,7 @@
 #include <cassert>
 
 #include "IUAmpTools/AmpVecs.h"
-#include "IUAmpTools/AmplitudeManager.h"
+#include "IUAmpTools/IntensityManager.h"
 #include "IUAmpTools/DataReader.h"
 #include "IUAmpTools/Kinematics.h"
 
@@ -50,8 +50,7 @@ AmpVecs::AmpVecs(){
   m_iNEvents           = 0 ;
   m_iNTrueEvents         = 0 ;
   m_iNParticles          = 0 ;
-  m_iNAmps               = 0 ;
-  m_iNAmpFactorsAndPerms = 0 ;
+  m_iNTerms               = 0 ;
   
   m_pdData      = 0 ;
   m_pdWeights    = 0 ;
@@ -210,36 +209,20 @@ AmpVecs::loadData( DataReader* pDataReader ){
 
 
 void
-AmpVecs::allocateAmps( const AmplitudeManager& ampMan, bool bAllocIntensity ){
+AmpVecs::allocateTerms( const IntensityManager& intenMan, bool bAllocIntensity ){
   
   if( m_pdAmps!=0 || m_pdAmpFactors!=0 || m_pdIntensity!=0 )
   {
-    cout << "\n THE AMPLITUDE VECTOR POINTERS ARE NOT EMPTY!\n" << flush;
+    cout << "\n THE STORAGE VECTOR POINTERS ARE NOT EMPTY!\n" << flush;
     assert(0);
   }
   
   if (m_iNEvents == 0){
-    cout << "\nERROR: trying to allocate space for amplitudes in\n" << flush;
+    cout << "\nERROR: trying to allocate space for terms in\n" << flush;
     cout << "         AmpVecs before any events have been loaded\n" << flush;
     assert(false);
   }
-  
-  vector< string > ampNames = ampMan.getAmpNames();
-  
-  m_iNAmps = ampNames.size();
-  assert( m_iNAmps );
-  
-  m_iNAmpFactorsAndPerms = 0; 
-  for( int i = 0; i < m_iNAmps; i++ )
-  { 
-    int iNPermutations = ampMan.getPermutations( ampNames[i] ).size();  
-    int iNFactors = ampMan.getFactors( ampNames[i] ).size();
     
-    assert( iNPermutations*iNFactors );
-    
-    m_iNAmpFactorsAndPerms += iNPermutations*iNFactors;
-  }
-  
   //Allocate the Intensity only when needed
   if( bAllocIntensity )
   {
@@ -248,16 +231,16 @@ AmpVecs::allocateAmps( const AmplitudeManager& ampMan, bool bAllocIntensity ){
   
 #ifndef GPU_ACCELERATION
   
-  m_pdAmps = new GDouble[2*m_iNEvents*m_iNAmps];
-  m_pdAmpFactors = new GDouble[2*m_iNEvents*m_iNAmpFactorsAndPerms];
+  m_pdAmps = new GDouble[m_iNEvents * intenMan.termStoragePerEvent()];
+  m_pdAmpFactors = new GDouble[m_iNEvents * intenMan.termFactorStoragePerEvent()];
   
 #else
   
-  //  cout << "allocating: " << m_iNEvents << " events; " << m_iNAmps << " amps;" << m_iNAmpFactorsAndPerms << " factors and perms;" << endl;
+  //  cout << "allocating: " << m_iNEvents << " events; " << m_iNTerms << " amps;" << m_iNAmpFactorsAndPerms << " factors and perms;" << endl;
   
   //Allocate as "pinned memory" for fast CPU<->GPU memcopies
-  cudaMallocHost( (void**)&m_pdAmps, 2 * m_iNEvents * m_iNAmps * sizeof(GDouble) );
-  cudaMallocHost( (void**)&m_pdAmpFactors, 2 * m_iNEvents * m_iNAmpFactorsAndPerms * sizeof(GDouble));
+  cudaMallocHost( (void**)&m_pdAmps, m_iNEvents * intenMan.termStoragePerEvent() * sizeof(GDouble) );
+  cudaMallocHost( (void**)&m_pdAmpFactors, m_iNEvents * intenMan.termFactorStoragePerEvent() * sizeof(GDouble));
   cudaError_t cudaErr = cudaGetLastError();
   if( cudaErr != cudaSuccess  ){
     
