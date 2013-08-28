@@ -1,5 +1,5 @@
 
-INC_DIR :=  -I.. -I$(CLHEP_INCLUDE_DIR) -I$(ROOTSYS)/include
+INC_DIR :=  -I.. -I$(CLHEP_INCLUDE_DIR) -I$(shell root-config --incdir)
 
 SRCDIRS := UpRootMinuit MinuitInterface IUAmpTools
 
@@ -28,7 +28,7 @@ SRCDIRS += GPUManager
 TARGET_LIBS_GPU :=  $(addsuffix _GPU.a, $(addprefix lib, $(SRCDIRS)))
 
 NVCC :=	nvcc
-CUDA_FLAGS := -arch=compute_13  -code=compute_13
+CUDA_FLAGS := -m64 -arch=sm_20
 INC_DIR += -I$(CUDA_INSTALL_PATH)/include 
 
 CXX_FLAGS += -DGPU_ACCELERATION
