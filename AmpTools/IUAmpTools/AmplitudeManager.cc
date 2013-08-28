@@ -479,25 +479,31 @@ AmplitudeManager::calcSumLogIntensity( AmpVecs& a, bool bIsFirstPass ) const
   // need to compute the production coefficients with all scale factors
   // taken into account
   
-  vector< complex< double > > gpuProdPars( m_prodAmpVec.size() );
+  vector< string > ampNames = getTermNames();
   
-  for( int i = 0; i < m_prodAmpVec.size(); ++i ){
+  vector< complex< double > > gpuProdPars( ampNames.size() );
+  
+  for( int i = 0; i < ampNames.size(); ++i ){
     
-    gpuProdPars[i] = (*m_prodAmpVec[i]) *
-    static_cast< double >( m_ampScaleVec[i] );
+    gpuProdPars[i] = productionFactor( ampNames[i] );
     
-    if( m_renormalizeAmps ){
+    if( termsAreRenormalized() ){
       
-      gpuProdPars[i] /= sqrt( normInt()->ampInt( m_ampNames[i], m_ampNames[i] ) );
+      gpuProdPars[i] /= sqrt( normInt()->ampInt( ampNames[i], ampNames[i] ) );
     }
   }
   
   // need to explicitly do amplitude calculation
   // since intensity and sum is done directly on GPU
-  calcAmplitudes( a, bIsFirstPass );
+
+  if( bIsFirstPass || hasTermWithFreeParam() ){
+
+    calcTerms( a, bIsFirstPass );
+    
+    // this operation is only done on data
+    m_dataGPUManGTX.copyAmpsToGPU( a );
+  }
   
-  // this operation is only done on data
-  m_dataGPUManGTX.copyAmpsToGPU( a );
   dSumLogI = m_dataGPUManGTX.calcSumLogIntensity( gpuProdPars, m_sumCoherently );
   
 #endif
