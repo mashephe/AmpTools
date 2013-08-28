@@ -48,7 +48,7 @@ public:
   
   NormIntInterfaceMPI( const string& normIntFile );
   NormIntInterfaceMPI( DataReader* genMCData, DataReader* accMCData, 
-                      const AmplitudeManager& ampManager );
+                      const IntensityManager& intenManager );
   
   ~NormIntInterfaceMPI();
   

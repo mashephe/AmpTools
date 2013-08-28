@@ -96,7 +96,7 @@ class LikelihoodCalculatorMPI : public LikelihoodCalculator
    * \see LikelihoodManagerMPI
    */
   
-  LikelihoodCalculatorMPI( const AmplitudeManager& ampManager,
+  LikelihoodCalculatorMPI( const IntensityManager& intenManager,
                            const NormIntInterface& normInt,
                            DataReader& dataReader,
                            ParameterManagerMPI& parManager );
@@ -135,7 +135,7 @@ private:
 
   void setupMPI();
   
-  const AmplitudeManager& m_ampManager;
+  const IntensityManager& m_intenManager;
 
   ParameterManagerMPI& m_parManager;
   int m_thisId;

@@ -41,12 +41,12 @@
 #include "IUAmpToolsMPI/LikelihoodManagerMPI.h"
 
 LikelihoodCalculatorMPI::
-LikelihoodCalculatorMPI( const AmplitudeManager& ampManager,
+LikelihoodCalculatorMPI( const IntensityManager& intenManager,
                         const NormIntInterface& normInt,
                         DataReader& dataReader,
                         ParameterManagerMPI& parManager ) :
-LikelihoodCalculator( ampManager, normInt, dataReader, parManager ),
-m_ampManager( ampManager ),
+LikelihoodCalculator( intenManager, normInt, dataReader, parManager ),
+m_intenManager( intenManager ),
 m_parManager( parManager ),
 m_thisId( m_idCounter++ ),
 m_firstPass( true )
@@ -148,7 +148,7 @@ LikelihoodCalculatorMPI::operator()()
   // if we have an amplitude with a free parameter, the call to normIntTerm()
   // will trigger recomputation of NI's -- we need to put the workers in the
   // loop to send the recomputed NI's back to the master
-  if( m_ampManager.hasAmpWithFreeParam() || m_firstPass ){
+  if( m_intenManager.hasTermWithFreeParam() || m_firstPass ){
     
     cmnd[1] = LikelihoodManagerMPI::kComputeIntegrals;
     for( int i = 1; i < m_numProc; ++i ){
