@@ -37,12 +37,16 @@
 #ifndef __GPU_CUSTOM_TYPES_H__ 
 #define __GPU_CUSTOM_TYPES_H__
 
+#include <iostream>
+
+using namespace std;
+
 #define GPU_MAX_AMPS 4095 // SHARED MEMORY ARRAY, MUST ACCOMODATE AiAj* for each event!
 #define GPU_MAX_PART 10   // MAXIMUM NUMBER OF PARTICLES
 
-#define GPU_BLOCK_SIZE_X 8
-#define GPU_BLOCK_SIZE_Y 8
-#define GPU_BLOCK_SIZE_SQ 64
+#define GPU_BLOCK_SIZE_X 16
+#define GPU_BLOCK_SIZE_Y 16
+#define GPU_BLOCK_SIZE_SQ 256
 
 // a few helpers to make operations on GPU a little more user friendly
 
@@ -131,7 +135,7 @@ typedef float GDouble;
 //Shortcut macros
 #define SQ(a) ((a)*(a)) 
 
-// forward declaration
+//forward declaration
 class dim3;
 
 #endif /*__GPU_CUSTOM_TYPES_H__*/
