@@ -2268,7 +2268,9 @@ void URMinuit::mnemat(Double_urt *emat, Int_urt ndim)
     nperln = (fNpagwd - 5) / 10;
     nperln = URMath::Min(nperln,13);
     if (fISW[4] >= 1 && npard > nperln) {
-	std::printf(" ELEMENTS ABOVE DIAGONAL ARE NOT PRINTED.\n");
+      //  disable annoying printout when obtaining error matrix for fits with
+      //  large numbers of parameters
+      //	std::printf(" ELEMENTS ABOVE DIAGONAL ARE NOT PRINTED.\n");
     }
 //*-*-                I counts the rows of the matrix
     for (i = 1; i <= npard; ++i) {
