@@ -36,27 +36,69 @@
 
 #include "GPUCustomTypes.h"
 
-__constant__ int da_iNAmpsH;  // NAmps*(NAmps+1)/2
-__constant__ int da_iNEvents; // Num of events padded till the closest 2^n
-__constant__ GDouble da_pfDevVRe[GPU_MAX_AMPS]; //Fit Parameters stored in Const memory space
-__constant__ GDouble da_pfDevVIm[GPU_MAX_AMPS];
+__constant__ int da_iNAmps;  
+__constant__ int da_iNEvents; // number of events padded to the closest 2^n
+__constant__ GDouble da_pfDevVRe[GPU_MAX_AMPS]; // fit parameters stored in
+__constant__ GDouble da_pfDevVIm[GPU_MAX_AMPS]; // const memory space
 
 __global__ void
 amp_kernel( GDouble* pfDevAmpRe, GDouble* pfDevAmpIm, 
             GDouble* pfDevWeights, GDouble* pfDevRes )
 {
 	int i = threadIdx.x + GPU_BLOCK_SIZE_X * threadIdx.y + 
-    ( blockIdx.x + blockIdx.y * gridDim.x ) * GPU_BLOCK_SIZE_SQ;
+            ( blockIdx.x + blockIdx.y * gridDim.x ) * GPU_BLOCK_SIZE_SQ;
 
-	int iA;
+	int iA, iB;
 	GDouble fSumRe = 0.;
-	for( iA = 0; iA < da_iNAmpsH; iA++ )
-	{
-		fSumRe += da_pfDevVRe[iA] * pfDevAmpRe[i+da_iNEvents*iA] - 
-              da_pfDevVIm[iA] * pfDevAmpIm[i+da_iNEvents*iA];
+
+  // index to amplitude A_alpha for the ith event
+  int aIndA = i;
+
+	for( iA = 0; iA < da_iNAmps; ++iA ){
+
+  // index to amplitude A_alpha for the ith event
+  // (reduce computations by incrementing at end of loop)
+  //	  int aIndA = i + da_iNEvents*iA;
+
+    // index in the array of V_alpha * conj( V_beta )
+    int vInd = iA*(iA+1)/2;
+    
+    // index to amplitude A_beta for the ith event
+    int aIndB = i;
+	  for( iB = 0; iB <= iA; ++iB ){
+
+      // index in the array of V_alpha * conj( V_beta )
+      // (reduce computations by incrementing at end of loop)
+      //	   int vInd = iA*(iA+1)/2+iB;
+
+	    // index to amplitude A_beta for the ith event
+      // (reduce computations by incrementing at end of loop)
+      //     int aIndB = i + da_iNEvents*iB;
+
+      // only compute the real part of the intensity since
+      // the imaginary part should sum to zero
+	    GDouble term = da_pfDevVRe[vInd] * 
+               ( pfDevAmpRe[aIndA] * pfDevAmpRe[aIndB] +
+                 pfDevAmpIm[aIndA] * pfDevAmpIm[aIndB] );
+
+      term -= da_pfDevVIm[vInd] *
+               ( pfDevAmpIm[aIndA] * pfDevAmpRe[aIndB] -
+                 pfDevAmpRe[aIndA] * pfDevAmpIm[aIndB] );
+
+	    // we're only summing over the lower diagonal so we need
+      // to double the contribution for off diagonal elements
+      if( iA != iB ) term *= 2;
+
+ 	    fSumRe += term;
+
+      ++vInd;
+      aIndB += da_iNEvents;
+	  }
+    
+    aIndA += da_iNEvents;
 	}
 	
-	pfDevRes[i] = pfDevWeights[i] * G_LOG(fSumRe);
+	pfDevRes[i] = pfDevWeights[i] * G_LOG( fSumRe );
 }
 
 extern "C" void GPU_ExecAmpKernel( dim3 dimGrid, dim3 dimBlock, 
@@ -64,8 +106,11 @@ extern "C" void GPU_ExecAmpKernel( dim3 dimGrid, dim3 dimBlock,
      GDouble* pfDevRes )
 {
 	amp_kernel<<< dimGrid, dimBlock >>>( pfDevAmpRe, pfDevAmpIm, 
-                                       pfDevWeights, pfDevRes );
+                                             pfDevWeights, pfDevRes );
 }
 
-
+extern "C" GDouble* da_pfDevVRe_addr() { return da_pfDevVRe;  }
+extern "C" GDouble* da_pfDevVIm_addr() { return da_pfDevVIm;  }
+extern "C" int*     da_iNAmps_addr()   { return &da_iNAmps;   }
+extern "C" int*     da_iNEvents_addr() { return &da_iNEvents; }
 
