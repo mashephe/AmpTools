@@ -39,6 +39,7 @@
 #include <fstream>
 
 #include <sys/time.h>
+#include <string.h>
 
 #include "IUAmpTools/AmplitudeManager.h"
 #include "IUAmpTools/NormIntInterface.h"

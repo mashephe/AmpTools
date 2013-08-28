@@ -42,6 +42,9 @@
 #include <map>
 #include <cassert>
 
+#include <stdlib.h>
+#include <stdio.h>
+
 #include "GPUManager/GPUCustomTypes.h"
 
 #include "cuda_runtime.h"
