@@ -211,6 +211,8 @@ AmpVecs::loadData( DataReader* pDataReader ){
 
 void
 AmpVecs::allocateTerms( const IntensityManager& intenMan, bool bAllocIntensity ){
+
+  m_iNTerms = intenMan.getTermNames().size();
   
   if( m_pdAmps!=0 || m_pdAmpFactors!=0 || m_pdIntensity!=0 )
   {
