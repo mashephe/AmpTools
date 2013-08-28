@@ -39,18 +39,13 @@
 
 #include "GPUCustomTypes.h"
 
-extern "C" void GPU_ExecAmpKernel(dim3 dimGrid,dim3 dimBlock,GDouble* pfDevAmpRe, 
+extern "C" void GPU_ExecAmpKernel(dim3 dimGrid,dim3 dimBlock,GDouble* pfDevAmpRe,
                                   GDouble* pfDevAmpIm, GDouble* pfDevWeights, 
                                   GDouble* pfDevRes);
 
-//Also Reduction Kernels
-/*
- template <class T>
- void reduce_sm10(int size, int threads, int blocks, 
- int whichKernel, T *d_idata, T *d_odata);
- */
-template <class T>
-void reduce_sm13(int size, int threads, int blocks, 
-                 int whichKernel, T *d_idata, T *d_odata);
+extern "C" GDouble* da_pfDevVRe_addr();
+extern "C" GDouble* da_pfDevVIm_addr();
+extern "C" int*     da_iNAmps_addr();
+extern "C" int*     da_iNEvents_addr();
 
 #endif //__GPU_KERNEL__H__
