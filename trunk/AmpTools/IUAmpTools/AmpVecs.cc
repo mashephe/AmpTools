@@ -42,6 +42,7 @@
 #include "IUAmpTools/Kinematics.h"
 
 #ifdef GPU_ACCELERATION
+#include "GPUManager/GPUManager.h"
 #include "cuda_runtime.h"
 #endif //GPU_ACCELERATION
 
