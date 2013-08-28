@@ -44,6 +44,19 @@
 
 #include "GPUManager/GPUCustomTypes.h"
 
+#include "cuda_runtime.h"
+
+#define gpuErrChk(ans) { gpuAssert((ans), __FILE__, __LINE__); }
+
+inline void gpuAssert(cudaError_t code, const char *file, int line, bool abort=true)
+{
+  if (code != cudaSuccess)
+  {
+    fprintf(stderr,"GPU ERROR: %s %s %d\n", cudaGetErrorString(code), file, line);
+    if (abort) exit(code);
+  }
+}
+
 using namespace std;
 using namespace __gnu_cxx;
 
@@ -141,6 +154,9 @@ private:
   unsigned int m_iNThreads;
   
   // Internal Utils
+  
+  unsigned int m_devProp_major;
+
   void calcCUDADims();
   
 };
