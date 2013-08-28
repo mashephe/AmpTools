@@ -60,20 +60,20 @@ public:
   
   // this constructor is called on the head node
   ParameterManagerMPI( MinuitMinimizationManager& minuitManager,
-                      AmplitudeManager* ampManager );
+                      IntensityManager* intenManager );
   ParameterManagerMPI( MinuitMinimizationManager& minuitManager,
-                      const vector< AmplitudeManager* >& ampManagers );
+                      const vector< IntensityManager* >& intenManagers );
   
   // this constructor should be called on the worker nodes
-  ParameterManagerMPI( AmplitudeManager* ampManager );
-  ParameterManagerMPI( const vector< AmplitudeManager* >& ampManagers );
+  ParameterManagerMPI( IntensityManager* intenManager );
+  ParameterManagerMPI( const vector< IntensityManager* >& intenManagers );
   
   ~ParameterManagerMPI();
   
   // override these functions to do the appropriate thing depending
   // on whether this instance is on the head or worker node
-  void addProductionParameter( const string& ampName, bool real = false, bool fixed = false );
-  void addAmplitudeParameter( const string& ampName, const ParameterInfo* parInfo );
+  void addProductionParameter( const string& termName, bool real = false, bool fixed = false );
+  void addAmplitudeParameter( const string& termName, const ParameterInfo* parInfo );
   
   // the likelihood calculator will need to call this routine in order
   // to update the parameters in advance of the likelihood calculation
@@ -94,7 +94,7 @@ private:
   
   void setupMPI();
   
-  vector<AmplitudeManager*> m_ampManagers;
+  vector<IntensityManager*> m_intenManagers;
   
   int m_rank;
   int m_numProc;

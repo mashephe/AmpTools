@@ -43,8 +43,8 @@
 
 ParameterManagerMPI::
 ParameterManagerMPI( MinuitMinimizationManager& minuitManager,
-                    AmplitudeManager* ampManager ) :
-ParameterManager( minuitManager, ampManager )
+                    IntensityManager* intenManager ) :
+ParameterManager( minuitManager, intenManager )
 {
   setupMPI();
   
@@ -59,8 +59,8 @@ ParameterManager( minuitManager, ampManager )
 
 ParameterManagerMPI::
 ParameterManagerMPI( MinuitMinimizationManager& minuitManager,
-                    const vector<AmplitudeManager*>& ampManagers ) :
-ParameterManager( minuitManager, ampManagers )
+                    const vector<IntensityManager*>& intenManagers ) :
+ParameterManager( minuitManager, intenManagers )
 {
   setupMPI();
   
@@ -74,9 +74,9 @@ ParameterManager( minuitManager, ampManagers )
 }
 
 ParameterManagerMPI::
-ParameterManagerMPI( AmplitudeManager* ampManager ) :
-ParameterManager( ampManager ),
-m_ampManagers( 0 )
+ParameterManagerMPI( IntensityManager* intenManager ) :
+ParameterManager( intenManager ),
+m_intenManagers( 0 )
 {
   setupMPI();
   
@@ -88,13 +88,13 @@ m_ampManagers( 0 )
     assert( false );
   }
   
-  m_ampManagers.push_back( ampManager );
+  m_intenManagers.push_back( intenManager );
 }
 
 ParameterManagerMPI::
-ParameterManagerMPI( const vector< AmplitudeManager* >& ampManagers ) :
-ParameterManager( ampManagers ),
-m_ampManagers( ampManagers )
+ParameterManagerMPI( const vector< IntensityManager* >& intenManagers ) :
+ParameterManager( intenManagers ),
+m_intenManagers( intenManagers )
 {
   setupMPI();
   
@@ -136,47 +136,47 @@ ParameterManagerMPI::setupMPI()
   m_isMaster = ( m_rank == 0 );
 }
 
-void ParameterManagerMPI::addProductionParameter( const string& ampName,
+void ParameterManagerMPI::addProductionParameter( const string& termName,
                                                   bool real, bool fixed )
 {
   
   if( m_isMaster ){
     
     // utilize the base class functionality for the master node
-    ParameterManager::addProductionParameter( ampName, real, fixed );
+    ParameterManager::addProductionParameter( termName, real, fixed );
   
     // then use member data to hang onto a pointer to the complex number
-    m_prodParMap[ ampName ] = getProdParPtr( ampName );
+    m_prodParMap[ termName ] = getProdParPtr( termName );
   }
   else {
 
     // find the Amplitude Manager that has this amplitude
     
-    vector< AmplitudeManager* >::iterator ampManPtr = m_ampManagers.begin();
-    for( ; ampManPtr != m_ampManagers.end(); ++ampManPtr ){
-      if( (*ampManPtr)->hasProductionAmp( ampName ) ) break;
+    vector< IntensityManager* >::iterator intenManPtr = m_intenManagers.begin();
+    for( ; intenManPtr != m_intenManagers.end(); ++intenManPtr ){
+      if( (*intenManPtr)->hasTerm( termName ) ) break;
     }
     
-    if( ampManPtr == m_ampManagers.end() ){
+    if( intenManPtr == m_intenManagers.end() ){
 
       cout << "ParameterManager ERROR: Could not find production amplitude for " 
-           << ampName << endl;
+           << termName << endl;
       assert( false );
     }
     
     // now allocate memory to hold the parameter values on the worker nodes
     // initialize with the inital value from the amplitude manager.
     
-    m_prodParMap[ampName] = 
-      new complex< double >( (**ampManPtr).productionAmp( ampName ) );
+    m_prodParMap[termName] = 
+      new complex< double >( (**intenManPtr).productionFactor( termName ) );
     
     // and tell the amplitude manager to look to this memory for updates
-    (**ampManPtr).setExternalProductionAmplitude( ampName,
-                                                  m_prodParMap[ampName] );
+    (**intenManPtr).setExternalProductionFactor( termName,
+						 m_prodParMap[termName] );
   }
 }
 
-void ParameterManagerMPI::addAmplitudeParameter( const string& ampName, 
+void ParameterManagerMPI::addAmplitudeParameter( const string& termName, 
                                                  const ParameterInfo* parInfo  )
 {
 
@@ -185,7 +185,7 @@ void ParameterManagerMPI::addAmplitudeParameter( const string& ampName,
   if( m_isMaster ){
     
     // utilize the base class functionality for the master node
-    ParameterManager::addAmplitudeParameter( ampName, parInfo );
+    ParameterManager::addAmplitudeParameter( termName, parInfo );
   
     // then use member data to hang onto a pointer to the double
     m_ampParMap[parName] = getAmpParPtr( parName );
@@ -201,10 +201,10 @@ void ParameterManagerMPI::addAmplitudeParameter( const string& ampName,
 
     // now tell amplitudes to look to this memory for the value
     bool foundOne = false;
-    vector< AmplitudeManager* >::iterator ampManPtr = m_ampManagers.begin();
-    for( ; ampManPtr != m_ampManagers.end(); ++ampManPtr ){
+    vector< IntensityManager* >::iterator intenManPtr = m_intenManagers.begin();
+    for( ; intenManPtr != m_intenManagers.end(); ++intenManPtr ){
       
-      if( !(*ampManPtr)->hasProductionAmp( ampName ) ) continue;
+      if( !(*intenManPtr)->hasTerm( termName ) ) continue;
 
       foundOne = true;
       
@@ -214,17 +214,17 @@ void ParameterManagerMPI::addAmplitudeParameter( const string& ampName,
         // this prevents Amplitude class from thinking that is has
         // a free parameter
         
-        (**ampManPtr).setAmpParValue( ampName, parName, parInfo->value() );
+        (**intenManPtr).setParValue( termName, parName, parInfo->value() );
       }
       else{
         
-        (**ampManPtr).setAmpParPtr( ampName, parName, m_ampParMap[parName] );
+        (**intenManPtr).setParPtr( termName, parName, m_ampParMap[parName] );
       }      
     }
     
     if( !foundOne ){
       
-      cout << "WARNING:  could not find amplitude named " << ampName 
+      cout << "WARNING:  could not find term named " << termName 
            << "          while trying to set parameter " << parName << endl;
     }
   }

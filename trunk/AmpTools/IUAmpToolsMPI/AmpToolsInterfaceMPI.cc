@@ -3,6 +3,7 @@
 
 #include "IUAmpTools/AmpToolsInterface.h"
 #include "MinuitInterface/MinuitMinimizationManager.h"
+#include "IUAmpTools/IntensityManager.h"
 #include "IUAmpTools/AmplitudeManager.h"
 #include "IUAmpTools/Kinematics.h"
 #include "IUAmpTools/ConfigFileParser.h"
@@ -46,7 +47,7 @@ AmpToolsInterfaceMPI::AmpToolsInterfaceMPI(ConfigurationInfo* configurationInfo)
       ampMan->registerAmplitudeFactor( *m_userAmplitudes[i] );
     }
     ampMan->setupFromConfigurationInfo( m_configurationInfo );
-    m_amplitudeManagers.push_back(ampMan);
+    m_intensityManagers.push_back(ampMan);
 
   }
 
@@ -56,11 +57,11 @@ AmpToolsInterfaceMPI::AmpToolsInterfaceMPI(ConfigurationInfo* configurationInfo)
 
   ParameterManagerMPI* parameterManagerMPI = NULL;
   if (m_rank != 0){
-    parameterManagerMPI = new ParameterManagerMPI( m_amplitudeManagers );
+    parameterManagerMPI = new ParameterManagerMPI( m_intensityManagers );
   }
   else{
     parameterManagerMPI = new ParameterManagerMPI( *m_minuitMinimizationManager,
-                                                   m_amplitudeManagers );
+                                                   m_intensityManagers );
   }
   parameterManagerMPI->setupFromConfigurationInfo( m_configurationInfo );
   m_parameterManager = parameterManagerMPI;
@@ -76,7 +77,7 @@ AmpToolsInterfaceMPI::AmpToolsInterfaceMPI(ConfigurationInfo* configurationInfo)
 
     ReactionInfo* reaction = m_configurationInfo->reactionList()[irct];
     string reactionName(reaction->reactionName());
-    AmplitudeManager* ampMan = amplitudeManager(reactionName);
+    IntensityManager* intenMan = intensityManager(reactionName);
 
 
       // ************************
@@ -98,15 +99,13 @@ AmpToolsInterfaceMPI::AmpToolsInterfaceMPI(ConfigurationInfo* configurationInfo)
     DataReader* genMCRdr = genMCReader(reactionName);
     DataReader* accMCRdr = accMCReader(reactionName);
 
-
       // ************************
       // create a NormIntInterface
       // ************************
 
-
     NormIntInterface* normInt = NULL;
-    if (genMCRdr && accMCRdr && ampMan && !(reaction->normIntFileInput())){
-      normInt = new NormIntInterfaceMPI(genMCRdr, accMCRdr, *ampMan);
+    if (genMCRdr && accMCRdr && intenMan && !(reaction->normIntFileInput())){
+      normInt = new NormIntInterfaceMPI(genMCRdr, accMCRdr, *intenMan);
       m_normIntMap[reactionName] = normInt;
       if (reaction->normIntFile() == "")
 	cout << "AmpToolsInterface WARNING:  no name given to NormInt file for reaction " 
@@ -121,15 +120,13 @@ AmpToolsInterfaceMPI::AmpToolsInterfaceMPI(ConfigurationInfo* configurationInfo)
        << reactionName << endl;
     }
 
-
-
       // ************************
       // create a LikelihoodCalculator
       // ************************
 
     LikelihoodCalculatorMPI* likCalc = NULL;
-    if (ampMan && normInt && dataRdr && m_parameterManager){
-      likCalc = new LikelihoodCalculatorMPI(*ampMan, *normInt, *dataRdr, *parameterManagerMPI); 
+    if (intenMan && normInt && dataRdr && m_parameterManager){
+      likCalc = new LikelihoodCalculatorMPI(*intenMan, *normInt, *dataRdr, *parameterManagerMPI); 
       m_likCalcMap[reactionName] = likCalc;
     }
     else{
@@ -137,8 +134,6 @@ AmpToolsInterfaceMPI::AmpToolsInterfaceMPI(ConfigurationInfo* configurationInfo)
        << reactionName << endl;
       exit(1);
     }
-
-
   }
 
     // ************************
@@ -146,7 +141,7 @@ AmpToolsInterfaceMPI::AmpToolsInterfaceMPI(ConfigurationInfo* configurationInfo)
     // ************************
 
   m_fitResults = new FitResults( m_configurationInfo,
-                                 m_amplitudeManagers,
+                                 m_intensityManagers,
                                  m_likCalcMap,
                                  m_normIntMap,
                                  m_minuitMinimizationManager,

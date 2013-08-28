@@ -38,7 +38,7 @@
 
 #include <mpi.h>
 
-#include "IUAmpTools/AmplitudeManager.h"
+#include "IUAmpTools/IntensityManager.h"
 
 #include "IUAmpToolsMPI/NormIntInterfaceMPI.h"
 #include "IUAmpToolsMPI/MPITag.h"
@@ -47,8 +47,8 @@ using namespace std;
 
 NormIntInterfaceMPI::NormIntInterfaceMPI( DataReader* genMCData, 
                                           DataReader* accMCData, 
-                                          const AmplitudeManager& ampManager ):
-NormIntInterface( genMCData, accMCData, ampManager )
+                                          const IntensityManager& intenManager ):
+NormIntInterface( genMCData, accMCData, intenManager )
 {
   setupMPI();
   
@@ -70,7 +70,7 @@ NormIntInterfaceMPI::normInt( string amp, string conjAmp, bool forceUseCache ) c
   // note that evaluation order is important; if the NI interface comes from a file
   // the the ampManager pointer will be NULL. We rely on hasAccessToMC to short
   // circuit the evaluation to avoid a segmentation fault.
-  if( hasAccessToMC() && ampManager()->hasAmpWithFreeParam() && !forceUseCache )
+  if( hasAccessToMC() && intenManager()->hasTermWithFreeParam() && !forceUseCache )
     forceCacheUpdate( true );
   
   // then we can use the parent class to return the value from the 
