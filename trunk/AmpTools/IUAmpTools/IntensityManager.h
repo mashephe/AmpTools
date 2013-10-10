@@ -398,8 +398,7 @@ public:
                             double ampParValue );
   
   /**
-   * This function will be called whenever a parameter is updateded.  It
-   * should be 
+   * This function will be called whenever a parameter is updateded.  
    *
    * \see Amplitude::updatePar
    */
