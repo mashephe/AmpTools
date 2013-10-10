@@ -151,6 +151,8 @@ NormIntInterface::loadNormIntCache( istream& input )
   
   m_emptyNormIntCache = false;
   m_emptyAmpIntCache = false;
+  
+  return input;
 }
 
 void
