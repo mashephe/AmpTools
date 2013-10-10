@@ -404,6 +404,20 @@ public:
    * \see Amplitude::updatePar
    */
   void updatePar( const string& parName ) const;
+  
+  /**
+   * This function can be used to set a flag to optimize subsequent
+   * calls to calcTerms in the case that amplitudes have free parameters.
+   * It uses functionality in the updatePar function to only force a
+   * recalculation of the amplitude for a particular AmpVecs class if
+   * one of the AmpParameters for that amplitude has changed since
+   * the last calculation.  This should signficiantly enhance the speed
+   * for fits with parameters floating in amplitudes, since there will
+   * only be an expensive recomputation when MINUIT changes the parameter.
+   *
+   * \param[in] flag set to true to enable the optimization
+   */
+  void setOptimizeParIteration( bool flag ) { m_optimizeParIteration = flag; }
 
   
 private:
@@ -439,6 +453,11 @@ private:
   
   // vector to short-cut recomputation of terms with all fixed factors
   vector< bool > m_vbIsAmpFixed;
+  
+  // some internal members to optimize amplitude recalculation
+  bool m_optimizeParIteration;
+  mutable map< const Amplitude*, int > m_ampIteration;
+  mutable map< AmpVecs*, map< const Amplitude*, int > > m_dataAmpIteration;
 
 #ifdef GPU_ACCELERATION
   

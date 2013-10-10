@@ -46,7 +46,8 @@
 
 AmplitudeManager::AmplitudeManager( const vector< string >& reaction,
                                     const string& reactionName) :
-IntensityManager( reaction, reactionName )
+IntensityManager( reaction, reactionName ),
+m_optimizeParIteration( false )
 {
   cout << endl << "## AMPLITUDE MANAGER INITIALIZATION ##" << endl;
   cout << " Creating amplitude manager for reaction:  " << reactionName << endl;
@@ -260,6 +261,16 @@ AmplitudeManager::calcTerms( AmpVecs& a, bool bIsFirstPass, bool useMC ) const
       
       if( !bIsFirstPass && !pCurrAmp->containsFreeParameters() )
         continue;
+      
+      // now check to see if the value of this amplitudes parameters
+      // are the same as they were the last time they were evaluated
+      // for this particular dataset -- if so don't reevaluate
+      
+      if( !bIsFirstPass && m_optimizeParIteration &&
+          m_dataAmpIteration[&a][pCurrAmp] == m_ampIteration[pCurrAmp] )
+        continue;
+      
+      m_dataAmpIteration[&a][pCurrAmp] = m_ampIteration[pCurrAmp];
       
       // cout << "Recomputing factor: " << pCurrAmp->name() << endl;
       
@@ -845,7 +856,13 @@ AmplitudeManager::updatePar( const string& parName ) const {
         ampItr != mapItr->second.end();
         ++ampItr ){
       
-      (**ampItr).updatePar( parName );
+      // if we find an amplitude with the parameter update the iteration
+      // counter; this may result in multiple increments over one fuction
+      // call but that is OK -- iteration numbers just need to be unique
+      if( (**ampItr).updatePar( parName ) ){
+        
+        ++m_ampIteration[*ampItr];
+      }
     }
   }
 }
