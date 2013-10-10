@@ -238,6 +238,7 @@ Amplitude::updatePar( const string& name ) const {
       // remove this potential annoyance.
       
       const_cast< Amplitude* >(this)->updatePar( **parItr );
+      foundPar = true;
     }
   }
   
