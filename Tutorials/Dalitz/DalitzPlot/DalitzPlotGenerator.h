@@ -1,8 +1,6 @@
 #if !(defined DALITZPLOTGENERATOR)
 #define DALITZPLOTGENERATOR
 
-using namespace std;
-
 #include "IUAmpTools/PlotGenerator.h"
 
 class FitResults;
