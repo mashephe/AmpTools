@@ -14,11 +14,23 @@ TARGET_LIBS_GPU :=  $(addsuffix _GPU.a, $(addprefix lib, $(SRCDIRS_GPU)))
 ifdef GPU
 
 NVCC := nvcc
-CUDA_FLAGS := -arch=compute_13 -code=compute_13
+CUDA_FLAGS := -arch=sm_20
 INC_DIR += -I. -I$(CUDA_INSTALL_PATH)/include
 
 CXX_FLAGS += -DGPU_ACCELERATION
 DEFAULT := libDalitz_GPU.a
+
+# To build code instrumented for Vampir Trace  VTRACE=1
+
+ifdef VTRACE
+
+CXX := vtcxx -vt:inst manual
+NVCC := vtnvcc
+
+CXX_FLAGS += -DVTRACE
+
+endif
+
 
 else
 
