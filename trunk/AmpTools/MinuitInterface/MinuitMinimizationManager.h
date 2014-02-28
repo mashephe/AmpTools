@@ -123,7 +123,7 @@ public:
    // standard minimization procedures
    void migradMinimization();
    void minosMinimization();
-   void hesseEvaluation();
+   vector< vector< double > > hesseEvaluation();
    
    // change the output stream for the minuit logging
    void setLogStream( std::ostream& logStream );

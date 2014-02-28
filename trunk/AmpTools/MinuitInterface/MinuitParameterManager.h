@@ -80,6 +80,9 @@ public:
    // dump the list of parameters to an ostream.  It will generally be more
    // convenient to use the << operator defined as an inline below
    std::ostream& dump( std::ostream& s ) const;
+  
+   int numFloatingPars() const { return m_numFloatingPars; }
+  
    // ------------ static member functions ---------------------
    
 protected:
