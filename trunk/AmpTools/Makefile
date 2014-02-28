@@ -13,7 +13,7 @@ ifdef MPI
 
 SRCDIRS += IUAmpToolsMPI
 
-MPICC = mpicxx -cc=$(CXX) 
+MPICC := mpicxx -cc=$(CXX)
 CXX_FLAGS += -DUSE_MPI
 
 endif
@@ -37,6 +37,18 @@ DEFAULT := libAmpTools_GPU.a
 else
 
 DEFAULT := libAmpTools.a
+
+endif
+
+# To build code instrumented for Vampir Trace  VTRACE=1
+
+ifdef VTRACE
+
+CXX := vtcxx -vt:inst manual
+MPICC := vtcxx -vt:mpi -vt:inst manual
+NVCC := vtnvcc
+
+CXX_FLAGS += -DVTRACE
 
 endif
 
