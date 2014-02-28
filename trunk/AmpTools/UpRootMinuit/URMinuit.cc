@@ -126,8 +126,9 @@ URMinuit::zeroPointers()
    fPbar      = 0; 
    fPrho      = 0; 
    fWord7     = 0; 
-   fVhmat     = 0; 
-   fVthmat    = 0; 
+   fVhmat     = 0;
+   fSecDer    = 0;
+   fVthmat    = 0;
    fP         = 0; 
    fXpt       = 0; 
    fYpt       = 0; 
@@ -211,6 +212,7 @@ void URMinuit::BuildArrays(Int_urt maxpar)
    fPrho   = new Double_urt[fMaxpar];
    fWord7  = new Double_urt[fMaxpar];
    fVhmat  = new Double_urt[fMaxpar5];
+   fSecDer = new Double_urt[fMaxpar5];
    fVthmat = new Double_urt[fMaxpar5];
    fP      = new Double_urt[fMaxpar1];
    fXpt    = new Double_urt[fMaxcpt];
@@ -3979,6 +3981,10 @@ L214:
     for (i = 1; i <= fNpar; ++i) {
 	for (j = 1; j <= i; ++j) {
 	    ndex = i*(i-1) / 2 + j;
+      // factor of 0.5 here is based on observation not derivation
+      // and noting that factor of 2 appears in setting fVhmat below
+      // after inversion of fP (MRS)
+      fSecDer[ndex-1] = fVhmat[ndex-1]*.5;
 	    fP[i + j*fMaxpar - fMaxpar-1] = fVhmat[ndex-1];
 	    fP[j + i*fMaxpar - fMaxpar-1] = fP[i + j*fMaxpar - fMaxpar-1];
 	}

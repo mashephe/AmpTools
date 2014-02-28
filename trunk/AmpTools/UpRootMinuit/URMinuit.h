@@ -93,6 +93,7 @@ public:
         Double_urt     *fG2s;             //[fMaxpar] 
         Double_urt     *fGsteps;          //[fMaxpar] 
         Double_urt     *fVhmat;           //[fMaxpar5] (Internal) error matrix stored as Half MATrix, since it is symmetric
+        Double_urt     *fSecDer;          //[fMaxpar5] matrix of second derivatives filled in HESSE
         Double_urt     *fVthmat;          //[fMaxpar5] VHMAT is sometimes saved in VTHMAT, especially in MNMNOT
         Double_urt     *fP;               //[fMaxpar1] 
         Double_urt     *fPstar;           //[fMaxpar2] 
