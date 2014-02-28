@@ -11,7 +11,6 @@ CXX := gcc
 #CXX_FLAGS := -O3 -m32
 CXX_FLAGS := -O3
 
-
 ifdef MPI
 
 CXX := mpicxx -cc=$(CXX)
@@ -19,6 +18,16 @@ CXX_FLAGS += -DUSEMPI
 
 endif
 
+# To build code instrumented for Vampir Trace  VTRACE=1
+
+ifdef VTRACE
+
+CXX := vtcxx -vt:inst manual
+MPICC := vtcxx -vt:mpi -vt:inst manual
+
+CXX_FLAGS += -DVTRACE
+
+endif
 
 
 ifdef GPU
