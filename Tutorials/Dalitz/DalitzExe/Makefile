@@ -19,13 +19,26 @@ CXX_FLAGS += -DUSEMPI
 
 endif
 
+
+# To build code instrumented for Vampir Trace  VTRACE=1
+
+ifdef VTRACE
+
+CXX := vtcxx -vt:inst manual
+MPICC := vtcxx -vt:mpi -vt:inst manual
+
+CXX_FLAGS += -DVTRACE
+
+endif
+
+
 ifdef GPU
 
 INC_DIR += -I$(CUDA_INSTALL_PATH)/include
-LIB_DIR += -L$(CUDA_INSTALL_PATH)/lib64
+LIB_DIR += -L$(CUDA_INSTALL_PATH)/lib
 
-LIBS :=  -lDalitz_GPU -lAmpPlotter_GPU -lAmpTools_GPU -lCLHEP $(ROOTLIBS)  \
-	-lcuda -lcudart -lstdc++
+LIBS :=  -lDalitz_GPU -lAmpPlotter -lAmpTools_GPU -lCLHEP $(ROOTLIBS)  \
+	-lcudart -lstdc++
 CXX_FLAGS += -DGPU_ACCELERATION
 
 else
@@ -34,6 +47,7 @@ LIBS :=  -lDalitz -lAmpPlotter -lAmpTools -lCLHEP $(ROOTLIBS)  \
 	-lstdc++
 
 endif
+
 
 SRCFILES := $(wildcard *.cc)
 TARGET_EXE := $(subst .cc,_exe,$(SRCFILES))
