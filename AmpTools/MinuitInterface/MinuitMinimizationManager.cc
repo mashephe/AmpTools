@@ -228,7 +228,7 @@ MinuitMinimizationManager::minosMinimization() {
    m_parameterManager.noFitInProgress();
 }
 
-void
+vector< vector< double > >
 MinuitMinimizationManager::hesseEvaluation() {
    int dummyI;
    double dummyD;
@@ -237,12 +237,37 @@ MinuitMinimizationManager::hesseEvaluation() {
    m_parameterManager.synchronizeMinuit();
    m_parameterManager.fitInProgress();
    m_status = m_fitter.Hesse();
+  
+  // copy out the Hessian matrix, which is filled internally,
+  // and return it to the user
+  int nPar = parameterManager().numFloatingPars();
+  
+  vector< vector< double > > secDerivMatrix;
+
+  // first allocate space for the matrix
+  for( int i = 0; i < nPar; ++i )
+    secDerivMatrix.push_back( vector< double >( nPar ) );
+  
+  // then fill from the stored internal half matrix
+  for( int i = 0; i < nPar; ++i ){
+  
+    for( int j = 0; j <= i; ++j ){
+      
+      int index = i*(i+1)/2 + j;
+      secDerivMatrix[i][j] = m_fitter.fSecDer[index];
+      secDerivMatrix[j][i] = m_fitter.fSecDer[index];
+      
+    }
+  }
+
    m_fitter.mnstat( m_bestMin, m_estDistToMin, dummyD, dummyI, dummyI, m_eMatrixStat );
    // minuit doesn't make a final function call after evaluation of
    // errors.  This ensures that final parameter and function values
    // correspond to the minimimum found
    evaluateFunction();
    m_parameterManager.noFitInProgress();
+
+  return secDerivMatrix;
 }
 
 void
