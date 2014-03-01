@@ -44,6 +44,10 @@
 #include "IUAmpTools/AmpParameter.h"
 #include "IUAmpTools/Kinematics.h"
 
+#ifdef VTRACE
+#include "vt_user.h"
+#endif
+
 void 
 Amplitude::calcAmplitudeAll( GDouble* pdData, GDouble* pdAmps, int iNEvents,
                             const vector< vector< int > >* pvPermutations ) const
@@ -119,7 +123,11 @@ Amplitude::calcAmplitude( const Kinematics* pKin ) const {
 
 complex< GDouble >
 Amplitude::calcAmplitude( const Kinematics* pKin, const vector< int >& permutation) const {
-  
+
+#ifdef VTRACE
+  VT_TRACER( name() + "::calcAmplitude" );
+#endif
+
   vector<HepLorentzVector> particleList = pKin->particleList();
   
   GDouble** pData = new GDouble*[particleList.size()];
@@ -222,6 +230,11 @@ Amplitude::setParValue( const string& name, double val ) const {
 
 bool
 Amplitude::updatePar( const string& name ) const {
+  
+#ifdef VTRACE
+  VT_TRACER( name() + "::updatePar [" + name + "]" );
+#endif
+
   
   bool foundPar = false;
   
