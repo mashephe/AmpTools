@@ -125,7 +125,9 @@ complex< GDouble >
 Amplitude::calcAmplitude( const Kinematics* pKin, const vector< int >& permutation) const {
 
 #ifdef VTRACE
-  VT_TRACER( name() + "::calcAmplitude" );
+  string info = name();
+  info += "::calcAmplitude";
+  VT_TRACER( info.c_str() );
 #endif
 
   vector<HepLorentzVector> particleList = pKin->particleList();
@@ -232,7 +234,11 @@ bool
 Amplitude::updatePar( const string& name ) const {
   
 #ifdef VTRACE
-  VT_TRACER( name() + "::updatePar [" + name + "]" );
+  string info = (*this).name();
+  info += "::updatePar [";
+  info += name.c_str();
+  info += "]";
+  VT_TRACER( info.c_str() );
 #endif
 
   
