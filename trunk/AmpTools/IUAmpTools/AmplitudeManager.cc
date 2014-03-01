@@ -44,6 +44,10 @@
 #include "IUAmpTools/AmplitudeManager.h"
 #include "IUAmpTools/NormIntInterface.h"
 
+#ifdef VTRACE
+#include "vt_user.h"
+#endif
+
 AmplitudeManager::AmplitudeManager( const vector< string >& reaction,
                                     const string& reactionName) :
 IntensityManager( reaction, reactionName ),
@@ -203,6 +207,10 @@ void
 AmplitudeManager::calcTerms( AmpVecs& a, bool bIsFirstPass, bool useMC ) const
 {
   
+#ifdef VTRACE
+  VT_TRACER( "AmplitudeManager::calcTerms" );
+#endif
+
   timeval tStart, tIStart, tStop,tSpan;
   double dTime;
   
@@ -376,6 +384,11 @@ AmplitudeManager::calcTerms( AmpVecs& a, bool bIsFirstPass, bool useMC ) const
 double
 AmplitudeManager::calcIntensities( AmpVecs& a, bool bIsFirstPass ) const
 {
+
+#ifdef VTRACE
+  VT_TRACER( "AmplitudeManager::calcIntensities" );
+#endif
+
   // check to be sure destination memory has been allocated
   assert( a.m_pdIntensity );
   
@@ -463,6 +476,11 @@ AmplitudeManager::calcIntensities( AmpVecs& a, bool bIsFirstPass ) const
 double
 AmplitudeManager::calcSumLogIntensity( AmpVecs& a, bool bIsFirstPass ) const
 {
+  
+#ifdef VTRACE
+  VT_TRACER( "AmplitudeManager::calcSumLogIntensity" );
+#endif
+
   // this may be inefficienct since there are two
   // loops over events, one here and one in the
   // calculation of intensities -- however, this
@@ -527,7 +545,11 @@ AmplitudeManager::calcSumLogIntensity( AmpVecs& a, bool bIsFirstPass ) const
 map< string, map< string, complex< double > > >
 AmplitudeManager::calcIntegrals( AmpVecs& a, int iNGenEvents, bool bIsFirstPass ) const
 {
-  
+
+#ifdef VTRACE
+  VT_TRACER( "AmplitudeManager::calcIntegrals" );
+#endif
+
   // this method could be made more efficient by caching a table of
   // integrals associated with each AmpVecs object and then, based on the
   // variables bIsFirstPass and m_vbIsAmpFixed data compute only

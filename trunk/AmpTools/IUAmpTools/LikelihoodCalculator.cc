@@ -49,6 +49,10 @@
 #include "MinuitInterface/MinuitParameterManager.h"
 #include "MinuitInterface/MinuitParameter.h"
 
+#ifdef VTRACE
+#include "vt_user.h"
+#endif
+
 LikelihoodCalculator::LikelihoodCalculator( const IntensityManager& intenManager,
                                             const NormIntInterface& normInt,
                                             DataReader& dataReader,
@@ -79,6 +83,10 @@ LikelihoodCalculator::operator()(){
 
 double
 LikelihoodCalculator::normIntTerm(){
+  
+#ifdef VTRACE
+  VT_TRACER( "LikelihoodCalculator::normIntTerm" );
+#endif
   
   // check to be sure we can actually perform a computation of the
   // normalization integrals in case we have floating parameters
@@ -147,8 +155,12 @@ LikelihoodCalculator::normIntTerm(){
 
 double
 LikelihoodCalculator::dataTerm(){
-    
-  if( m_firstPass ) { 
+  
+#ifdef VTRACE
+  VT_TRACER( "LikelihoodCalculator::dataTerm" );
+#endif
+
+  if( m_firstPass ) {
     
     // first calculation -- need to load the data
     
