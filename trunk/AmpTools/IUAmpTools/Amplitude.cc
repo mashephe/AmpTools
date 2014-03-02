@@ -52,6 +52,13 @@ void
 Amplitude::calcAmplitudeAll( GDouble* pdData, GDouble* pdAmps, int iNEvents,
                             const vector< vector< int > >* pvPermutations ) const
 {
+  
+#ifdef VTRACE
+  string info = name();
+  info += "::calcAmplitudeAll";
+  VT_TRACER( info.c_str() );
+#endif
+
   complex< GDouble > cRes;
   
   int iPermutation, iNPermutations = pvPermutations->size();
