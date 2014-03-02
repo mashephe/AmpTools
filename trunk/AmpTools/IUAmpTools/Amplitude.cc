@@ -167,7 +167,12 @@ Amplitude::calcAmplitude( const Kinematics* pKin, const vector< int >& permutati
 void
 Amplitude::calcAmplitudeGPU( dim3 dimGrid, dim3 dimBlock, GPU_AMP_PROTO,
                             const vector< int >& perm ) const {
-  
+#ifdef VTRACE
+  string info = name();
+  info += "::calcAmplitudeGPU";
+  VT_TRACER( info.c_str() );
+#endif
+
   m_currentPermutation = perm;
   launchGPUKernel( dimGrid, dimBlock, GPU_AMP_ARGS );
 }
