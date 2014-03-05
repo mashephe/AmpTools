@@ -112,7 +112,7 @@ AmpToolsInterfaceMPI::AmpToolsInterfaceMPI(ConfigurationInfo* configurationInfo)
 	 << reactionName << endl;
     }
     else if (reaction->normIntFileInput()){
-      normInt = new NormIntInterfaceMPI(reaction->normIntFile());
+      normInt = new NormIntInterfaceMPI(reaction->normIntFile(),intenMan->getTermNames());
       m_normIntMap[reactionName] = normInt;
     }
     else{
@@ -181,14 +181,19 @@ AmpToolsInterfaceMPI::finalizeFit(){
     string outputFile(m_configurationInfo->fitOutputFileName());
     ofstream outFile(outputFile.c_str());
     m_fitResults->saveResults();
+ 
+    // after saving the results destroy the LikelihoodCalculatorMPI
+    // class on the master -- this will break the worker nodes out
+    // of their deliverLikelihood loop and let them enter this routine
 
-      for (unsigned int irct = 0;
-           irct < m_configurationInfo->reactionList().size(); irct++){
-        ReactionInfo* reaction = m_configurationInfo->reactionList()[irct];
-        string reactionName(reaction->reactionName());
-        if (m_likCalcMap[reactionName]) delete m_likCalcMap[reactionName];
-      }
-    m_likCalcMap.clear();
+    for (unsigned int irct = 0;
+         irct < m_configurationInfo->reactionList().size(); irct++){
+      ReactionInfo* reaction = m_configurationInfo->reactionList()[irct];
+      string reactionName(reaction->reactionName());
+      if (m_likCalcMap.find(reactionName) != m_likCalcMap.end())
+        delete m_likCalcMap[reactionName];
+      m_likCalcMap.erase(reactionName);
+    }
 
     m_fitResults->writeResults( outputFile );
  }
