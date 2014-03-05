@@ -139,7 +139,7 @@ LikelihoodCalculator::normIntTerm(){
           double imNI = m_normIntArray[2*a*n+2*b+1];
           
           thisTerm = ( reVa*reVb + imVa*imVb ) * reNI;
-          thisTerm -= ( imVa*imVb - reVa*imVb ) * imNI;
+          thisTerm -= ( imVa*reVb - reVa*imVb ) * imNI;
           
           if( a != b ) thisTerm *= 2;
           
