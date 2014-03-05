@@ -55,16 +55,20 @@ m_emptyNormIntCache( true ),
 m_emptyAmpIntCache( true )
 {}
 
-NormIntInterface::NormIntInterface( const string& normIntFile ) :
+NormIntInterface::NormIntInterface( const string& normIntFile,
+                                    const vector< string >& termNames ) :
 m_pIntenManager( NULL ),
 m_accMCReader( NULL ),
 m_genMCReader( NULL ),
 m_emptyNormIntCache( true ),
-m_emptyAmpIntCache( true )
+m_emptyAmpIntCache( true ),
+m_termNames( termNames )
 {
+
+  initializeCache();
   
   cout << "Reading cached normalization integral calculation from: "
-  << normIntFile << endl;
+       << normIntFile << endl;
   
   ifstream inFile( normIntFile.c_str() );
   
@@ -85,32 +89,17 @@ m_pIntenManager( &intenManager ),
 m_accMCReader( accMCData ),
 m_genMCReader( genMCData ),
 m_emptyNormIntCache( true ),
-m_emptyAmpIntCache( true )
+m_emptyAmpIntCache( true ),
+m_termNames( intenManager.getTermNames() )
 {
   assert( ( m_accMCReader != NULL ) && ( m_genMCReader != NULL ) );
+  
+  m_termNames = intenManager.getTermNames();
   
   m_nGenEvents = m_genMCReader->numEvents();
   m_nAccEvents = m_accMCReader->numEvents(); 
   
-  // start by initalizing the caches to zero -- MPI implementation will
-  // iteratate over and update the cache so setting up the keys in the
-  // map is essential
-  
-  vector< string > amps = intenManager.getTermNames();
-  for( vector< string >::iterator amp = amps.begin();
-      amp != amps.end();
-      ++amp ) {
-    for( vector< string >::iterator conjAmp = amps.begin();
-        conjAmp != amps.end();
-        ++conjAmp ) {
-      
-      m_normIntCache[*amp][*conjAmp] = complex< double >( 0, 0 );
-      m_ampIntCache[*amp][*conjAmp] = complex< double >( 0, 0 );      
-    }
-  }
-  
-  // avoid computation of normalization integrals until they are 
-  // actually requested -- this avoids unnecessary expensive computations
+  initializeCache();
 }
 
 
@@ -131,12 +120,26 @@ NormIntInterface::loadNormIntCache( istream& input )
     ampNames.push_back( name );
   }
   
+  int n = m_termNames.size();
+  
   for( int i = 0; i < numAmps; ++i ){
     for( int j = 0; j < numAmps; ++j ){
-      
+
       complex< double > integral;
       input >> integral;
-      m_ampIntCache[ampNames[i]][ampNames[j]] = integral;
+      
+      // the file may have additional integrals that are
+      // not needed -- don't record those
+      
+      if( m_termIndex.find( ampNames[i] ) == m_termIndex.end() ||
+          m_termIndex.find( ampNames[j] ) == m_termIndex.end() )
+        continue;
+      
+      int iInd = m_termIndex[ampNames[i]];
+      int jInd = m_termIndex[ampNames[j]];
+      
+      m_ampIntCache[2*iInd*n+2*jInd]   = real( integral );
+      m_ampIntCache[2*iInd*n+2*jInd+1] = imag( integral );
     }
   }
   
@@ -145,7 +148,19 @@ NormIntInterface::loadNormIntCache( istream& input )
       
       complex< double > integral;
       input >> integral;
-      m_normIntCache[ampNames[i]][ampNames[j]] = integral;
+      
+      // the file may have additional integrals that are
+      // not needed -- don't record those
+      
+      if( m_termIndex.find( ampNames[i] ) == m_termIndex.end() ||
+         m_termIndex.find( ampNames[j] ) == m_termIndex.end() )
+        continue;
+      
+      int iInd = m_termIndex[ampNames[i]];
+      int jInd = m_termIndex[ampNames[j]];
+      
+      m_normIntCache[2*iInd*n+2*jInd]   = real( integral );
+      m_normIntCache[2*iInd*n+2*jInd+1] = imag( integral );
     }
   }
   
@@ -167,23 +182,37 @@ NormIntInterface::operator+=( const NormIntInterface& nii )
   
   string ampName, conjAmpName;
   
-  for( map< string, map< string, complex< double > > >::const_iterator ampItr = m_ampIntCache.begin(); ampItr != m_ampIntCache.end(); ++ampItr ){
+  int n = m_termNames.size();
+  
+  for( int i = 0; i < n; ++i ){
+    for( int j = 0; j < n; ++j ){
     
-    ampName = ampItr->first;
-    
-    for( map< string, complex< double > >::const_iterator conjItr = ampItr->second.begin(); conjItr != ampItr->second.end(); ++conjItr ){
+      m_ampIntCache[2*i*n+j]   *= m_nAccEvents;
+      m_ampIntCache[2*i*n+j+1] *= m_nAccEvents;
+
+      complex< double > ai = nii.ampInt( m_termNames[i], m_termNames[j]  );
       
-      conjAmpName = conjItr->first;
+      m_ampIntCache[2*i*n+j]   += nAccEvts * real( ai );
+      m_ampIntCache[2*i*n+j+1] += nAccEvts * imag( ai );
+
+      m_ampIntCache[2*i*n+j]   /= totalAccEvts;
+      m_ampIntCache[2*i*n+j+1] /= totalAccEvts;
+
       
-      m_ampIntCache[ampName][conjAmpName] *= m_nAccEvents;
-      m_ampIntCache[ampName][conjAmpName] += nAccEvts * nii.ampInt( ampName, conjAmpName );
-      m_ampIntCache[ampName][conjAmpName] /= totalAccEvts;
+      m_ampIntCache[2*i*n+j]   *= m_nGenEvents;
+      m_ampIntCache[2*i*n+j+1] *= m_nGenEvents;
       
-      m_normIntCache[ampName][conjAmpName] *= m_nGenEvents;
-      m_normIntCache[ampName][conjAmpName] += nGenEvts * nii.normInt( ampName, conjAmpName );
-      m_normIntCache[ampName][conjAmpName] /= totalGenEvts;
+      complex< double > ni = nii.normInt( m_termNames[i], m_termNames[j]  );
+      
+      m_ampIntCache[2*i*n+j]   += nGenEvts * real( ni );
+      m_ampIntCache[2*i*n+j+1] += nGenEvts * imag( ni );
+      
+      m_ampIntCache[2*i*n+j]   /= totalGenEvts;
+      m_ampIntCache[2*i*n+j+1] /= totalGenEvts;
+      
     }
   }
+  
   
   m_nAccEvents = totalAccEvts;
   m_nGenEvents = totalGenEvts;
@@ -204,14 +233,9 @@ NormIntInterface::hasAccessToMC() const
 bool
 NormIntInterface::hasNormInt( string amp, string conjAmp ) const
 {
-  map< string, map< string, complex < double > > >::const_iterator 
-  conjMap = m_normIntCache.find( amp );
-  if( conjMap == m_normIntCache.end() ) return false;
   
-  map< string, complex< double > >::const_iterator integral = conjMap->second.find( conjAmp );
-  if( integral == conjMap->second.end() ) return false;
-  
-  return true;
+  return( ( m_termIndex.find( amp )     != m_termIndex.end() ) &&
+          ( m_termIndex.find( conjAmp ) != m_termIndex.end() ) );
 }
 
 
@@ -240,27 +264,22 @@ NormIntInterface::normInt( string amp, string conjAmp, bool forceUseCache ) cons
   if( !forceUseCache && hasAccessToMC() && 
      ( m_pIntenManager != NULL ) && m_pIntenManager->hasTermWithFreeParam() ){
     
-    m_normIntCache = 
-    m_pIntenManager->calcIntegrals( m_mcVecs, m_nGenEvents, false );
+    m_pIntenManager->calcIntegrals( m_mcVecs, m_nGenEvents, m_normIntCache, false );
   }
   
-  map< string, map< string, complex < double > > >::const_iterator 
-  conjMap = m_normIntCache.find( amp );
-  
-  if( conjMap == m_normIntCache.end() ){
-    
-    cout << "ERROR: normalization integral does not exist for " << amp << endl;
+  if( !hasNormInt( amp, conjAmp ) ){
+   
+    cout << "ERROR: normalization integral does not exist for "
+         << amp << ", " << conjAmp << "*" << endl;
     assert( false );
   }
   
-  map< string, complex< double > >::const_iterator integral = conjMap->second.find( conjAmp );
-  if( integral == conjMap->second.end() ){
-    
-    cout << "ERROR: normalization integral does not exist for " << conjAmp << "*" << endl;
-    assert( false );
-  }
+  int n = m_termNames.size();
+  int i = m_termIndex.find( amp )->second;
+  int j = m_termIndex.find( conjAmp )->second;
   
-  return integral->second;
+  return complex< double >( m_normIntCache[2*i*n+2*j],
+                            m_normIntCache[2*i*n+2*j+1] );
 }
 
 
@@ -268,14 +287,9 @@ bool
 NormIntInterface::hasAmpInt( string amp, string conjAmp ) const
 {
   
-  map< string, map< string, complex < double > > >::const_iterator 
-  conjMap = m_ampIntCache.find( amp );
-  if( conjMap == m_ampIntCache.end() ) return false;
+  // it is not possible to have one and not the other anymore
   
-  map< string, complex< double > >::const_iterator integral = conjMap->second.find( conjAmp );
-  if( integral == conjMap->second.end() ) return false;
-  
-  return true;
+  return hasNormInt( amp, conjAmp );
 }
 
 
@@ -303,23 +317,20 @@ NormIntInterface::ampInt( string amp, string conjAmp, bool forceUseCache ) const
     // confusing the user
   }
   
-  map< string, map< string, complex < double > > >::const_iterator 
-  conjMap = m_ampIntCache.find( amp );
   
-  if( conjMap == m_ampIntCache.end() ){
+  if( !hasAmpInt( amp, conjAmp ) ){
     
-    cout << "ERROR: amplitude integral does not exist for " << amp << endl;
+    cout << "ERROR: amplitude integral does not exist for "
+    << amp << ", " << conjAmp << "*" << endl;
     assert( false );
   }
   
-  map< string, complex< double > >::const_iterator integral = conjMap->second.find( conjAmp );
-  if( integral == conjMap->second.end() ){
-    
-    cout << "ERROR: amplitude integral does not exist for " << conjAmp << "*" << endl;
-    assert( false );
-  }
+  int n = m_termNames.size();
+  int i = m_termIndex.find( amp )->second;
+  int j = m_termIndex.find( conjAmp )->second;
   
-  return integral->second;
+  return complex< double >( m_ampIntCache[2*i*n+2*j],
+                            m_ampIntCache[2*i*n+2*j+1] );
 }
 
 void
@@ -336,7 +347,7 @@ NormIntInterface::forceCacheUpdate( bool normIntOnly ) const
     // we can assume that m_mcVecs contains the accepted MC since the
     // generated MC is never left in m_mcVecs
     
-    m_normIntCache = m_pIntenManager->calcIntegrals( m_mcVecs, m_nGenEvents, false );
+    m_pIntenManager->calcIntegrals( m_mcVecs, m_nGenEvents, m_normIntCache, false );
     
     // stop here if we just want the norm ints -- this will likely be the normal
     // mode of operation for NI recalculations during a fit
@@ -356,8 +367,7 @@ NormIntInterface::forceCacheUpdate( bool normIntOnly ) const
   cout << "\tDone.\n" << flush;
   
   cout << "Calculating integrals..." << endl;
-  m_ampIntCache = 
-  m_pIntenManager->calcIntegrals( m_mcVecs, m_nGenEvents );
+  m_pIntenManager->calcIntegrals( m_mcVecs, m_nGenEvents, m_ampIntCache );
   cout << "\tDone." << endl;
   
   m_emptyAmpIntCache = false;
@@ -383,8 +393,7 @@ NormIntInterface::forceCacheUpdate( bool normIntOnly ) const
     // to recalcualte them or else subsequent calls to calcIntegrals
     // with firstPass set to false will fail
     cout << "Calculating integrals..." << endl;
-    m_normIntCache = 
-    m_pIntenManager->calcIntegrals( m_mcVecs, m_nGenEvents );
+    m_pIntenManager->calcIntegrals( m_mcVecs, m_nGenEvents, m_normIntCache );
     
     cout << "\tDone." << endl;
   }
@@ -408,58 +417,57 @@ NormIntInterface::exportNormIntCache( ostream& out, bool renormalize) const
   
   out << m_nGenEvents << "\t" << m_nAccEvents << endl;
   
-  out << m_normIntCache.size() << endl;
+  out << m_termNames.size() << endl;
   
-  for( map< string, map< string, complex< double > > >::const_iterator 
-      ampItr = m_normIntCache.begin();
-      ampItr != m_normIntCache.end(); 
-      ++ampItr ){
+  for( vector< string >::const_iterator name = m_termNames.begin();
+       name != m_termNames.end();
+       ++name ){
     
-    out << ampItr->first << endl;
+    out << *name << endl;
   }
   
+  int n = m_termNames.size();
+
   // write out generated matrix first
-  for( map< string, map< string, complex< double > > >::const_iterator 
-      ampItr = m_ampIntCache.begin();
-      ampItr != m_ampIntCache.end(); 
-      ++ampItr ){
+  for( int i = 0; i < n ; ++i ){
+    for( int j = 0; j < n; ++j ) {
     
-    for( map< string, complex< double > >::const_iterator 
-        conjItr = ampItr->second.begin();
-        conjItr != ampItr->second.end();
-        ++conjItr ){
-      
-      complex< double > value = conjItr->second;
+      complex< double > value( m_ampIntCache[2*i*n+2*j],
+                               m_ampIntCache[2*i*n+2*j+1] );
       
       if( renormalize ){
+ 
+        // diagonal elements are real so we don't need to deal
+        // with the imaginary part in the renormalization
         
-        value /= sqrt( ampInt( ampItr->first, ampItr->first ) *
-                      ampInt( conjItr->first, conjItr->first ) );
+        value /= sqrt( m_ampIntCache[2*i*n+2*i] *
+                       m_ampIntCache[2*j*n+2*j] );
+        
       }
       
       out << value << "\t";
     }
-    
+
     out << endl;
   }
   
   // then accepted matrix
-  for( map< string, map< string, complex< double > > >::const_iterator 
-      ampItr = m_normIntCache.begin();
-      ampItr != m_normIntCache.end(); 
-      ++ampItr ){
-    
-    for( map< string, complex< double > >::const_iterator 
-        conjItr = ampItr->second.begin();
-        conjItr != ampItr->second.end();
-        ++conjItr ){
+  for( int i = 0; i < n ; ++i ){
+    for( int j = 0; j < n; ++j ) {
       
-      complex< double > value = conjItr->second;
+      complex< double > value( m_normIntCache[2*i*n+2*j],
+                               m_normIntCache[2*i*n+2*j+1] );
       
       if( renormalize ){
         
-        value /= sqrt( ampInt( ampItr->first, ampItr->first ) *
-                      ampInt( conjItr->first, conjItr->first ) );
+        // diagonal elements are real so we don't need to deal
+        // with the imaginary part in the renormalization
+        // renormalize by generated so one has efficiency on
+        // the diagonal for the accepted matrix
+        
+        value /= sqrt( m_ampIntCache[2*i*n+2*i] *
+                       m_ampIntCache[2*j*n+2*j] );
+        
       }
       
       out << value << "\t";
@@ -469,33 +477,36 @@ NormIntInterface::exportNormIntCache( ostream& out, bool renormalize) const
   }
 }
 
-map< string, map< string, complex< double > > >
-NormIntInterface::getAmpIntegrals() const { 
+void
+NormIntInterface::initializeCache() {
   
-  return m_ampIntCache; 
+  int n = m_termNames.size();
   
+  for( int i = 0; i < n; ++i )
+    m_termIndex[m_termNames[i]] = i;
+  
+  // 2 for real and imaginary
+  // allocate for the whole matrix even though it is square under
+  // complex conjugation so that memory lookups are easier
+  m_cacheSize = 2*n*n;
+  
+  m_normIntCache = new double[m_cacheSize];
+  m_ampIntCache = new double[m_cacheSize];
+  
+  memset( m_normIntCache, 0, m_cacheSize * sizeof( double ) );
+  memset( m_ampIntCache, 0, m_cacheSize * sizeof( double ) );
 }
 
-map< string, map< string, complex< double > > >
-NormIntInterface::getNormIntegrals() const { 
+void
+NormIntInterface::setAmpIntMatrix( const double* input ) const {
   
-  return m_normIntCache; 
-}
-
-
-void 
-NormIntInterface::setAmpIntegral( string ampName, string cnjName,
-                                 complex< double > val ) const { 
-  
-  m_ampIntCache[ampName][cnjName] = val; 
+  memcpy( m_ampIntCache, input, m_cacheSize * sizeof( double ) );
   m_emptyAmpIntCache = false;
 }
 
-void 
-NormIntInterface::setNormIntegral( string ampName, string cnjName,
-                                  complex< double > val ) const { 
+void
+NormIntInterface::setNormIntMatrix( const double* input ) const {
   
-  m_normIntCache[ampName][cnjName] = val; 
+  memcpy( m_normIntCache, input, m_cacheSize * sizeof( double ) );
   m_emptyNormIntCache = false;
 }
-

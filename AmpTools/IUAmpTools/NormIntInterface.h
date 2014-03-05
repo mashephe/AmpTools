@@ -57,7 +57,7 @@ class NormIntInterface
 public:
   
   NormIntInterface();
-  NormIntInterface( const string& normIntFile );
+  NormIntInterface( const string& normIntFile, const vector< string >& termNames );
   NormIntInterface( DataReader* genMCData, DataReader* accMCData, 
                     const IntensityManager& ampManager );
   
@@ -85,6 +85,11 @@ public:
   void exportNormIntCache( const string& fileName, bool renormalize = false ) const;
   void exportNormIntCache( ostream& output, bool renormalize = false ) const;
   
+  // allow direct access to raw data matrix in memory, which is useful
+  // for high-speed implementations, but not user friendly
+  const double* ampIntMatrix() const  { return m_ampIntCache;  }
+  const double* normIntMatrix() const { return m_normIntCache; }
+  
   void setGenEvents( int events ) { m_nGenEvents = events; }
   void setAccEvents( int events ) { m_nAccEvents = events; }
   
@@ -92,18 +97,15 @@ protected:
   
   // protected helper functions for parallel implementations
   
-  map< string, map< string, complex< double > > > getAmpIntegrals() const;
-  map< string, map< string, complex< double > > > getNormIntegrals() const;
-  
-  
-  void setAmpIntegral( string ampName, string cnjName,
-                      complex< double > val ) const;
-  void setNormIntegral( string ampName, string cnjName,
-                       complex< double > val ) const;
-  
   const IntensityManager* intenManager() const { return m_pIntenManager; }
+  inline int cacheSize() const { return m_cacheSize; }
+  
+  void setAmpIntMatrix( const double* input ) const;
+  void setNormIntMatrix( const double* input ) const;
   
 private:
+  
+  void initializeCache();
   
   const IntensityManager* m_pIntenManager;
   
@@ -113,15 +115,19 @@ private:
   int m_nGenEvents;
   int m_nAccEvents;
   
+  vector< string > m_termNames;
+  map< string, int > m_termIndex;
+  
   mutable bool m_emptyNormIntCache;
   mutable bool m_emptyAmpIntCache;
   
   // needed to cache accepted MC data for NI recalculation
   mutable AmpVecs m_mcVecs;
-  
-  // amp -> amp* -> value
-  mutable map< string, map< string, complex< double > > > m_normIntCache;
-  mutable map< string, map< string, complex< double > > > m_ampIntCache;
+
+  int m_cacheSize;
+
+  mutable double* m_normIntCache;
+  mutable double* m_ampIntCache;
 };
 
 inline istream& operator>>( istream& input, NormIntInterface& normInt ){
