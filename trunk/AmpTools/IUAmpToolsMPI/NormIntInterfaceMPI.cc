@@ -37,6 +37,7 @@
 #include <iostream>
 
 #include <mpi.h>
+#include <cstring>
 
 #include "IUAmpTools/IntensityManager.h"
 
