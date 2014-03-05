@@ -61,13 +61,22 @@ MIFunctionContribution( parManager.fitManager() ),
 m_intenManager( intenManager ),
 m_normInt( normInt ),
 m_dataReader( dataReader ),
-m_firstPass( true )
+m_firstDataCalc( true ),
+m_firstNormIntCalc( true )
 {
   
 // avoid caching data here in the constructor so that MPI-based classes that
 // inherit from this class can have better control of what triggers the
 // caching of data
+ 
+  m_prodFactorArray = new double[intenManager.getTermNames().size()];
+  m_normIntArray = normInt.normIntMatrix();
+  m_ampIntArray = normInt.ampIntMatrix();
+}
+
+LikelihoodCalculator::~LikelihoodCalculator(){
   
+  delete m_prodFactorArray;
 }
 
 double
@@ -77,7 +86,7 @@ LikelihoodCalculator::operator()(){
   // integral sums -- this provides parallel implementations with the
   // methods they need to compute these terms individually
   
-  return ( -2 * ( dataTerm() - normIntTerm() ) );
+  return -2 * ( dataTerm() - normIntTerm() );
 }
 
 
@@ -99,41 +108,47 @@ LikelihoodCalculator::normIntTerm(){
     assert( false );
   }
   
-  // the normalization integral table won't change during the course
-  // of this loop, so after we have retrieved one integral (which will
-  // force recalculation of the table) it is safe to use the cached table
+  if( m_firstNormIntCalc && m_normInt.hasAccessToMC() ) m_normInt.forceCacheUpdate();
+  if( m_intenManager.hasTermWithFreeParam() && !m_firstNormIntCalc )
+    m_normInt.forceCacheUpdate( true );
   
-  bool useCachedIntegrals = false;
+  int n = m_intenManager.getTermNames().size();
+  m_intenManager.prodFactorArray( m_prodFactorArray );
   
-  vector< string > termNames = m_intenManager.getTermNames();
-
-  complex< double > normTerm( 0, 0 );
+  double normTerm = 0;
+  bool renormalize = m_intenManager.termsAreRenormalized();
   
   switch( m_intenManager.type() ){
       
     case IntensityManager::kAmplitude:
       
-      for( vector< string >::iterator amp = termNames.begin();
-          amp != termNames.end(); ++amp ){
-        
-        for( vector< string >::iterator conjAmp = termNames.begin();
-            conjAmp != termNames.end(); ++conjAmp ){
+      for( int a = 0; a < n; ++a ){
+        for( int b = 0; b <= a; ++b ){
           
-          complex< double > thisTerm( 0, 0 );
+          double thisTerm = 0;
           
-          thisTerm = ( m_intenManager.productionFactor( *amp ) *
-                      conj( m_intenManager.productionFactor( *conjAmp ) ) *
-                      m_normInt.normInt( *amp, *conjAmp, useCachedIntegrals ) );
+          // we only need to compute the real part since the
+          // imaginary part will sum to zero in the end
+          //  want:  Re( V_a conj( V_b ) NI_a,b )
           
-          if( m_intenManager.termsAreRenormalized() ){
-            
-            thisTerm /=
-            sqrt( real( m_normInt.ampInt( *amp, *amp, useCachedIntegrals ) ) *
-                  real( m_normInt.ampInt( *conjAmp, *conjAmp, useCachedIntegrals ) ) );
+          double reVa = m_prodFactorArray[2*a];
+          double imVa = m_prodFactorArray[2*a+1];
+          double reVb = m_prodFactorArray[2*b];
+          double imVb = m_prodFactorArray[2*b+1];
+          double reNI = m_normIntArray[2*a*n+2*b];
+          double imNI = m_normIntArray[2*a*n+2*b+1];
+          
+          thisTerm = ( reVa*reVb + imVa*imVb ) * reNI;
+          thisTerm -= ( imVa*imVb - reVa*imVb ) * imNI;
+          
+          if( a != b ) thisTerm *= 2;
+          
+          if( renormalize ){
+            thisTerm /= sqrt( m_ampIntArray[2*a*n+2*a] *
+                              m_ampIntArray[2*b*n+2*b] );
           }
           
           normTerm += thisTerm;
-          useCachedIntegrals = true;
         }
       }
       break;
@@ -149,8 +164,9 @@ LikelihoodCalculator::normIntTerm(){
       break;
   }
   
-  // normTerm should be purely real by construction
-  return real( normTerm );
+  m_firstNormIntCalc = false;
+  
+  return normTerm;
 }
 
 double
@@ -160,7 +176,7 @@ LikelihoodCalculator::dataTerm(){
   VT_TRACER( "LikelihoodCalculator::dataTerm" );
 #endif
 
-  if( m_firstPass ) {
+  if( m_firstDataCalc ) {
     
     // first calculation -- need to load the data
     
@@ -172,9 +188,9 @@ LikelihoodCalculator::dataTerm(){
     cout << "\tDone." << endl;
   }
   
-  double sumLnI = m_intenManager.calcSumLogIntensity( m_ampVecs, m_firstPass );
+  double sumLnI = m_intenManager.calcSumLogIntensity( m_ampVecs, m_firstDataCalc );
   
-  m_firstPass = false;
+  m_firstDataCalc = false;
   
   return sumLnI;
 }
