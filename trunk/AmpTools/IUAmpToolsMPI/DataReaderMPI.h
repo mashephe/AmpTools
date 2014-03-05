@@ -55,7 +55,7 @@ public:
 
   DataReaderMPI( const vector<string>& args );
   
-  ~DataReaderMPI();
+  virtual ~DataReaderMPI();
   
   // override these functions with parallelized versions -- it is very 
   // important that the methods in the base class be declared virtual!
@@ -150,14 +150,20 @@ DataReaderMPI<T>::~DataReaderMPI(){
   
   // clean up data cache on worker nodes
   
-  if( !m_isMaster ){
-    
+  if( !m_isMaster && !m_isDefault ){
+     /*
+//     code below seems to cause a segfault - maybe double-delete
+//     going on somehwere?
+     
     for( vector<Kinematics*>::iterator ptrItr = m_ptrCache.begin();
         ptrItr != m_ptrCache.end();
         ++ptrItr ){
       
       delete *ptrItr;
     }
+    
+    m_ptrCache.clear();
+*/
   }
 }
 
