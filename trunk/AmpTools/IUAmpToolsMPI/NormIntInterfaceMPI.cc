@@ -51,9 +51,7 @@ NormIntInterfaceMPI::NormIntInterfaceMPI( DataReader* genMCData,
                                           const IntensityManager& intenManager ):
 NormIntInterface( genMCData, accMCData, intenManager )
 {
-  setupMPI();
-  
-  cout << "Done setting up for process " << m_rank << endl;
+  setupMPI();  
 }
 
 NormIntInterfaceMPI::NormIntInterfaceMPI( const string& normIntFile,
@@ -186,7 +184,7 @@ NormIntInterfaceMPI::sumIntegrals( IntType type ) const
   // and renormalize the sum
   for( int i = 0; i < cacheSize(); ++i ) result[i] /= totalEvents;
   
-  // resent the memory in the parent class
+  // reset the memory in the parent class
   if( type == kNormInt ){
     
     setNormIntMatrix( result );
