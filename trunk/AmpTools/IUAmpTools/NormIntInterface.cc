@@ -41,6 +41,7 @@
 #include <string>
 #include <complex>
 #include <cassert>
+#include <cstring>
 
 #include "IUAmpTools/NormIntInterface.h"
 #include "IUAmpTools/AmplitudeManager.h"
