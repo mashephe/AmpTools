@@ -233,116 +233,59 @@ void ParameterManagerMPI::addAmplitudeParameter( const string& termName,
 
 void ParameterManagerMPI::updateParameters()
 {
+  // pointers to parameters are stored in maps on both the
+  // master and worker nodes -- these maps contain the
+  // same keys and should be sorted in the same way
+  //
+  // iterate over the map and pack an array and then broadcast
+  // this from the master to the workers, then copy back
+  // out of the array into the map on the workers
   
-  int nameLength;
-  char parName[kMaxNameLength];
-  double cplxValue[2], value;
+  double* parData = new double[2*m_prodParMap.size()+m_ampParMap.size()];
   
-  MPI_Status status;
-  
-  if( m_isMaster ){
+  int i = 0;
+  for( map< string, complex< double >* >::iterator
+      parItr = m_prodParMap.begin();
+      parItr != m_prodParMap.end();
+      ++parItr ) {
     
+    parData[i++] = real( *(parItr->second) );
+    parData[i++] = imag( *(parItr->second) );
+  }
+  
+  for( map< string, double* >::iterator
+      parItr = m_ampParMap.begin();
+      parItr != m_ampParMap.end();
+      ++parItr ) {
+
+    parData[i++] = *(parItr->second);
+  }
+
+  MPI_Bcast( parData, i, MPI_DOUBLE, 0, MPI_COMM_WORLD );
+  
+  if( !m_isMaster ){
+    
+    i = 0;
     for( map< string, complex< double >* >::iterator
         parItr = m_prodParMap.begin();
         parItr != m_prodParMap.end();
-        ++parItr ){
+        ++parItr ) {
       
-      nameLength = parItr->first.length();
-      assert( nameLength <= kMaxNameLength );
-      strcpy( parName, parItr->first.c_str() );
-      
-      MPI_Bcast( &nameLength, 1, MPI_INT, 0, MPI_COMM_WORLD );
-      MPI_Bcast( parName, nameLength, MPI_CHAR, 0, MPI_COMM_WORLD );
-      
-      cplxValue[0] = parItr->second->real();
-      cplxValue[1] = parItr->second->imag();
-      
-      MPI_Bcast( cplxValue, 2, MPI_DOUBLE, 0, MPI_COMM_WORLD );
-      
+      (*(parItr->second)) = complex< double >( parData[i],
+                                               parData[i+1] );
+      i += 2;
     }
     
-    // send zero namelength to indicate to the workers that the
-    // production parameter send is complete
-    nameLength = 0;
-    
-    MPI_Bcast( &nameLength, 1, MPI_INT, 0, MPI_COMM_WORLD );
-    
-    for( map< string, double* >::iterator parItr = m_ampParMap.begin();
+    for( map< string, double* >::iterator
+        parItr = m_ampParMap.begin();
         parItr != m_ampParMap.end();
-        ++parItr ){
+        ++parItr ) {
       
-      nameLength = parItr->first.length();
-      assert( nameLength <= kMaxNameLength );
-      strcpy( parName, parItr->first.c_str() );
-      
-      MPI_Bcast( &nameLength, 1, MPI_INT, 0, MPI_COMM_WORLD );
-      MPI_Bcast( parName, nameLength, MPI_CHAR, 0, MPI_COMM_WORLD );
-      
-      value = *(parItr->second);
-      
-      MPI_Bcast( &value, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD );
-    }
-    
-    // send zero namelength to indicate to the workers that the
-    // amplitude parameter send is complete
-    nameLength = 0;
-    
-    MPI_Bcast( &nameLength, 1, MPI_INT, 0, MPI_COMM_WORLD );
-  }
-  else{
-    
-    // the workers collect the production parameters watching for zero namelength
-    // which indicates the send is over
-
-    MPI_Bcast( &nameLength, 1, MPI_INT, 0, MPI_COMM_WORLD );
-
-    while( nameLength != 0 ){
-
-      MPI_Bcast( parName, nameLength, MPI_CHAR, 0, MPI_COMM_WORLD );
-      MPI_Bcast( cplxValue, 2, MPI_DOUBLE, 0, MPI_COMM_WORLD );
-
-      ostringstream name;
-      for( int i = 0; i < nameLength; ++i ) name << parName[i];
-      
-      complex< double > parVal( cplxValue[0], cplxValue[1] );
-      
-      // check that the name is sane and the reset the value
-      map< string, complex< double >* >::iterator parItr = 
-      m_prodParMap.find( name.str() );
-      assert( parItr != m_prodParMap.end() );
-      (*(parItr->second)) = parVal;
-      
-      // fetch the length of the next parameter name which will
-      // be zero if we have reached the end of the chain of parameters
-      
-      MPI_Bcast( &nameLength, 1, MPI_INT, 0, MPI_COMM_WORLD );
-    }
-    
-    // the workers collect the amplitude parameters watching for zero namelength
-    // which indicates the send is over -- note the difference in data size
-    // require two such loops
-    
-    MPI_Bcast( &nameLength, 1, MPI_INT, 0, MPI_COMM_WORLD );
-    
-    while( nameLength != 0 ){
-
-      MPI_Bcast( parName, nameLength, MPI_CHAR, 0, MPI_COMM_WORLD );
-      MPI_Bcast( &value, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD );
-      
-      ostringstream name;
-      for( int i = 0; i < nameLength; ++i ) name << parName[i];
-            
-      // check that the name is sane and the reset the value
-      map< string, double* >::iterator parItr = m_ampParMap.find( name.str() );
-      assert( parItr != m_ampParMap.end() );
-      (*(parItr->second)) = value;
-      
-      // fetch the length of the next parameter name which will
-      // be zero if we have reached the end of the chain of parameters
-      MPI_Bcast( &nameLength, 1, MPI_INT, 0, MPI_COMM_WORLD );
-
+      (*(parItr->second)) = parData[i++];
     }
   }
+  
+  delete parData;
 }
 
 
