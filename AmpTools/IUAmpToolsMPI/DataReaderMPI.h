@@ -46,7 +46,7 @@ public:
    * This is the default constructor.
    */
 
-  DataReaderMPI() : T() { m_isDefault = true; }
+  DataReaderMPI() : T() { m_isDefault = true; m_isMaster = true }
 
   /**
    * This is the constructor for the templated class, which takes as
@@ -122,9 +122,6 @@ private:
 };
 
 
-
-
-
 template< class T >
 DataReaderMPI<T>::DataReaderMPI( const vector< string >& args ) : 
   T( args ),
@@ -151,9 +148,6 @@ DataReaderMPI<T>::~DataReaderMPI(){
   // clean up data cache on worker nodes
   
   if( !m_isMaster && !m_isDefault ){
-     /*
-//     code below seems to cause a segfault - maybe double-delete
-//     going on somehwere?
      
     for( vector<Kinematics*>::iterator ptrItr = m_ptrCache.begin();
         ptrItr != m_ptrCache.end();
@@ -163,7 +157,6 @@ DataReaderMPI<T>::~DataReaderMPI(){
     }
     
     m_ptrCache.clear();
-*/
   }
 }
 
