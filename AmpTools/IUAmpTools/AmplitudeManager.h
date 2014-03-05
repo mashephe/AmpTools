@@ -196,8 +196,10 @@ public:
    * \f$ \sum_{k=1}^{N} w_k A_i A_j^* / N \f$, where N is the number of events
    * in the ampVecs structure and \f$ w_k \f$ is the weight of each event.
    * In general the matrix is block diagonal since the elements i,j where
-   * amplitudes i and j appear in different coherent sums are zero.  The returned
-   * map is indexed on the string names of the amplitudes i and j.
+   * amplitudes i and j appear in different coherent sums are zero.  
+   * The returned matrix is packed in a flat array of doubles with size 2*n^2.
+   * Access to the real and imaginary parts of element i,j is by 2*i*n+2*j and
+   * 2*i*n+2*j+1, respectively.
    *
    * \param[in,out] ampVecs a reference to the ampVecs structure from which the
    * amplitudes are to be read.  (This structure will be modified and updated
@@ -213,10 +215,8 @@ public:
    * \see calcAmplitudes
    * \see calcIntensities
    */
-  map< string, map< string, complex< double > > >
-  calcIntegrals( AmpVecs& ampVecs, int iNGenEvents,
-                bool bIsFirstPass = true ) const;
-  
+  void calcIntegrals( AmpVecs& ampVecs, int iNGenEvents, double* integralMatrix,
+                      bool bIsFirstPass = true ) const;
 
   /**
    * The function returns a list of permutations that will be performed on

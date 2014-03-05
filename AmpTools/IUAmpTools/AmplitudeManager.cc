@@ -304,18 +304,7 @@ AmplitudeManager::calcTerms( AmpVecs& a, bool bIsFirstPass, bool useMC ) const
         //<< pCurrAmp->name() << " for " << permItr->first << ":  "
         //<< dTime << endl << flush;
       }
-      
-      /*
-       // print out amplitudes for the first permutation for the first
-       // ten events
-       for( int iEvent = 0; ( iEvent < a.m_iNTrueEvents ) && ( iEvent < 10 ); ++iEvent ){
-       
-       cout << pCurrAmp->name() << " Event " << iEvent << ":  ( "
-       << a.m_pdAmpFactors[iAmpFactOffset+iLocalOffset+2*iEvent] << ", "
-       << a.m_pdAmpFactors[iAmpFactOffset+iLocalOffset+2*iEvent+1] << " )" << endl;
-       }
-       */
-      
+            
     }
     
     // now assemble all the factors in an amplitude into a single
@@ -542,8 +531,9 @@ AmplitudeManager::calcSumLogIntensity( AmpVecs& a, bool bIsFirstPass ) const
 }
 
 
-map< string, map< string, complex< double > > >
-AmplitudeManager::calcIntegrals( AmpVecs& a, int iNGenEvents, bool bIsFirstPass ) const
+void
+AmplitudeManager::calcIntegrals( AmpVecs& a, int iNGenEvents,
+                                 double* integralMatrix, bool bIsFirstPass ) const
 {
 
 #ifdef VTRACE
@@ -564,6 +554,9 @@ AmplitudeManager::calcIntegrals( AmpVecs& a, int iNGenEvents, bool bIsFirstPass 
   vector< string > ampNames = getTermNames();
   
   int iNAmps = ampNames.size();
+
+  // zero out the matrix to start
+  memset( integralMatrix, 0, 2*iNAmps*iNAmps*sizeof( double ) );
   
   int i, j, iEvent;
   for( i = 0; i < iNAmps;i++ )
@@ -571,8 +564,6 @@ AmplitudeManager::calcIntegrals( AmpVecs& a, int iNGenEvents, bool bIsFirstPass 
     
     for( j = 0; j <= i; j++ )
     {
-      double cAiAjRe=0;
-      double cAiAjIm=0;
       
       // if two amps don't interfere the relevant integral is zero
       if( m_sumCoherently[i][j] ){
@@ -580,13 +571,13 @@ AmplitudeManager::calcIntegrals( AmpVecs& a, int iNGenEvents, bool bIsFirstPass 
         for( iEvent = 0; iEvent < a.m_iNTrueEvents; iEvent++ )
         {
           //AiAj*
-          cAiAjRe += a.m_pdWeights[iEvent] *
+          integralMatrix[2*i*iNAmps+2*j] += a.m_pdWeights[iEvent] *
           ( a.m_pdAmps[2*a.m_iNEvents*i+2*iEvent] *
            a.m_pdAmps[2*a.m_iNEvents*j+2*iEvent] +
            a.m_pdAmps[2*a.m_iNEvents*i+2*iEvent+1] *
            a.m_pdAmps[2*a.m_iNEvents*j+2*iEvent+1] );
           
-          cAiAjIm += a.m_pdWeights[iEvent] *
+          integralMatrix[2*i*iNAmps+2*j+1] += a.m_pdWeights[iEvent] *
           ( -a.m_pdAmps[2*a.m_iNEvents*i+2*iEvent] *
            a.m_pdAmps[2*a.m_iNEvents*j+2*iEvent+1] +
            a.m_pdAmps[2*a.m_iNEvents*i+2*iEvent+1] *
@@ -594,21 +585,18 @@ AmplitudeManager::calcIntegrals( AmpVecs& a, int iNGenEvents, bool bIsFirstPass 
         }
         
         //Normalize
-        cAiAjRe /= static_cast< double >( iNGenEvents );
-        cAiAjIm /= static_cast< double >( iNGenEvents );
+        integralMatrix[2*i*iNAmps+2*j] /= static_cast< double >( iNGenEvents );
+        integralMatrix[2*i*iNAmps+2*j+1] /= static_cast< double >( iNGenEvents );
       }
       
-      mapNamesToIntegral[ampNames[i]][ampNames[j]] =
-      complex< double >( cAiAjRe, cAiAjIm );
-      
       //Complex conjugate
-      if( i != j )
-        mapNamesToIntegral[ampNames[j]][ampNames[i]] =
-        complex< double >( cAiAjRe, -cAiAjIm );
+      if( i != j ) {
+        
+        integralMatrix[2*j*iNAmps+2*i] = integralMatrix[2*i*iNAmps+2*j];
+        integralMatrix[2*j*iNAmps+2*i+1] = -integralMatrix[2*i*iNAmps+2*j+1];
+      }
     }
   }
-  
-  return( mapNamesToIntegral );
 }
 
 const vector< vector< int > >&
