@@ -150,6 +150,21 @@ IntensityManager::productionFactor( int ampIndex ) const {
 }
 
 void
+IntensityManager::prodFactorArray( double* array ) const {
+  
+  complex< double > value;
+  
+  for( int i = 0; i < m_prodFactorVec.size(); ++i ){
+    
+    value = *m_prodFactorVec[i] *
+      static_cast< double >( m_termScaleVec[i] );
+  
+    array[2*i] = real( value );
+    array[2*i+1] = imag( value );
+  }
+}
+
+void
 IntensityManager::setDefaultProductionFactor( const string& name,
                                               complex< double > prodFactor )
 {

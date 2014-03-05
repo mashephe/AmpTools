@@ -156,18 +156,20 @@ public:
                                       bool bIsFirstPass = true ) const = 0;
   
   /**
-   * This routine calculates a square matrix with dimension equal to the number
-   * of terms that is useful for PDF normalization calculations.  If the
-   * terms are real (as in a moment fit), this matrix will be diagonal.
-   * For complex terms (as in an amplitude fit) the matrix is block diagonal
-   * where there is one block for each coherent sum.  The returned
-   * map is indexed on the string names of the terms i and j.
+   * This routine calculates the average values of A_iA_j*, which is useful
+   * for normalizing the PDFs.  The integralMatrix should be allocated to
+   * a size that is 2 * n^2 where n is the number of amplitudes.  The
+   * factor of 2 is for storing the real and imaginary parts.  The matrix
+   * is symmetric under complex conjugation.
    *
    * \param[in,out] ampVecs a reference to the ampVecs structure from which the
    * terms and factors are to be read.
    *
    * \param[in] iNGenEvents the number of genereated events (N in the above
    * computation)
+   *
+   * \param[out] integralMatrix the address of the matrix to fill with the
+   * calculated integrals
    *
    * \param[in] bIsFirstPass an optional boolean argument to aid in optimizaiton
    * of calculations if the amplitudes have not changed.  Set to true if it
@@ -176,9 +178,9 @@ public:
    * \see calcAmplitudes
    * \see calcIntensities
    */
-  virtual map< string, map< string, complex< double > > >
-  calcIntegrals( AmpVecs& ampVecs, int iNGenEvents,
-                 bool bIsFirstPass = true ) const = 0;
+  virtual void calcIntegrals( AmpVecs& ampVecs, int iNGenEvents,
+                              double* integralMatrix,
+                              bool bIsFirstPass = true ) const = 0;
  
   /**
    * This function calculates the intensity for one event using a Kinematics
@@ -261,6 +263,16 @@ public:
    * \param[in] ampIndex the index of the amplitude
    */
   complex< double > productionFactor( int termIndex ) const;
+  
+  /**
+   * This fills an array with the real and imaginary parts of the ith
+   * production factor in the 2*i and 2*i+1 elements.  It is less
+   * user friendly, but useful for repeated high-speed access to
+   * the data
+   * 
+   * \param[out] prodArray array of size 2*n that will be filled
+   */
+  void prodFactorArray( double* array ) const;
   
   /**
    * This class returns a boolean indicating whether or not a term
