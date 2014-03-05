@@ -69,7 +69,7 @@ m_firstNormIntCalc( true )
 // inherit from this class can have better control of what triggers the
 // caching of data
  
-  m_prodFactorArray = new double[intenManager.getTermNames().size()];
+  m_prodFactorArray = new double[2*intenManager.getTermNames().size()];
   m_normIntArray = normInt.normIntMatrix();
   m_ampIntArray = normInt.ampIntMatrix();
 }
