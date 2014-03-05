@@ -76,7 +76,7 @@ public:
                         DataReader& dataReader,
                         const ParameterManager& parManager );
   
-  ~LikelihoodCalculator(){}
+  virtual ~LikelihoodCalculator();
   
   string reactionName() const { return m_intenManager.reactionName(); }
   
@@ -96,7 +96,12 @@ private:
   const NormIntInterface& m_normInt;
   DataReader& m_dataReader;
   
-  bool m_firstPass;
+  bool m_firstNormIntCalc;
+  bool m_firstDataCalc;
+  
+  double* m_prodFactorArray;
+  const double* m_normIntArray;
+  const double* m_ampIntArray;
   
   // The flat array of kinematics and amplitudes 
   AmpVecs m_ampVecs;
