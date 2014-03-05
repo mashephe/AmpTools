@@ -182,7 +182,7 @@ AmpToolsInterface::resetConfigurationInfo(ConfigurationInfo* configurationInfo){
           << reactionName << endl;
       }
       else if (reaction->normIntFileInput()){
-        normInt = new NormIntInterface(reaction->normIntFile());
+        normInt = new NormIntInterface(reaction->normIntFile(),intenMan->getTermNames());
         m_normIntMap[reactionName] = normInt;
       }
       else{
@@ -355,7 +355,7 @@ AmpToolsInterface::registerDataReader( const DataReader& dataReader){
 
 void
 AmpToolsInterface::clear(){
-
+  
   if( m_configurationInfo != NULL ){
     
     for (unsigned int irct = 0; irct < m_configurationInfo->reactionList().size(); irct++){
@@ -363,7 +363,7 @@ AmpToolsInterface::clear(){
       ReactionInfo* reaction = m_configurationInfo->reactionList()[irct];
       string reactionName(reaction->reactionName());
 
-      if (m_likCalcMap[reactionName]) delete m_likCalcMap[reactionName];
+      if (likelihoodCalculator(reactionName)) delete m_likCalcMap[reactionName];
       if (intensityManager(reactionName)) delete intensityManager(reactionName);
       if (dataReader(reactionName)) delete dataReader(reactionName);
       if (accMCReader(reactionName)) delete accMCReader(reactionName);
