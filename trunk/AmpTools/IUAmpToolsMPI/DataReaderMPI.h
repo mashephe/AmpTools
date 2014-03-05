@@ -46,7 +46,7 @@ public:
    * This is the default constructor.
    */
 
-  DataReaderMPI() : T() { m_isDefault = true; m_isMaster = true }
+  DataReaderMPI() : T() { m_isDefault = true; m_isMaster = true; }
 
   /**
    * This is the constructor for the templated class, which takes as
