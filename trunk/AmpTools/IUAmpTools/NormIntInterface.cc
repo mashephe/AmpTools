@@ -265,7 +265,8 @@ NormIntInterface::normInt( string amp, string conjAmp, bool forceUseCache ) cons
   if( !forceUseCache && hasAccessToMC() && 
      ( m_pIntenManager != NULL ) && m_pIntenManager->hasTermWithFreeParam() ){
     
-    m_pIntenManager->calcIntegrals( m_mcVecs, m_nGenEvents, m_normIntCache, false );
+    m_pIntenManager->calcIntegrals( m_mcVecs, m_nGenEvents, false );
+    setNormIntMatrix( m_mcVecs.m_pdIntegralMatrix );
   }
   
   if( !hasNormInt( amp, conjAmp ) ){
@@ -348,7 +349,8 @@ NormIntInterface::forceCacheUpdate( bool normIntOnly ) const
     // we can assume that m_mcVecs contains the accepted MC since the
     // generated MC is never left in m_mcVecs
     
-    m_pIntenManager->calcIntegrals( m_mcVecs, m_nGenEvents, m_normIntCache, false );
+    m_pIntenManager->calcIntegrals( m_mcVecs, m_nGenEvents, false );
+    setNormIntMatrix( m_mcVecs.m_pdIntegralMatrix );
     
     // stop here if we just want the norm ints -- this will likely be the normal
     // mode of operation for NI recalculations during a fit
@@ -368,7 +370,8 @@ NormIntInterface::forceCacheUpdate( bool normIntOnly ) const
   cout << "\tDone.\n" << flush;
   
   cout << "Calculating integrals..." << endl;
-  m_pIntenManager->calcIntegrals( m_mcVecs, m_nGenEvents, m_ampIntCache );
+  m_pIntenManager->calcIntegrals( m_mcVecs, m_nGenEvents );
+  setAmpIntMatrix( m_mcVecs.m_pdIntegralMatrix );
   cout << "\tDone." << endl;
   
   m_emptyAmpIntCache = false;
@@ -394,7 +397,8 @@ NormIntInterface::forceCacheUpdate( bool normIntOnly ) const
     // to recalcualte them or else subsequent calls to calcIntegrals
     // with firstPass set to false will fail
     cout << "Calculating integrals..." << endl;
-    m_pIntenManager->calcIntegrals( m_mcVecs, m_nGenEvents, m_normIntCache );
+    m_pIntenManager->calcIntegrals( m_mcVecs, m_nGenEvents );
+    setNormIntMatrix( m_mcVecs.m_pdIntegralMatrix );
     
     cout << "\tDone." << endl;
   }
@@ -491,23 +495,23 @@ NormIntInterface::initializeCache() {
   // complex conjugation so that memory lookups are easier
   m_cacheSize = 2*n*n;
   
-  m_normIntCache = new double[m_cacheSize];
-  m_ampIntCache = new double[m_cacheSize];
+  m_normIntCache = new GDouble[m_cacheSize];
+  m_ampIntCache = new GDouble[m_cacheSize];
   
-  memset( m_normIntCache, 0, m_cacheSize * sizeof( double ) );
-  memset( m_ampIntCache, 0, m_cacheSize * sizeof( double ) );
+  memset( m_normIntCache, 0, m_cacheSize * sizeof( GDouble ) );
+  memset( m_ampIntCache, 0, m_cacheSize * sizeof( GDouble ) );
 }
 
-void
-NormIntInterface::setAmpIntMatrix( const double* input ) const {
+inline void
+NormIntInterface::setAmpIntMatrix( const GDouble* input ) const {
   
-  memcpy( m_ampIntCache, input, m_cacheSize * sizeof( double ) );
+  memcpy( m_ampIntCache, input, m_cacheSize * sizeof( GDouble ) );
   m_emptyAmpIntCache = false;
 }
 
-void
+inline void
 NormIntInterface::setNormIntMatrix( const double* input ) const {
   
-  memcpy( m_normIntCache, input, m_cacheSize * sizeof( double ) );
+  memcpy( m_normIntCache, input, m_cacheSize * sizeof( GDouble ) );
   m_emptyNormIntCache = false;
 }
