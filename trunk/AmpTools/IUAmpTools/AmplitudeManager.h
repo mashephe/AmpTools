@@ -215,7 +215,7 @@ public:
    * \see calcAmplitudes
    * \see calcIntensities
    */
-  void calcIntegrals( AmpVecs& ampVecs, int iNGenEvents, double* integralMatrix,
+  void calcIntegrals( AmpVecs& ampVecs, int iNGenEvents,
                       bool bIsFirstPass = true ) const;
 
   /**

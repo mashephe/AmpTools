@@ -532,31 +532,28 @@ AmplitudeManager::calcSumLogIntensity( AmpVecs& a, bool bIsFirstPass ) const
 
 
 void
-AmplitudeManager::calcIntegrals( AmpVecs& a, int iNGenEvents,
-                                 double* integralMatrix, bool bIsFirstPass ) const
+AmplitudeManager::calcIntegrals( AmpVecs& a, int iNGenEvents, bool bIsFirstPass ) const
 {
 
 #ifdef VTRACE
   VT_TRACER( "AmplitudeManager::calcIntegrals" );
 #endif
 
+  GDouble* integralMatrix = a.m_pdIntegralMatrix;
+  
   // this method could be made more efficient by caching a table of
   // integrals associated with each AmpVecs object and then, based on the
   // variables bIsFirstPass and m_vbIsAmpFixed data compute only
   // those terms that could have changed
   
-  map< string, map< string, complex< double > > > mapNamesToIntegral;
-  
   // amp -> amp* -> value
   assert( iNGenEvents );
   calcTerms( a, bIsFirstPass, true );
-
-  vector< string > ampNames = getTermNames();
   
-  int iNAmps = ampNames.size();
+  int iNAmps = a.m_iNTerms;
 
   // zero out the matrix to start
-  memset( integralMatrix, 0, 2*iNAmps*iNAmps*sizeof( double ) );
+  memset( integralMatrix, 0, 2*iNAmps*iNAmps*sizeof( GDouble ) );
   
   int i, j, iEvent;
   for( i = 0; i < iNAmps;i++ )
@@ -564,6 +561,12 @@ AmplitudeManager::calcIntegrals( AmpVecs& a, int iNGenEvents,
     
     for( j = 0; j <= i; j++ )
     {
+     
+      // if the amplitude isn't floating and it isn't the first pass
+      // through these data, then its integral can't change
+      
+      if( !bIsFirstPass && m_vbIsAmpFixed[i] && m_vbIsAmpFixed[j] )
+        continue;
       
       // if two amps don't interfere the relevant integral is zero
       if( m_sumCoherently[i][j] ){
