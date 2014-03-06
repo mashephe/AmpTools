@@ -87,8 +87,8 @@ public:
   
   // allow direct access to raw data matrix in memory, which is useful
   // for high-speed implementations, but not user friendly
-  const double* ampIntMatrix() const  { return m_ampIntCache;  }
-  const double* normIntMatrix() const { return m_normIntCache; }
+  const GDouble* ampIntMatrix() const  { return m_ampIntCache;  }
+  const GDouble* normIntMatrix() const { return m_normIntCache; }
   
   void setGenEvents( int events ) { m_nGenEvents = events; }
   void setAccEvents( int events ) { m_nAccEvents = events; }
@@ -100,8 +100,8 @@ protected:
   const IntensityManager* intenManager() const { return m_pIntenManager; }
   inline int cacheSize() const { return m_cacheSize; }
   
-  void setAmpIntMatrix( const double* input ) const;
-  void setNormIntMatrix( const double* input ) const;
+  inline void setAmpIntMatrix( const double* input ) const;
+  inline void setNormIntMatrix( const double* input ) const;
   
 private:
   
@@ -126,8 +126,8 @@ private:
 
   int m_cacheSize;
 
-  mutable double* m_normIntCache;
-  mutable double* m_ampIntCache;
+  mutable GDouble* m_normIntCache;
+  mutable GDouble* m_ampIntCache;
 };
 
 inline istream& operator>>( istream& input, NormIntInterface& normInt ){
