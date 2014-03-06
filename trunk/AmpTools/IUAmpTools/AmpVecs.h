@@ -106,6 +106,14 @@ struct AmpVecs
   GDouble* m_pdAmpFactors; 
   
   /**
+   * An array of length 2 * iNTerms * iNTerms that holds the sums of
+   * the prodcuts of A_i A_j* for all data events and all terms i,j
+   * that is useful for calculating normalization integrals.
+   */
+  
+  GDouble* m_pdIntegralMatrix;
+  
+  /**
    * An array of length iNEvents that stores the intensity for each event.
    */
   GDouble* m_pdIntensity;
