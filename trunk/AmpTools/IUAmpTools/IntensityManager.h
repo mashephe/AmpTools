@@ -100,6 +100,8 @@ public:
   
   /**
    * This function caculates the various intensity terms for each data event.
+   * Since it can also be used to update the terms, it returns true
+   * if any term was reclaculated, false if there were no changes.
    *
    * \param[in,out] ampVecs a reference to the AmpVecs storage structure, four vectors
    * will be read from this class and term caculations will be written to
@@ -116,7 +118,7 @@ public:
    * \see calcSumLogIntensity
    * \see calcIntegrals
    */
-  virtual void calcTerms( AmpVecs& ampVecs, bool bIsFirstPass = true,
+  virtual bool calcTerms( AmpVecs& ampVecs, bool bIsFirstPass = true,
                           bool useMC = false ) const = 0;
   
   /**
