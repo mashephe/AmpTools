@@ -60,6 +60,7 @@ AmpVecs::AmpVecs(){
   m_pdAmpFactors = 0 ; 
   
   m_pdIntensity   = 0 ;
+  m_pdIntegralMatrix = 0 ;
 }
 
 
@@ -82,6 +83,10 @@ AmpVecs::deallocAmpVecs()
   if(m_pdIntensity)
     delete[] m_pdIntensity;
   m_pdIntensity=0; 
+  
+  if(m_pdIntegralMatrix)
+    delete[] m_pdIntegralMatrix;
+  m_pdIntegralMatrix=0;
   
 #ifndef GPU_ACCELERATION
   
