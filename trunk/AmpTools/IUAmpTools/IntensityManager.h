@@ -157,20 +157,14 @@ public:
   
   /**
    * This routine calculates the average values of A_iA_j*, which is useful
-   * for normalizing the PDFs.  The integralMatrix should be allocated to
-   * a size that is 2 * n^2 where n is the number of amplitudes.  The
-   * factor of 2 is for storing the real and imaginary parts.  The matrix
-   * is symmetric under complex conjugation.
+   * for normalizing the PDFs.  The results are stored in the AmpVecs object.
    *
    * \param[in,out] ampVecs a reference to the ampVecs structure from which the
    * terms and factors are to be read.
    *
    * \param[in] iNGenEvents the number of genereated events (N in the above
    * computation)
-   *
-   * \param[out] integralMatrix the address of the matrix to fill with the
-   * calculated integrals
-   *
+   *   *
    * \param[in] bIsFirstPass an optional boolean argument to aid in optimizaiton
    * of calculations if the amplitudes have not changed.  Set to true if it
    * is the first computation on this data set, and set to false otherwise.
@@ -179,7 +173,6 @@ public:
    * \see calcIntensities
    */
   virtual void calcIntegrals( AmpVecs& ampVecs, int iNGenEvents,
-                              double* integralMatrix,
                               bool bIsFirstPass = true ) const = 0;
  
   /**
