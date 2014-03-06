@@ -203,9 +203,11 @@ AmplitudeManager::hasTermWithFreeParam() const {
   return false;
 }
 
-void
+bool
 AmplitudeManager::calcTerms( AmpVecs& a, bool bIsFirstPass, bool useMC ) const
 {
+  
+  bool modifiedTerm = false;
   
 #ifdef VTRACE
   VT_TRACER( "AmplitudeManager::calcTerms" );
@@ -261,6 +263,8 @@ AmplitudeManager::calcTerms( AmpVecs& a, bool bIsFirstPass, bool useMC ) const
     // calculate all the factors that make up an amplitude for
     // for all events serially on CPU or in parallel on GPU
     
+    bool recalculatedFactor = false;
+    
     const Amplitude* pCurrAmp = 0;
     for( iFactor=0; iFactor < iNFactors;
         iFactor++, iLocalOffset += 2 * a.m_iNEvents * iNPermutations ){
@@ -284,6 +288,12 @@ AmplitudeManager::calcTerms( AmpVecs& a, bool bIsFirstPass, bool useMC ) const
       
       if( bIsFirstPass ) gettimeofday( &(tStart), NULL );
       
+      // if we get to here, we are changing the stored factors of the
+      // amplitude
+      
+      modifiedTerm = true;
+      recalculatedFactor = true;
+      
 #ifndef GPU_ACCELERATION
       pCurrAmp->
       calcAmplitudeAll( a.m_pdData,
@@ -304,8 +314,9 @@ AmplitudeManager::calcTerms( AmpVecs& a, bool bIsFirstPass, bool useMC ) const
         //<< pCurrAmp->name() << " for " << permItr->first << ":  "
         //<< dTime << endl << flush;
       }
-            
     }
+    
+    if( !recalculatedFactor ) continue;
     
     // now assemble all the factors in an amplitude into a single
     // symmetrized amplitude -- do this for all events for this
@@ -368,6 +379,7 @@ AmplitudeManager::calcTerms( AmpVecs& a, bool bIsFirstPass, bool useMC ) const
     //cout << "\t-->> Seconds spent calculating all amplitudes:  " << dTime << endl;
   }
   
+  return modifiedTerm;
 }
 
 double
@@ -384,7 +396,7 @@ AmplitudeManager::calcIntensities( AmpVecs& a, bool bIsFirstPass ) const
   double maxInten = 0;
   
   //First update Amplitudes if needed
-  calcTerms( a, bIsFirstPass );
+  bool termsUpdated = calcTerms( a, bIsFirstPass );
   
   vector< string > ampNames = getTermNames();
   
@@ -548,7 +560,10 @@ AmplitudeManager::calcIntegrals( AmpVecs& a, int iNGenEvents, bool bIsFirstPass 
   
   // amp -> amp* -> value
   assert( iNGenEvents );
-  calcTerms( a, bIsFirstPass, true );
+  bool termChanged = calcTerms( a, bIsFirstPass, true );
+  
+  // if nothing changed and it isn't the first pass, return
+  if( !termChanged && !bIsFirstPass ) return;
   
   int iNAmps = a.m_iNTerms;
 

@@ -129,7 +129,9 @@ public:
   
   /**
    * This function caculates the amplitudes for each data event and stores
-   * them in the AmpVecs structure.
+   * them in the AmpVecs structure.  It returns true if it alters the
+   * terms in the structure (helpful to see if an update actually
+   * happenend when recalculating).
    *
    * \param[in,out] ampVecs a reference to the AmpVecs storage structure, four vectors
    * will be read from this class and amplitude caculations will be written to
@@ -148,8 +150,8 @@ public:
    * \see calcSumLogIntensity
    * \see calcIntegrals
    */
-  void calcTerms( AmpVecs& ampVecs, bool bIsFirstPass = true,
-                 bool useMC = false ) const;
+  bool calcTerms( AmpVecs& ampVecs, bool bIsFirstPass = true,
+                  bool useMC = false ) const;
   
   /**
    * This function calculates the intensity (one number) for all events and
