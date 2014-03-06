@@ -502,14 +502,14 @@ NormIntInterface::initializeCache() {
   memset( m_ampIntCache, 0, m_cacheSize * sizeof( GDouble ) );
 }
 
-inline void
+void
 NormIntInterface::setAmpIntMatrix( const GDouble* input ) const {
   
   memcpy( m_ampIntCache, input, m_cacheSize * sizeof( GDouble ) );
   m_emptyAmpIntCache = false;
 }
 
-inline void
+void
 NormIntInterface::setNormIntMatrix( const double* input ) const {
   
   memcpy( m_normIntCache, input, m_cacheSize * sizeof( GDouble ) );

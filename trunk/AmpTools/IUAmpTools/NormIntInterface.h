@@ -100,8 +100,8 @@ protected:
   const IntensityManager* intenManager() const { return m_pIntenManager; }
   inline int cacheSize() const { return m_cacheSize; }
   
-  inline void setAmpIntMatrix( const double* input ) const;
-  inline void setNormIntMatrix( const double* input ) const;
+  void setAmpIntMatrix( const double* input ) const;
+  void setNormIntMatrix( const double* input ) const;
   
 private:
   
