@@ -225,7 +225,9 @@ AmpVecs::allocateTerms( const IntensityManager& intenMan, bool bAllocIntensity )
     cout << "         AmpVecs before any events have been loaded\n" << flush;
     assert(false);
   }
-    
+  
+  m_pdIntegralMatrix = new GDouble[2*m_iNTerms*m_iNTerms];
+  
   //Allocate the Intensity only when needed
   if( bAllocIntensity )
   {
