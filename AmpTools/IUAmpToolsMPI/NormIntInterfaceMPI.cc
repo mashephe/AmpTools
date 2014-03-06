@@ -173,11 +173,10 @@ NormIntInterfaceMPI::sumIntegrals( IntType type ) const
   // at this point, the master should be holding an array full of zeroes
   // and other nodes will hold integrals for their subsets of data
   
-  MPI_Datatype type =
-    ( sizeof( GDouble ) == sizeof( double ) ? MPI_DOUBLE : MPI_FLOAT );
-  
   // sum over all nodes and distribute results to each
-  MPI_Allreduce( integrals, result, cacheSize(), type, MPI_SUM, MPI_COMM_WORLD );
+  MPI_Datatype t =
+    ( sizeof( GDouble ) == sizeof( double ) ? MPI_DOUBLE : MPI_FLOAT );  
+  MPI_Allreduce( integrals, result, cacheSize(), t, MPI_SUM, MPI_COMM_WORLD );
 
   // now broadcast the total number of events from the master to the
   // workers so that they may renormalize the sum properly
