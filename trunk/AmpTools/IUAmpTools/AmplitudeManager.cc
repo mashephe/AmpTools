@@ -566,9 +566,6 @@ AmplitudeManager::calcIntegrals( AmpVecs& a, int iNGenEvents, bool bIsFirstPass 
   if( !termChanged && !bIsFirstPass ) return;
   
   int iNAmps = a.m_iNTerms;
-
-  // zero out the matrix to start
-  memset( integralMatrix, 0, 2*iNAmps*iNAmps*sizeof( GDouble ) );
   
   int i, j, iEvent;
   for( i = 0; i < iNAmps;i++ )
@@ -579,9 +576,19 @@ AmplitudeManager::calcIntegrals( AmpVecs& a, int iNGenEvents, bool bIsFirstPass 
      
       // if the amplitude isn't floating and it isn't the first pass
       // through these data, then its integral can't change
-      
-      if( !bIsFirstPass && m_vbIsAmpFixed[i] && m_vbIsAmpFixed[j] )
+      if( !bIsFirstPass && m_vbIsAmpFixed[i] && m_vbIsAmpFixed[j] ){
+        
+        // if the amplitude isn't floating and it isn't the first pass
+        // through these data, then its integral can't change
+        
         continue;
+      }
+      else{
+        
+        // otherwise zero it out and recalculate it
+        
+        integralMatrix[2*i*iNAmps+2*j] = 0;
+      }
       
       // if two amps don't interfere the relevant integral is zero
       if( m_sumCoherently[i][j] ){
@@ -603,8 +610,8 @@ AmplitudeManager::calcIntegrals( AmpVecs& a, int iNGenEvents, bool bIsFirstPass 
         }
         
         //Normalize
-        integralMatrix[2*i*iNAmps+2*j] /= static_cast< double >( iNGenEvents );
-        integralMatrix[2*i*iNAmps+2*j+1] /= static_cast< double >( iNGenEvents );
+        integralMatrix[2*i*iNAmps+2*j] /= static_cast< GDouble >( iNGenEvents );
+        integralMatrix[2*i*iNAmps+2*j+1] /= static_cast< GDouble >( iNGenEvents );
       }
       
       //Complex conjugate
