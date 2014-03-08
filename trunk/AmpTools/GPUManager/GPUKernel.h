@@ -43,6 +43,11 @@ extern "C" void GPU_ExecAmpKernel(dim3 dimGrid,dim3 dimBlock,GDouble* pfDevAmpRe
                                   GDouble* pfDevAmpIm, GDouble* pfDevWeights, 
                                   GDouble* pfDevRes);
 
+extern "C" void GPU_ExecIntElementKernel(dim3 dimGrid, dim3 dimBlock, int iA, int iB,
+                                         GDouble* pfDevAmpRe, GDouble* pfDevAmpIm,
+                                         GDouble* pfDevWeights, GDouble* pfDevResRe,
+                                         GDouble* pfDevResIm);
+
 extern "C" GDouble* da_pfDevVRe_addr();
 extern "C" GDouble* da_pfDevVIm_addr();
 extern "C" int*     da_iNAmps_addr();
