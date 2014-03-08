@@ -61,6 +61,9 @@ AmpVecs::AmpVecs(){
   
   m_pdIntensity   = 0 ;
   m_pdIntegralMatrix = 0 ;
+  
+  m_termsValid = false;
+  m_integralValid = false;
 }
 
 
@@ -71,6 +74,9 @@ AmpVecs::deallocAmpVecs()
   m_iNEvents  = 0 ;
   m_iNTrueEvents = 0 ;
   m_iNParticles = 0 ;
+  
+  m_termsValid = false;
+  m_integralValid = false;
   
   if(m_pdData)
     delete[] m_pdData;
@@ -108,6 +114,8 @@ AmpVecs::deallocAmpVecs()
     cudaFreeHost(m_pdAmpFactors);
   m_pdAmpFactors=0;
   
+  m_gpuMan.clearAll();
+  
 #endif // GPU_ACCELERATION
 }
 
@@ -137,7 +145,6 @@ AmpVecs::loadEvent( const Kinematics* pKinematics, int iEvent, int iNTrueEvents 
   // check to be sure we won't exceed the bounds of the array
   assert( iEvent < m_iNEvents );
   
-  
   // for cpu calculations, fill the m_pdData array in this order:
   //    e(p1,ev1), px(p1,ev1), py(p1,ev1), pz(p1,ev1),
   //    e(p2,ev1), px(p2,ev1), ...,
@@ -158,20 +165,19 @@ AmpVecs::loadEvent( const Kinematics* pKinematics, int iEvent, int iNTrueEvents 
     m_pdData[4*iEvent*m_iNParticles+4*iParticle+2]=pKinematics->particle(iParticle).py();
     m_pdData[4*iEvent*m_iNParticles+4*iParticle+3]=pKinematics->particle(iParticle).pz();
   }
-  
 #else
-  
   for (int iParticle = 0; iParticle < m_iNParticles; iParticle++){
     m_pdData[(4*iParticle+0)*m_iNEvents+iEvent] = pKinematics->particle(iParticle).e();
     m_pdData[(4*iParticle+1)*m_iNEvents+iEvent] = pKinematics->particle(iParticle).px();
     m_pdData[(4*iParticle+2)*m_iNEvents+iEvent] = pKinematics->particle(iParticle).py();
     m_pdData[(4*iParticle+3)*m_iNEvents+iEvent] = pKinematics->particle(iParticle).pz();
   }
-  
 #endif
-  
+
   m_pdWeights[iEvent] = pKinematics->weight();
   
+  m_termsValid = false;
+  m_integralValid = false;
 }
 
 
@@ -211,6 +217,8 @@ AmpVecs::loadData( DataReader* pDataReader ){
   }
   delete pKinematics;
   
+  m_termsValid = false;
+  m_integralValid = false;
 }
 
 
@@ -221,13 +229,15 @@ AmpVecs::allocateTerms( const IntensityManager& intenMan, bool bAllocIntensity )
   
   if( m_pdAmps!=0 || m_pdAmpFactors!=0 || m_pdIntensity!=0 )
   {
-    cout << "\n THE STORAGE VECTOR POINTERS ARE NOT EMPTY!\n" << flush;
-    assert(0);
+    cout << "ERROR:  trying to reallocate terms in AmpVecs after\n" << flush;
+    cout << "        they have already been allocated.  Please\n" << flush;
+    cout << "        deallocate them first." << endl;
+    assert(false);
   }
   
   if (m_iNEvents == 0){
-    cout << "\nERROR: trying to allocate space for terms in\n" << flush;
-    cout << "         AmpVecs before any events have been loaded\n" << flush;
+    cout << "ERROR: trying to allocate space for terms in\n" << flush;
+    cout << "       AmpVecs before any events have been loaded\n" << flush;
     assert(false);
   }
   
@@ -257,8 +267,13 @@ AmpVecs::allocateTerms( const IntensityManager& intenMan, bool bAllocIntensity )
     cout<<"\n\nHOST MEMORY ALLOCATION ERROR: "<< cudaGetErrorString( cudaErr ) << endl;  
     assert( false );
   }
+  
+  m_gpuMan.init( *this );
+  m_gpuMan.copyDataToGPU( *this );
 #endif // GPU_ACCELERATION
   
+  m_termsValid = false;
+  m_integralValid = false;
 }
 
 Kinematics*

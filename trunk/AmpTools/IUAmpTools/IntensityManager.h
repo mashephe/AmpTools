@@ -107,19 +107,11 @@ public:
    * will be read from this class and term caculations will be written to
    * this class
    *
-   * \param[in] bIsFirstPass an optional boolean argument to aid in optimizaiton
-   * of calculations if the amplitudes have not changed.  Set to true if it
-   * is the first computation on this data set, and set to false otherwise.
-   *
-   * \param[in] useMC an optional argument to indicate amplitudes are being
-   * computed for MC, which may be useful for derived classes.
-   *
    * \see calcIntensities
    * \see calcSumLogIntensity
    * \see calcIntegrals
    */
-  virtual bool calcTerms( AmpVecs& ampVecs, bool bIsFirstPass = true,
-                          bool useMC = false ) const = 0;
+  virtual bool calcTerms( AmpVecs& ampVecs ) const = 0;
   
   /**
    * This function calculates the intensity (one number) for all events and
@@ -130,15 +122,12 @@ public:
    * \param[in,out] ampVecs a reference to the AmpVecs storage structure,
    * four vectors will be read from this class and intensities written to it.
    *
-   * \param[in] bIsFirstPass an optional boolean argument to aid in optimization
-   * of calculations.
-   *
    * \see calcAmplitudes
    * \see calcSumLogIntensity
    * \see calcIntegrals
    */
-  virtual double calcIntensities( AmpVecs& ampVecs,
-                                  bool bIsFirstPass = true ) const = 0;
+  virtual double calcIntensities( AmpVecs& ampVecs ) const = 0;
+
   /**
    * This function calculates and returns the sum of the log of the intensities
    * stored in the AmpVecs structure. 
@@ -147,15 +136,11 @@ public:
    * intensities are to be read.  (This structure may be modified and updated
    * by underlying calls to calcIntensities and calcTerms.)
    *
-   * \param[in] bIsFirstPass an optional boolean argument to aid in optimizaiton
-   * of calculations if the amplitudes have not changed.  
-   *
    * \see calcAmplitudes
    * \see calcIntensities
    * \see calcIntegrals
    */
-  virtual double calcSumLogIntensity( AmpVecs& ampVecs,
-                                      bool bIsFirstPass = true ) const = 0;
+  virtual double calcSumLogIntensity( AmpVecs& ampVecs ) const = 0;
   
   /**
    * This routine calculates the average values of A_iA_j*, which is useful
@@ -166,16 +151,11 @@ public:
    *
    * \param[in] iNGenEvents the number of genereated events (N in the above
    * computation)
-   *   *
-   * \param[in] bIsFirstPass an optional boolean argument to aid in optimizaiton
-   * of calculations if the amplitudes have not changed.  Set to true if it
-   * is the first computation on this data set, and set to false otherwise.
    *
    * \see calcAmplitudes
    * \see calcIntensities
    */
-  virtual void calcIntegrals( AmpVecs& ampVecs, int iNGenEvents,
-                              bool bIsFirstPass = true ) const = 0;
+  virtual void calcIntegrals( AmpVecs& ampVecs, int iNGenEvents ) const = 0;
  
   /**
    * This function calculates the intensity for one event using a Kinematics

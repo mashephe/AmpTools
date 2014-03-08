@@ -137,21 +137,11 @@ public:
    * will be read from this class and amplitude caculations will be written to
    * this class
    *
-   * \param[in] bIsFirstPass an optional boolean argument to aid in optimizaiton
-   * of calculations if the amplitudes have not changed.  Set to true if it
-   * is the first computation on this data set, and set to false otherwise.
-   *
-   * \param[in] useMC an optional argument to indicate amplitudes are being
-   * computed for MC.  This is only relevant when using GPU accelerated code
-   * since the AmplitudeManager has two GPUManager objects, one configured for
-   * computations on data and one for Monte Carlo.
-   *
    * \see calcIntensities
    * \see calcSumLogIntensity
    * \see calcIntegrals
    */
-  bool calcTerms( AmpVecs& ampVecs, bool bIsFirstPass = true,
-                  bool useMC = false ) const;
+  bool calcTerms( AmpVecs& ampVecs ) const;
   
   /**
    * This function calculates the intensity (one number) for all events and
@@ -163,15 +153,11 @@ public:
    * \param[in,out] ampVecs a reference to the AmpVecs storage structure,
    * four vectors will be read from this class and intensities written to it.
    *
-   * \param[in] bIsFirstPass an optional boolean argument to aid in optimizaiton
-   * of calculations if the amplitudes have not changed.  Set to true if it
-   * is the first computation on this data set, and set to false otherwise.
-   *
    * \see calcAmplitudes
    * \see calcSumLogIntensity
    * \see calcIntegrals
    */
-  double calcIntensities( AmpVecs& ampVecs, bool bIsFirstPass = true ) const;
+  double calcIntensities( AmpVecs& ampVecs ) const;
 
   /**
    * This function calculates and returns the sum of the log of the intensities
@@ -182,15 +168,11 @@ public:
    * intensities are to be read.  (This structure will be modified and updated
    * by underlying calls to calcIntensities and calcAmplitudes.)
    *
-   * \param[in] bIsFirstPass an optional boolean argument to aid in optimizaiton
-   * of calculations if the amplitudes have not changed.  Set to true if it
-   * is the first computation on this data set, and set to false otherwise.
-   *
    * \see calcAmplitudes
    * \see calcIntensities
    * \see calcIntegrals
    */
-  double calcSumLogIntensity( AmpVecs& ampVecs, bool bIsFirstPass = true ) const;
+  double calcSumLogIntensity( AmpVecs& ampVecs ) const;
   
   /**
    * This routine calculates a square matrix with dimension equal to the number
@@ -217,8 +199,7 @@ public:
    * \see calcAmplitudes
    * \see calcIntensities
    */
-  void calcIntegrals( AmpVecs& ampVecs, int iNGenEvents,
-                      bool bIsFirstPass = true ) const;
+  void calcIntegrals( AmpVecs& ampVecs, int iNGenEvents ) const;
 
   /**
    * The function returns a list of permutations that will be performed on
@@ -460,20 +441,6 @@ private:
   bool m_optimizeParIteration;
   mutable map< const Amplitude*, int > m_ampIteration;
   mutable map< AmpVecs*, map< const Amplitude*, int > > m_dataAmpIteration;
-
-#ifdef GPU_ACCELERATION
-  
-  void initGPU( const AmpVecs& a, bool useMC ) const;
-  
-  // for amplitudes with floating parameters we need a GPU manager
-  // to manage both the data and the accepted Monte Carlo
-  
-  // cheat for now -- GPUManager class still isn't quite "const correct"
-  mutable GPUManager m_dataGPUManGTX;
-  mutable GPUManager m_mcGPUManGTX;
-  
-#endif //GPU_ACCELERATION
-  
 };
 
 #endif

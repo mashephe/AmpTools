@@ -244,10 +244,15 @@ complex< double >
 NormIntInterface::normInt( string amp, string conjAmp, bool forceUseCache ) const
 {
   
+  if( !hasNormInt( amp, conjAmp ) ){
+    
+    cout << "ERROR: normalization integral does not exist for "
+    << amp << ", " << conjAmp << "*" << endl;
+    assert( false );
+  }
+
   // pass in true flag to delay computation of amplitude integrals as
-  // long as possible -- in the case of a fit with free parameters, this
-  // should allow just one computation of the amplitude integrals at the
-  // end of the fit
+  // long as possible
   
   if( m_emptyNormIntCache ) forceCacheUpdate( true );
   
@@ -265,15 +270,8 @@ NormIntInterface::normInt( string amp, string conjAmp, bool forceUseCache ) cons
   if( !forceUseCache && hasAccessToMC() && 
      ( m_pIntenManager != NULL ) && m_pIntenManager->hasTermWithFreeParam() ){
     
-    m_pIntenManager->calcIntegrals( m_mcVecs, m_nGenEvents, false );
+    m_pIntenManager->calcIntegrals( m_mcVecs, m_nGenEvents );
     setNormIntMatrix( m_mcVecs.m_pdIntegralMatrix );
-  }
-  
-  if( !hasNormInt( amp, conjAmp ) ){
-   
-    cout << "ERROR: normalization integral does not exist for "
-         << amp << ", " << conjAmp << "*" << endl;
-    assert( false );
   }
   
   int n = m_termNames.size();
@@ -349,39 +347,44 @@ NormIntInterface::forceCacheUpdate( bool normIntOnly ) const
     // we can assume that m_mcVecs contains the accepted MC since the
     // generated MC is never left in m_mcVecs
     
-    m_pIntenManager->calcIntegrals( m_mcVecs, m_nGenEvents, false );
+    m_pIntenManager->calcIntegrals( m_mcVecs, m_nGenEvents );
     setNormIntMatrix( m_mcVecs.m_pdIntegralMatrix );
+    
+    m_emptyNormIntCache = false;
     
     // stop here if we just want the norm ints -- this will likely be the normal
     // mode of operation for NI recalculations during a fit
     return;
   }
   
-  // now we need to have the generated MC in addition to the accepted
-  // MC in order to be able to continue
-  assert( m_genMCReader != NULL );
+  if( !normIntOnly ){
   
-  // flush this if anything is loaded
-  m_mcVecs.deallocAmpVecs();
+    // now we need to have the generated MC in addition to the accepted
+    // MC in order to be able to continue
+    assert( m_genMCReader != NULL );
   
-  cout << "Loading generated Monte Carlo..." << endl;
-  m_mcVecs.loadData( m_genMCReader );
-  m_mcVecs.allocateTerms( *m_pIntenManager );
-  cout << "\tDone.\n" << flush;
+    // flush this if anything is loaded
+    m_mcVecs.deallocAmpVecs();
   
-  cout << "Calculating integrals..." << endl;
-  m_pIntenManager->calcIntegrals( m_mcVecs, m_nGenEvents );
-  setAmpIntMatrix( m_mcVecs.m_pdIntegralMatrix );
-  cout << "\tDone." << endl;
+    cout << "Loading generated Monte Carlo..." << endl;
+    m_mcVecs.loadData( m_genMCReader );
+    m_mcVecs.allocateTerms( *m_pIntenManager );
+    cout << "\tDone.\n" << flush;
   
-  m_emptyAmpIntCache = false;
+    cout << "Calculating integrals..." << endl;
+    m_pIntenManager->calcIntegrals( m_mcVecs, m_nGenEvents );
+    setAmpIntMatrix( m_mcVecs.m_pdIntegralMatrix );
+    cout << "\tDone." << endl;
   
-  if( m_accMCReader == m_genMCReader )
+    m_emptyAmpIntCache = false;
+  }
+  
+  if( ( m_accMCReader == m_genMCReader ) && !m_emptyAmpIntCache )
   {    
     // optimization for perfect acceptance  
     cout << "Perfect acceptance -- using integrals from generated MC" << endl;
     
-    m_normIntCache = m_ampIntCache;
+    setNormIntMatrix( m_ampIntCache );
   }
   else
   {  
