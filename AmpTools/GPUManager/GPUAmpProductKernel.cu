@@ -41,6 +41,13 @@ __constant__ int da_iNEvents; // number of events padded to the closest 2^n
 __constant__ GDouble da_pfDevVRe[GPU_MAX_AMPS]; // fit parameters stored in
 __constant__ GDouble da_pfDevVIm[GPU_MAX_AMPS]; // const memory space
 
+extern "C" GDouble* da_pfDevVRe_addr() { return da_pfDevVRe;  }
+extern "C" GDouble* da_pfDevVIm_addr() { return da_pfDevVIm;  }
+extern "C" int*     da_iNAmps_addr()   { return &da_iNAmps;   }
+extern "C" int*     da_iNEvents_addr() { return &da_iNEvents; }
+
+
+
 __global__ void
 amp_kernel( GDouble* pfDevAmpRe, GDouble* pfDevAmpIm, 
             GDouble* pfDevWeights, GDouble* pfDevRes )
@@ -109,8 +116,33 @@ extern "C" void GPU_ExecAmpKernel( dim3 dimGrid, dim3 dimBlock,
                                              pfDevWeights, pfDevRes );
 }
 
-extern "C" GDouble* da_pfDevVRe_addr() { return da_pfDevVRe;  }
-extern "C" GDouble* da_pfDevVIm_addr() { return da_pfDevVIm;  }
-extern "C" int*     da_iNAmps_addr()   { return &da_iNAmps;   }
-extern "C" int*     da_iNEvents_addr() { return &da_iNEvents; }
+
+
+
+__global__ void
+int_element_kernel( int iA, int iB, GDouble* pfDevAmpRe, GDouble* pfDevAmpIm,
+                    GDouble* pfDevWeights, GDouble* pfDevResRe,
+                    GDouble* pfDevResIm )
+{
+	int i = threadIdx.x + GPU_BLOCK_SIZE_X * threadIdx.y + 
+            ( blockIdx.x + blockIdx.y * gridDim.x ) * GPU_BLOCK_SIZE_SQ;
+
+  int aInd = i + da_iNEvents*iA;
+  int bInd = i + da_iNEvents*iB;
+
+  pfDevResRe[i] = pfDevAmpRe[aInd] * pfDevAmpRe[bInd]  +
+                  pfDevAmpIm[aInd] * pfDevAmpIm[bInd];
+  
+  pfDevResIm[i] = pfDevAmpIm[aInd] * pfDevAmpRe[bInd] - 
+                  pfDevAmpRe[aInd] * pfDevAmpIm[bInd];
+}
+
+extern "C" void GPU_ExecIntElementKernel( dim3 dimGrid, dim3 dimBlock,
+     int iA, int iB, GDouble* pfDevAmpRe, GDouble* pfDevAmpIm, 
+     GDouble* pfDevWeights, GDouble* pfDevResRe, GDouble* pfDevResIm )
+{
+	int_element_kernel<<< dimGrid, dimBlock >>>( iA, iB, pfDevAmpRe, pfDevAmpIm,
+                                               pfDevWeights, pfDevResRe,
+                                               pfDevResIm );
+}
 

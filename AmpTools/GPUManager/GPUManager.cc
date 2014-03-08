@@ -84,7 +84,8 @@ m_ampCalcOnly( false )
   m_pfDevWeights=0;
   m_pfDevVRe=0;
   m_pfDevVIm=0;
-  m_pfDevRes=0;
+  m_pfDevResRe=0;
+  m_pfDevResIm=0;
   m_pfDevREDUCE=0;
   
   //CUDA Thread and Grid sizes
@@ -160,12 +161,10 @@ GPUManager::~GPUManager()
 // Initialization routines:
 
 void 
-GPUManager::init( const AmpVecs& a, bool ampCalcOnly )
+GPUManager::init( const AmpVecs& a )
 {
   clearAll();
-  
-  m_ampCalcOnly = ampCalcOnly;
-  
+    
   // copy over some info from the AmpVecs object for array dimensions
   m_iNTrueEvents = a.m_iNTrueEvents;
   m_iNEvents     = a.m_iNEvents;
@@ -186,26 +185,22 @@ GPUManager::init( const AmpVecs& a, bool ampCalcOnly )
   // size of upper half of ViVj* matrix
   m_iVArrSize = sizeof(GDouble) * m_iNAmpsH;
   
-  // save memory by not allocating it if we are only using the GPU
-  // to do amplitude calcuations (as in normalization integrals)
-  if( !m_ampCalcOnly ){
+  // host memory needed for intensity or integral calculation
+  cudaMallocHost( (void**)&m_pfAmpRe , m_iAmpArrSize   );
+  cudaMallocHost( (void**)&m_pfAmpIm , m_iAmpArrSize   );
+  cudaMallocHost( (void**)&m_pfVRe   , m_iVArrSize     );
+  cudaMallocHost( (void**)&m_pfVIm   , m_iVArrSize     );
+  cudaMallocHost( (void**)&m_pfRes   , m_iEventArrSize );
     
-    // host memory needed for intensity calculation
-    cudaMallocHost( (void**)&m_pfAmpRe , m_iAmpArrSize   );
-    cudaMallocHost( (void**)&m_pfAmpIm , m_iAmpArrSize   );
-    cudaMallocHost( (void**)&m_pfVRe   , m_iVArrSize     );
-    cudaMallocHost( (void**)&m_pfVIm   , m_iVArrSize     );
-    cudaMallocHost( (void**)&m_pfRes   , m_iEventArrSize );
-    
-    // device memory needed for intensity calculation and sum
-    gpuErrChk( cudaMalloc(  (void**)&m_pfDevAmpRe   , m_iAmpArrSize                       ) ) ;
-    gpuErrChk( cudaMalloc(  (void**)&m_pfDevAmpIm   , m_iAmpArrSize                       ) ) ;
-    gpuErrChk( cudaMalloc(  (void**)&m_pfDevVRe     , m_iVArrSize                         ) ) ;
-    gpuErrChk( cudaMalloc(  (void**)&m_pfDevVIm     , m_iVArrSize                         ) ) ;
-    gpuErrChk( cudaMalloc(  (void**)&m_pfDevWeights , m_iEventArrSize                     ) ) ;
-    gpuErrChk( cudaMalloc(  (void**)&m_pfDevRes     , m_iEventArrSize                     ) ) ;
-    gpuErrChk( cudaMalloc(  (void**)&m_pfDevREDUCE  , m_iEventArrSize                     ) ) ;
-  }
+  // device memory needed for intensity or integral calculation and sum
+  gpuErrChk( cudaMalloc(  (void**)&m_pfDevAmpRe   , m_iAmpArrSize                       ) ) ;
+  gpuErrChk( cudaMalloc(  (void**)&m_pfDevAmpIm   , m_iAmpArrSize                       ) ) ;
+  gpuErrChk( cudaMalloc(  (void**)&m_pfDevVRe     , m_iVArrSize                         ) ) ;
+  gpuErrChk( cudaMalloc(  (void**)&m_pfDevVIm     , m_iVArrSize                         ) ) ;
+  gpuErrChk( cudaMalloc(  (void**)&m_pfDevWeights , m_iEventArrSize                     ) ) ;
+  gpuErrChk( cudaMalloc(  (void**)&m_pfDevResRe   , m_iEventArrSize                     ) ) ;
+  gpuErrChk( cudaMalloc(  (void**)&m_pfDevResIm   , m_iEventArrSize                     ) ) ;
+  gpuErrChk( cudaMalloc(  (void**)&m_pfDevREDUCE  , m_iEventArrSize                     ) ) ;
   
   // allocate device memory needed for amplitude calculations
   gpuErrChk( cudaMalloc(  (void**)&m_pfDevData    , 4 * m_iNParticles * m_iEventArrSize ) ) ;
@@ -253,27 +248,6 @@ GPUManager::copyAmpsToGPU( const AmpVecs& a )
 
       m_pfAmpRe[iEvent+m_iNEvents*i] = a.m_pdAmps[2*m_iNEvents*i+2*iEvent];
       m_pfAmpIm[iEvent+m_iNEvents*i] = a.m_pdAmps[2*m_iNEvents*i+2*iEvent+1];
-
-    /*
-    //Saving only the upper half of the AiAj*
-      for( j = 0; j <= i; j++ )
-      {
-        m_pfAmpRe[iEvent+m_iNEvents*(i*(i+1)/2+j)] = 
-        a.m_pdAmps[2*m_iNEvents*i+2*iEvent]   * a.m_pdAmps[2*m_iNEvents*j+2*iEvent] + 
-        a.m_pdAmps[2*m_iNEvents*i+2*iEvent+1] * a.m_pdAmps[2*m_iNEvents*j+2*iEvent+1];
-        
-        m_pfAmpIm[iEvent+m_iNEvents*(i*(i+1)/2+j)] = 
-        -a.m_pdAmps[2*m_iNEvents*i+2*iEvent]   * a.m_pdAmps[2*m_iNEvents*j+2*iEvent+1] + 
-        a.m_pdAmps[2*m_iNEvents*i+2*iEvent+1] * a.m_pdAmps[2*m_iNEvents*j+2*iEvent];
-        
-        //Doubling the off-diagonal elements to sum over only upper triangle
-        if(j !=i )
-        {
-          m_pfAmpRe[iEvent+m_iNEvents*(i*(i+1)/2+j)]*=2.;
-          m_pfAmpIm[iEvent+m_iNEvents*(i*(i+1)/2+j)]*=2.;
-        } 
-      }
-    */
     }
   }
   
@@ -283,13 +257,6 @@ GPUManager::copyAmpsToGPU( const AmpVecs& a )
 
       m_pfAmpRe[iEvent+m_iNEvents*i] = 1;
       m_pfAmpIm[iEvent+m_iNEvents*i] = 0;
-
-      /*
-      for( j = 0; j <= i; j++ ) {
-        m_pfAmpRe[iEvent+m_iNEvents*(i*(i+1)/2+j)] = 1.;
-        m_pfAmpIm[iEvent+m_iNEvents*(i*(i+1)/2+j)] = 0.;
-      }
-      */
     }
   }
   
@@ -356,8 +323,6 @@ GPUManager::calcAmplitudeAll( const Amplitude* amp, GDouble* pcResAmp,
                           m_piDevPerm, m_iNParticles, m_iNEvents,
                           *permItr );
     
-//    cudaThreadSynchronize();
-    
     // check to be sure kernel execution was OK
     cudaError_t cerrKernel=cudaGetLastError();
     if( cerrKernel!= cudaSuccess  ){
@@ -415,7 +380,7 @@ GPUManager::calcSumLogIntensity( const vector< complex< double > >& prodCoef,
   dim3 dimBlock( m_iDimThreadX, m_iDimThreadY );
   dim3 dimGrid( m_iDimGridX, m_iDimGridY );
   GPU_ExecAmpKernel( dimGrid, dimBlock, m_pfDevAmpRe, m_pfDevAmpIm,
-                     m_pfDevWeights, m_pfDevRes );
+                     m_pfDevWeights, m_pfDevResRe );
   
   // Now the summation of the results -- do this on the CPU for small
   // numbers of events or cases where double precision GPU is not enabled
@@ -424,7 +389,7 @@ GPUManager::calcSumLogIntensity( const vector< complex< double > >& prodCoef,
   
   if( m_iNTrueEvents <= m_iNBlocks || sizeof( GDouble ) <= 4 )
   {
-    gpuErrChk( cudaMemcpy( m_pfRes,m_pfDevRes,
+    gpuErrChk( cudaMemcpy( m_pfRes,m_pfDevResRe,
                           m_iTrueEventArrSize,cudaMemcpyDeviceToHost ) );
     for(i=0; i<m_iNTrueEvents; i++)
       dGPUResult += m_pfRes[i];
@@ -432,10 +397,10 @@ GPUManager::calcSumLogIntensity( const vector< complex< double > >& prodCoef,
   else
   {
     // zeroing out the padding as not to alter the results after the reduction
-    gpuErrChk( cudaMemset( m_pfDevRes+m_iNTrueEvents,0,
+    gpuErrChk( cudaMemset( m_pfDevResRe+m_iNTrueEvents,0,
                            sizeof(GDouble)*(m_iNEvents-m_iNTrueEvents)) );
     // execute the kernel to sum partial sums from each block on CPU
-    reduce<GDouble>(m_iNEvents, m_iNThreads, m_iNBlocks, m_pfDevRes, m_pfDevREDUCE);
+    reduce<GDouble>(m_iNEvents, m_iNThreads, m_iNBlocks, m_pfDevResRe, m_pfDevREDUCE);
     
     // copy result from device to host
     gpuErrChk( cudaMemcpy( m_pfRes, m_pfDevREDUCE, m_iNBlocks*sizeof(GDouble),
@@ -446,6 +411,76 @@ GPUManager::calcSumLogIntensity( const vector< complex< double > >& prodCoef,
   
   return dGPUResult;
 }
+
+void
+GPUManager::calcIntegral( GDouble* result, int iAmp, int jAmp, int iNGenEvents ){
+  
+  gpuErrChk( cudaMemcpyToSymbol( da_iNEvents_addr() , &m_iNEvents , sizeof(int) ) );
+
+  dim3 dimBlock( m_iDimThreadX, m_iDimThreadY );
+  dim3 dimGrid( m_iDimGridX, m_iDimGridY );
+  
+  GPU_ExecIntElementKernel( dimGrid, dimBlock, iAmp, jAmp, m_pfDevAmpRe, m_pfDevAmpIm,
+                             m_pfDevWeights, m_pfDevResRe, m_pfDevResIm );
+
+  // add up the real parts
+  result[0] = 0;
+  
+  if( m_iNTrueEvents <= m_iNBlocks || sizeof( GDouble ) <= 4 )
+  {
+    gpuErrChk( cudaMemcpy( m_pfRes, m_pfDevResRe,
+                           m_iTrueEventArrSize, cudaMemcpyDeviceToHost ) );
+    for(int i=0; i<m_iNTrueEvents; i++)
+      result[0] += m_pfRes[i];
+  }
+  else
+  {
+
+    gpuErrChk( cudaMemset( m_pfDevResRe + m_iNTrueEvents, 0,
+                          sizeof(GDouble)*( m_iNEvents - m_iNTrueEvents ) ) );
+
+    // execute the kernel to sum partial sums from each block on GPU
+    reduce<GDouble>(m_iNEvents, m_iNThreads, m_iNBlocks, m_pfDevResRe, m_pfDevREDUCE);
+    
+    // copy result from device to host
+    gpuErrChk( cudaMemcpy( m_pfRes, m_pfDevREDUCE, m_iNBlocks*sizeof(GDouble),
+                           cudaMemcpyDeviceToHost) );
+    for(int i = 0; i < m_iNBlocks; i++)
+      result[0] += m_pfRes[i];
+    
+    result[0] /= static_cast< GDouble >( iNGenEvents );
+  }
+  
+  // repeat for imaginary parts
+  result[1] = 0;
+
+  if( m_iNTrueEvents <= m_iNBlocks || sizeof( GDouble ) <= 4 ) {
+    
+    gpuErrChk( cudaMemcpy( m_pfRes, m_pfDevResIm,
+                          m_iTrueEventArrSize, cudaMemcpyDeviceToHost ) );
+    for(int i=0; i<m_iNTrueEvents; i++)
+      result[1] += m_pfRes[i];
+  }
+  else {
+    
+    gpuErrChk( cudaMemset( m_pfDevResIm + m_iNTrueEvents, 0,
+                          sizeof(GDouble)*( m_iNEvents - m_iNTrueEvents ) ) );
+    
+    // execute the kernel to sum partial sums from each block on GPU
+    reduce<GDouble>(m_iNEvents, m_iNThreads, m_iNBlocks, m_pfDevResIm, m_pfDevREDUCE);
+    
+    // copy result from device to host
+    gpuErrChk( cudaMemcpy( m_pfRes, m_pfDevREDUCE, m_iNBlocks*sizeof(GDouble),
+                          cudaMemcpyDeviceToHost) );
+    for(int i = 0; i < m_iNBlocks; i++)
+      result[1] += m_pfRes[i];
+    
+    result[1] /= static_cast< GDouble >( iNGenEvents );
+  }
+  
+  
+}
+
 
 // Methods to clear memory:
 
@@ -536,10 +571,14 @@ void GPUManager::clearLikeCalc()
     cudaFree(m_pfDevWeights);
   m_pfDevWeights=0;
   
-  if(m_pfDevRes)
-    cudaFree(m_pfDevRes);
-  m_pfDevRes=0;
-  
+  if(m_pfDevResRe)
+    cudaFree(m_pfDevResRe);
+  m_pfDevResRe=0;
+
+  if(m_pfDevResRe)
+    cudaFree(m_pfDevResIm);
+  m_pfDevResRe=0;
+
   if(m_pfDevREDUCE)
     cudaFree(m_pfDevREDUCE);
   m_pfDevREDUCE=0;

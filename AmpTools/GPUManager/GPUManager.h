@@ -61,7 +61,7 @@ inline void gpuAssert(cudaError_t code, const char *file, int line, bool abort=t
 }
 
 using namespace std;
-using namespace __gnu_cxx;
+// using namespace __gnu_cxx;
 
 class Kinematics;
 class AmplitudeManager;
@@ -81,7 +81,7 @@ public:
   void clearAmpCalc();
   void clearLikeCalc();
   
-  void init( const AmpVecs& a, bool ampCalcOnly = false );
+  void init( const AmpVecs& a );
   
   // Interface Utils
   // First Amplitude calculation interface
@@ -94,6 +94,8 @@ public:
   void copyAmpsToGPU( const AmpVecs& a );
   double calcSumLogIntensity( const vector< complex< double > >& prodCoef,
                               const vector< vector< bool > >& cohMtx );
+
+  void calcIntegral( GDouble* result, int iAmp, int jAmp, int iNGenEvents );
   
   // General utils:
   static int calcNEventsGPU( int iNEvents ){
@@ -144,7 +146,8 @@ private:
   GDouble* m_pfDevVIm;
   
   // intensity sums maintained at double precision
-  GDouble* m_pfDevRes;
+  GDouble* m_pfDevResRe;
+  GDouble* m_pfDevResIm;
   GDouble* m_pfDevREDUCE;
   
   // CUDA Thread and Grid sizes
