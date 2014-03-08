@@ -39,6 +39,10 @@
 
 #include "GPUManager/GPUCustomTypes.h"
 
+#ifdef GPU_ACCELERATION
+#include "GPUManager/GPUManager.h"
+#endif
+
 class DataReader;
 class IntensityManager;
 class Kinematics;
@@ -117,6 +121,30 @@ struct AmpVecs
    * An array of length iNEvents that stores the intensity for each event.
    */
   GDouble* m_pdIntensity;
+  
+  /**
+   * A boolean that tracks if m_pdAmps and m_pdAmpFactors are filled
+   * for the current data set in m_pdData.  This variable will be
+   * managed by classes outside of AmpVecs.  It can only be invalidated
+   * (set to false) by the AmpVecs class itself.
+   */
+  bool m_termsValid;
+
+  /**
+   * A boolean that tracks if integrals are filled for the current data
+   * set in m_pdData and terms in m_pdAmps.  This variable will be
+   * managed by classes outside of AmpVecs.  It can only be invalidated
+   * (set to false) by the AmpVecs class itself.
+   */
+  bool m_integralValid;
+  
+#ifdef GPU_ACCELERATION
+  /**
+   * The GPU Manager for this data set.
+   */
+  GPUManager m_gpuMan;
+  
+#endif
   
   /**
    * The constructor.  All array pointers are set to zero in the constructor.

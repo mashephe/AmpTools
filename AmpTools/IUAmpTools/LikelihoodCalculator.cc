@@ -103,13 +103,13 @@ LikelihoodCalculator::normIntTerm(){
   if( m_intenManager.hasTermWithFreeParam() && !m_normInt.hasAccessToMC() ){
     
     cout << "ERROR: IntensityManager has terms with floating parameters\n"
-    << "       but NormIntInterface has not been provided with MC." << endl;
+         << "       but NormIntInterface has not been provided with MC." << endl;
     
     assert( false );
   }
   
-  if( m_firstNormIntCalc && m_normInt.hasAccessToMC() ) m_normInt.forceCacheUpdate();
-  if( m_intenManager.hasTermWithFreeParam() && !m_firstNormIntCalc )
+  if( ( m_firstNormIntCalc && m_normInt.hasAccessToMC() ) ||
+      ( m_intenManager.hasTermWithFreeParam() && !m_firstNormIntCalc ) );
     m_normInt.forceCacheUpdate( true );
   
   int n = m_intenManager.getTermNames().size();
@@ -188,7 +188,7 @@ LikelihoodCalculator::dataTerm(){
     cout << "\tDone." << endl;
   }
   
-  double sumLnI = m_intenManager.calcSumLogIntensity( m_ampVecs, m_firstDataCalc );
+  double sumLnI = m_intenManager.calcSumLogIntensity( m_ampVecs );
   
   m_firstDataCalc = false;
   

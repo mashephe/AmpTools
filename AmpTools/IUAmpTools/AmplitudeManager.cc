@@ -38,7 +38,6 @@
 #include <sstream>
 #include <fstream>
 
-#include <sys/time.h>
 #include <string.h>
 
 #include "IUAmpTools/AmplitudeManager.h"
@@ -204,26 +203,16 @@ AmplitudeManager::hasTermWithFreeParam() const {
 }
 
 bool
-AmplitudeManager::calcTerms( AmpVecs& a, bool bIsFirstPass, bool useMC ) const
+AmplitudeManager::calcTerms( AmpVecs& a ) const
 {
-  
-  bool modifiedTerm = false;
   
 #ifdef VTRACE
   VT_TRACER( "AmplitudeManager::calcTerms" );
 #endif
-
-  timeval tStart, tIStart, tStop,tSpan;
-  double dTime;
   
-  if( bIsFirstPass ) gettimeofday( &(tIStart), NULL );
+  bool modifiedTerm = false;
   
-#ifdef GPU_ACCELERATION
-  if( bIsFirstPass ) initGPU( a, useMC );
-  GPUManager& gpuMan = ( useMC ? m_mcGPUManGTX : m_dataGPUManGTX );
-#endif
-  
-  vector< string > ampNames = getTermNames();
+  const vector< string >& ampNames = getTermNames();
   
   int iNAmps = ampNames.size();
   
@@ -252,13 +241,13 @@ AmplitudeManager::calcTerms( AmpVecs& a, bool bIsFirstPass, bool useMC ) const
     // as checking each individual factor for free parameters.
     // HOWEVER we need to be sure to adjust the iAmpFactOffset correctly
     // so it is ready for the next amplitude.
-    if( !bIsFirstPass && m_vbIsAmpFixed[iAmpIndex] ){
+    if( a.m_termsValid && m_vbIsAmpFixed[iAmpIndex] ){
       
       iAmpFactOffset += 2 * a.m_iNEvents * iNPermutations * iNFactors;
       continue;
     }
     
-    // cout << "Recomputing amplitude: " << m_ampNames[iAmpIndex] << endl;
+//    cout << "Recomputing amplitude: " << ampNames[iAmpIndex] << endl;
     
     // calculate all the factors that make up an amplitude for
     // for all events serially on CPU or in parallel on GPU
@@ -271,22 +260,20 @@ AmplitudeManager::calcTerms( AmpVecs& a, bool bIsFirstPass, bool useMC ) const
       
       pCurrAmp = vAmps.at( iFactor );
       
-      if( !bIsFirstPass && !pCurrAmp->containsFreeParameters() )
+      if( a.m_termsValid && !pCurrAmp->containsFreeParameters() )
         continue;
       
       // now check to see if the value of this amplitudes parameters
       // are the same as they were the last time they were evaluated
       // for this particular dataset -- if so don't reevaluate
       
-      if( !bIsFirstPass && m_optimizeParIteration &&
+      if( a.m_termsValid && m_optimizeParIteration &&
           m_dataAmpIteration[&a][pCurrAmp] == m_ampIteration[pCurrAmp] )
         continue;
       
       m_dataAmpIteration[&a][pCurrAmp] = m_ampIteration[pCurrAmp];
       
-      // cout << "Recomputing factor: " << pCurrAmp->name() << endl;
-      
-      if( bIsFirstPass ) gettimeofday( &(tStart), NULL );
+//      cout << "Recomputing factor: " << pCurrAmp->name() << endl;
       
       // if we get to here, we are changing the stored factors of the
       // amplitude
@@ -297,25 +284,15 @@ AmplitudeManager::calcTerms( AmpVecs& a, bool bIsFirstPass, bool useMC ) const
 #ifndef GPU_ACCELERATION
       pCurrAmp->
       calcAmplitudeAll( a.m_pdData,
-                       a.m_pdAmpFactors + iAmpFactOffset + iLocalOffset,
-                       a.m_iNEvents, &vvPermuations );
+                        a.m_pdAmpFactors + iAmpFactOffset + iLocalOffset,
+                        a.m_iNEvents, &vvPermuations );
 #else
-      gpuMan.calcAmplitudeAll( pCurrAmp,
-                              a.m_pdAmpFactors + iAmpFactOffset + iLocalOffset,
-                              &vvPermuations );
+      a.m_gpuMan.calcAmplitudeAll( pCurrAmp,
+                                   a.m_pdAmpFactors + iAmpFactOffset + iLocalOffset,
+                                   &vvPermuations );
 #endif//GPU_ACCELERATION
-      
-      if( bIsFirstPass ){
-        gettimeofday( &(tStop), NULL );
-        timersub( &(tStop), &(tStart), &tSpan );
-        dTime = tSpan.tv_sec + tSpan.tv_usec/1000000.0; // 10^6 uSec per second
-        
-        //cout << "-> Seconds spent calculating "
-        //<< pCurrAmp->name() << " for " << permItr->first << ":  "
-        //<< dTime << endl << flush;
-      }
     }
-    
+
     if( !recalculatedFactor ) continue;
     
     // now assemble all the factors in an amplitude into a single
@@ -361,7 +338,7 @@ AmplitudeManager::calcTerms( AmpVecs& a, bool bIsFirstPass, bool useMC ) const
         a.m_pdAmps[iOffsetA]   += dAmpFacRe;
         a.m_pdAmps[iOffsetA+1] += dAmpFacIm;
       }
-      
+
       a.m_pdAmps[iOffsetA]   *= dSymmFactor;
       a.m_pdAmps[iOffsetA+1] *= dSymmFactor;
     }
@@ -370,20 +347,13 @@ AmplitudeManager::calcTerms( AmpVecs& a, bool bIsFirstPass, bool useMC ) const
     iAmpFactOffset += iLocalOffset;
   }
   
-  if( bIsFirstPass ){
-    
-    gettimeofday( &(tStop), NULL );
-    
-    timersub( &(tStop), &(tIStart), &tSpan );
-    dTime = tSpan.tv_sec + tSpan.tv_usec/1000000.0; // 10^6 uSec per second
-    //cout << "\t-->> Seconds spent calculating all amplitudes:  " << dTime << endl;
-  }
+  a.m_termsValid = true;
   
   return modifiedTerm;
 }
 
 double
-AmplitudeManager::calcIntensities( AmpVecs& a, bool bIsFirstPass ) const
+AmplitudeManager::calcIntensities( AmpVecs& a ) const
 {
 
 #ifdef VTRACE
@@ -395,10 +365,10 @@ AmplitudeManager::calcIntensities( AmpVecs& a, bool bIsFirstPass ) const
   
   double maxInten = 0;
   
-  //First update Amplitudes if needed
-  bool termsUpdated = calcTerms( a, bIsFirstPass );
+  // first update the amplitudes
+  calcTerms( a );
   
-  vector< string > ampNames = getTermNames();
+  const vector< string >& ampNames = getTermNames();
   
   int iNAmps = ampNames.size();
   
@@ -475,7 +445,7 @@ AmplitudeManager::calcIntensities( AmpVecs& a, bool bIsFirstPass ) const
 
 
 double
-AmplitudeManager::calcSumLogIntensity( AmpVecs& a, bool bIsFirstPass ) const
+AmplitudeManager::calcSumLogIntensity( AmpVecs& a ) const
 {
   
 #ifdef VTRACE
@@ -492,7 +462,7 @@ AmplitudeManager::calcSumLogIntensity( AmpVecs& a, bool bIsFirstPass ) const
   
 #ifndef GPU_ACCELERATION
   
-  calcIntensities( a, bIsFirstPass );
+  calcIntensities( a );
   
   for( int iEvent=0; iEvent < a.m_iNTrueEvents; iEvent++ ){
     
@@ -527,15 +497,13 @@ AmplitudeManager::calcSumLogIntensity( AmpVecs& a, bool bIsFirstPass ) const
   // need to explicitly do amplitude calculation
   // since intensity and sum is done directly on GPU
 
-  if( bIsFirstPass || hasTermWithFreeParam() ){
+  if( !a.m_termsValid || hasTermWithFreeParam() ){
 
-    calcTerms( a, bIsFirstPass );
-    
-    // this operation is only done on data
-    m_dataGPUManGTX.copyAmpsToGPU( a );
+    calcTerms( a );
+    a.m_gpuMan.copyAmpsToGPU( a );
   }
   
-  dSumLogI = m_dataGPUManGTX.calcSumLogIntensity( gpuProdPars, m_sumCoherently );
+  dSumLogI = a.m_gpuMan.calcSumLogIntensity( gpuProdPars, m_sumCoherently );
   
 #endif
   
@@ -544,7 +512,7 @@ AmplitudeManager::calcSumLogIntensity( AmpVecs& a, bool bIsFirstPass ) const
 
 
 void
-AmplitudeManager::calcIntegrals( AmpVecs& a, int iNGenEvents, bool bIsFirstPass ) const
+AmplitudeManager::calcIntegrals( AmpVecs& a, int iNGenEvents ) const
 {
 
 #ifdef VTRACE
@@ -560,23 +528,29 @@ AmplitudeManager::calcIntegrals( AmpVecs& a, int iNGenEvents, bool bIsFirstPass 
   
   // amp -> amp* -> value
   assert( iNGenEvents );
-  bool termChanged = calcTerms( a, bIsFirstPass, true );
+  bool termChanged = calcTerms( a );
   
   // if nothing changed and it isn't the first pass, return
-  if( !termChanged && !bIsFirstPass ) return;
+  if( !termChanged && a.m_integralValid ) return;
+  
+#ifdef GPU_ACCELERATION
+  // this can be optimized by only copying the changed
+  // amplitudes to the GPU -- in the long run maximum
+  // optimization comes from doing amplitude assembly on
+  // the GPU to avoid copying back and forth
+  
+  a.m_gpuMan.copyAmpsToGPU( a );
+#endif
   
   int iNAmps = a.m_iNTerms;
   
   int i, j, iEvent;
-  for( i = 0; i < iNAmps;i++ )
-  {
-    
-    for( j = 0; j <= i; j++ )
-    {
+  for( i = 0; i < iNAmps;i++ ) {
+    for( j = 0; j <= i; j++ ) {
      
       // if the amplitude isn't floating and it isn't the first pass
       // through these data, then its integral can't change
-      if( !bIsFirstPass && m_vbIsAmpFixed[i] && m_vbIsAmpFixed[j] ){
+      if( a.m_integralValid && m_vbIsAmpFixed[i] && m_vbIsAmpFixed[j] ){
         
         // if the amplitude isn't floating and it isn't the first pass
         // through these data, then its integral can't change
@@ -593,6 +567,8 @@ AmplitudeManager::calcIntegrals( AmpVecs& a, int iNGenEvents, bool bIsFirstPass 
       // if two amps don't interfere the relevant integral is zero
       if( m_sumCoherently[i][j] ){
         
+#ifndef GPU_ACCELERATION
+        
         for( iEvent = 0; iEvent < a.m_iNTrueEvents; iEvent++ )
         {
           //AiAj*
@@ -608,13 +584,16 @@ AmplitudeManager::calcIntegrals( AmpVecs& a, int iNGenEvents, bool bIsFirstPass 
            a.m_pdAmps[2*a.m_iNEvents*i+2*iEvent+1] *
            a.m_pdAmps[2*a.m_iNEvents*j+2*iEvent] );
         }
-        
-        //Normalize
+
+        // normalize
         integralMatrix[2*i*iNAmps+2*j] /= static_cast< GDouble >( iNGenEvents );
         integralMatrix[2*i*iNAmps+2*j+1] /= static_cast< GDouble >( iNGenEvents );
+#else
+        a.m_gpuMan.calcIntegral( &(integralMatrix[2*i*iNAmps+2*j]), i, j, iNGenEvents );
+#endif
       }
       
-      //Complex conjugate
+      // complex conjugate
       if( i != j ) {
         
         integralMatrix[2*j*iNAmps+2*i] = integralMatrix[2*i*iNAmps+2*j];
@@ -622,6 +601,8 @@ AmplitudeManager::calcIntegrals( AmpVecs& a, int iNGenEvents, bool bIsFirstPass 
       }
     }
   }
+  
+  a.m_integralValid = true;
 }
 
 const vector< vector< int > >&
@@ -948,20 +929,4 @@ AmplitudeManager::generateSymmetricCombos( const vector< pair< int, int > >& pre
     }
   }
 }
-
-
-#ifdef GPU_ACCELERATION
-void
-AmplitudeManager::initGPU( const AmpVecs& a, bool useMC ) const {
-  
-  // check to be sure both data is loaded
-  // and amplitudes have been allocated
-  assert( a.m_pdAmps && a.m_iNTrueEvents );
-  
-  GPUManager& gpuMan = ( useMC ? m_mcGPUManGTX : m_dataGPUManGTX );
-  
-  gpuMan.init( a, useMC );
-  gpuMan.copyDataToGPU( a );
-}
-#endif
 

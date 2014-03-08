@@ -451,7 +451,7 @@ AmpToolsInterface::processEvents(string reactionName,
 
   if (isFirstPass) m_ampVecs[iDataSet].allocateTerms(*intenMan,true);
 
-  return intenMan->calcIntensities(m_ampVecs[iDataSet], isFirstPass);
+  return intenMan->calcIntensities(m_ampVecs[iDataSet]);
 
 }
 
@@ -630,7 +630,7 @@ AmpToolsInterface::printAmplitudes(string reactionName, Kinematics* kin) const {
   aVecs.loadEvent(kin);
   aVecs.allocateTerms(*intenMan,true);
 
-  ampMan->calcTerms(aVecs,true);
+  ampMan->calcTerms(aVecs);
   
   int nAmps = ampNames.size();
   

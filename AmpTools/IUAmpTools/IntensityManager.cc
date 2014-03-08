@@ -72,7 +72,7 @@ IntensityManager::calcIntensity( const Kinematics* kinematics ) const
   aVecs.allocateTerms(*this,true);
   
   // Calculate the intensity based on this one event
-  calcIntensities(aVecs,true);
+  calcIntensities(aVecs);
   GDouble intensity = aVecs.m_pdIntensity[0];
   
   // Deallocate memory and return
