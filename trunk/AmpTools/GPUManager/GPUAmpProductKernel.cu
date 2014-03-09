@@ -49,8 +49,7 @@ extern "C" int*     da_iNEvents_addr() { return &da_iNEvents; }
 
 
 __global__ void
-amp_kernel( GDouble* pfDevAmpRe, GDouble* pfDevAmpIm, 
-            GDouble* pfDevWeights, GDouble* pfDevRes )
+amp_kernel( GDouble* pfDevAmps, GDouble* pfDevWeights, GDouble* pfDevRes )
 {
 	int i = threadIdx.x + GPU_BLOCK_SIZE_X * threadIdx.y + 
             ( blockIdx.x + blockIdx.y * gridDim.x ) * GPU_BLOCK_SIZE_SQ;
@@ -59,19 +58,19 @@ amp_kernel( GDouble* pfDevAmpRe, GDouble* pfDevAmpIm,
 	GDouble fSumRe = 0.;
 
   // index to amplitude A_alpha for the ith event
-  int aIndA = i;
+  int aIndA = 2*i;
 
 	for( iA = 0; iA < da_iNAmps; ++iA ){
 
   // index to amplitude A_alpha for the ith event
   // (reduce computations by incrementing at end of loop)
-  //	  int aIndA = i + da_iNEvents*iA;
+  //	  int aIndA = i + 2*da_iNEvents*iA;
 
     // index in the array of V_alpha * conj( V_beta )
     int vInd = iA*(iA+1)/2;
     
     // index to amplitude A_beta for the ith event
-    int aIndB = i;
+    int aIndB = 2*i;
 	  for( iB = 0; iB <= iA; ++iB ){
 
       // index in the array of V_alpha * conj( V_beta )
@@ -80,17 +79,17 @@ amp_kernel( GDouble* pfDevAmpRe, GDouble* pfDevAmpIm,
 
 	    // index to amplitude A_beta for the ith event
       // (reduce computations by incrementing at end of loop)
-      //     int aIndB = i + da_iNEvents*iB;
+      //     int aIndB = i + 2*da_iNEvents*iB;
 
       // only compute the real part of the intensity since
       // the imaginary part should sum to zero
 	    GDouble term = da_pfDevVRe[vInd] * 
-               ( pfDevAmpRe[aIndA] * pfDevAmpRe[aIndB] +
-                 pfDevAmpIm[aIndA] * pfDevAmpIm[aIndB] );
+               ( pfDevAmps[aIndA]   * pfDevAmps[aIndB] +
+                 pfDevAmps[aIndA+1] * pfDevAmps[aIndB+1] );
 
       term -= da_pfDevVIm[vInd] *
-               ( pfDevAmpIm[aIndA] * pfDevAmpRe[aIndB] -
-                 pfDevAmpRe[aIndA] * pfDevAmpIm[aIndB] );
+               ( pfDevAmps[aIndA+1] * pfDevAmps[aIndB] -
+                 pfDevAmps[aIndA]   * pfDevAmps[aIndB+1] );
 
 	    // we're only summing over the lower diagonal so we need
       // to double the contribution for off diagonal elements
@@ -99,50 +98,49 @@ amp_kernel( GDouble* pfDevAmpRe, GDouble* pfDevAmpIm,
  	    fSumRe += term;
 
       ++vInd;
-      aIndB += da_iNEvents;
+      aIndB += 2*da_iNEvents;
 	  }
     
-    aIndA += da_iNEvents;
+    aIndA += 2*da_iNEvents;
 	}
 	
 	pfDevRes[i] = pfDevWeights[i] * G_LOG( fSumRe );
 }
 
 extern "C" void GPU_ExecAmpKernel( dim3 dimGrid, dim3 dimBlock, 
-     GDouble* pfDevAmpRe, GDouble* pfDevAmpIm, GDouble* pfDevWeights, 
-     GDouble* pfDevRes )
+     GDouble* pfDevAmps, GDouble* pfDevWeights, GDouble* pfDevRes )
 {
-	amp_kernel<<< dimGrid, dimBlock >>>( pfDevAmpRe, pfDevAmpIm, 
-                                             pfDevWeights, pfDevRes );
+	amp_kernel<<< dimGrid, dimBlock >>>( pfDevAmps, pfDevWeights, pfDevRes );
 }
 
 
 
 
 __global__ void
-int_element_kernel( int iA, int iB, GDouble* pfDevAmpRe, GDouble* pfDevAmpIm,
+int_element_kernel( int iA, int iB, GDouble* pfDevAmps,
                     GDouble* pfDevWeights, GDouble* pfDevResRe,
                     GDouble* pfDevResIm )
 {
 	int i = threadIdx.x + GPU_BLOCK_SIZE_X * threadIdx.y + 
             ( blockIdx.x + blockIdx.y * gridDim.x ) * GPU_BLOCK_SIZE_SQ;
 
-  int aInd = i + da_iNEvents*iA;
-  int bInd = i + da_iNEvents*iB;
+  int aInd = 2*i + 2*da_iNEvents*iA;
+  int bInd = 2*i + 2*da_iNEvents*iB;
 
-  pfDevResRe[i] = pfDevAmpRe[aInd] * pfDevAmpRe[bInd]  +
-                  pfDevAmpIm[aInd] * pfDevAmpIm[bInd];
+  pfDevResRe[i] = pfDevWeights[i] * (
+                    pfDevAmps[aInd]   * pfDevAmps[bInd]  +
+                    pfDevAmps[aInd+1] * pfDevAmps[bInd+1] );
   
-  pfDevResIm[i] = pfDevAmpIm[aInd] * pfDevAmpRe[bInd] - 
-                  pfDevAmpRe[aInd] * pfDevAmpIm[bInd];
+  pfDevResIm[i] = pfDevWeights[i] * (
+                    pfDevAmps[aInd+1] * pfDevAmps[bInd] -
+                    pfDevAmps[aInd]   * pfDevAmps[bInd+1] );
 }
 
 extern "C" void GPU_ExecIntElementKernel( dim3 dimGrid, dim3 dimBlock,
-     int iA, int iB, GDouble* pfDevAmpRe, GDouble* pfDevAmpIm, 
-     GDouble* pfDevWeights, GDouble* pfDevResRe, GDouble* pfDevResIm )
+     int iA, int iB, GDouble* pfDevAmps, GDouble* pfDevWeights, 
+     GDouble* pfDevResRe, GDouble* pfDevResIm )
 {
-	int_element_kernel<<< dimGrid, dimBlock >>>( iA, iB, pfDevAmpRe, pfDevAmpIm,
-                                               pfDevWeights, pfDevResRe,
-                                               pfDevResIm );
+	int_element_kernel<<< dimGrid, dimBlock >>>( iA, iB, pfDevAmps, pfDevWeights,
+                                               pfDevResRe, pfDevResIm );
 }
 
