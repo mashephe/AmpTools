@@ -219,7 +219,11 @@ GPUManager::init( const AmpVecs& a )
 void
 GPUManager::copyDataToGPU( const AmpVecs& a )
 {  
-  
+
+#ifdef VTRACE
+  VT_TRACER( "GPUManager::copyDataToGPU" );
+#endif
+
   // make sure AmpVecs has been loaded with data
   assert( a.m_pdData );
   
@@ -233,6 +237,11 @@ GPUManager::copyDataToGPU( const AmpVecs& a )
 void
 GPUManager::copyAmpsToGPU( const AmpVecs& a )
 {
+
+#ifdef VTRACE
+  VT_TRACER( "GPUManager::copyAmpsToGPU" );
+#endif
+
   if(!m_pfAmpRe) {
     
     cout << "GPUManager::InitAmps is called without initalization or this\n" 
@@ -295,6 +304,10 @@ void
 GPUManager::calcAmplitudeAll( const Amplitude* amp, GDouble* pcResAmp, 
                              const vector< vector< int > >* pvPermutations )
 {
+ 
+#ifdef VTRACE
+  VT_TRACER( "GPUManager::calcAmplitudeAll" );
+#endif
   
   dim3 dimBlock( m_iDimThreadX, m_iDimThreadY );
   dim3 dimGrid( m_iDimGridX, m_iDimGridY );
@@ -348,7 +361,11 @@ double
 GPUManager::calcSumLogIntensity( const vector< complex< double > >& prodCoef,
                                 const vector< vector< bool > >& cohMtx )
 {
-  
+
+#ifdef VTRACE
+  VT_TRACER( "GPUManager::calcSumLogIntensity" );
+#endif
+
   // be sure memory has been allocated for intensity computation
   assert( !m_ampCalcOnly );
 
@@ -415,6 +432,10 @@ GPUManager::calcSumLogIntensity( const vector< complex< double > >& prodCoef,
 void
 GPUManager::calcIntegral( GDouble* result, int iAmp, int jAmp, int iNGenEvents ){
   
+#ifdef VTRACE
+  VT_TRACER( "GPUManager::calcIntegral" );
+#endif
+
   gpuErrChk( cudaMemcpyToSymbol( da_iNEvents_addr() , &m_iNEvents , sizeof(int) ) );
 
   dim3 dimBlock( m_iDimThreadX, m_iDimThreadY );
