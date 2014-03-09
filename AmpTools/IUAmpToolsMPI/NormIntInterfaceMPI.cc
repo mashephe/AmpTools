@@ -196,5 +196,5 @@ NormIntInterfaceMPI::sumIntegrals( IntType type ) const
     setAmpIntMatrix( result );
   }
   
-  delete result;
+  delete[] result;
 }

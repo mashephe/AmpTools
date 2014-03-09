@@ -76,7 +76,7 @@ m_firstNormIntCalc( true )
 
 LikelihoodCalculator::~LikelihoodCalculator(){
   
-  delete m_prodFactorArray;
+  delete[] m_prodFactorArray;
 }
 
 double
