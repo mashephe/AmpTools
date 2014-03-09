@@ -109,8 +109,10 @@ LikelihoodCalculator::normIntTerm(){
   }
   
   if( ( m_firstNormIntCalc && m_normInt.hasAccessToMC() ) ||
-      ( m_intenManager.hasTermWithFreeParam() && !m_firstNormIntCalc ) );
+      ( m_intenManager.hasTermWithFreeParam() && !m_firstNormIntCalc ) ){
+
     m_normInt.forceCacheUpdate( true );
+  }
   
   int n = m_intenManager.getTermNames().size();
   m_intenManager.prodFactorArray( m_prodFactorArray );
