@@ -50,6 +50,10 @@
 #include "GPUManager/GPUKernel.h"
 #include "GPUManager/GPUManager.h"
 
+#ifdef VTRACE
+#include "vt_user.h"
+#endif
+
 bool GPUManager::m_cudaDisplay = false;
 
 template <class T>
