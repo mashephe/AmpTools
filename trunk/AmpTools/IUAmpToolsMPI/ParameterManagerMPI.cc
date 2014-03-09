@@ -285,7 +285,7 @@ void ParameterManagerMPI::updateParameters()
     }
   }
   
-  delete parData;
+  delete[] parData;
 }
 
 
