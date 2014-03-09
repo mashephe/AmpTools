@@ -39,14 +39,12 @@
 
 #include "GPUCustomTypes.h"
 
-extern "C" void GPU_ExecAmpKernel(dim3 dimGrid,dim3 dimBlock,GDouble* pfDevAmpRe,
-                                  GDouble* pfDevAmpIm, GDouble* pfDevWeights, 
-                                  GDouble* pfDevRes);
+extern "C" void GPU_ExecAmpKernel(dim3 dimGrid,dim3 dimBlock,GDouble* pfDevAmps,
+                                  GDouble* pfDevWeights, GDouble* pfDevRes);
 
 extern "C" void GPU_ExecIntElementKernel(dim3 dimGrid, dim3 dimBlock, int iA, int iB,
-                                         GDouble* pfDevAmpRe, GDouble* pfDevAmpIm,
-                                         GDouble* pfDevWeights, GDouble* pfDevResRe,
-                                         GDouble* pfDevResIm);
+                                         GDouble* pfDevAmps, GDouble* pfDevWeights,
+                                         GDouble* pfDevResRe, GDouble* pfDevResIm);
 
 extern "C" GDouble* da_pfDevVRe_addr();
 extern "C" GDouble* da_pfDevVIm_addr();

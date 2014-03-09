@@ -128,8 +128,6 @@ private:
   //Host Arrays
   GDouble* m_pcCalcAmp;
   
-  GDouble* m_pfAmpRe;
-  GDouble* m_pfAmpIm;
   GDouble* m_pfVRe;
   GDouble* m_pfVIm;
   GDouble* m_pfRes;
@@ -140,8 +138,7 @@ private:
   GDouble* m_pcDevCalcAmp;
   int*     m_piDevPerm;
   
-  GDouble* m_pfDevAmpRe;
-  GDouble* m_pfDevAmpIm;
+  GDouble* m_pfDevAmps;
   GDouble* m_pfDevVRe;
   GDouble* m_pfDevVIm;
   
