@@ -104,7 +104,7 @@ m_ampCalcOnly( false )
   
   // Note that a better algorithm would be to utilize the jobs "local
   // rank" on the machine instead of global rank -- this needs development.
-  // The obvious problem wiht the technique below is that, e.g., in a 
+  // The obvious problem with the technique below is that, e.g., in a 
   // two-GPU per node cluster, all even rank jobs will use device zero.
   // If two even rank jobs land on the same node device zero will be
   // overloaded and device 1 will be unused.
@@ -394,44 +394,56 @@ GPUManager::calcIntegral( GDouble* result, int iAmp, int jAmp, int iNGenEvents )
 
   // add up the real parts
   result[0] = 0;
-  
+
   if( m_iNTrueEvents <= m_iNBlocks || sizeof( GDouble ) <= 4 )
   {
     gpuErrChk( cudaMemcpy( m_pfRes, m_pfDevResRe,
                            m_iTrueEventArrSize, cudaMemcpyDeviceToHost ) );
-    for(int i=0; i<m_iNTrueEvents; i++)
+    
+    for(int i=0; i<m_iNTrueEvents; i++){
+
       result[0] += m_pfRes[i];
+    }
+
+    result[0] /= static_cast< GDouble >( iNGenEvents );
   }
   else
   {
-
     gpuErrChk( cudaMemset( m_pfDevResRe + m_iNTrueEvents, 0,
                           sizeof(GDouble)*( m_iNEvents - m_iNTrueEvents ) ) );
-
+    
     // execute the kernel to sum partial sums from each block on GPU
     reduce<GDouble>(m_iNEvents, m_iNThreads, m_iNBlocks, m_pfDevResRe, m_pfDevREDUCE);
     
     // copy result from device to host
     gpuErrChk( cudaMemcpy( m_pfRes, m_pfDevREDUCE, m_iNBlocks*sizeof(GDouble),
                            cudaMemcpyDeviceToHost) );
-    for(int i = 0; i < m_iNBlocks; i++)
+
+    for(int i = 0; i < m_iNBlocks; i++){
+
       result[0] += m_pfRes[i];
-    
+    }
+
     result[0] /= static_cast< GDouble >( iNGenEvents );
   }
-  
+
   // repeat for imaginary parts
   result[1] = 0;
 
   if( m_iNTrueEvents <= m_iNBlocks || sizeof( GDouble ) <= 4 ) {
-    
+
     gpuErrChk( cudaMemcpy( m_pfRes, m_pfDevResIm,
-                          m_iTrueEventArrSize, cudaMemcpyDeviceToHost ) );
-    for(int i=0; i<m_iNTrueEvents; i++)
+			   m_iTrueEventArrSize, cudaMemcpyDeviceToHost ) );
+
+    for(int i=0; i<m_iNTrueEvents; i++){
+    
       result[1] += m_pfRes[i];
+    }
+    
+    result[1] /= static_cast< GDouble >( iNGenEvents );
   }
   else {
-    
+
     gpuErrChk( cudaMemset( m_pfDevResIm + m_iNTrueEvents, 0,
                           sizeof(GDouble)*( m_iNEvents - m_iNTrueEvents ) ) );
     
@@ -441,13 +453,13 @@ GPUManager::calcIntegral( GDouble* result, int iAmp, int jAmp, int iNGenEvents )
     // copy result from device to host
     gpuErrChk( cudaMemcpy( m_pfRes, m_pfDevREDUCE, m_iNBlocks*sizeof(GDouble),
                           cudaMemcpyDeviceToHost) );
-    for(int i = 0; i < m_iNBlocks; i++)
+    for(int i = 0; i < m_iNBlocks; i++){
+
       result[1] += m_pfRes[i];
-    
+    }
+
     result[1] /= static_cast< GDouble >( iNGenEvents );
   }
-  
-  
 }
 
 
