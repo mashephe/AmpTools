@@ -246,9 +246,7 @@ AmplitudeManager::calcTerms( AmpVecs& a ) const
       iAmpFactOffset += 2 * a.m_iNEvents * iNPermutations * iNFactors;
       continue;
     }
-    
-//    cout << "Recomputing amplitude: " << ampNames[iAmpIndex] << endl;
-    
+        
     // calculate all the factors that make up an amplitude for
     // for all events serially on CPU or in parallel on GPU
     
@@ -273,7 +271,7 @@ AmplitudeManager::calcTerms( AmpVecs& a ) const
       
       m_dataAmpIteration[&a][pCurrAmp] = m_ampIteration[pCurrAmp];
       
-//      cout << "Recomputing factor: " << pCurrAmp->name() << endl;
+      //      cout << "Recomputing factor: " << pCurrAmp->name() << endl;
       
       // if we get to here, we are changing the stored factors of the
       // amplitude
@@ -328,7 +326,7 @@ AmplitudeManager::calcTerms( AmpVecs& a ) const
           
           dTRe = dAmpFacRe;
           dTIm = dAmpFacIm;
-          
+
           dAmpFacRe = dTRe * a.m_pdAmpFactors[iOffsetF] -
           dTIm * a.m_pdAmpFactors[iOffsetF+1];
           dAmpFacIm = dTRe * a.m_pdAmpFactors[iOffsetF+1] +
@@ -562,13 +560,14 @@ AmplitudeManager::calcIntegrals( AmpVecs& a, int iNGenEvents ) const
         // otherwise zero it out and recalculate it
         
         integralMatrix[2*i*iNAmps+2*j] = 0;
+        integralMatrix[2*i*iNAmps+2*j+1] = 0;
       }
       
       // if two amps don't interfere the relevant integral is zero
       if( m_sumCoherently[i][j] ){
-        
+	        
 #ifndef GPU_ACCELERATION
-        
+	
         for( iEvent = 0; iEvent < a.m_iNTrueEvents; iEvent++ )
         {
           //AiAj*
@@ -584,10 +583,10 @@ AmplitudeManager::calcIntegrals( AmpVecs& a, int iNGenEvents ) const
            a.m_pdAmps[2*a.m_iNEvents*i+2*iEvent+1] *
            a.m_pdAmps[2*a.m_iNEvents*j+2*iEvent] );
         }
-
         // normalize
         integralMatrix[2*i*iNAmps+2*j] /= static_cast< GDouble >( iNGenEvents );
-        integralMatrix[2*i*iNAmps+2*j+1] /= static_cast< GDouble >( iNGenEvents );
+        integralMatrix[2*i*iNAmps+2*j+1] /= static_cast< GDouble >( iNGenEvents );	
+
 #else
         a.m_gpuMan.calcIntegral( &(integralMatrix[2*i*iNAmps+2*j]), i, j, iNGenEvents );
 #endif
