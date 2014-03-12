@@ -108,7 +108,6 @@ private:
   void fillStruct( KinStruct* kinStruct, Kinematics* kin );
   
   MPI_Datatype MPI_KinStruct;
-  KinStruct m_kinStruct;
   
   int m_rank;
   int m_numProc;
@@ -220,6 +219,8 @@ void DataReaderMPI<T>::distributeData()
   int stepSize = totalEvents / ( m_numProc - 1 );
   int remainder = totalEvents % ( m_numProc - 1 );
   
+  KinStruct* kinArray = new KinStruct[stepSize+1];
+  
   for( int i = 1; i < m_numProc; ++i ){
     
     int nEvents = ( i > remainder ? stepSize : stepSize + 1 );
@@ -234,12 +235,12 @@ void DataReaderMPI<T>::distributeData()
       
       // the pointer should never be null as long as we can count OK
       assert( event != NULL );
-      fillStruct( &m_kinStruct, event );
+      fillStruct( &(kinArray[j]), event );
       delete event;
-      
-      MPI_Send( &m_kinStruct, 1, MPI_KinStruct, i, MPITag::kDataSend,
-               MPI_COMM_WORLD );
-    }    
+    }
+    
+    MPI_Send( kinArray, nEvents, MPI_KinStruct, i, MPITag::kDataSend,
+              MPI_COMM_WORLD );
     
     //    cout << "Waiting for acknowledge from " << i << endl;
     //    flush( cout );
@@ -250,7 +251,9 @@ void DataReaderMPI<T>::distributeData()
     
     //    cout << "Send to process " << i << " finished." << endl;
     //    flush( cout );
-  }  
+  }
+  
+  delete[] kinArray;
 }
 
 template< class T >
@@ -267,18 +270,18 @@ void DataReaderMPI<T>::receiveData()
   //  cout << "Process " << m_rank << " waiting for " 
   //       << nEvents << " events." << endl;
   
-  int counter = nEvents;
+  KinStruct* kinArray = new KinStruct[nEvents];
   
-  while( counter-- != 0 ){
+  MPI_Recv( kinArray, nEvents, MPI_KinStruct, 0, MPITag::kDataSend,
+            MPI_COMM_WORLD, &status );
+  
+  for( int i = 0; i < nEvents; ++i ){
     
-    
-    MPI_Recv( &m_kinStruct, 1, MPI_KinStruct, 0, MPITag::kDataSend,
-             MPI_COMM_WORLD, &status );
-    m_ptrCache.push_back( createKin( &m_kinStruct ) );
+    m_ptrCache.push_back( createKin( &(kinArray[i]) ) );
   }
   
-  cout << "Process " << m_rank << " received " 
-  << m_ptrCache.size() << " events." << endl;
+  cout << "Process " << m_rank << " received "
+       << m_ptrCache.size() << " events." << endl;
   flush( cout );
   
   // adjust the pointer iterator to point to the beginning of the cache
@@ -286,7 +289,9 @@ void DataReaderMPI<T>::receiveData()
   m_numEvents = static_cast< unsigned int >( m_ptrCache.size() );
   
   // send acknowledgment
-  MPI_Send( &nEvents, 1, MPI_INT, 0, MPITag::kAcknowledge, MPI_COMM_WORLD );    
+  MPI_Send( &nEvents, 1, MPI_INT, 0, MPITag::kAcknowledge, MPI_COMM_WORLD );
+  
+  delete[] kinArray;
 }
 
 template< class T >
@@ -345,47 +350,48 @@ template< class T >
 void DataReaderMPI<T>::defineMPIType()
 {
   
+  KinStruct kinStruct;
+  
   // arrays used to define info about the six elements in the struct
   int length[6];
   MPI_Aint loc[6];
   MPI_Datatype type[6];
   
   MPI_Aint baseAddress;
-  MPI_Address( &m_kinStruct, &baseAddress );
+  MPI_Address( &kinStruct, &baseAddress );
   
   length[0] = 1;
-  MPI_Address( &m_kinStruct.nPart, &loc[0] );
+  MPI_Address( &kinStruct.nPart, &loc[0] );
   loc[0] -= baseAddress;
   type[0] = MPI_INT;
   
   length[1] = 1;
-  MPI_Address( &m_kinStruct.weight, &loc[1] );
+  MPI_Address( &kinStruct.weight, &loc[1] );
   loc[1] -= baseAddress;
   type[1] = MPI_FLOAT;
   
   length[2] = Kinematics::kMaxParticles;
-  MPI_Address( &m_kinStruct.e, &loc[2] );
+  MPI_Address( &kinStruct.e, &loc[2] );
   loc[2] -= baseAddress;
   type[2] = MPI_FLOAT;
   
   length[3] = Kinematics::kMaxParticles;
-  MPI_Address( &m_kinStruct.px, &loc[3] );
+  MPI_Address( &kinStruct.px, &loc[3] );
   loc[3] -= baseAddress;
   type[3] = MPI_FLOAT;
   
   length[4] = Kinematics::kMaxParticles;
-  MPI_Address( &m_kinStruct.py, &loc[4] );
+  MPI_Address( &kinStruct.py, &loc[4] );
   loc[4] -= baseAddress;
   type[4] = MPI_FLOAT;
   
   length[5] = Kinematics::kMaxParticles;
-  MPI_Address( &m_kinStruct.pz, &loc[5] );
+  MPI_Address( &kinStruct.pz, &loc[5] );
   loc[5] -= baseAddress;
   type[5] = MPI_FLOAT;
   
   MPI_Type_struct( 6, length, loc, type, &MPI_KinStruct );
   MPI_Type_commit( &MPI_KinStruct );
-  
 }
 
 #endif
