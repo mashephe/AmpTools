@@ -226,6 +226,7 @@ void
 AmpVecs::allocateTerms( const IntensityManager& intenMan, bool bAllocIntensity ){
 
   m_iNTerms = intenMan.getTermNames().size();
+  m_termFactPerEvent = intenMan.termFactorStoragePerEvent();
   
   if( m_pdAmps!=0 || m_pdAmpFactors!=0 || m_pdIntensity!=0 )
   {
@@ -256,24 +257,31 @@ AmpVecs::allocateTerms( const IntensityManager& intenMan, bool bAllocIntensity )
   
 #else
   
-  //  cout << "allocating: " << m_iNEvents << " events; " << m_iNTerms << " amps;" << m_iNAmpFactorsAndPerms << " factors and perms;" << endl;
-  
-  //Allocate as "pinned memory" for fast CPU<->GPU memcopies
-  cudaMallocHost( (void**)&m_pdAmps, m_iNEvents * intenMan.termStoragePerEvent() * sizeof(GDouble) );
-  cudaMallocHost( (void**)&m_pdAmpFactors, m_iNEvents * intenMan.termFactorStoragePerEvent() * sizeof(GDouble));
-  cudaError_t cudaErr = cudaGetLastError();
-  if( cudaErr != cudaSuccess  ){
-    
-    cout<<"\n\nHOST MEMORY ALLOCATION ERROR: "<< cudaGetErrorString( cudaErr ) << endl;  
-    assert( false );
-  }
-  
   m_gpuMan.init( *this );
   m_gpuMan.copyDataToGPU( *this );
+
 #endif // GPU_ACCELERATION
   
   m_termsValid = false;
   m_integralValid = false;
+}
+
+void
+AmpVecs::allocateCPUAmpStorage( const IntensityManager& intenMan ){
+  
+  // we should start with unallocated memory
+  assert( m_pdAmps == NULL && m_pdAmpFactors == NULL );
+  
+  // allocate as "pinned memory" for fast CPU<->GPU memcopies
+  cudaMallocHost( (void**)&m_pdAmps, 2 * m_iNEvents * intenMan.termStoragePerEvent() * sizeof(GDouble) );
+  cudaMallocHost( (void**)&m_pdAmpFactors, 2 * m_iNEvents * intenMan.termFactorStoragePerEvent() * sizeof(GDouble));
+
+  cudaError_t cudaErr = cudaGetLastError();
+  if( cudaErr != cudaSuccess  ){
+    
+    cout<<"\n\nHOST MEMORY ALLOCATION ERROR: "<< cudaGetErrorString( cudaErr ) << endl;
+    assert( false );
+  }
 }
 
 Kinematics*
