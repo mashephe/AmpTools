@@ -87,11 +87,14 @@ public:
   // First Amplitude calculation interface
   void copyDataToGPU( const AmpVecs& a );
   
-  void calcAmplitudeAll( const Amplitude* amp, GDouble* pcResAmp, 
+  void calcAmplitudeAll( const Amplitude* amp, int offset,
                          const vector< vector< int > >* pvPermutations );
   
+  void assembleTerms( int iAmpInd, int offset, int nFact, int nPerm );
+  
+  void copyAmpsFromGPU( AmpVecs& a );
+
   // Now the intensity calculator
-  void copyAmpsToGPU( const AmpVecs& a );
   double calcSumLogIntensity( const vector< complex< double > >& prodCoef,
                               const vector< vector< bool > >& cohMtx );
 
@@ -120,16 +123,15 @@ private:
   unsigned int m_iNAmpsH;
   
   // array sizes
-  unsigned int m_iAmpArrSize;
   unsigned int m_iEventArrSize;
   unsigned int m_iTrueEventArrSize;
+  unsigned int m_iAmpArrSize;
   unsigned int m_iVArrSize;
   
   //Host Arrays
   GDouble* m_pcCalcAmp;
   
-  GDouble* m_pfVRe;
-  GDouble* m_pfVIm;
+  GDouble* m_pfVVStar;
   GDouble* m_pfRes;
   
   //Device Arrays 
@@ -139,8 +141,7 @@ private:
   int*     m_piDevPerm;
   
   GDouble* m_pfDevAmps;
-  GDouble* m_pfDevVRe;
-  GDouble* m_pfDevVIm;
+  GDouble* m_pfDevVVStar;
   
   // intensity sums maintained at double precision
   GDouble* m_pfDevResRe;
