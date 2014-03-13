@@ -40,15 +40,16 @@
 #include "GPUCustomTypes.h"
 
 extern "C" void GPU_ExecAmpKernel(dim3 dimGrid,dim3 dimBlock,GDouble* pfDevAmps,
-                                  GDouble* pfDevWeights, GDouble* pfDevRes);
+                                  GDouble* pfDevVVStar, GDouble* pfDevWeights,
+                                  int nAmps, int nEvents, GDouble* pfDevRes);
+
+extern "C" void GPU_ExecFactPermKernel( dim3 dimGrid, dim3 dimBlock,
+                                        GDouble* pfDevAmps, GDouble* pcDevCalcAmp,
+                                        int nFact, int nPerm, int nEvents );
 
 extern "C" void GPU_ExecIntElementKernel(dim3 dimGrid, dim3 dimBlock, int iA, int iB,
                                          GDouble* pfDevAmps, GDouble* pfDevWeights,
-                                         GDouble* pfDevResRe, GDouble* pfDevResIm);
-
-extern "C" GDouble* da_pfDevVRe_addr();
-extern "C" GDouble* da_pfDevVIm_addr();
-extern "C" int*     da_iNAmps_addr();
-extern "C" int*     da_iNEvents_addr();
+                                         GDouble* pfDevResRe, GDouble* pfDevResIm,
+                                         int nEvents);
 
 #endif //__GPU_KERNEL__H__
