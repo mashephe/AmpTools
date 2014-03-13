@@ -629,8 +629,13 @@ AmpToolsInterface::printAmplitudes(string reactionName, Kinematics* kin) const {
   AmpVecs aVecs;
   aVecs.loadEvent(kin);
   aVecs.allocateTerms(*intenMan,true);
-
+  
   ampMan->calcTerms(aVecs);
+  
+#ifdef GPU_ACCELERATION
+  aVecs.allocateCPUAmpStorage( *intenMan );
+  aVecs.m_gpuMan.copyAmpsFromGPU( aVecs );
+#endif
   
   int nAmps = ampNames.size();
   
