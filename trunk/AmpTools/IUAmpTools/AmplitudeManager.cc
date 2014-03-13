@@ -217,7 +217,9 @@ AmplitudeManager::calcTerms( AmpVecs& a ) const
   int iNAmps = ampNames.size();
   
   assert( iNAmps && a.m_iNEvents && a.m_iNTrueEvents );
+#ifndef GPU_ACCELERATION
   assert( a.m_pdAmps && a.m_pdAmpFactors);
+#endif
   
   int iAmpIndex, iAmpFactOffset=0;
   for( iAmpIndex = 0; iAmpIndex < iNAmps; iAmpIndex++ )
@@ -285,17 +287,18 @@ AmplitudeManager::calcTerms( AmpVecs& a ) const
                         a.m_pdAmpFactors + iAmpFactOffset + iLocalOffset,
                         a.m_iNEvents, &vvPermuations );
 #else
-      a.m_gpuMan.calcAmplitudeAll( pCurrAmp,
-                                   a.m_pdAmpFactors + iAmpFactOffset + iLocalOffset,
+      a.m_gpuMan.calcAmplitudeAll( pCurrAmp, iAmpFactOffset + iLocalOffset,
                                    &vvPermuations );
 #endif//GPU_ACCELERATION
     }
 
     if( !recalculatedFactor ) continue;
     
+    
     // now assemble all the factors in an amplitude into a single
-    // symmetrized amplitude -- do this for all events for this
-    // amplitude (on the CPU)
+    // symmetrized amplitude for each event
+    
+#ifndef GPU_ACCELERATION
     
     GDouble dSymmFactor = 1.0f/sqrt( iNPermutations );
     GDouble dAmpFacRe, dAmpFacIm, dTRe, dTIm;
@@ -341,6 +344,14 @@ AmplitudeManager::calcTerms( AmpVecs& a ) const
       a.m_pdAmps[iOffsetA+1] *= dSymmFactor;
     }
     
+#else
+    // on the GPU the terms are assembled and never copied out
+    // of GPU memory
+    
+    a.m_gpuMan.assembleTerms( iAmpIndex, iAmpFactOffset,
+                              iNFactors, iNPermutations );
+#endif
+    
     //Update the global offset of ampfactor array
     iAmpFactOffset += iLocalOffset;
   }
@@ -366,6 +377,20 @@ AmplitudeManager::calcIntensities( AmpVecs& a ) const
   // first update the amplitudes
   calcTerms( a );
   
+  // In GPU running mode amplitudes are maintained on the GPU and
+  // the sum of the logs of intensities are calculated directly.
+  // This is a CPU calculation that was likely called from the
+  // parent IntensityManager with a single Kinematics object or
+  // perhaps during MC generation. Copy the amplitudes out of the
+  // GPU and compute the intensities (on the CPU).  There is no
+  // GPU accelerated intensity calculation, just a GPU accelerated
+  // log( intensity ) calculation.
+  
+#ifdef GPU_ACCELERATION
+  a.allocateCPUAmpStorage( *this );
+  a.m_gpuMan.copyAmpsFromGPU( a );
+#endif
+
   const vector< string >& ampNames = getTermNames();
   
   int iNAmps = ampNames.size();
@@ -498,7 +523,6 @@ AmplitudeManager::calcSumLogIntensity( AmpVecs& a ) const
   if( !a.m_termsValid || hasTermWithFreeParam() ){
 
     calcTerms( a );
-    a.m_gpuMan.copyAmpsToGPU( a );
   }
   
   dSumLogI = a.m_gpuMan.calcSumLogIntensity( gpuProdPars, m_sumCoherently );
@@ -530,16 +554,7 @@ AmplitudeManager::calcIntegrals( AmpVecs& a, int iNGenEvents ) const
   
   // if nothing changed and it isn't the first pass, return
   if( !termChanged && a.m_integralValid ) return;
-  
-#ifdef GPU_ACCELERATION
-  // this can be optimized by only copying the changed
-  // amplitudes to the GPU -- in the long run maximum
-  // optimization comes from doing amplitude assembly on
-  // the GPU to avoid copying back and forth
-  
-  a.m_gpuMan.copyAmpsToGPU( a );
-#endif
-  
+    
   int iNAmps = a.m_iNTerms;
   
   int i, j, iEvent;
