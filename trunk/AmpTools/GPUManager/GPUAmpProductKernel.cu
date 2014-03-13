@@ -36,20 +36,9 @@
 
 #include "GPUCustomTypes.h"
 
-__constant__ int da_iNAmps;  
-__constant__ int da_iNEvents; // number of events padded to the closest 2^n
-__constant__ GDouble da_pfDevVRe[GPU_MAX_AMPS]; // fit parameters stored in
-__constant__ GDouble da_pfDevVIm[GPU_MAX_AMPS]; // const memory space
-
-extern "C" GDouble* da_pfDevVRe_addr() { return da_pfDevVRe;  }
-extern "C" GDouble* da_pfDevVIm_addr() { return da_pfDevVIm;  }
-extern "C" int*     da_iNAmps_addr()   { return &da_iNAmps;   }
-extern "C" int*     da_iNEvents_addr() { return &da_iNEvents; }
-
-
-
 __global__ void
-amp_kernel( GDouble* pfDevAmps, GDouble* pfDevWeights, GDouble* pfDevRes )
+amp_kernel( GDouble* pfDevAmps, GDouble* pfDevVVStar, GDouble* pfDevWeights, 
+            int nAmps, int nEvents, GDouble* pfDevRes )
 {
 	int i = threadIdx.x + GPU_BLOCK_SIZE_X * threadIdx.y + 
             ( blockIdx.x + blockIdx.y * gridDim.x ) * GPU_BLOCK_SIZE_SQ;
@@ -60,11 +49,11 @@ amp_kernel( GDouble* pfDevAmps, GDouble* pfDevWeights, GDouble* pfDevRes )
   // index to amplitude A_alpha for the ith event
   int aIndA = 2*i;
 
-	for( iA = 0; iA < da_iNAmps; ++iA ){
+	for( iA = 0; iA < nAmps; ++iA ){
 
   // index to amplitude A_alpha for the ith event
   // (reduce computations by incrementing at end of loop)
-  //	  int aIndA = i + 2*da_iNEvents*iA;
+  //	  int aIndA = i + 2*nEvents*iA;
 
     // index in the array of V_alpha * conj( V_beta )
     int vInd = iA*(iA+1)/2;
@@ -79,15 +68,15 @@ amp_kernel( GDouble* pfDevAmps, GDouble* pfDevWeights, GDouble* pfDevRes )
 
 	    // index to amplitude A_beta for the ith event
       // (reduce computations by incrementing at end of loop)
-      //     int aIndB = i + 2*da_iNEvents*iB;
+      //     int aIndB = i + 2*nEvents*iB;
 
       // only compute the real part of the intensity since
       // the imaginary part should sum to zero
-	    GDouble term = da_pfDevVRe[vInd] * 
+	    GDouble term = pfDevVVStar[2*vInd] *
                ( pfDevAmps[aIndA]   * pfDevAmps[aIndB] +
                  pfDevAmps[aIndA+1] * pfDevAmps[aIndB+1] );
 
-      term -= da_pfDevVIm[vInd] *
+      term -= pfDevVVStar[2*vInd+1] *
                ( pfDevAmps[aIndA+1] * pfDevAmps[aIndB] -
                  pfDevAmps[aIndA]   * pfDevAmps[aIndB+1] );
 
@@ -98,49 +87,20 @@ amp_kernel( GDouble* pfDevAmps, GDouble* pfDevWeights, GDouble* pfDevRes )
  	    fSumRe += term;
 
       ++vInd;
-      aIndB += 2*da_iNEvents;
+      aIndB += 2*nEvents;
 	  }
     
-    aIndA += 2*da_iNEvents;
+    aIndA += 2*nEvents;
 	}
 	
 	pfDevRes[i] = pfDevWeights[i] * G_LOG( fSumRe );
 }
 
 extern "C" void GPU_ExecAmpKernel( dim3 dimGrid, dim3 dimBlock, 
-     GDouble* pfDevAmps, GDouble* pfDevWeights, GDouble* pfDevRes )
+     GDouble* pfDevAmps, GDouble* pfDevVVStar, GDouble* pfDevWeights,
+     int nAmps, int nEvents, GDouble* pfDevRes )
 {
-	amp_kernel<<< dimGrid, dimBlock >>>( pfDevAmps, pfDevWeights, pfDevRes );
-}
-
-
-
-
-__global__ void
-int_element_kernel( int iA, int iB, GDouble* pfDevAmps,
-                    GDouble* pfDevWeights, GDouble* pfDevResRe,
-                    GDouble* pfDevResIm )
-{
-	int i = threadIdx.x + GPU_BLOCK_SIZE_X * threadIdx.y + 
-            ( blockIdx.x + blockIdx.y * gridDim.x ) * GPU_BLOCK_SIZE_SQ;
-
-  int aInd = 2*i + 2*da_iNEvents*iA;
-  int bInd = 2*i + 2*da_iNEvents*iB;
-
-  pfDevResRe[i] = pfDevWeights[i] * (
-                    pfDevAmps[aInd]   * pfDevAmps[bInd]  +
-                    pfDevAmps[aInd+1] * pfDevAmps[bInd+1] );
-  
-  pfDevResIm[i] = pfDevWeights[i] * (
-                    pfDevAmps[aInd+1] * pfDevAmps[bInd] -
-                    pfDevAmps[aInd]   * pfDevAmps[bInd+1] );
-}
-
-extern "C" void GPU_ExecIntElementKernel( dim3 dimGrid, dim3 dimBlock,
-     int iA, int iB, GDouble* pfDevAmps, GDouble* pfDevWeights, 
-     GDouble* pfDevResRe, GDouble* pfDevResIm )
-{
-	int_element_kernel<<< dimGrid, dimBlock >>>( iA, iB, pfDevAmps, pfDevWeights,
-                                               pfDevResRe, pfDevResIm );
+	amp_kernel<<< dimGrid, dimBlock >>>( pfDevAmps, pfDevVVStar, pfDevWeights, 
+                                       nAmps, nEvents, pfDevRes );
 }
 
