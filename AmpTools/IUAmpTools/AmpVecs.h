@@ -86,6 +86,12 @@ struct AmpVecs
   int m_iNTerms;
   
   /**
+   * An integer that is number of doubles required to store all factors
+   * and permutations of all terms for each event.
+   */
+  int m_termFactPerEvent;
+
+  /**
    * An array of length 4 * iNEvents * iNParticles that stores the four-vectors
    * for the entire data set.
    */
@@ -174,6 +180,19 @@ struct AmpVecs
    */
   void allocateTerms( const IntensityManager& intenMan,
                       bool bAllocIntensity = false );
+  
+  
+  /**
+   * This will allocate CPU memory for storage and copying of amplitudes
+   * and amplitude factors from the GPU.  For most production operations
+   * this wastes CPU memory and is unnecessary since all amplitudes
+   * are maintained on the GPU.  However for some debugging operations,
+   * this functionality is useful.
+   *
+   * \param[in] intenMan a reference to the IntensityManager to use as a guide
+   * for allocating the arrays for terms, factors, and intensities
+   */
+  void allocateCPUAmpStorage( const IntensityManager& intenMan );
   
   /**
    * This routine uses the pointer to the data reader that is provided to 
