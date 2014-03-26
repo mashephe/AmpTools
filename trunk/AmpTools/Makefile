@@ -13,7 +13,7 @@ ifdef MPI
 
 SRCDIRS += IUAmpToolsMPI
 
-MPICC := mpicxx -cc=$(CXX)
+MPICC := mpicxx 
 CXX_FLAGS += -DUSE_MPI
 
 endif
