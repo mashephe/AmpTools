@@ -78,7 +78,7 @@ public:
    * to compute the intensity for a single event.
    */
   
-  virtual int termFactorStoragePerEvent() const = 0;
+  virtual unsigned int termFactorStoragePerEvent() const = 0;
   
   /**
    * This function should return the number of doubles required to store
@@ -91,7 +91,7 @@ public:
    * factor) remains constant throughout the fit.
    */
   
-  virtual int termStoragePerEvent() const = 0;
+  virtual unsigned int termStoragePerEvent() const = 0;
 
   /*
    * These functions perform computations based on the current state

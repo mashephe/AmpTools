@@ -197,7 +197,7 @@ GPUManager::init( const AmpVecs& a )
   
   // allocate device memory needed for amplitude calculations
   gpuErrChk( cudaMalloc(  (void**)&m_pfDevData    , 4 * m_iNParticles * m_iEventArrSize ) ) ;
-  gpuErrChk( cudaMalloc(  (void**)&m_pcDevCalcAmp , 2 * a.m_termFactPerEvent * m_iEventArrSize  ) ) ;
+  gpuErrChk( cudaMalloc(  (void**)&m_pcDevCalcAmp , a.m_termFactPerEvent * m_iEventArrSize  ) ) ;
   gpuErrChk( cudaMalloc(  (void**)&m_piDevPerm    , m_iNParticles * sizeof( int )       ) ) ;
   
   cout << "GPU memory allocated for " << m_iNAmps << " amplitudes and "
@@ -247,13 +247,13 @@ GPUManager::copyAmpsFromGPU( AmpVecs& a )
                          cudaMemcpyDeviceToHost ) );
 
   gpuErrChk( cudaMemcpy( a.m_pdAmpFactors, m_pcDevCalcAmp,
-                         2 * a.m_termFactPerEvent * m_iEventArrSize,
+                         a.m_termFactPerEvent * m_iEventArrSize,
                          cudaMemcpyDeviceToHost ) );
 }
 
 void 
-GPUManager::calcAmplitudeAll( const Amplitude* amp, int offset,
-                             const vector< vector< int > >* pvPermutations )
+GPUManager::calcAmplitudeAll( const Amplitude* amp, unsigned long long offset,
+                              const vector< vector< int > >* pvPermutations )
 {
  
 #ifdef VTRACE
@@ -270,7 +270,7 @@ GPUManager::calcAmplitudeAll( const Amplitude* amp, int offset,
   // if this is not true, AmplitudeManager hasn't been setup properly
   assert( permItr->size() == m_iNParticles );
   
-  int permOffset = 0;
+  unsigned long long permOffset = 0;
   for( ; permItr != pvPermutations->end(); ++permItr ){
     
     // copy the permutation to global memory
@@ -303,7 +303,7 @@ GPUManager::calcAmplitudeAll( const Amplitude* amp, int offset,
 }
 
 void
-GPUManager::assembleTerms( int iAmpInd, int offset, int nFact, int nPerm ){
+GPUManager::assembleTerms( int iAmpInd, unsigned long long offset, int nFact, int nPerm ){
   
 #ifdef VTRACE
   VT_TRACER( "GPUManager::assembleTerms" );
@@ -547,7 +547,7 @@ void GPUManager::clearLikeCalc()
     cudaFree(m_pfDevResRe);
   m_pfDevResRe=0;
 
-  if(m_pfDevResRe)
+  if(m_pfDevResIm)
     cudaFree(m_pfDevResIm);
   m_pfDevResRe=0;
 

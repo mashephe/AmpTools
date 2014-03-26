@@ -87,10 +87,10 @@ public:
   // First Amplitude calculation interface
   void copyDataToGPU( const AmpVecs& a );
   
-  void calcAmplitudeAll( const Amplitude* amp, int offset,
+  void calcAmplitudeAll( const Amplitude* amp, unsigned long long offset,
                          const vector< vector< int > >* pvPermutations );
   
-  void assembleTerms( int iAmpInd, int offset, int nFact, int nPerm );
+  void assembleTerms( int iAmpInd, unsigned long long offset, int nFact, int nPerm );
   
   void copyAmpsFromGPU( AmpVecs& a );
 
@@ -117,15 +117,15 @@ private:
   
   // array dimensions
   unsigned int m_iNParticles;
-  unsigned int m_iNEvents;
-  unsigned int m_iNTrueEvents;
+  unsigned long long m_iNEvents;
+  unsigned long long m_iNTrueEvents;
   unsigned int m_iNAmps;
   unsigned int m_iNAmpsH;
   
   // array sizes
-  unsigned int m_iEventArrSize;
-  unsigned int m_iTrueEventArrSize;
-  unsigned int m_iAmpArrSize;
+  unsigned long long m_iEventArrSize;
+  unsigned long long m_iTrueEventArrSize;
+  unsigned long long m_iAmpArrSize;
   unsigned int m_iVArrSize;
   
   //Host Arrays

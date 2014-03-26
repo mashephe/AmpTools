@@ -120,7 +120,8 @@ AmpVecs::deallocAmpVecs()
 }
 
 void
-AmpVecs::loadEvent( const Kinematics* pKinematics, int iEvent, int iNTrueEvents ){
+AmpVecs::loadEvent( const Kinematics* pKinematics, unsigned long long iEvent,
+                    unsigned long long iNTrueEvents ){
   
   // allocate memory and set variables
   //  if this is the first call to this method

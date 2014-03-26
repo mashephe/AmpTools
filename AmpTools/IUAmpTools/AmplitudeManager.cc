@@ -154,19 +154,19 @@ AmplitudeManager::~AmplitudeManager() {
   
 }
 
-int
+unsigned int
 AmplitudeManager::termFactorStoragePerEvent() const {
   
   vector< string > ampNames = getTermNames();
   
-  int nAmps = ampNames.size();
+  unsigned int nAmps = ampNames.size();
 
-  int nAmpFactorsAndPerms = 0;
+  unsigned int nAmpFactorsAndPerms = 0;
   
   for( int i = 0; i < nAmps; i++ )
   {
-    int iNPermutations = getPermutations( ampNames[i] ).size();
-    int iNFactors = getFactors( ampNames[i] ).size();
+    unsigned int iNPermutations = getPermutations( ampNames[i] ).size();
+    unsigned int iNFactors = getFactors( ampNames[i] ).size();
     
     assert( iNPermutations*iNFactors );
     
@@ -179,7 +179,7 @@ AmplitudeManager::termFactorStoragePerEvent() const {
   return 2 * nAmpFactorsAndPerms;
 }
 
-int
+unsigned int
 AmplitudeManager::termStoragePerEvent() const {
   
   // for each amplitude we need to store a complex

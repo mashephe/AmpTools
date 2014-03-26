@@ -117,7 +117,7 @@ public:
    * for all amplitudes for each permutation in each event.
    */
   
-  int termFactorStoragePerEvent() const;
+  unsigned int termFactorStoragePerEvent() const;
   
   /**
    * This function returns the number of doubles needed to store all complete
@@ -125,7 +125,7 @@ public:
    * the size of a double.
    */
   
-  int termStoragePerEvent() const;
+  unsigned int termStoragePerEvent() const;
   
   /**
    * This function caculates the amplitudes for each data event and stores

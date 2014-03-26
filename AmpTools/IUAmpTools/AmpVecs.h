@@ -65,31 +65,31 @@ struct AmpVecs
   /**
    * An integer that stores the number of events.
    */
-  int m_iNEvents;
+  unsigned long long m_iNEvents;
   
   /**
    * An integer that stores the true number of events.  For GPU calculations
    * it is necessary to pad iNEvents up to the next power of 2.  This integer
    * stores the actual number of unique events.
    */
-  int m_iNTrueEvents;
+  unsigned long long m_iNTrueEvents;
   
   /**
    * An integer that stores the number of particles in the final state.
    */
-  int m_iNParticles;
+  unsigned int m_iNParticles;
   
   /**
    * An integer that stores the number of amplitudes for a particular
    * configuration of the AmplitudeManager.
    */
-  int m_iNTerms;
+  unsigned int m_iNTerms;
   
   /**
    * An integer that is number of doubles required to store all factors
    * and permutations of all terms for each event.
    */
-  int m_termFactPerEvent;
+  unsigned int m_termFactPerEvent;
 
   /**
    * An array of length 4 * iNEvents * iNParticles that stores the four-vectors
@@ -221,7 +221,8 @@ struct AmpVecs
    *
    * \see loadData
    */
-  void loadEvent( const Kinematics* pKinematics, int iEvent = 0, int iNTrueEvents = 1 );
+  void loadEvent( const Kinematics* pKinematics, unsigned long long iEvent = 0,
+                 unsigned long long iNTrueEvents = 1 );
   
   /**
    * A helper routine to get an event i from the array of data and weights.
