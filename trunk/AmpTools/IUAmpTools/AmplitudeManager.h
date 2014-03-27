@@ -114,10 +114,11 @@ public:
   
   /**
    * This function returns the number of doubles needed to store all factors
-   * for all amplitudes for each permutation in each event.
+   * for all amplitudes for each permutation in each event.  It is the maximum
+   * of number of factors * number of permutations for any term.
    */
   
-  unsigned int termFactorStoragePerEvent() const;
+  unsigned int maxFactorStoragePerEvent() const;
   
   /**
    * This function returns the number of doubles needed to store all complete

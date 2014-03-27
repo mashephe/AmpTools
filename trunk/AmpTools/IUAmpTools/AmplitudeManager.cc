@@ -155,22 +155,21 @@ AmplitudeManager::~AmplitudeManager() {
 }
 
 unsigned int
-AmplitudeManager::termFactorStoragePerEvent() const {
+AmplitudeManager::maxFactorStoragePerEvent() const {
   
   vector< string > ampNames = getTermNames();
   
-  unsigned int nAmps = ampNames.size();
-
   unsigned int nAmpFactorsAndPerms = 0;
   
-  for( int i = 0; i < nAmps; i++ )
-  {
+  for( int i = 0; i < getTermNames().size(); i++ ) {
+    
     unsigned int iNPermutations = getPermutations( ampNames[i] ).size();
     unsigned int iNFactors = getFactors( ampNames[i] ).size();
     
     assert( iNPermutations*iNFactors );
     
-    nAmpFactorsAndPerms += iNPermutations*iNFactors;
+    if( ( iNPermutations * iNFactors ) > nAmpFactorsAndPerms )
+      nAmpFactorsAndPerms = iNPermutations * iNFactors;
   }
   
   // for each factor and permutation we need to store
@@ -221,7 +220,7 @@ AmplitudeManager::calcTerms( AmpVecs& a ) const
   assert( a.m_pdAmps && a.m_pdAmpFactors);
 #endif
   
-  int iAmpIndex, iAmpFactOffset=0;
+  int iAmpIndex;
   for( iAmpIndex = 0; iAmpIndex < iNAmps; iAmpIndex++ )
   {
     
@@ -234,65 +233,63 @@ AmplitudeManager::calcTerms( AmpVecs& a ) const
     vector< const Amplitude* > vAmps =
     m_mapNameToAmps.find(ampNames.at(iAmpIndex))->second;
     
-    int iLocalOffset = 0;
     int iFactor, iNFactors = vAmps.size();
     
     // if it is not the first pass through and this particular
     // amplitude is fixed, then we can skip to the next amplitude
     // and avoid all of the symmetrization computation as well
     // as checking each individual factor for free parameters.
-    // HOWEVER we need to be sure to adjust the iAmpFactOffset correctly
-    // so it is ready for the next amplitude.
-    if( a.m_termsValid && m_vbIsAmpFixed[iAmpIndex] ){
-      
-      iAmpFactOffset += 2 * a.m_iNEvents * iNPermutations * iNFactors;
-      continue;
-    }
-        
-    // calculate all the factors that make up an amplitude for
-    // for all events serially on CPU or in parallel on GPU
+    if( a.m_termsValid && m_vbIsAmpFixed[iAmpIndex] ) continue;
     
-    bool recalculatedFactor = false;
-    
+    // now figure out if we need to recalculate a factors for an amplitude
+    // in the case we have optimization turned on, we may not have changed
+    // a parameter in the last iteration that is related to a factor in
+    // this amplitude
+
+    bool recalculateFactors = false;
+
     const Amplitude* pCurrAmp = 0;
-    for( iFactor=0; iFactor < iNFactors;
-        iFactor++, iLocalOffset += 2 * a.m_iNEvents * iNPermutations ){
-      
+    for( iFactor=0; iFactor < iNFactors; iFactor++ ){
+    
       pCurrAmp = vAmps.at( iFactor );
-      
-      if( a.m_termsValid && !pCurrAmp->containsFreeParameters() )
-        continue;
       
       // now check to see if the value of this amplitudes parameters
       // are the same as they were the last time they were evaluated
-      // for this particular dataset -- if so don't reevaluate
+      // for this particular dataset -- if not, recalculate
+
+      if( !( a.m_termsValid && m_optimizeParIteration &&
+            m_dataAmpIteration[&a][pCurrAmp] == m_ampIteration[pCurrAmp] ) ){
+
+        recalculateFactors = true;
+        m_dataAmpIteration[&a][pCurrAmp] = m_ampIteration[pCurrAmp];
+      }
+    }
+    
+    if( !recalculateFactors ) continue;
+
+    // if we get to here, we are changing the stored factors of the
+    // amplitude
+    
+    modifiedTerm = true;
+    
+    // calculate all the factors that make up an amplitude for
+    // for all events serially on CPU or in parallel on GPU
+    int iLocalOffset = 0;
+    for( iFactor=0; iFactor < iNFactors;
+         iFactor++, iLocalOffset += 2 * a.m_iNEvents * iNPermutations ){
       
-      if( a.m_termsValid && m_optimizeParIteration &&
-          m_dataAmpIteration[&a][pCurrAmp] == m_ampIteration[pCurrAmp] )
-        continue;
-      
-      m_dataAmpIteration[&a][pCurrAmp] = m_ampIteration[pCurrAmp];
-      
-      //      cout << "Recomputing factor: " << pCurrAmp->name() << endl;
-      
-      // if we get to here, we are changing the stored factors of the
-      // amplitude
-      
-      modifiedTerm = true;
-      recalculatedFactor = true;
+      pCurrAmp = vAmps.at( iFactor );
       
 #ifndef GPU_ACCELERATION
       pCurrAmp->
       calcAmplitudeAll( a.m_pdData,
-                        a.m_pdAmpFactors + iAmpFactOffset + iLocalOffset,
+                        a.m_pdAmpFactors + iLocalOffset,
                         a.m_iNEvents, &vvPermuations );
 #else
-      a.m_gpuMan.calcAmplitudeAll( pCurrAmp, iAmpFactOffset + iLocalOffset,
+      a.m_gpuMan.calcAmplitudeAll( pCurrAmp, iLocalOffset,
                                    &vvPermuations );
 #endif//GPU_ACCELERATION
     }
-
-    if( !recalculatedFactor ) continue;
     
     
     // now assemble all the factors in an amplitude into a single
@@ -303,7 +300,7 @@ AmplitudeManager::calcTerms( AmpVecs& a ) const
     GDouble dSymmFactor = 1.0f/sqrt( iNPermutations );
     GDouble dAmpFacRe, dAmpFacIm, dTRe, dTIm;
     int iEvent, iPerm;
-    int iOffsetA, iOffsetP, iOffsetF;
+    unsigned long long iOffsetA, iOffsetP, iOffsetF;
     
     // re-ordering of data will be useful to not fall out of (CPU) memory cache!!!
     
@@ -318,7 +315,7 @@ AmplitudeManager::calcTerms( AmpVecs& a ) const
       
       for( iPerm = 0; iPerm < iNPermutations; iPerm++ )
       {
-        iOffsetP = iAmpFactOffset + 2 * a.m_iNEvents * iPerm + 2 * iEvent;
+        iOffsetP = 2 * a.m_iNEvents * iPerm + 2 * iEvent;
         
         dAmpFacRe = a.m_pdAmpFactors[iOffsetP];
         dAmpFacIm = a.m_pdAmpFactors[iOffsetP+1];
@@ -348,12 +345,9 @@ AmplitudeManager::calcTerms( AmpVecs& a ) const
     // on the GPU the terms are assembled and never copied out
     // of GPU memory
     
-    a.m_gpuMan.assembleTerms( iAmpIndex, iAmpFactOffset,
-                              iNFactors, iNPermutations );
+    a.m_gpuMan.assembleTerms( iAmpIndex, iNFactors, iNPermutations );
 #endif
     
-    //Update the global offset of ampfactor array
-    iAmpFactOffset += iLocalOffset;
   }
   
   a.m_termsValid = true;
