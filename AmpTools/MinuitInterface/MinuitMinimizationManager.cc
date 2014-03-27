@@ -40,6 +40,7 @@
 #include "MinuitInterface/MinuitMinimizationManager.h"
 #include "MinuitInterface/MIFunctionContribution.h"
 
+#include <sys/time.h>
 
 using namespace std;
 
@@ -88,6 +89,8 @@ MinuitMinimizationManager::evaluateFunction() {
       if( contributor != NULL )
         totalContribution += contributor->contribution();
    }
+  
+  ++m_functionCallCounter;
    
    return totalContribution;
 }
@@ -196,6 +199,14 @@ MinuitMinimizationManager::disableDerivatives()
 
 void
 MinuitMinimizationManager::migradMinimization() {
+  
+  m_functionCallCounter = 0;
+  
+  timeval tStart,tStop,tSpan;
+  double dTime;
+  
+  gettimeofday( &(tStart), NULL );
+  
    int dummyI;
    double dummyD;
    m_lastMinuitFlag = -1;
@@ -209,11 +220,27 @@ MinuitMinimizationManager::migradMinimization() {
    // correspond to the minimimum found
    evaluateFunction();
    m_parameterManager.noFitInProgress();
+  
+  gettimeofday( &(tStop), NULL );
+  timersub( &(tStop), &(tStart), &tSpan );
+  dTime = tSpan.tv_sec + tSpan.tv_usec/1000000.0; // 10^6 uSec per second
+  
+  cout << "\n MIGRAD evaluation total wall time:  " << dTime << " s." << endl;
+  cout << "    average time per function call:  " << dTime * 1000 / m_functionCallCounter
+  << " ms." << endl << endl;
 }
 
 void
 MinuitMinimizationManager::minosMinimization() {
-   int dummyI;
+
+  m_functionCallCounter = 0;
+  
+  timeval tStart,tStop,tSpan;
+  double dTime;
+  
+  gettimeofday( &(tStart), NULL );
+
+  int dummyI;
    double dummyD;
    m_lastMinuitFlag = -1;
    m_lastCommand = kMinos;
@@ -226,10 +253,27 @@ MinuitMinimizationManager::minosMinimization() {
    // correspond to the minimimum found
    evaluateFunction();
    m_parameterManager.noFitInProgress();
+  
+  gettimeofday( &(tStop), NULL );
+  timersub( &(tStop), &(tStart), &tSpan );
+  dTime = tSpan.tv_sec + tSpan.tv_usec/1000000.0; // 10^6 uSec per second
+  
+  cout << "\n MINOS evaluation total wall time:  " << dTime << " s." << endl;
+  cout << "   average time per function call:  " << dTime * 1000 / m_functionCallCounter
+       << " ms." << endl << endl;
+
 }
 
 vector< vector< double > >
 MinuitMinimizationManager::hesseEvaluation() {
+  
+  m_functionCallCounter = 0;
+  
+  timeval tStart,tStop,tSpan;
+  double dTime;
+
+  gettimeofday( &(tStart), NULL );
+  
    int dummyI;
    double dummyD;
    m_lastMinuitFlag = -1;
@@ -267,6 +311,14 @@ MinuitMinimizationManager::hesseEvaluation() {
    evaluateFunction();
    m_parameterManager.noFitInProgress();
 
+  gettimeofday( &(tStop), NULL );
+  timersub( &(tStop), &(tStart), &tSpan );
+  dTime = tSpan.tv_sec + tSpan.tv_usec/1000000.0; // 10^6 uSec per second
+  
+  cout << "\n HESSE evaluation total wall time:  " << dTime << " s." << endl;
+  cout << "   average time per function call:  " << dTime * 1000 / m_functionCallCounter
+       << " ms." << endl << endl;
+  
   return secDerivMatrix;
 }
 

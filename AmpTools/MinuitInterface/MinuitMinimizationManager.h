@@ -202,5 +202,7 @@ private:
    double m_estDistToMin;
  
    int m_eMatrixStat;
+  
+  int m_functionCallCounter;
 };
 #endif
