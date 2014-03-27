@@ -48,22 +48,23 @@
 
 AmpVecs::AmpVecs(){
   
-  m_iNEvents           = 0 ;
-  m_iNTrueEvents         = 0 ;
-  m_iNParticles          = 0 ;
-  m_iNTerms               = 0 ;
+  m_iNEvents        = 0 ;
+  m_iNTrueEvents    = 0 ;
+  m_iNParticles     = 0 ;
+  m_iNTerms         = 0 ;
+  m_maxFactPerEvent = 0 ;
   
   m_pdData      = 0 ;
-  m_pdWeights    = 0 ;
+  m_pdWeights   = 0 ;
   
-  m_pdAmps      = 0 ;
+  m_pdAmps       = 0 ;
   m_pdAmpFactors = 0 ; 
   
-  m_pdIntensity   = 0 ;
+  m_pdIntensity      = 0 ;
   m_pdIntegralMatrix = 0 ;
   
-  m_termsValid = false;
-  m_integralValid = false;
+  m_termsValid    = false ;
+  m_integralValid = false ;
 }
 
 
@@ -71,13 +72,15 @@ void
 AmpVecs::deallocAmpVecs()
 {  
   
-  m_iNEvents  = 0 ;
-  m_iNTrueEvents = 0 ;
-  m_iNParticles = 0 ;
+  m_iNEvents        = 0 ;
+  m_iNTrueEvents    = 0 ;
+  m_iNParticles     = 0 ;
+  m_iNTerms         = 0 ;
+  m_maxFactPerEvent = 0 ;
   
-  m_termsValid = false;
-  m_integralValid = false;
-  
+  m_termsValid    = false ;
+  m_integralValid = false ;
+ 
   if(m_pdData)
     delete[] m_pdData;
   m_pdData=0;
@@ -226,8 +229,8 @@ AmpVecs::loadData( DataReader* pDataReader ){
 void
 AmpVecs::allocateTerms( const IntensityManager& intenMan, bool bAllocIntensity ){
 
-  m_iNTerms = intenMan.getTermNames().size();
-  m_termFactPerEvent = intenMan.termFactorStoragePerEvent();
+  m_iNTerms         = intenMan.getTermNames().size();
+  m_maxFactPerEvent = intenMan.maxFactorStoragePerEvent();
   
   if( m_pdAmps!=0 || m_pdAmpFactors!=0 || m_pdIntensity!=0 )
   {
@@ -254,7 +257,7 @@ AmpVecs::allocateTerms( const IntensityManager& intenMan, bool bAllocIntensity )
 #ifndef GPU_ACCELERATION
   
   m_pdAmps = new GDouble[m_iNEvents * intenMan.termStoragePerEvent()];
-  m_pdAmpFactors = new GDouble[m_iNEvents * intenMan.termFactorStoragePerEvent()];
+  m_pdAmpFactors = new GDouble[m_iNEvents * m_maxFactPerEvent];
   
 #else
   
@@ -263,10 +266,11 @@ AmpVecs::allocateTerms( const IntensityManager& intenMan, bool bAllocIntensity )
 
 #endif // GPU_ACCELERATION
   
-  m_termsValid = false;
+  m_termsValid    = false;
   m_integralValid = false;
 }
 
+#ifdef GPU_ACCELERATION
 void
 AmpVecs::allocateCPUAmpStorage( const IntensityManager& intenMan ){
   
@@ -274,8 +278,8 @@ AmpVecs::allocateCPUAmpStorage( const IntensityManager& intenMan ){
   assert( m_pdAmps == NULL && m_pdAmpFactors == NULL );
   
   // allocate as "pinned memory" for fast CPU<->GPU memcopies
-  cudaMallocHost( (void**)&m_pdAmps, 2 * m_iNEvents * intenMan.termStoragePerEvent() * sizeof(GDouble) );
-  cudaMallocHost( (void**)&m_pdAmpFactors, 2 * m_iNEvents * intenMan.termFactorStoragePerEvent() * sizeof(GDouble));
+  cudaMallocHost( (void**)&m_pdAmps, m_iNEvents * intenMan.termStoragePerEvent() * sizeof(GDouble) );
+  cudaMallocHost( (void**)&m_pdAmpFactors, m_iNEvents * m_maxFactPerEvent * sizeof(GDouble));
 
   cudaError_t cudaErr = cudaGetLastError();
   if( cudaErr != cudaSuccess  ){
@@ -284,6 +288,7 @@ AmpVecs::allocateCPUAmpStorage( const IntensityManager& intenMan ){
     assert( false );
   }
 }
+#endif
 
 Kinematics*
 AmpVecs::getEvent( int iEvent ){

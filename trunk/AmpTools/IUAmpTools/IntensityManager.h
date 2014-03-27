@@ -71,14 +71,12 @@ public:
   
   
   /**
-   * This function should return the number of doubles required to store
-   * all factors for all terms for an event.  It is used by the framework for
-   * memory allocation.  Usually this will contain the size of
-   * the memory block needed to store all the relevant information
-   * to compute the intensity for a single event.
+   * This function should return the maximum number of doubles required to store
+   * all factors for any terms for an event.  It is used by the framework for
+   * memory allocation.
    */
   
-  virtual unsigned int termFactorStoragePerEvent() const = 0;
+  virtual unsigned int maxFactorStoragePerEvent() const = 0;
   
   /**
    * This function should return the number of doubles required to store
