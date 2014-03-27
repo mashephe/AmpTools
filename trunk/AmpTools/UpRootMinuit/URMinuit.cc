@@ -6365,7 +6365,7 @@ L16:
        maxNameSize = max(maxNameSize,nameSize);
     }
     maxNameSize = max(maxNameSize,9);
-    *m_logStream << "maxNameSize = " << maxNameSize << endl;
+//    *m_logStream << "maxNameSize = " << maxNameSize << endl;
     
     *m_logStream << "  EXT " << setw(maxNameSize) << left << "PARAMETER" << "           "
          << setw(14) << colhdu[0].c_str() << setw(14) << colhdu[1].c_str() << setw(14) << colhdu[2].c_str() 
