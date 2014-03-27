@@ -56,7 +56,7 @@ m_intenManagers( 0 )
 { 
   m_minuitManager.attach( this );
   m_intenManagers.push_back(intenManager);
-  cout << "Parameter manager initialized." << endl;
+//  cout << "Parameter manager initialized." << endl;
 }
 
 ParameterManager::
@@ -67,7 +67,7 @@ m_minuitManager( minuitManager ),
 m_intenManagers( intenManagers )
 { 
   m_minuitManager.attach( this );
-  cout << "Parameter manager initialized." << endl;
+//  cout << "Parameter manager initialized." << endl;
 }
 
 // protected constructors: these are used in MPI implementations where
@@ -83,7 +83,7 @@ ParameterManager::ParameterManager( IntensityManager* ampManager ) :
   m_intenManagers( 0 )
 { 
   m_intenManagers.push_back(ampManager);
-  cout << "Parameter manager initialized." << endl;
+//  cout << "Parameter manager initialized." << endl;
 }
 
 ParameterManager::
@@ -91,7 +91,7 @@ ParameterManager( const vector<IntensityManager*>& intenManagers ) :
   m_minuitManager( *static_cast< MinuitMinimizationManager* >( NULL ) ),
   m_intenManagers( intenManagers )
 { 
-  cout << "Parameter manager initialized." << endl;
+//  cout << "Parameter manager initialized." << endl;
 }
 
 ParameterManager::~ParameterManager()
@@ -164,7 +164,7 @@ ParameterManager::addAmplitudeParameter( const string& termName, const Parameter
   
   if( mapItr == m_ampParams.end() ){
     
-    cout << "Creating new amplitude parameter:  " << parInfo->parName() << endl;
+//    cout << "Creating new amplitude parameter:  " << parInfo->parName() << endl;
     
     parPtr = new MinuitParameter( parName, m_minuitManager.parameterManager(), 
                                  parInfo->value());
@@ -261,8 +261,8 @@ ParameterManager::addProductionParameter( const string& termName, bool real, boo
   // create ComplexParameter from scratch if it doesn't already exist
   
   if (!par){
-    cout << "ParameterManager:  Creating new complex production amplitude parameter for " 
-         << termName << endl;
+//    cout << "ParameterManager:  Creating new complex production amplitude parameter for "
+//         << termName << endl;
     par = new ComplexParameter( termName, m_minuitManager, initialValue, real );
     m_prodPtrCache.push_back( par );
   }
