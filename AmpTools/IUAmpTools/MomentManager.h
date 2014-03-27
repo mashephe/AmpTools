@@ -61,18 +61,10 @@ class NormIntInterface;
 using namespace std;
 
 /**
- * A class for managing the construction of a sum of amplitudes.
+ * A class for managing the construction of a sum of moments.
  *
- * This class is used to construct the intensity for each event.
- * It manages multiple interfering amplitudes, each of which can be
- * composed of multiple amplitude factors.  It also maintains a link
- * to the production parameters (typically fit parameters) stored by
- * the parameter manager.
- *
- * Tyipcally the user will setup this class once at the start of some job
- * which could be either fitting data or generating Monte Carlo.  Once
- * the class is setup, then the const member functions can be called to
- * calculate intensities for blocks of events.
+ * This is currently a placeholder for future development that will
+ * allow moment-based fitting.
  *
  * There should be one instance of the MomentManager for each reaction or
  * set of unique final state particles in the fit.
@@ -98,7 +90,7 @@ public:
    * \see addAmpPermutation
    */
   MomentManager( const vector< string >& finalState,
-                const string& reactionName = "");
+                 const string& reactionName = "");
   
   /** Destructor.
    */
