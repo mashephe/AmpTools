@@ -90,7 +90,7 @@ public:
   void calcAmplitudeAll( const Amplitude* amp, unsigned long long offset,
                          const vector< vector< int > >* pvPermutations );
   
-  void assembleTerms( int iAmpInd, unsigned long long offset, int nFact, int nPerm );
+  void assembleTerms( int iAmpInd, int nFact, int nPerm );
   
   void copyAmpsFromGPU( AmpVecs& a );
 
@@ -113,14 +113,11 @@ private:
   
   static bool m_cudaDisplay;
   
-  bool m_ampCalcOnly;
-  
   // array dimensions
   unsigned int m_iNParticles;
   unsigned long long m_iNEvents;
   unsigned long long m_iNTrueEvents;
   unsigned int m_iNAmps;
-  unsigned int m_iNAmpsH;
   
   // array sizes
   unsigned long long m_iEventArrSize;
@@ -143,7 +140,6 @@ private:
   GDouble* m_pfDevAmps;
   GDouble* m_pfDevVVStar;
   
-  // intensity sums maintained at double precision
   GDouble* m_pfDevResRe;
   GDouble* m_pfDevResIm;
   GDouble* m_pfDevREDUCE;

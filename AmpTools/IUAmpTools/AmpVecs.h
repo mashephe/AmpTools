@@ -87,9 +87,9 @@ struct AmpVecs
   
   /**
    * An integer that is number of doubles required to store all factors
-   * and permutations of all terms for each event.
+   * and permutations for any term for an event.
    */
-  unsigned int m_termFactPerEvent;
+  unsigned int m_maxFactPerEvent;
 
   /**
    * An array of length 4 * iNEvents * iNParticles that stores the four-vectors
@@ -181,7 +181,7 @@ struct AmpVecs
   void allocateTerms( const IntensityManager& intenMan,
                       bool bAllocIntensity = false );
   
-  
+#ifdef GPU_ACCELERATION
   /**
    * This will allocate CPU memory for storage and copying of amplitudes
    * and amplitude factors from the GPU.  For most production operations
@@ -193,6 +193,7 @@ struct AmpVecs
    * for allocating the arrays for terms, factors, and intensities
    */
   void allocateCPUAmpStorage( const IntensityManager& intenMan );
+#endif
   
   /**
    * This routine uses the pointer to the data reader that is provided to 
