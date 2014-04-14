@@ -42,6 +42,7 @@
 #include <complex>
 #include <cassert>
 #include <cstring>
+#include <iomanip>
 
 #include "IUAmpTools/NormIntInterface.h"
 #include "IUAmpTools/AmplitudeManager.h"
@@ -415,6 +416,7 @@ void
 NormIntInterface::exportNormIntCache( const string& fileName, bool renormalize) const
 {
   ofstream out( fileName.c_str() );
+  out.precision( 15 );
   exportNormIntCache( out, renormalize );
 }
 
