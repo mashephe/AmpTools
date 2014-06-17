@@ -368,6 +368,12 @@ PlotGenerator::fillHistogram( int histIndex, double valueX,double valueY ){
 	m_histVect[histIndex]->fill(tmp, m_currentEventWeight );
 }
 
+void
+PlotGenerator::fillHistogram( int histIndex, vector <double> &data, double weight){
+  m_histVect[histIndex]->fill(data, m_currentEventWeight*weight );
+}
+
+
 bool
 PlotGenerator::haveAmp( const string& amp ) const {
   
