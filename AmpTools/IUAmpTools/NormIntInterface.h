@@ -57,7 +57,7 @@ class NormIntInterface
 public:
   
   NormIntInterface();
-  NormIntInterface( const string& normIntFile, const vector< string >& termNames );
+  NormIntInterface( const string& normIntFile );
   NormIntInterface( DataReader* genMCData, DataReader* accMCData, 
                     const IntensityManager& ampManager );
   
