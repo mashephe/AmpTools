@@ -57,17 +57,13 @@ m_emptyNormIntCache( true ),
 m_emptyAmpIntCache( true )
 {}
 
-NormIntInterface::NormIntInterface( const string& normIntFile,
-                                    const vector< string >& termNames ) :
+NormIntInterface::NormIntInterface( const string& normIntFile ) :
 m_pIntenManager( NULL ),
 m_accMCReader( NULL ),
 m_genMCReader( NULL ),
 m_emptyNormIntCache( true ),
-m_emptyAmpIntCache( true ),
-m_termNames( termNames )
+m_emptyAmpIntCache( true )
 {
-
-  initializeCache();
   
   cout << "Reading cached normalization integral calculation from: "
        << normIntFile << endl;
@@ -110,59 +106,41 @@ NormIntInterface::loadNormIntCache( istream& input )
 {
   input >> m_nGenEvents >> m_nAccEvents;
   
-  int numAmps;
-  input >> numAmps;
+  int numTerms;
+  input >> numTerms;
   
-  vector<string> ampNames;
+  m_termNames.clear();
+  m_termIndex.clear();
   
-  for( int i = 0; i < numAmps; ++i ){
+  for( int i = 0; i < numTerms; ++i ){
     
     string name;
     input >> name;
-    ampNames.push_back( name );
+    m_termNames.push_back( name );
+    m_termIndex[name] = i;
   }
   
-  int n = m_termNames.size();
+  initializeCache();
   
-  for( int i = 0; i < numAmps; ++i ){
-    for( int j = 0; j < numAmps; ++j ){
+  for( int i = 0; i < numTerms; ++i ){
+    for( int j = 0; j < numTerms; ++j ){
 
       complex< double > integral;
       input >> integral;
       
-      // the file may have additional integrals that are
-      // not needed -- don't record those
-      
-      if( m_termIndex.find( ampNames[i] ) == m_termIndex.end() ||
-          m_termIndex.find( ampNames[j] ) == m_termIndex.end() )
-        continue;
-      
-      int iInd = m_termIndex[ampNames[i]];
-      int jInd = m_termIndex[ampNames[j]];
-      
-      m_ampIntCache[2*iInd*n+2*jInd]   = real( integral );
-      m_ampIntCache[2*iInd*n+2*jInd+1] = imag( integral );
+      m_ampIntCache[2*i*numTerms+2*j]   = real( integral );
+      m_ampIntCache[2*i*numTerms+2*j+1] = imag( integral );
     }
   }
   
-  for( int i = 0; i < numAmps; ++i ){
-    for( int j = 0; j < numAmps; ++j ){
+  for( int i = 0; i < numTerms; ++i ){
+    for( int j = 0; j < numTerms; ++j ){
       
       complex< double > integral;
       input >> integral;
       
-      // the file may have additional integrals that are
-      // not needed -- don't record those
-      
-      if( m_termIndex.find( ampNames[i] ) == m_termIndex.end() ||
-         m_termIndex.find( ampNames[j] ) == m_termIndex.end() )
-        continue;
-      
-      int iInd = m_termIndex[ampNames[i]];
-      int jInd = m_termIndex[ampNames[j]];
-      
-      m_normIntCache[2*iInd*n+2*jInd]   = real( integral );
-      m_normIntCache[2*iInd*n+2*jInd+1] = imag( integral );
+      m_normIntCache[2*i*numTerms+2*j]   = real( integral );
+      m_normIntCache[2*i*numTerms+2*j+1] = imag( integral );
     }
   }
   
