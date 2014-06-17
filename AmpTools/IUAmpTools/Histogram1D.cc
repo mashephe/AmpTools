@@ -39,46 +39,104 @@
 #include <assert.h>
 
 #include "IUAmpTools/Histogram.h"
+#include "IUAmpTools/Histogram1D.h"
 
 using namespace std;
 
-Histogram::Histogram() :
-m_nBins( 0 ),
-m_xLow( 0 ),
-m_xHigh( 0 ),
-m_entries( 0 ),
-m_binContents( 0 ){}
-
-
-void
-Histogram::clear( void ){
-  
-  m_binContents = vector< double >( m_nBins );
-  m_entries = 0;
+Histogram1D::Histogram1D() 
+{
+	m_dimensions=1;
 }
 
-void
-Histogram::normalize( double integral ){
-  
-  double scaleFactor = integral / m_entries;
-  
-  for( int i = 0; i < m_nBins; ++i ){
+Histogram1D::Histogram1D( HistStruct& hist )
+{
+	m_binContents.resize(hist.nBins);
+	m_binContents.clear();
+	m_entries = 0;
+	m_dimensions=1;
+	m_nBinsX = hist.nBins;
+	m_nBins = hist.nBins;
+	m_xLow = hist.xLow;
+	m_xHigh = hist.xHigh;
     
-    m_binContents[i] *= scaleFactor;
-  }
+    for( int i = 0; i < m_nBins; ++i ){
+        
+        m_binContents[i] = hist.contents[i];
+    }    
   
-  m_entries *= scaleFactor;
+    m_entries = hist.entries;
+}
+
+Histogram1D::Histogram1D( int nBins, double xLow, double xHigh ) 
+{
+	m_nBinsX = nBins;
+	m_nBins = nBins;
+	m_xLow= xLow;
+	m_xHigh= xHigh;
+	m_entries= 0;
+	m_dimensions= 1;
+	m_binContents.resize(nBins);
+	m_binContents.clear();
+	m_binSizeX = ( xHigh - xLow ) / nBins;
 }
 
 void
-Histogram::operator+=( HistStruct& hStruct ){
+Histogram1D::fill( vector < double > values, double weight ){
+        
+	assert (values.size()==1);	//This is a 1D histogram!
 	
-	assert( m_nBins <= MAXBINS );
+	double value=values.at(0);
 	
-	for( int i = 0; i < m_nBins; ++i ){
-		
-		m_binContents[i] += hStruct.contents[i];
-	}
-	
-	m_entries += hStruct.entries;
+	if( ( value < m_xHigh ) && ( value >= m_xLow ) ){
+
+        m_binContents[(int)((value - m_xLow)/m_binSizeX)] += weight;
+    }
+    // count overflows and underflows in the number of entries
+    m_entries += weight;
+}
+
+
+
+
+TH1* Histogram1D::toRoot( void ) const {
+ 
+    TH1F *plot= new TH1F( "hist", "Histogram", m_nBins, m_xLow, m_xHigh );
+    
+    for( unsigned int i = 0; i < m_binContents.size(); ++i ){
+        
+        plot->SetBinContent( i+1, m_binContents[i] );
+        plot->SetBinError( i+1, sqrt( m_binContents[i] ) );
+    }
+      
+	return (TH1*)plot;
+}
+
+HistStruct
+Histogram1D::toStruct( void ) const {
+ 
+    if( m_nBins > MAXBINS ){
+        
+        cout << "Too many bins in histogram -- increase MAXBINS" << endl;
+        assert( false );
+    }
+    
+    HistStruct hist;
+    hist.xLow = m_xLow;
+    hist.xHigh = m_xHigh;
+    hist.nBins = m_nBins;
+    hist.nBinsX = m_nBins;
+    hist.entries = m_entries;
+    
+    for( int i = 0; i < m_nBins; ++i ){
+        
+        hist.contents[i] = static_cast< float >( m_binContents[i] );
+    }
+    
+    return hist;
+}
+
+Histogram* Histogram1D::Clone() const{
+	Histogram* m_histo;
+	m_histo=(Histogram*)(new Histogram1D(*this));
+	return m_histo;
 }

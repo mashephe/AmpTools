@@ -61,8 +61,7 @@ m_cfgInfo( results.configInfo() ),
 m_fullAmplitudes( 0 ),
 m_uniqueAmplitudes( 0 ),
 m_histVect( 0 ),
-m_histTitles( 0 ),
-m_emptyHist()
+m_histTitles( 0 )
 {
 
   vector< string > amps = m_fitResults.ampList();
@@ -156,7 +155,39 @@ m_emptyHist()
   recordConfiguration();
 }
 
-PlotGenerator::~PlotGenerator(){}
+/*Delete the histograms in the cache*/
+PlotGenerator::~PlotGenerator(){
+	map < string, map< string, vector< Histogram* > > >::iterator hit1;
+	map< string, vector< Histogram* > >::iterator hit2;
+	vector< Histogram* >::iterator hit3;
+	
+	for( map < string, map< string, vector< Histogram* > > >::iterator hit1 = m_accMCHistCache.begin();hit1 != m_accMCHistCache.end();++hit1 ){
+		for(  map< string, vector< Histogram* > >::iterator hit2 = (hit1->second).begin();hit2 != (hit1->second).end();++hit2 ){
+			for (vector< Histogram* >::iterator hit3 = (hit2->second).begin();hit3 != (hit2->second).end();++hit3){
+				if (*hit3) delete (*hit3);
+			}
+		}
+	}
+	for( map < string, map< string, vector< Histogram* > > >::iterator hit1 = m_genMCHistCache.begin();hit1 != m_genMCHistCache.end();++hit1 ){
+		for(  map< string, vector< Histogram* > >::iterator hit2 = (hit1->second).begin();hit2 != (hit1->second).end();++hit2 ){
+			for (vector< Histogram* >::iterator hit3 = (hit2->second).begin();hit3 != (hit2->second).end();++hit3){
+				if (*hit3) delete (*hit3);
+			}
+		}
+	}
+	for( map < string, map< string, vector< Histogram* > > >::iterator hit1 = m_dataHistCache.begin();hit1 != m_dataHistCache.end();++hit1 ){
+		for(  map< string, vector< Histogram* > >::iterator hit2 = (hit1->second).begin();hit2 != (hit1->second).end();++hit2 ){
+			for (vector< Histogram* >::iterator hit3 = (hit2->second).begin();hit3 != (hit2->second).end();++hit3){
+				if (*hit3) delete (*hit3);
+			}
+		}
+	}
+  
+  for( int i=0; i < m_histVect.size(); i++) {
+
+    if( m_histVect[i] ) delete m_histVect[i];
+  }
+}
 
 pair< double, double >
 PlotGenerator::intensity( bool accCorrected ) const {
@@ -182,18 +213,17 @@ PlotGenerator::intensity( bool accCorrected ) const {
 }
 
 
-const Histogram& 
-PlotGenerator::projection( unsigned int projectionIndex, string reactName,
-                           unsigned int type ) {
+Histogram* PlotGenerator::projection( unsigned int projectionIndex, string reactName,
+                                     unsigned int type ) {
   
   // return an empty histogram if final state is not enabled
-  if( !m_reactEnabled[reactName] ) return m_emptyHist;
+  if( !m_reactEnabled[reactName] ) return NULL;
   
   // use same ampConfig for data since data histograms are
   // independent of which projections are turned on
   string config = ( type == kData ? "" : m_currentConfiguration );
   
-  map< string, map< string, vector< Histogram > > >* cachePtr;
+  map< string, map< string, vector< Histogram* > > > *cachePtr;
   
   switch( type ){
       
@@ -216,39 +246,42 @@ PlotGenerator::projection( unsigned int projectionIndex, string reactName,
       
       assert( false );
   }
-  
-  map< string, map< string, vector< Histogram > > >::iterator ampCfg =
-  cachePtr->find( config );
+  map< string, map< string, vector< Histogram* > > >::iterator ampCfg = cachePtr->find( config );
   
   // short circuit here so second condition doesn't get a null ptr
   if( ( ampCfg == cachePtr->end() ) || 
       ( ampCfg->second.find( reactName ) == ampCfg->second.end() ) ) {
     
     // histograms don't exist
-
     // first clear the histogram vector: m_histVect
     clearHistograms();
     
     // this triggers user routines that fill m_histVect
     fillProjections( reactName, type );
     
-    // now cache the vector of histograms
-    (*cachePtr)[config][reactName] = m_histVect;
+    //now cache the vector of histograms
+    /*Clone m_histVect content and point the cache to the clone address*/
+    /*m_histVect is a vector<Histogram*>*/
+    m_histVect_clone.clear();
+    for( vector< Histogram* >::iterator hist = m_histVect.begin();hist != m_histVect.end();++hist ){
+	    m_histVect_clone.push_back((*hist)->Clone());       //The address of the i-th cloned histogram
+    }
+    (*cachePtr)[config][reactName] = m_histVect_clone;
     
     // renormalize MC
     if( type != kData ){
       
-      vector< Histogram >* histVect = &((*cachePtr)[config][reactName]);
-      for( vector< Histogram >::iterator hist = histVect->begin();
+      vector< Histogram* >* histVect = &((*cachePtr)[config][reactName]);
+      for( vector< Histogram* >::iterator hist = histVect->begin();
           hist != histVect->end();
           ++hist ){
         
         switch( type ){
             
-          case kAccMC: hist->normalize( intensity( false ).first );
+          case kAccMC: (*hist)->normalize( intensity( false ).first );
             break;
             
-          case kGenMC: hist->normalize( intensity( true ).first );
+          case kGenMC: (*hist)->normalize( intensity( true ).first );
             break;
             
           default:
@@ -275,7 +308,7 @@ PlotGenerator::getAmpIndex( const string& ampName) const {
 }
 
 void
-PlotGenerator::bookHistogram( int index, const string& title, const Histogram& hist ){
+PlotGenerator::bookHistogram( int index, const string& title,Histogram* hist){
   
   if( index >= m_histVect.size() ){
     
@@ -290,11 +323,11 @@ PlotGenerator::bookHistogram( int index, const string& title, const Histogram& h
 void
 PlotGenerator::clearHistograms(){
   
-  for( vector< Histogram >::iterator hist = m_histVect.begin();
+  for( vector< Histogram*>::iterator hist = m_histVect.begin();
       hist != m_histVect.end();
       ++hist ){
     
-    hist->clear();
+    (*hist)->clear();
   }
 }
 
@@ -311,18 +344,28 @@ PlotGenerator::fillProjections( const string& reactName, unsigned int type ){
   for( unsigned int i = 0; i < m_ati.numEvents( dataIndex ); ++i ){
     
     m_currentEventWeight = ( isData ? 1.0 : m_ati.intensity( i, dataIndex ) );
-
+    m_currentEventWeight *= m_ati.kinematics(i, dataIndex)->weight();
+	  
     // the user defines this function in the derived class and it
     // calls the fillHistogram method immediately below
     
     projectEvent( m_ati.kinematics( i, dataIndex ) );
-  }  
+  }
 }
 
 void
-PlotGenerator::fillHistogram( int histIndex, double value ){
-  
-  m_histVect[histIndex].fill( value, m_currentEventWeight );
+PlotGenerator::fillHistogram( int histIndex, double valueX ){
+	vector < double > tmp;
+	tmp.push_back(valueX);
+	m_histVect[histIndex]->fill( tmp, m_currentEventWeight );
+}
+
+void
+PlotGenerator::fillHistogram( int histIndex, double valueX,double valueY ){
+	vector < double > tmp;
+	tmp.push_back(valueX);
+	tmp.push_back(valueY);
+	m_histVect[histIndex]->fill(tmp, m_currentEventWeight );
 }
 
 bool

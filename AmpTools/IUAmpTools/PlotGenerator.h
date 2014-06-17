@@ -38,11 +38,14 @@
 //******************************************************************************
 
 #include <vector>
+#include <map>
 #include <string>
 #include <complex>
 #include <utility>
 
 #include "IUAmpTools/Histogram.h"
+#include "IUAmpTools/Histogram1D.h"
+#include "IUAmpTools/Histogram2D.h"
 #include "IUAmpTools/NormIntInterface.h"
 #include "IUAmpTools/AmpToolsInterface.h"
 #include "IUAmpTools/AmplitudeManager.h"
@@ -83,8 +86,8 @@ public:
   // the reactions themselves
   vector< string > reactions() const;
   
-  const Histogram& projection( unsigned int projectionIndex, string fsName,
-                               unsigned int type );
+  Histogram* projection( unsigned int projectionIndex, string fsName,
+                        unsigned int type );
   
   void disableReaction( const string& fsName );
   void enableReaction( const string& fsName );
@@ -101,8 +104,9 @@ public:
   
 protected:
   
-  void bookHistogram( int index, const string& title, const Histogram& hist );
+  void bookHistogram( int index, const string& title,Histogram* hist );
   void fillHistogram( int index, double value );
+  void fillHistogram( int index, double valueX,double valueY );
   
   unsigned int getAmpIndex( const string& ampName ) const;
   
@@ -155,19 +159,18 @@ private:
   map< string, bool > m_reactEnabled;
     
   // a map from ampConfiguration -> final state -> histogram cache
-  mutable map< string, map< string, vector< Histogram > > > m_accMCHistCache;
-  mutable map< string, map< string, vector< Histogram > > > m_genMCHistCache;
+  mutable map< string, map< string, vector< Histogram* > > > m_accMCHistCache;
+  mutable map< string, map< string, vector< Histogram* > > > m_genMCHistCache;
   // note that for data the ampConfiguration is useless, but keep the
   // same structure for ease of coding -- bypass first string
   // in the code that fetches projections
-  mutable map< string, map< string, vector< Histogram > > > m_dataHistCache;
+  mutable map< string, map< string, vector< Histogram* > > > m_dataHistCache;
   
   vector< string > m_histTitles;
-  mutable vector< Histogram > m_histVect;
+  mutable vector< Histogram*> m_histVect,m_histVect_clone;
   mutable double m_currentEventWeight;
   
   string m_currentConfiguration;
-  Histogram m_emptyHist;
 };
 
 #endif

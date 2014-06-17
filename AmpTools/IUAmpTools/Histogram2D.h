@@ -1,3 +1,6 @@
+#if !defined(HISTOGRAM2D)
+#define HISTOGRAM2D
+
 //******************************************************************************
 // This file is part of AmpTools, a package for performing Amplitude Analysis
 // 
@@ -34,51 +37,36 @@
 // any other party arising from use of the program.
 //******************************************************************************
 
-#include <iostream>
-#include <math.h>
-#include <assert.h>
+#include <vector>
 
+#include "TH1F.h"
+#include "TH2F.h"
 #include "IUAmpTools/Histogram.h"
 
 using namespace std;
 
-Histogram::Histogram() :
-m_nBins( 0 ),
-m_xLow( 0 ),
-m_xHigh( 0 ),
-m_entries( 0 ),
-m_binContents( 0 ){}
 
-
-void
-Histogram::clear( void ){
-  
-  m_binContents = vector< double >( m_nBins );
-  m_entries = 0;
-}
-
-void
-Histogram::normalize( double integral ){
-  
-  double scaleFactor = integral / m_entries;
-  
-  for( int i = 0; i < m_nBins; ++i ){
+class Histogram2D : public Histogram
+{
     
-    m_binContents[i] *= scaleFactor;
-  }
-  
-  m_entries *= scaleFactor;
-}
+public:
+    
+    Histogram2D();
+    ~Histogram2D(){};
+    Histogram2D( int nBinsX, double xLow, double xHigh,int nBinsY, double yLow, double yHigh );
+    Histogram2D( HistStruct& hist );
+ 
+    
+    virtual void fill(vector < double > values,double weight = 1.0 );
+    virtual TH1* toRoot() const;
+    virtual HistStruct toStruct() const;
+    virtual Histogram* Clone() const;
+	
+private:
+    int m_nBinsY;
+    double m_yLow;
+    double m_yHigh;
+    double m_binSizeY;
+};
 
-void
-Histogram::operator+=( HistStruct& hStruct ){
-	
-	assert( m_nBins <= MAXBINS );
-	
-	for( int i = 0; i < m_nBins; ++i ){
-		
-		m_binContents[i] += hStruct.contents[i];
-	}
-	
-	m_entries += hStruct.entries;
-}
+#endif
