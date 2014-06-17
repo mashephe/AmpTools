@@ -43,15 +43,14 @@
 
 using namespace std;
 
-#define MAXBINS 200
+#define MAXBINS 200*200
 
 struct HistStruct {
-
-    int nBins;
-    float xLow;
-    float xHigh;
-    float entries;
-    float contents[MAXBINS];
+	int nBins,nBinsX,nBinsY;
+	float xLow,xHigh;
+	float yLow,yHigh;
+	float entries;
+	float contents[MAXBINS];
 };
 
 
@@ -59,33 +58,34 @@ class Histogram
 {
     
 public:
-    
-    Histogram();
-    Histogram( int nBins, double xLow, double xHigh );
-    Histogram( HistStruct& hist );
-    
-    void operator+=( HistStruct& hStruct );
-    
-    void fill( double value, double weight = 1.0 );
-    void normalize( double scaleFactor );
-    double entries();
-    void clear(); 
-    
-    TH1F toRoot() const;
-    HistStruct toStruct() const;
-    
-    bool empty() const { return( m_entries == 0 ); }
-    
-private:
-
-    int m_nBins;
-    double m_xLow;
-    double m_xHigh;
-    
-    double m_entries;
-    
-    vector< double > m_binContents;
-    double m_binSize;
+  
+	Histogram();
+	virtual ~Histogram(){};
+	/*Pure virtual methods*/
+	virtual void fill( vector< double > value, double weight = 1.0 )= 0;
+	
+	virtual TH1* toRoot() const=0;
+	virtual HistStruct toStruct() const=0;
+	virtual Histogram* Clone() const=0;
+	
+	void normalize( double scaleFactor );
+	double entries(){ return( m_entries); }
+	void clear();
+	void operator+=( HistStruct& hStruct );
+  
+	bool empty() const { return( m_entries == 0 ); }
+  
+protected:
+  
+  int m_nBins,m_nBinsX;
+  double m_xLow;
+  double m_xHigh;
+  
+  double m_entries;
+  vector< double > m_binContents;
+  double m_binSizeX;
+	
+  int m_dimensions;
 };
 
 #endif
