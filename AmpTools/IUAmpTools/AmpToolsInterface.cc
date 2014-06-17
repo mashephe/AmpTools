@@ -182,7 +182,7 @@ AmpToolsInterface::resetConfigurationInfo(ConfigurationInfo* configurationInfo){
           << reactionName << endl;
       }
       else if (reaction->normIntFileInput()){
-        normInt = new NormIntInterface(reaction->normIntFile(),intenMan->getTermNames());
+        normInt = new NormIntInterface(reaction->normIntFile());
         m_normIntMap[reactionName] = normInt;
       }
       else{

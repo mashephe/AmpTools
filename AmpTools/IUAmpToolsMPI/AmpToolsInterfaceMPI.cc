@@ -112,7 +112,7 @@ AmpToolsInterfaceMPI::AmpToolsInterfaceMPI(ConfigurationInfo* configurationInfo)
 	 << reactionName << endl;
     }
     else if (reaction->normIntFileInput()){
-      normInt = new NormIntInterfaceMPI(reaction->normIntFile(),intenMan->getTermNames());
+      normInt = new NormIntInterfaceMPI(reaction->normIntFile());
       m_normIntMap[reactionName] = normInt;
     }
     else{
