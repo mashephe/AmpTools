@@ -54,9 +54,8 @@ NormIntInterface( genMCData, accMCData, intenManager )
   setupMPI();  
 }
 
-NormIntInterfaceMPI::NormIntInterfaceMPI( const string& normIntFile,
-                                          const vector< string >& termNames ) :
-NormIntInterface( normIntFile, termNames )
+NormIntInterfaceMPI::NormIntInterfaceMPI( const string& normIntFile ) :
+NormIntInterface( normIntFile )
 {}
 
 NormIntInterfaceMPI::~NormIntInterfaceMPI() {

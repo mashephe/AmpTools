@@ -46,8 +46,7 @@ public:
   
   enum IntType { kNormInt, kAmpInt };
   
-  NormIntInterfaceMPI( const string& normIntFile,
-                       const vector< string >& termNames );
+  NormIntInterfaceMPI( const string& normIntFile );
   NormIntInterfaceMPI( DataReader* genMCData, DataReader* accMCData, 
                       const IntensityManager& intenManager );
   
