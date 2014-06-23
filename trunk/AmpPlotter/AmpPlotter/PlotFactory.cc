@@ -152,18 +152,14 @@ PlotFactory::drawPlot( void )
     // plots
     if( ! ( (*part)->isAvailable() && (*part)->isEnabled() ) ) continue;
          
-    TH1F h = (*part)->deliverPlot( m_currentPlot );
+    TH1* h = (*part)->deliverPlot( m_currentPlot );
 				
     // skip over empty default histograms that may be returned
-    if( h.GetEntries() == 0 ) continue;
+    if( h->GetEntries() == 0 ) continue;
  
     haveAcc = true;
-    h.SetTitleOffset( m_showTitle ? 1 : 100 );
-    accStack->Add( (TH1F*)h.Clone(), "hist" );
-        
-    // don't put h on the active objects stack since THStack
-    // decides to take ownership of this histogram once
-    // you add it        
+    h->SetTitleOffset( m_showTitle ? 1 : 100 );
+    accStack->Add( h, "hist" );
   }
 
   // now the generated components
@@ -179,22 +175,18 @@ PlotFactory::drawPlot( void )
     // plots
     if( ! ( (*part)->isAvailable() && (*part)->isEnabled() ) ) continue;
         
-    TH1F h = (*part)->deliverPlot( m_currentPlot );
+    TH1* h = (*part)->deliverPlot( m_currentPlot );
         
     // skip over empty default histograms that may be returned
-    if( h.GetEntries() == 0 ) continue;
+    if( h->GetEntries() == 0 ) continue;
             
     haveGen = true;
-    h.SetTitleOffset( m_showTitle ? 1 : 100 );
-    genStack->Add( (TH1F*)h.Clone(), "hist" );
-        
-    // don't put h on the active objects stack since THStack
-    // decides to take ownership of this histogram once
-    // you add it        
+    h->SetTitleOffset( m_showTitle ? 1 : 100 );
+    genStack->Add( h, "hist" );
   }
     	
   // make new histo pointer for the data
-  TH1F* data = 0;
+  TH1* data = 0;
 	
   const list<PlotComponent*>& dataList = 
     m_componentManager.dataGroup()->componentList();
@@ -206,19 +198,19 @@ PlotFactory::drawPlot( void )
     // plots for all of the anlaysis bins we care about
     if( ! ( (*part)->isAvailable() && (*part)->isEnabled() ) ) continue;
 					
-    TH1F h = (*part)->deliverPlot( m_currentPlot );
+    TH1* h = (*part)->deliverPlot( m_currentPlot );
 			
     // skip over empty default histograms that may be returned
-    if( h.GetEntries() == 0 ) continue;
+    if( h->GetEntries() == 0 ) continue;
 
     if( ! data ){ // this is the first of many allocate memory
 				
-      data = (TH1F*)h.Clone();
+      data = h;
       m_activeObjects[m_currentPad-1].push( data );
     }
     else{
 				
-      data->Add( &h );
+      data->Add( h );
     }
   }
 
@@ -273,6 +265,5 @@ PlotFactory::clearCanvas( void ){
       m_canvas->Update();
     }
   }
-
 }
 

@@ -55,19 +55,19 @@ public:
 	PlotComponent( const string& title, 
                    const string& reaction,
                    PlotGenerator& pltGen ) : 
-        m_pltGen( pltGen ),
-		m_title( title ),
-        m_reaction( reaction ),
-		m_dataOK( false ),
-		m_fillColor(   10 ),
-		m_fillStyle(    0 ),
-		m_markerStyle( 20 ),
-		m_markerSize( 0.5 ){}
+  m_pltGen( pltGen ),
+  m_title( title ),
+  m_reaction( reaction ),
+  m_dataOK( false ),
+  m_fillColor(   10 ),
+  m_fillStyle(    0 ),
+  m_markerStyle( 20 ),
+  m_markerSize( 0.5 ){}
 	
 	virtual ~PlotComponent();
 
-	virtual TH1F deliverPlot( unsigned int plotIndex, 
-                              double scale = 1.0 ) = 0;
+	virtual TH1* deliverPlot( unsigned int plotIndex,
+                            double scale = 1.0 ) = 0;
     
 	bool isAvailable() const;
 	bool isEnabled() const;
@@ -79,12 +79,12 @@ public:
 	int    markerStyle() const { return m_markerStyle; }
 	
 	string title() const { return m_title; }
-    string reaction() const { return m_reaction; }
-    
-    virtual string amp() const { return ""; }
-
-    PlotGenerator& generator() { return m_pltGen; }
-    
+  string reaction() const { return m_reaction; }
+  
+  virtual string amp() const { return ""; }
+  
+  PlotGenerator& generator() { return m_pltGen; }
+  
 	void setDataOK( void ) { m_dataOK = true; }
 	
 	void setFillStyle( int style ) { m_fillStyle = style; }

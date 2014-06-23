@@ -51,19 +51,19 @@ PlotComponent( title, reaction, pltGen )
     setDataOK();
 }
 
-TH1F
+TH1*
 GenMCComponent::deliverPlot( unsigned int plotIndex, 
                              double scale ) {
     
-    Histogram hist = generator().projection( plotIndex, reaction(), 
-                                             PlotGenerator::kGenMC );
-    
-    TH1F plot = hist.toRoot();	
-    
-	plot.SetFillStyle( fillStyle() );
-    plot.SetFillColor( fillColor() );
-    plot.Scale( scale );
-    plot.SetLineColor( fillColor() );
+  Histogram* hist = generator().projection( plotIndex, reaction(),
+                                            PlotGenerator::kGenMC );
+  
+  TH1* plot = hist->toRoot();
+  
+	plot->SetFillStyle( fillStyle() );
+  plot->SetFillColor( fillColor() );
+  plot->Scale( scale );
+  plot->SetLineColor( fillColor() );
 
 	return plot;
 }

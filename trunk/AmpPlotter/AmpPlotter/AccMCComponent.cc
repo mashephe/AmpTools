@@ -51,19 +51,19 @@ PlotComponent( title, reaction, pltGen )
   setDataOK();
 }
 
-TH1F
+TH1*
 AccMCComponent::deliverPlot( unsigned int plotIndex, 
                              double scale ) {
   
-  Histogram hist = generator().projection( plotIndex, reaction(), 
+  Histogram* hist = generator().projection( plotIndex, reaction(),
                                            PlotGenerator::kAccMC );
 	
-  TH1F plot = hist.toRoot();
+  TH1* plot = hist->toRoot();
   
-	plot.SetFillStyle( fillStyle() );
-  plot.SetFillColor( fillColor() );
-  plot.Scale( scale );
-  plot.SetLineColor( fillColor() );
+	plot->SetFillStyle( fillStyle() );
+  plot->SetFillColor( fillColor() );
+  plot->Scale( scale );
+  plot->SetLineColor( fillColor() );
   
 	return plot;
 }
