@@ -107,7 +107,7 @@ protected:
   void bookHistogram( int index, const string& title,Histogram* hist );
   void fillHistogram( int index, double value );
   void fillHistogram( int index, double valueX,double valueY );
-  void fillHistogram( int index, vector <double> &data, double weight);
+  void fillHistogram( int index, vector <double> &data, double weight = 1);
   
   unsigned int getAmpIndex( const string& ampName ) const;
   
