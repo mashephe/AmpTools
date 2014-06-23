@@ -1,14 +1,14 @@
 
 #include "DalitzPlot/DalitzPlotGenerator.h"
-#include "IUAmpTools/Histogram.h"
+#include "IUAmpTools/Histogram1D.h"
 #include "IUAmpTools/Kinematics.h"
 
 DalitzPlotGenerator::DalitzPlotGenerator( const FitResults& results ) :
 PlotGenerator( results )
 {
-  bookHistogram( khm12, "Mass( 1 2 )", Histogram( 60, 0.0, 3.0 ) );
-  bookHistogram( khm13, "Mass( 1 3 )", Histogram( 60, 0.0, 3.0 ) );
-  bookHistogram( khm23, "Mass( 2 3 )", Histogram( 60, 0.0, 3.0 ) );
+  bookHistogram( khm12, "Mass( 1 2 )", new Histogram1D( 60, 0.0, 3.0 ) );
+  bookHistogram( khm13, "Mass( 1 3 )", new Histogram1D( 60, 0.0, 3.0 ) );
+  bookHistogram( khm23, "Mass( 2 3 )", new Histogram1D( 60, 0.0, 3.0 ) );
 }
 
 void

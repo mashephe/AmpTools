@@ -118,23 +118,23 @@ int main( int argc, char* argv[] ){
       histname += sdig.str();
     }
 
-    Histogram hist = plotGenerator.projection(ivar,
+    Histogram* hist = plotGenerator.projection(ivar,
                          reactionName, iplot);
 
             string xtitle = "Mass(P_{1}P_{2}) (GeV/c^{2})";
     if (ivar == 1) xtitle = "Mass(P_{1}P_{3}) (GeV/c^{2})";
     if (ivar == 2) xtitle = "Mass(P_{2}P_{3}) (GeV/c^{2})";
 
-    TH1F thist = hist.toRoot();
-    thist.SetName(histname.c_str());
-    thist.SetStats(0);
-    thist.SetTitleOffset(1.9,"Y");
-    thist.SetTitleOffset(1.9,"X");
-    thist.SetTitle("IUAmpTools Dalitz Tutorial");
-    thist.SetXTitle(xtitle.c_str());
-    thist.SetYTitle("Events / 50 MeV/c^{2}");
+    TH1* thist = hist->toRoot();
+    thist->SetName(histname.c_str());
+    thist->SetStats(0);
+    thist->SetTitleOffset(1.9,"Y");
+    thist->SetTitleOffset(1.9,"X");
+    thist->SetTitle("IUAmpTools Dalitz Tutorial");
+    thist->SetXTitle(xtitle.c_str());
+    thist->SetYTitle("Events / 50 MeV/c^{2}");
     plotfile->cd();
-    thist.Write();
+    thist->Write();
 
   }}}
 
