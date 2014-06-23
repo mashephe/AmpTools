@@ -74,6 +74,8 @@ class PlotterMainWindow : public TGMainFrame
   
   PlotterMainWindow( const TGWindow*, PlotFactory& );
 	
+  ~PlotterMainWindow(){}
+  
   bool ProcessMessage( long mes, long p1, long p2 );
 
 

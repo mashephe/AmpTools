@@ -54,8 +54,8 @@ public:
                                      const string& reaction,
                                      PlotGenerator& pltGen );
     
-	TH1F deliverPlot( unsigned int plotIndex,
-                      double scale = 1.0 );
+	TH1* deliverPlot( unsigned int plotIndex,
+                    double scale = 1.0 );
     
 private:
 
