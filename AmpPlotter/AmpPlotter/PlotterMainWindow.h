@@ -84,6 +84,13 @@ class PlotterMainWindow : public TGMainFrame
   PlotterMainWindow( const PlotterMainWindow& );
   const PlotterMainWindow operator=( const PlotterMainWindow& );
 		
+  // fill these with empty functions -- there is no need to save
+  // the state of the plotter as a stream
+  void SavePrimitive(std::basic_ostream<char,
+                     std::char_traits<char> >&, char const*){}
+  void SavePrimitiveSubframes(std::basic_ostream<char,
+                              std::char_traits<char> >&, char const*){}
+  
   TGComboBox* m_padButton;
   TGComboBox* m_canvButton;
   TGTextButton* m_exitButton;
