@@ -275,7 +275,9 @@ FitResults::intensity( const vector< string >& amplitudes, bool accCorrected ) c
         ( ( m_parValues[IRe] * m_parValues[JRe] + m_parValues[IIm] * m_parValues[JIm] ) * real( ampInt ) -
           ( m_parValues[IIm] * m_parValues[JRe] - m_parValues[IRe] * m_parValues[JIm] ) * imag( ampInt ) );
       
-      deriv[iScale] += ( intensityContrib / ampScale( *amp ) );
+      deriv[iScale] += 2. * ampScale( *conjAmp ) * (
+	( m_parValues[IRe] * m_parValues[JRe] + m_parValues[IIm] * m_parValues[JIm]) * real( ampInt ) +
+	( m_parValues[IRe] * m_parValues[JIm] - m_parValues[IIm] * m_parValues[JRe]) * imag( ampInt ));
       
       intensity += intensityContrib;
     }
@@ -999,7 +1001,7 @@ FitResults::rotateResults()
       bool rotate = false;
       bool foundRealAmp = false;
       bool reflect = false;
-      double totalRe = 0.0, totalIm = 0.0;
+      double totalIm = 0.0;
       
       // make a list of the amplitudes
       vector< string > ampNames;
@@ -1014,10 +1016,23 @@ FitResults::rotateResults()
         int reIndex = m_parIndex.find( reParName )->second;
         int imIndex = m_parIndex.find( imParName )->second;
         
+	// Index of scale and scale itself are
+	// initialized to -1 and 1, respectively.
+	// The index acts as a flag of whether the scale exists.
+	int scIndex = -1;
+	double scale = 1.0;
+
+	// check if scale parameter exists
+	if(ampScaleName(ampNames[ampNames.size()-1]) != "-"){
+	  // if it exists, set the index and scale value
+	  scIndex = m_parIndex.find( ampScaleName( ampNames[ampNames.size()-1] ))->second;
+	  scale = m_parValues[scIndex];
+	}
+
         // check if a rotation is necessary
         if( (**ampInfoItr).real() == true && foundRealAmp == false ){
           foundRealAmp = true;
-          if( m_parValues[reIndex] < 0 )
+          if( m_parValues[reIndex] * scale < 0 )
             rotate = true;
         }
         
@@ -1028,18 +1043,17 @@ FitResults::rotateResults()
           for( vector< AmplitudeInfo* >::const_iterator conInfoItr = constraints.begin(); conInfoItr != constraints.end(); ++conInfoItr ){
             if( (**conInfoItr).real() == true && foundRealAmp == false ){
               foundRealAmp = true;
-              if( m_parValues[reIndex] < 0 )
+              if( m_parValues[reIndex] * scale < 0 )
                 rotate = true;
             }
           }
         }
         
-        totalRe += m_parValues[reIndex];
-        totalIm += m_parValues[imIndex];
+        totalIm += scale * m_parValues[imIndex];
       }
       
       // check if a reflection is necessary
-      if( atan2( totalIm, totalRe ) < 0 ) reflect = true;
+      if( totalIm < 0 ) reflect = true;
       
       // if not, move on to the next sum
       if( rotate == false && reflect == false ) continue;
@@ -1059,15 +1073,45 @@ FitResults::rotateResults()
         if( reflect == true && m_parValues[imIndex] != 0.0 )
           m_parValues[imIndex] *= -1.0;
         
+	// Get the sum name for this amp.
+	// This is used when flipping the scale elements of
+	// the ovariance matrix.
+	vector<string> ampNameParts = stringSplit( ampNames[amp], "::" );
+	string sumAmp = ampNameParts[1];
+
         // also make the necessary changes to the covariance matrix
         for( unsigned int conjAmp = 0; conjAmp < allAmpNames.size(); conjAmp++ ){
           
           string imConjParName = imagProdParName( allAmpNames[conjAmp] );
           int imConjIndex = m_parIndex.find( imConjParName )->second;
           
+	  string scConjParName = ampScaleName( allAmpNames[conjAmp] );
+	  int scConjIndex      = -1;
+	  if(scConjParName != "-") scConjIndex = m_parIndex.find( scConjParName )->second;
+
           if( rotate == true ){
             m_covMatrix[reIndex][imConjIndex] *= -1.0;
             m_covMatrix[imConjIndex][reIndex] *= -1.0;
+
+	    // For scale parameters, each scale parameter is saved as
+	    // one entry in the covariance matrix, in contrast with
+	    // each production amplitude appearing once for each sum.
+	    // Therefore, we need to flip the sign only when the sums
+	    // of the amp and conjAmp are the same.
+	    // Otherwise, we will flip the covariance matrix n times,
+	    // where n is the number of sums.
+	    if(scConjIndex!=-1){
+
+	      vector<string> conjAmpNameParts = stringSplit( allAmpNames[conjAmp], "::" );
+	      string sumConjAmp = conjAmpNameParts[1];
+	      cout << "sum name of conjAmp = " << sumConjAmp << endl;
+	      if(sumAmp == sumConjAmp){
+		// cout << "rotate: flipping sign for scConjIndex = " << scConjIndex << endl;
+		m_covMatrix[reIndex][scConjIndex] *= -1.0;
+		m_covMatrix[scConjIndex][reIndex] *= -1.0;
+	      }
+	    }
+
           }
 
           string reConjParName = realProdParName( allAmpNames[conjAmp] );
@@ -1076,6 +1120,24 @@ FitResults::rotateResults()
           if( reflect == true ){
             m_covMatrix[imIndex][reConjIndex] *= -1.0;
             m_covMatrix[reConjIndex][imIndex] *= -1.0;
+
+	    // For scale parameters, each scale parameter is saved as
+	    // one entry in the covariance matrix, in contrast with
+	    // each production amplitude appearing once for each sum.
+	    // Therefore, we need to flip the sign only when the sums
+	    // of the amp and conjAmp are the same.
+	    // Otherwise, we will flip the covariance matrix n times,
+	    // where n is the number of sums.
+	    if(scConjIndex!=-1){
+
+	      vector<string> conjAmpNameParts = stringSplit( allAmpNames[conjAmp], "::" );
+	      string sumConjAmp = conjAmpNameParts[1];
+	      if(sumAmp == sumConjAmp){
+		m_covMatrix[imIndex][scConjIndex] *= -1.0;
+		m_covMatrix[scConjIndex][imIndex] *= -1.0;
+	      }
+	    } // found scConjIndex
+
           }
         }
       } // end of nested loop over amplitudes
