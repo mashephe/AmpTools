@@ -386,7 +386,7 @@ ConfigFileParser::checkSyntax() const{
   keywordParameters["normintfile"]   = pair<int,int>(2,3);
   keywordParameters["sum"]           = pair<int,int>(2,100);
   keywordParameters["amplitude"]     = pair<int,int>(4,100);
-  keywordParameters["initialize"]    = pair<int,int>(6,7);
+  keywordParameters["initialize"]    = pair<int,int>(6,8);
   keywordParameters["constrain"]     = pair<int,int>(6,100);
   keywordParameters["permute"]       = pair<int,int>(5,100);
   keywordParameters["parameter"]     = pair<int,int>(2,5);
