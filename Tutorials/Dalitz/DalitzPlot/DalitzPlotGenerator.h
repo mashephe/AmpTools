@@ -14,7 +14,7 @@ public:
   DalitzPlotGenerator( const FitResults& results );
 
   enum { 
-    khm12 = 0, khm13, khm23, 
+    khm12 = 0, khm13, khm23, kdltz,
     kNumHists 
   };
     
