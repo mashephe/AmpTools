@@ -671,7 +671,7 @@ ConfigFileParser::doInitialize(const ConfigFileLine& line){
   double value2   = atof(arguments[5].c_str());  
   string fixtype1("floating");
   string fixtype2("");
-  if (arguments.size() == 7) fixtype1 = arguments[6];
+  if (arguments.size() >= 7) fixtype1 = arguments[6];
   if (arguments.size() == 8) fixtype2 = arguments[7];
   AmplitudeInfo* amplitude = m_configurationInfo->amplitude(reaction,sumname,ampname);
   if (!amplitude){
