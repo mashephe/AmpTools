@@ -669,8 +669,10 @@ ConfigFileParser::doInitialize(const ConfigFileLine& line){
   string type     = arguments[3];
   double value1   = atof(arguments[4].c_str());  
   double value2   = atof(arguments[5].c_str());  
-  string fixtype("floating");
-  if (arguments.size() == 7) fixtype = arguments[6];
+  string fixtype1("floating");
+  string fixtype2("");
+  if (arguments.size() == 7) fixtype1 = arguments[6];
+  if (arguments.size() == 8) fixtype2 = arguments[7];
   AmplitudeInfo* amplitude = m_configurationInfo->amplitude(reaction,sumname,ampname);
   if (!amplitude){
     cout << "ConfigFileParser ERROR:  trying to initialize nonexistent amplitude " << endl;
@@ -717,13 +719,30 @@ ConfigFileParser::doInitialize(const ConfigFileLine& line){
     line.printLine();
     exit(1);
   }
-  if (fixtype == "floating") {
+  if (fixtype1 == "floating") {
   }
-  else if (fixtype == "real"){
+  else if (fixtype1 == "real"){
     amplitude->setReal(true);
   }
-  else if (fixtype == "fixed"){
+  else if (fixtype1 == "fixed"){
     amplitude->setFixed(true);
+  }
+  else{
+    cout << "ConfigFileParser ERROR:  initialize must use floating, fixed, or real  " << endl;
+    line.printLine();
+    exit(1);
+  }
+  if (fixtype2 == "") {
+  }
+  else if (fixtype2 == "real"){
+    amplitude->setReal(true);
+  }
+  else if (fixtype2 == "fixed"){
+    amplitude->setFixed(true);
+  }
+  else if (fixtype2 == "floating"){
+    amplitude->setReal(false);
+    amplitude->setFixed(false);
   }
   else{
     cout << "ConfigFileParser ERROR:  initialize must use floating, fixed, or real  " << endl;
