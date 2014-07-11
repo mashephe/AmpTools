@@ -532,8 +532,9 @@ ConfigurationInfo::write( ostream& ff ) const {
     ff << "initialize " << A->fullName() << " cartesian " 
     << A->value().real() << " "
     << A->value().imag();
-    if (A->fixed()) {ff << " fixed";}
-    else if (A->real()) {ff << " real";}
+    if      (!A->real() &&  A->fixed()) {ff << " fixed";}
+    else if ( A->real() && !A->fixed()) {ff << " real";}
+    else if ( A->real() &&  A->fixed()) {ff << " fixed real";}
     ff << endl;}
   
   
