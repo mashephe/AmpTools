@@ -137,6 +137,7 @@ PlotFactory::drawPlot( void )
 	
   bool haveGen = false;
   bool haveAcc = false;
+  bool is2D = false;
     
   // let's first get and stack up the acc MC components
   // get a list of the individual contributions
@@ -157,6 +158,7 @@ PlotFactory::drawPlot( void )
     // skip over empty default histograms that may be returned
     if( h->GetEntries() == 0 ) continue;
  
+    is2D = ( h->GetDimension() == 2 );
     haveAcc = true;
     h->SetTitleOffset( m_showTitle ? 1 : 100 );
     accStack->Add( h, "hist" );
@@ -179,7 +181,8 @@ PlotFactory::drawPlot( void )
         
     // skip over empty default histograms that may be returned
     if( h->GetEntries() == 0 ) continue;
-            
+    
+    is2D = ( h->GetDimension() == 2 );
     haveGen = true;
     h->SetTitleOffset( m_showTitle ? 1 : 100 );
     genStack->Add( h, "hist" );
@@ -203,6 +206,8 @@ PlotFactory::drawPlot( void )
     // skip over empty default histograms that may be returned
     if( h->GetEntries() == 0 ) continue;
 
+    is2D = ( h->GetDimension() == 2 );
+
     if( ! data ){ // this is the first of many allocate memory
 				
       data = h;
@@ -219,16 +224,33 @@ PlotFactory::drawPlot( void )
     data->SetStats( 0 );
     data->SetMinimum( 0 );
     data->SetTitle( m_availablePlots[m_currentPlot].c_str() );
-    data->Draw( "E" );
-    if( haveGen ) genStack->Draw( "SAME" );
-    if( haveAcc ) accStack->Draw( "SAME" );
-    data->Draw( "ESAME" );
+    if( is2D ){
+      data->Draw( "SCAT" );
+      if( haveAcc ) accStack->Draw( "CONTZSAME" );
+      if( haveGen ) genStack->Draw( "CONT3SAME" );
+      data->Draw( "SCATSAME" );
+    }
+    else{
+      data->Draw( "E" );
+      if( haveGen ) genStack->Draw( "SAME" );
+      if( haveAcc ) accStack->Draw( "SAME" );
+      data->Draw( "ESAME" );
+    }
   }
   if( !data && ( haveGen || haveAcc ) ){
 			
-    if( haveGen ) genStack->Draw();
-    if( haveGen && haveAcc ) accStack->Draw( "SAME" );
-    else if( haveAcc ) accStack->Draw(); 
+    if( is2D ){
+      
+      if( haveGen ) genStack->Draw( "CONT3" );
+      if( haveGen && haveAcc ) accStack->Draw( "CONTZSAME" );
+      else if( haveAcc ) accStack->Draw( "CONTZ" );
+    }
+    else{
+      
+      if( haveGen ) genStack->Draw();
+      if( haveGen && haveAcc ) accStack->Draw( "SAME" );
+      else if( haveAcc ) accStack->Draw();
+    }
   }
 
   m_canvas->cd();
