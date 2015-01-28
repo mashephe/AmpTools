@@ -343,13 +343,20 @@ PlotGenerator::fillProjections( const string& reactName, unsigned int type ){
   // loop over ampVecs and fill histograms
   for( unsigned int i = 0; i < m_ati.numEvents( dataIndex ); ++i ){
     
+    // the subsequent calls here allocate new memory for
+    // the Kinematics object
+    Kinematics* kin = m_ati.kinematics(i, dataIndex);
+    
     m_currentEventWeight = ( isData ? 1.0 : m_ati.intensity( i, dataIndex ) );
-    m_currentEventWeight *= m_ati.kinematics(i, dataIndex)->weight();
+    m_currentEventWeight *= kin->weight();
 	  
     // the user defines this function in the derived class and it
     // calls the fillHistogram method immediately below
     
-    projectEvent( m_ati.kinematics( i, dataIndex ) );
+    projectEvent( kin );
+    
+    // cleanup allocated memory
+    delete kin;
   }
 }
 
