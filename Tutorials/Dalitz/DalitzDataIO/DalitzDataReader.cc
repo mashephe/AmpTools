@@ -24,7 +24,7 @@ DalitzDataReader::DalitzDataReader( const vector< string >& args ) :
   ifstream fileexists( inFileName.c_str() );
   if (fileexists){
     m_inFile = new TFile( inFileName.c_str() );
-    m_inTree = dynamic_cast<TTree*>( m_inFile->Get( inTreeName.c_str() ) );
+    m_inTree = static_cast<TTree*>( m_inFile->Get( inTreeName.c_str() ) );
   }
   else{
     cout << "DalitzDataReader WARNING:  Cannot find file... " << inFileName << endl;
