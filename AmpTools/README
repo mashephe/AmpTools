@@ -71,6 +71,24 @@ is fitting to multiple coherent sums of amplitudes.
 
 RELEASE NOTES:
 
+v0.7.0 (8-May-2015):
+
+Added support for 2D histograms in the PlotGenerator.  This required a couple
+of changes to the interface that were not backwards compatible.  See the
+DalitzPlotGenerator class in the Dalitz tutorial for examples.
+
+Enhanced precision of normalization integral files.
+
+Numerous modifications to MPI and GPU acceleration to enhance performance.
+MPI scaling is dramatically improved for applications requiring large
+numbers of CPUs.  More portions of the likelihood calculation, particularly
+for fits with floating paramters, are performed on the GPU in GPU-accelerated
+fits.
+
+Created a placeholder for moment-based fitting.  For now the class is empty
+but the former AmplitudeManager has been been reorganized to easily allow
+future implementation of a fits that utlize moments instead of amplitudes.
+
 v0.6.2 (18-Jul-2013):
 
 Fixed bug that caused an incorrect covariance matrix after rotateResults
