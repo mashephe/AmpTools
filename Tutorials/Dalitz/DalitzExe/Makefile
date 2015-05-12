@@ -1,8 +1,8 @@
 
 INC_DIR :=  -I.. -I$(CLHEP_INCLUDE_DIR) \
-	-I$(ROOTSYS)/include -I$(AMPTOOLS) -I$(AMPPLOTTER) -I$(DALITZ) 
+	-I$(shell root-config --incdir) -I$(AMPTOOLS) -I$(AMPPLOTTER) -I$(DALITZ)
 
-LIB_DIR := -L$(CLHEP_LIB_DIR) -L$(ROOTSYS)/lib \
+LIB_DIR := -L$(CLHEP_LIB_DIR) -L-I$(shell root-config --libdir) \
 	-L$(AMPTOOLS)/lib -L$(AMPPLOTTER)/lib -L$(DALITZ)/lib
 
 ROOTLIBS := $(shell root-config --glibs)

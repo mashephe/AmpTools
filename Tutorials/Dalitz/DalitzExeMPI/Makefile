@@ -13,7 +13,7 @@ CXX_FLAGS := -O3
 
 ifdef MPI
 
-CXX := mpicxx -cc=$(CXX)
+CXX := mpicxx
 CXX_FLAGS += -DUSEMPI
 
 endif

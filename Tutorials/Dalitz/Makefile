@@ -1,5 +1,5 @@
 
-INC_DIR :=  -I.. -I$(CLHEP_INCLUDE_DIR) -I$(ROOTSYS)/include -I$(AMPTOOLS)
+INC_DIR :=  -I.. -I$(CLHEP_INCLUDE_DIR) -I$(shell root-config --incdir) -I$(AMPTOOLS)
 
 CXX := gcc
 CXX_FLAGS := -O3
