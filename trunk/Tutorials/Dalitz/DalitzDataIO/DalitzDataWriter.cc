@@ -8,11 +8,13 @@
 #include "TFile.h"
 #include "TTree.h"
 #include "TH1.h"
+#include "TSystem.h"
 
 DalitzDataWriter::DalitzDataWriter( const string& outFile ){
 
   TH1::AddDirectory( kFALSE );
-
+  gSystem->Load( "libTree" );
+  
   m_outFile = new TFile( outFile.c_str(), "recreate" );
   m_outTree = new TTree( "nt", "nt" );
 
