@@ -8,18 +8,20 @@
 #include "CLHEP/Vector/LorentzVector.h"
 #include "IUAmpTools/Kinematics.h"
 #include "DalitzDataIO/DalitzDataReader.h"
+#include "TSystem.h"
 
 
 DalitzDataReader::DalitzDataReader( const vector< string >& args ) :
-                                    UserDataReader< DalitzDataReader >(args),
-                                    m_eventCounter( 0 ){
-
+UserDataReader< DalitzDataReader >(args),
+m_eventCounter( 0 ){
+  
   assert(args.size() == 1);
   string inFileName(args[0]);
   string inTreeName("nt");
 
   TH1::AddDirectory( kFALSE );
 
+  gSystem->Load( "libTree" );
 
   ifstream fileexists( inFileName.c_str() );
   if (fileexists){
