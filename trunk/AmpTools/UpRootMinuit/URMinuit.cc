@@ -2620,7 +2620,7 @@ L400:
     return;
 //*-*-                                       . . . . . . . . . . minos
 L500:
-    nsuper = fNfcn + (fNpar + 1 << 1)*fNfcnmx;
+    nsuper = fNfcn + ( ( fNpar + 1 ) << 1)*fNfcnmx;
 //*-*-         possible loop over new minima
     fEpsi = fUp*.1;
 L510:
@@ -4716,8 +4716,8 @@ void URMinuit::mnline(Double_urt *start, Double_urt fstart, Double_urt *step, Do
              if (slam > xvmin + slamax) slam = xvmin + slamax;
              if (slam < xvmin - slamax) slam = xvmin - slamax;
           }
-          if (slam > 0) if (slam > overal) slam = overal;
-          else          if (slam < undral) slam = undral;
+          if (slam > 0) { if (slam > overal) slam = overal; }
+          else          { if (slam < undral) slam = undral; }
 
 //*-*-              come here if step was cut below
           do {
@@ -5114,7 +5114,7 @@ L81:
     }
 //*-*-                           print information about this iteration
     ++iter;
-    if (iswtr >= 3 || iswtr == 2 && iter % 10 == 1) {
+    if (iswtr >= 3 || ( iswtr == 2 && iter % 10 == 1 ) ) {
 	mnwerr();
 	mnprin(3, fAmin);
     }
@@ -5406,7 +5406,7 @@ void URMinuit::mnmnot(Int_urt ilax, Int_urt ilax2, Double_urt &val2pl, Double_ur
 //            ,csig.c_str(),ilax
 //            ,(fCpnam[ilax-1]).c_str());
            
-            std::printf(" DETERMINATION OF %sTIVE MINOS ERROR FOR PARAMETER%d\n"
+            std::printf(" DETERMINATION OF %sTIVE MINOS ERROR FOR PARAMETER%d (%s)\n"
                             ,csig.c_str(),ilax
                             ,(m_userParameterName[ilax]).c_str());
 	}
@@ -6551,7 +6551,7 @@ void URMinuit::mnpsdf()
 	if (fPstar[ip-1] > pmax) pmax = fPstar[ip-1];
     }
     pmax = URMath::Max(URMath::Abs(pmax),Double_urt(1));
-    if (pmin <= 0 && fLwarn || fISW[4] >= 2) {
+    if ( ( pmin <= 0 && fLwarn ) || fISW[4] >= 2) {
 	std::printf(" EIGENVALUES OF SECOND-DERIVATIVE MATRIX:\n");
         ctemp = "       ";
 	for (ip = 1; ip <= fNpar; ++ip) {
@@ -6987,7 +6987,7 @@ void URMinuit::mnset()
       "MNCONT: MNCONTOUR PLOT (MNCROS SEARCH) "};
 
     /* System generated locals */
-    Int_urt f_inqu();
+//    Int_urt f_inqu();
 
     /* Local variables */
     Double_urt val;
@@ -7339,7 +7339,7 @@ L1150:
     val = 0;
     mnrn15(val, igrain);
     ikseed = igrain;
-    std::printf(" MINUIT RNDM SEED IS CURRENTLY=\n",ikseed);
+    std::printf(" MINUIT RNDM SEED IS CURRENTLY=%d\n",ikseed);
     val   = 3;
     iseed = ikseed;
     mnrn15(val, iseed);
