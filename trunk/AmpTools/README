@@ -10,12 +10,9 @@
 
 INSTALLATION AND USE:
 
-This package depends on CLHEP.  You should set the environment variable
-CLHEP_INCLUDE_DIR to point to the CLHEP include directory, for example
-/usr/local/CLHEP/include
-
-This package also depends on ROOT.  Be sure that ROOTSYS points to your ROOT 
-installation.
+This depends on ROOT.  Be sure that your ROOT environment is configured
+properly.  The executiable root-config should be in your path as this
+will be used by the make system.
 
 Typing 'make' will build the package and produce a single static library, 
 libAmpTools.a, that can be linked by external packages.  To access the include 
@@ -70,6 +67,18 @@ to fit data to a sum of moments.  Currently the only supported scheme
 is fitting to multiple coherent sums of amplitudes.
 
 RELEASE NOTES:
+
+v0.8.0 (17-Jun-2015):
+
+Removed dependence on CLHEP.  Lorentz vector classes are provided by ROOT
+anyway.  This makes installation and compilation slightly easier since it
+reduces the number of environment variables that need to be defined.
+Functionally the code remains the same.  However, this change lacks
+backwards compatibility since the return types of Kinematics class methods
+are different.  Therefore, this update gets a new minor revision.
+
+Modifications made to remove numerous compiler warnings when build the
+UpRootMinuit library.
 
 v0.7.0 (8-May-2015):
 
