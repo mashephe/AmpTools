@@ -584,7 +584,7 @@ void
 AmpToolsInterface::printKinematics(string reactionName, Kinematics* kin) const {
 
   ReactionInfo* reaction = m_configurationInfo->reaction(reactionName);
-  vector<HepLorentzVector> momenta = kin->particleList();
+  vector<TLorentzVector> momenta = kin->particleList();
 
   if (reaction->particleList().size() != momenta.size()){
     cout << "AmpToolsInterface ERROR:  kinematics incompatible with this reaction" << endl;
@@ -596,10 +596,10 @@ AmpToolsInterface::printKinematics(string reactionName, Kinematics* kin) const {
   streamsize defaultStreamSize = cout.precision(15);
   for (unsigned int imom = 0; imom < momenta.size(); imom++){
     cout << "      particle " << reaction->particleList()[imom] << endl;
-    cout << "          E  = " << momenta[imom].e() << endl;
-    cout << "          Px = " << momenta[imom].px() << endl;
-    cout << "          Py = " << momenta[imom].py() << endl;
-    cout << "          Pz = " << momenta[imom].pz() << endl;
+    cout << "          E  = " << momenta[imom].E() << endl;
+    cout << "          Px = " << momenta[imom].Px() << endl;
+    cout << "          Py = " << momenta[imom].Py() << endl;
+    cout << "          Pz = " << momenta[imom].Pz() << endl;
   }
   cout.precision(defaultStreamSize);
   cout << "  +++++++++++++++++++++++++++++++++" << endl << endl;

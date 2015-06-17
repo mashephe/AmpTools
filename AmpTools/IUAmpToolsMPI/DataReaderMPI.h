@@ -311,21 +311,21 @@ template< class T >
 void DataReaderMPI<T>::fillStruct( KinStruct* kinStruct, Kinematics* kin )
 {
   
-  const vector<HepLorentzVector>& partList = kin->particleList();
+  const vector<TLorentzVector>& partList = kin->particleList();
   kinStruct->nPart = partList.size();
   kinStruct->weight = kin->weight();
   
   assert( partList.size() <= Kinematics::kMaxParticles );
   
-  for( vector<HepLorentzVector>::const_iterator vec = partList.begin();
+  for( vector<TLorentzVector>::const_iterator vec = partList.begin();
       vec != partList.end(); ++vec ){
     
     int i = ( vec - partList.begin() );
     
-    kinStruct->e[i] = (*vec).e();
-    kinStruct->px[i] = (*vec).px();
-    kinStruct->py[i] = (*vec).py();
-    kinStruct->pz[i] = (*vec).pz();
+    kinStruct->e[i] = (*vec).E();
+    kinStruct->px[i] = (*vec).Px();
+    kinStruct->py[i] = (*vec).Py();
+    kinStruct->pz[i] = (*vec).Pz();
   }
 }
 
@@ -333,11 +333,11 @@ template< class T >
 Kinematics* DataReaderMPI<T>::createKin( KinStruct* kinStruct )
 {
   
-  vector<HepLorentzVector> partList;
+  vector<TLorentzVector> partList;
   
   for( int i = 0; i < kinStruct->nPart; ++i ){
     
-    partList.push_back( HepLorentzVector( kinStruct->px[i],
+    partList.push_back( TLorentzVector( kinStruct->px[i],
                                           kinStruct->py[i],
                                           kinStruct->pz[i],
                                           kinStruct->e[i] ) );
