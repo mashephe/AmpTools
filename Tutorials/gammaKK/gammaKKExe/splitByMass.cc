@@ -4,7 +4,8 @@
 #include "TString.h"
 #include "TH1F.h"
 #include "TFile.h"
-#include "CLHEP/Vector/LorentzVector.h"
+#include "TLorentzVector.h"
+
 #include "IUAmpTools/Kinematics.h"
 #include "IUAmpTools/AmplitudeManager.h"
 #include "IUAmpTools/ConfigFileParser.h"
@@ -104,15 +105,15 @@ int main(int argc, char** argv){
   args.push_back(infilename);
   gammaKKDataReader dataReader(args);
   Kinematics* kin;
-  while (kin = dataReader.getEvent()){
+  while( (kin = dataReader.getEvent()) ){
 
     if(dataReader.eventCounter() % 50000==0)
       cout << "processing event " << setw(12) << dataReader.eventCounter() << endl;
 
     // Calculate bin for this event
-    HepLorentzVector p2 = kin->particle(1);
-    HepLorentzVector p3 = kin->particle(2);
-    double m23 = (p2 + p3).m();
+    TLorentzVector p2 = kin->particle(1);
+    TLorentzVector p3 = kin->particle(2);
+    double m23 = (p2 + p3).M();
     int bin = static_cast<int>( floor((m23 - MIN) / BINNING));
     if(!(0<=bin && bin<NBINS)){
       // If the bin is out of range, show what the mass was

@@ -1,9 +1,7 @@
 
-INC_DIR :=  -I.. -I$(CLHEP_INCLUDE_DIR) \
-	-I$(ROOTSYS)/include -I$(AMPTOOLS) -I$(GAMMAKK)
+INC_DIR :=  -I.. -I$(ROOTSYS)/include -I$(AMPTOOLS) -I$(GAMMAKK)
 
-LIB_DIR := -L$(CLHEP_LIB_DIR) -L$(ROOTSYS)/lib \
-	-L$(AMPTOOLS)/lib -L$(GAMMAKK)/lib
+LIB_DIR := -L$(ROOTSYS)/lib -L$(AMPTOOLS)/lib -L$(GAMMAKK)/lib
 
 ROOTLIBS := $(shell root-config --glibs)
 
@@ -16,13 +14,13 @@ ifdef GPU
 INC_DIR += -I$(CUDA_INSTALL_PATH)/include
 LIB_DIR += -L$(CUDA_INSTALL_PATH)/lib
 
-LIBS :=  -lgammaKK_GPU -lAmpTools_GPU -lCLHEP $(ROOTLIBS)  \
+LIBS :=  -lgammaKK_GPU -lAmpTools_GPU $(ROOTLIBS)  \
 	-lcuda -lcudart -lstdc++
 CXX_FLAGS += -DGPU_ACCELERATION
 
 else
 
-LIBS :=  -lgammaKK -lAmpTools -lCLHEP $(ROOTLIBS)  \
+LIBS :=  -lgammaKK -lAmpTools $(ROOTLIBS)  \
 	-lstdc++
 
 endif

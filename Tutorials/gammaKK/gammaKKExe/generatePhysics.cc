@@ -3,7 +3,8 @@
 #include "TString.h"
 #include "TH1F.h"
 #include "TFile.h"
-#include "CLHEP/Vector/LorentzVector.h"
+#include "TLorentzVector.h"
+
 #include "IUAmpTools/Kinematics.h"
 #include "IUAmpTools/AmplitudeManager.h"
 #include "IUAmpTools/ConfigFileParser.h"
@@ -114,7 +115,7 @@ int main(int argc, char** argv){
 
   for (int i = 0; i < nevents; i++){
 
-    vector<HepLorentzVector> fourmomenta = generator.generateDecay();
+    vector<TLorentzVector> fourmomenta = generator.generateDecay();
 
     Kinematics* kin = new Kinematics(fourmomenta);
 
@@ -124,7 +125,7 @@ int main(int argc, char** argv){
 
   }
 
-  packedSummary.allocateAmps(ampMan,true);
+  packedSummary.allocateTerms(ampMan,true);
 
   cout << "... finished generating phase space" << endl;
 

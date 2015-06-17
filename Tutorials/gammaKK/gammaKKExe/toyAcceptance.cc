@@ -1,6 +1,6 @@
 #include <iostream>
 #include <string>
-#include "CLHEP/Vector/LorentzVector.h"
+#include "TLorentzVector.h"
 #include "IUAmpTools/Kinematics.h"
 #include "gammaKKDataIO/gammaKKDataReader.h"
 #include "gammaKKDataIO/gammaKKDataWriter.h"
@@ -85,7 +85,7 @@ int main(int argc, char** argv){
   // Use ROOT TRandom2 class for random generator
   TRandom2* rand = new TRandom2();
 
-  while (kin = dataReader.getEvent()){
+  while( (kin = dataReader.getEvent()) ){
 
     double efficiency = calcEfficiency(kin);
 
@@ -111,10 +111,10 @@ double calcEfficiency(Kinematics *kin){
 
   double acceptance = 1.;
 
-  vector<HepLorentzVector> pList = kin->particleList();
+  vector<TLorentzVector> pList = kin->particleList();
   for(int n=0;n<pList.size();n++){
-    acceptance *= (1. - 0.05 * pow(cos(pList[n].theta()),2.));
-    acceptance *= (1. - 0.03 * pow(sin(pList[n].phi()),2.));
+    acceptance *= (1. - 0.05 * pow(cos(pList[n].Theta()),2.));
+    acceptance *= (1. - 0.03 * pow(sin(pList[n].Phi()),2.));
   }
   
   return acceptance;
