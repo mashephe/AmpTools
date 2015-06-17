@@ -7,7 +7,9 @@
 #include "TFile.h"
 #include "TTree.h"
 #include "TString.h"
+#include "TSystem.h"
 #include "TLorentzVector.h"
+
 #include "IUAmpTools/Kinematics.h"
 #include "gammaKKDataIO/gammaKKDataReader.h"
 
@@ -24,6 +26,8 @@ gammaKKDataReader::gammaKKDataReader(const vector<string> &args) :
 
   TH1::AddDirectory( kFALSE );
 
+  gSystem->Load( "libTree" );
+    
   m_inFile = new TFile(args[0].c_str());
   m_inTree = static_cast<TTree*>( m_inFile->Get("nt") );
   m_numEvents = m_inTree->GetEntries();
