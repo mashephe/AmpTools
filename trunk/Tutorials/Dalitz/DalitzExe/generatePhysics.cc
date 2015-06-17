@@ -4,7 +4,7 @@
 #include "TH1F.h"
 #include "TFile.h"
 #include "TGenPhaseSpace.h"
-#include "CLHEP/Vector/LorentzVector.h"
+#include "TLorentzVector.h"
 #include "IUAmpTools/Kinematics.h"
 #include "IUAmpTools/AmplitudeManager.h"
 #include "IUAmpTools/ConfigFileParser.h"
@@ -107,13 +107,10 @@ int main(int argc, char** argv){
 
       // pack the decay products into a Kinematics object
 
-    vector<HepLorentzVector> fourvectors;
-    TLorentzVector* p1 = generator.GetDecay(0);
-    TLorentzVector* p2 = generator.GetDecay(1);
-    TLorentzVector* p3 = generator.GetDecay(2);
-    fourvectors.push_back(HepLorentzVector(p1->Px(),p1->Py(),p1->Pz(),p1->E()));
-    fourvectors.push_back(HepLorentzVector(p2->Px(),p2->Py(),p2->Pz(),p2->E()));
-    fourvectors.push_back(HepLorentzVector(p3->Px(),p3->Py(),p3->Pz(),p3->E()));
+    vector<TLorentzVector> fourvectors;
+    fourvectors.push_back( TLorentzVector( *generator.GetDecay(0) ) );
+    fourvectors.push_back( TLorentzVector( *generator.GetDecay(1) ) );
+    fourvectors.push_back( TLorentzVector( *generator.GetDecay(2) ) );
     Kinematics* kin = new Kinematics(fourvectors);
 
 

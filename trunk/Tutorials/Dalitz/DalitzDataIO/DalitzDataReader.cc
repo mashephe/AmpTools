@@ -2,14 +2,16 @@
 #include <vector>
 #include <cassert>
 #include <fstream>
+#include <iostream>
 #include "TH1.h"
 #include "TFile.h"
 #include "TTree.h"
-#include "CLHEP/Vector/LorentzVector.h"
+#include "TLorentzVector.h"
 #include "IUAmpTools/Kinematics.h"
 #include "DalitzDataIO/DalitzDataReader.h"
 #include "TSystem.h"
 
+using namespace std;
 
 DalitzDataReader::DalitzDataReader( const vector< string >& args ) :
 UserDataReader< DalitzDataReader >(args),
@@ -71,10 +73,10 @@ DalitzDataReader::getEvent(){
 
     m_inTree->GetEntry( m_eventCounter++ );
 
-    vector< HepLorentzVector > particleList;
-    particleList.push_back( HepLorentzVector( m_PxP1, m_PyP1, m_PzP1, m_EnP1 ) );
-    particleList.push_back( HepLorentzVector( m_PxP2, m_PyP2, m_PzP2, m_EnP2 ) );
-    particleList.push_back( HepLorentzVector( m_PxP3, m_PyP3, m_PzP3, m_EnP3 ) );
+    vector< TLorentzVector > particleList;
+    particleList.push_back( TLorentzVector( m_PxP1, m_PyP1, m_PzP1, m_EnP1 ) );
+    particleList.push_back( TLorentzVector( m_PxP2, m_PyP2, m_PzP2, m_EnP2 ) );
+    particleList.push_back( TLorentzVector( m_PxP3, m_PyP3, m_PzP3, m_EnP3 ) );
 
     return new Kinematics( particleList );
 

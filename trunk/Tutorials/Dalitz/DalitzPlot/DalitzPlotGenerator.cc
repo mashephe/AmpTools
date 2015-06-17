@@ -2,6 +2,7 @@
 #include "DalitzPlot/DalitzPlotGenerator.h"
 #include "IUAmpTools/Histogram1D.h"
 #include "IUAmpTools/Kinematics.h"
+#include "TLorentzVector.h"
 
 DalitzPlotGenerator::DalitzPlotGenerator( const FitResults& results ) :
 PlotGenerator( results )
@@ -15,12 +16,12 @@ PlotGenerator( results )
 void
 DalitzPlotGenerator::projectEvent( Kinematics* kin ){
           
-  HepLorentzVector P1 = kin->particle(0);
-  HepLorentzVector P2 = kin->particle(1);
-  HepLorentzVector P3 = kin->particle(2);
+  TLorentzVector P1 = kin->particle(0);
+  TLorentzVector P2 = kin->particle(1);
+  TLorentzVector P3 = kin->particle(2);
       
-  fillHistogram( khm12, (P1+P2).m() );
-  fillHistogram( khm13, (P1+P3).m() );  
-  fillHistogram( khm23, (P2+P3).m() );
-  fillHistogram( kdltz, (P1+P2).m2(), (P2+P3).m2() );
+  fillHistogram( khm12, (P1+P2).M() );
+  fillHistogram( khm13, (P1+P3).M() );
+  fillHistogram( khm23, (P2+P3).M() );
+  fillHistogram( kdltz, (P1+P2).M2(), (P2+P3).M2() );
 }
