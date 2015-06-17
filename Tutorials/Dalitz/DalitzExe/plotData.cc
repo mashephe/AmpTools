@@ -5,7 +5,7 @@
 #include "TH1F.h"
 #include "TH2F.h"
 #include "TFile.h"
-#include "CLHEP/Vector/LorentzVector.h"
+#include "TLorentzVector.h"
 #include "IUAmpTools/Kinematics.h"
 #include "DalitzDataIO/DalitzDataReader.h"
 
@@ -99,14 +99,14 @@ int main(int argc, char** argv){
 
   Kinematics* kin;
 
-  while (kin = dataReader.getEvent()){
+  while( (kin = dataReader.getEvent()) ){
 
-    vector<HepLorentzVector> pList = kin->particleList();
+    vector<TLorentzVector> pList = kin->particleList();
 
-    hm12->Fill((pList[0]+pList[1]).m());
-    hm23->Fill((pList[1]+pList[2]).m());
-    hm13->Fill((pList[0]+pList[2]).m());
-    hs12s23->Fill((pList[1]+pList[2]).m2(),(pList[0]+pList[1]).m2());
+    hm12->Fill((pList[0]+pList[1]).M());
+    hm23->Fill((pList[1]+pList[2]).M());
+    hm13->Fill((pList[0]+pList[2]).M());
+    hs12s23->Fill((pList[1]+pList[2]).M2(),(pList[0]+pList[1]).M2());
 
     if (dataReader.eventCounter() % 1000 == 0)
       cout << "Event counter = " << dataReader.eventCounter() << endl;

@@ -3,7 +3,6 @@
 #include "TString.h"
 #include "TH1F.h"
 #include "TFile.h"
-#include "CLHEP/Vector/LorentzVector.h"
 #include "IUAmpTools/AmplitudeManager.h"
 #include "IUAmpTools/ConfigFileParser.h"
 #include "IUAmpTools/ConfigurationInfo.h"

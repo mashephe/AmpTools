@@ -1,7 +1,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <string>
-#include "CLHEP/Vector/LorentzVector.h"
+#include "TLorentzVector.h"
 #include "IUAmpTools/Kinematics.h"
 #include "DalitzDataIO/DalitzDataReader.h"
 #include "DalitzDataIO/DalitzDataWriter.h"
@@ -61,11 +61,11 @@ int main(int argc, char** argv){
 
   Kinematics* kin;
 
-  while (kin = dataReader.getEvent()){
+  while( (kin = dataReader.getEvent()) ){
 
-    vector<HepLorentzVector> pList = kin->particleList();
+    vector<TLorentzVector> pList = kin->particleList();
 
-    double m12 = (pList[0]+pList[1]).m(); 
+    double m12 = (pList[0]+pList[1]).M();
 
     double efficiency = 0.1 + (0.9/3.0)*m12;
 

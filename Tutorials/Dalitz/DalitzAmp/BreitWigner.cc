@@ -3,7 +3,8 @@
 #include <string>
 #include <complex>
 #include <cstdlib>
-#include "CLHEP/Vector/LorentzVector.h"
+
+#include "TLorentzVector.h"
 #include "IUAmpTools/Kinematics.h"
 #include "DalitzAmp/BreitWigner.h"
 
@@ -28,14 +29,14 @@ UserAmplitude< BreitWigner >(args)
 complex< GDouble >
 BreitWigner::calcAmplitude( GDouble** pKin ) const {
 
-  HepLorentzVector P1(pKin[m_daughter1-1][1], pKin[m_daughter1-1][2],
+  TLorentzVector P1(pKin[m_daughter1-1][1], pKin[m_daughter1-1][2],
                       pKin[m_daughter1-1][3], pKin[m_daughter1-1][0]);
 
-  HepLorentzVector P2(pKin[m_daughter2-1][1], pKin[m_daughter2-1][2],
+  TLorentzVector P2(pKin[m_daughter2-1][1], pKin[m_daughter2-1][2],
                       pKin[m_daughter2-1][3], pKin[m_daughter2-1][0]);
 
   return  complex<GDouble>(1.0,0.0) /
-          complex<GDouble>((P1+P2).m2() - m_mass*m_mass, m_mass*m_width);
+          complex<GDouble>((P1+P2).M2() - m_mass*m_mass, m_mass*m_width);
 
 }
 

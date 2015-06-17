@@ -3,8 +3,8 @@
 #include <cassert>
 
 #include "DalitzDataIO/DalitzDataWriter.h"
-#include "CLHEP/Vector/LorentzVector.h"
 
+#include "TLorentzVector.h"
 #include "TFile.h"
 #include "TTree.h"
 #include "TH1.h"
@@ -53,25 +53,25 @@ DalitzDataWriter::~DalitzDataWriter(){
 void
 DalitzDataWriter::writeEvent( const Kinematics& kin ){
 
-  vector< HepLorentzVector > particleList = kin.particleList();
+  vector< TLorentzVector > particleList = kin.particleList();
 
-  m_EnP1 = particleList[0].e();
-  m_PxP1 = particleList[0].px();
-  m_PyP1 = particleList[0].py();
-  m_PzP1 = particleList[0].pz();
+  m_EnP1 = particleList[0].E();
+  m_PxP1 = particleList[0].Px();
+  m_PyP1 = particleList[0].Py();
+  m_PzP1 = particleList[0].Pz();
 
-  m_EnP2 = particleList[1].e();
-  m_PxP2 = particleList[1].px();
-  m_PyP2 = particleList[1].py();
-  m_PzP2 = particleList[1].pz();
+  m_EnP2 = particleList[1].E();
+  m_PxP2 = particleList[1].Px();
+  m_PyP2 = particleList[1].Py();
+  m_PzP2 = particleList[1].Pz();
 
-  m_EnP3 = particleList[2].e();
-  m_PxP3 = particleList[2].px();
-  m_PyP3 = particleList[2].py();
-  m_PzP3 = particleList[2].pz();
+  m_EnP3 = particleList[2].E();
+  m_PxP3 = particleList[2].Px();
+  m_PyP3 = particleList[2].Py();
+  m_PzP3 = particleList[2].Pz();
 
-  m_s12 = (particleList[0]+particleList[1]).m2();
-  m_s23 = (particleList[1]+particleList[2]).m2();
+  m_s12 = (particleList[0]+particleList[1]).M2();
+  m_s23 = (particleList[1]+particleList[2]).M2();
 
   m_outTree->Fill();
     
