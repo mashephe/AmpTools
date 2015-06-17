@@ -20,7 +20,6 @@
 
 using std::complex;
 using namespace std;
-using namespace CLHEP;
 
 int main( int argc, char* argv[] ){
 
@@ -132,7 +131,7 @@ int main( int argc, char* argv[] ){
       histname += sdig.str();
     }
     
-    Histogram hist = plotGenerator.projection(ivar,
+    Histogram* hist = plotGenerator.projection(ivar,
 					      reactionName, iplot);
     
     string xtitle = "Mass(P_{1}P_{2}) (GeV/c^{2})";
@@ -143,16 +142,16 @@ int main( int argc, char* argv[] ){
     if (ivar == 5) xtitle = "cos#theta_{K_{1}}";
     if (ivar == 6) xtitle = "#phi_{K_{1}}";
 
-    TH1F thist = hist.toRoot();
-    thist.SetName(histname.c_str());
-    thist.SetStats(0);
-    thist.SetTitleOffset(1.9,"Y");
-    thist.SetTitleOffset(1.9,"X");
-    thist.SetTitle("IUAmpTools gammaKK Tutorial");
-    thist.SetXTitle(xtitle.c_str());
-    thist.SetYTitle("counts");
+    TH1* thist = hist->toRoot();
+    thist->SetName(histname.c_str());
+    thist->SetStats(0);
+    thist->SetTitleOffset(1.9,"Y");
+    thist->SetTitleOffset(1.9,"X");
+    thist->SetTitle("IUAmpTools gammaKK Tutorial");
+    thist->SetXTitle(xtitle.c_str());
+    thist->SetYTitle("counts");
     plotfile->cd();
-    thist.Write();
+    thist->Write();
 
   }}}
 

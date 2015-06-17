@@ -1,12 +1,11 @@
-#if !defined(NBODYPHASESPACEFFACTORY)
+#if !defined(NBODYPHASESPACEFACTORY)
 #define NBODYPHASESPACEFACTORY
 
 #include <vector>
 
-#include "CLHEP/Vector/LorentzVector.h"
+#include "TLorentzVector.h"
 
 using namespace std;
-using namespace CLHEP;
 
 class NBodyPhaseSpaceFactory
 {
@@ -15,7 +14,7 @@ class NBodyPhaseSpaceFactory
 	
   NBodyPhaseSpaceFactory( double parentMass, const vector<double>& childMass );
 	
-  vector<HepLorentzVector> generateDecay() const;
+  vector<TLorentzVector> generateDecay() const;
 	
  private:
         

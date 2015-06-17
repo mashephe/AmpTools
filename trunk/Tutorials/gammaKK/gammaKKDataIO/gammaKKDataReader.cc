@@ -1,13 +1,17 @@
 
 #include <vector>
 #include <cassert>
+#include <iostream>
+
 #include "TH1.h"
 #include "TFile.h"
 #include "TTree.h"
 #include "TString.h"
-#include "CLHEP/Vector/LorentzVector.h"
+#include "TLorentzVector.h"
 #include "IUAmpTools/Kinematics.h"
 #include "gammaKKDataIO/gammaKKDataReader.h"
+
+using namespace std;
 
 gammaKKDataReader::gammaKKDataReader(const vector<string> &args) :
   UserDataReader<gammaKKDataReader>(args), m_eventCounter( 0 ){
@@ -55,13 +59,13 @@ gammaKKDataReader::gammaKKDataReader(const vector<string> &args) :
     while(m_eventCounter < static_cast<int>( m_inTree->GetEntries() )){
       m_inTree->GetEntry(m_eventCounter++);
       
-      vector< HepLorentzVector > particleList;
-      particleList.push_back( HepLorentzVector( m_PxP1, m_PyP1, m_PzP1, m_EnP1 ) );
-      particleList.push_back( HepLorentzVector( m_PxP2, m_PyP2, m_PzP2, m_EnP2 ) );
-      particleList.push_back( HepLorentzVector( m_PxP3, m_PyP3, m_PzP3, m_EnP3 ) );
+      vector< TLorentzVector > particleList;
+      particleList.push_back( TLorentzVector( m_PxP1, m_PyP1, m_PzP1, m_EnP1 ) );
+      particleList.push_back( TLorentzVector( m_PxP2, m_PyP2, m_PzP2, m_EnP2 ) );
+      particleList.push_back( TLorentzVector( m_PxP3, m_PyP3, m_PzP3, m_EnP3 ) );
       
       
-      float m23 = (particleList[1] + particleList[2]).m();
+      float m23 = (particleList[1] + particleList[2]).M();
       if(m_min <= m23 && m23 < m_max){
 	m_numEvents++;
       }
@@ -109,10 +113,10 @@ gammaKKDataReader::getEvent(){
 
       m_inTree->GetEntry( m_eventCounter++ );
 
-      vector< HepLorentzVector > particleList;
-      particleList.push_back( HepLorentzVector( m_PxP1, m_PyP1, m_PzP1, m_EnP1 ) );
-      particleList.push_back( HepLorentzVector( m_PxP2, m_PyP2, m_PzP2, m_EnP2 ) );
-      particleList.push_back( HepLorentzVector( m_PxP3, m_PyP3, m_PzP3, m_EnP3 ) );
+      vector< TLorentzVector > particleList;
+      particleList.push_back( TLorentzVector( m_PxP1, m_PyP1, m_PzP1, m_EnP1 ) );
+      particleList.push_back( TLorentzVector( m_PxP2, m_PyP2, m_PzP2, m_EnP2 ) );
+      particleList.push_back( TLorentzVector( m_PxP3, m_PyP3, m_PzP3, m_EnP3 ) );
 
       return new Kinematics( particleList );
 
@@ -135,13 +139,13 @@ gammaKKDataReader::getEvent(){
 
       m_inTree->GetEntry(m_eventCounter++);
 
-      vector< HepLorentzVector > particleList;
-      particleList.push_back( HepLorentzVector( m_PxP1, m_PyP1, m_PzP1, m_EnP1 ) );
-      particleList.push_back( HepLorentzVector( m_PxP2, m_PyP2, m_PzP2, m_EnP2 ) );
-      particleList.push_back( HepLorentzVector( m_PxP3, m_PyP3, m_PzP3, m_EnP3 ) );
+      vector< TLorentzVector > particleList;
+      particleList.push_back( TLorentzVector( m_PxP1, m_PyP1, m_PzP1, m_EnP1 ) );
+      particleList.push_back( TLorentzVector( m_PxP2, m_PyP2, m_PzP2, m_EnP2 ) );
+      particleList.push_back( TLorentzVector( m_PxP3, m_PyP3, m_PzP3, m_EnP3 ) );
 
 
-      float m23 = (particleList[1] + particleList[2]).m();
+      float m23 = (particleList[1] + particleList[2]).M();
       if(m_min <= m23 && m23 < m_max){
 	// cout << "kept event, eventCounter = " << m_eventCounter << endl;
 	// cout << "event counter: " << m_eventCounter << endl;

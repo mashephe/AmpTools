@@ -1,10 +1,9 @@
 
-INC_DIR :=  -I.. -I$(CLHEP_INCLUDE_DIR) -I$(ROOTSYS)/include -I$(AMPTOOLS)
+INC_DIR :=  -I.. -I$(ROOTSYS)/include -I$(AMPTOOLS)
 
 CXX := gcc
 CXX_FLAGS := -O3
 
-# SRCDIRS := gammaKKDataIO gammaKKAmp gammaKKPlot
 SRCDIRS := gammaKKDataIO gammaKKAmp gammaKKPlot
 TARGET_LIBS := $(addsuffix .a, $(addprefix lib, $(SRCDIRS)))
 

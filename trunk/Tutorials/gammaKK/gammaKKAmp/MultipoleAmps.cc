@@ -9,11 +9,10 @@
 
 #include "IUAmpTools/Kinematics.h"
 #include "MultipoleAmps.h"
-#include "./clebschGordan.h"
-#include "./wignerD.h"
-#include "CLHEP/Vector/LorentzVector.h"
-#include "CLHEP/Vector/LorentzRotation.h"
-#include "CLHEP/Vector/ThreeVector.h"
+#include "clebschGordan.h"
+#include "wignerD.h"
+#include "TLorentzVector.h"
+#include "TLorentzRotation.h"
 
 // returns normalization for spin J
 // (need to rename this as having multiple definitions
@@ -42,9 +41,9 @@ MultipoleAmps::MultipoleAmps(const vector<string> &args) :
 complex< GDouble >
 MultipoleAmps::calcAmplitude( GDouble** pKin ) const {
 
-  HepLorentzVector p4gamma ( pKin[0][1], pKin [0][2], pKin[0][3], pKin[0][0] );
-  HepLorentzVector p4K1    ( pKin[1][1], pKin [1][2], pKin[1][3], pKin[1][0] );
-  HepLorentzVector p4K2    ( pKin[2][1], pKin [2][2], pKin[2][3], pKin[2][0] );
+  TLorentzVector p4gamma ( pKin[0][1], pKin [0][2], pKin[0][3], pKin[0][0] );
+  TLorentzVector p4K1    ( pKin[1][1], pKin [1][2], pKin[1][3], pKin[1][0] );
+  TLorentzVector p4K2    ( pKin[2][1], pKin [2][2], pKin[2][3], pKin[2][0] );
 
   // In helicity amplitudes, the decay amplitude for a given resonance
   // with quantum numbers (j,mu) will be
@@ -52,17 +51,17 @@ MultipoleAmps::calcAmplitude( GDouble** pKin ) const {
 
   // All 4-vectors are in J/psi rest frame.
   // First we need to get the angles of the KK system.
-  HepLorentzVector p4KK = p4K1 + p4K2;
+  TLorentzVector p4KK = p4K1 + p4K2;
   // wignerD_1 takes in theta variable in degrees
-  GDouble thetaKK = p4KK.theta() * 180. / TMath::Pi();
-  GDouble phiKK   = p4KK.phi();
+  GDouble thetaKK = p4KK.Theta() * 180. / TMath::Pi();
+  GDouble phiKK   = p4KK.Phi();
 
   // Next we calculate the angles of K1 in the KK rest frame.
   // Boost into the KK rest frame.
-  HepLorentzRotation resRestBoost(-p4KK.boostVector());
-  HepLorentzVector p4K1_res = resRestBoost * p4K1;
-  GDouble thetaK1 = p4K1_res.theta() * 180. / TMath::Pi();
-  GDouble phiK1   = p4K1_res.phi();
+  TLorentzRotation resRestBoost(-p4KK.BoostVector());
+  TLorentzVector p4K1_res = resRestBoost * p4K1;
+  GDouble thetaK1 = p4K1_res.Theta() * 180. / TMath::Pi();
+  GDouble phiK1   = p4K1_res.Phi();
 
   // Normalization factors for J/psi (J=1) and KK system (spin j)
   GDouble coeff = norm_multipoleAmps(1) * norm_multipoleAmps(m_J_gamma);

@@ -13,13 +13,9 @@
 #include <iostream>
 #include <algorithm>
 
-#include "CLHEP/Vector/LorentzVector.h"
-#include "CLHEP/Vector/LorentzRotation.h"
-#include "CLHEP/Vector/ThreeVector.h"
+#include "TLorentzVector.h"
 
 #include "gammaKKAmp/NBodyPhaseSpaceFactory.h"
-
-using namespace CLHEP;
 
 const double NBodyPhaseSpaceFactory::kPi = 3.14159;
 
@@ -30,22 +26,11 @@ NBodyPhaseSpaceFactory::NBodyPhaseSpaceFactory( double parentMass, const vector<
   m_Nd = (int)childMass.size();
 }
 
-template< typename T>
-struct CompareAsc {
-  CompareAsc(T d) : fData(d) {}
-
-  bool operator()( int i1, int i2) {
-    return *(fData + i1) < *(fData + i2);
-  }
-
-  T fData;
-};
-
-vector<HepLorentzVector>
+vector<TLorentzVector>
 NBodyPhaseSpaceFactory::generateDecay() const {
 	
 
-  vector<HepLorentzVector> child( m_Nd );
+  vector<TLorentzVector> child( m_Nd );
 
   double Tcm = m_parentMass;
   int n, m;
@@ -99,20 +84,20 @@ NBodyPhaseSpaceFactory::generateDecay() const {
   //
   // Specification of 4-momenta (Raubold-Lynch method)
   //
-  child[0].set(0, pd[0], 0 , sqrt(pd[0]*pd[0]+m_childMass[0]*m_childMass[0]) );
+  child[0].SetPxPyPzE(0, pd[0], 0 , sqrt(pd[0]*pd[0]+m_childMass[0]*m_childMass[0]) );
   for(n=1;;){
-    child[n].set(0, -pd[n-1], 0 , 
+    child[n].SetPxPyPzE(0, -pd[n-1], 0 ,
 		    sqrt(pd[n-1]*pd[n-1]+m_childMass[n]*m_childMass[n]) );
 
     double cosZ = random(-1.,1.);
     double angY = random(0.0, 2.*kPi);
     for (m=0; m<=n; m++) {
-      child[m].rotateZ( acos(cosZ) );
-      child[m].rotateY( angY );
+      child[m].RotateZ( acos(cosZ) );
+      child[m].RotateY( angY );
     }
     if( n == m_Nd-1 ) break;
     double beta = pd[n] / sqrt(pd[n]*pd[n] + invMas[n]*invMas[n]);
-    for (m=0; m<=n; m++) child[m].boost(0,beta,0);
+    for (m=0; m<=n; m++) child[m].Boost(0,beta,0);
     n++;
   }
 

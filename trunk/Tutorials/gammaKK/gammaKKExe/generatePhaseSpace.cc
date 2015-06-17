@@ -4,7 +4,6 @@
 #include "TString.h"
 #include "TH1F.h"
 #include "TFile.h"
-#include "CLHEP/Vector/LorentzVector.h"
 #include "IUAmpTools/Kinematics.h"
 
 #include "gammaKKAmp/NBodyPhaseSpaceFactory.h"
@@ -70,7 +69,7 @@ int main(int argc, char** argv){
 
   for (int i = 0; i < NEVENTS; i++){
 
-    vector<HepLorentzVector> fourmomenta = generator.generateDecay();
+    vector<TLorentzVector> fourmomenta = generator.generateDecay();
 
     Kinematics* kin = new Kinematics(fourmomenta);
 
@@ -117,7 +116,7 @@ int main(int argc, char** argv){
 
   for(int i=0;i<NEVENTS;i++){
 
-    vector<HepLorentzVector> fourvectors(3);
+    vector<TLorentzVector> fourvectors(3);
 
     double weight = generator->Generate();
 

@@ -7,11 +7,11 @@
 
 #include "IUAmpTools/Kinematics.h"
 #include "TwoPiAngles.h"
-#include "./clebschGordan.h"
-#include "./wignerD.h"
-#include "CLHEP/Vector/LorentzVector.h"
-#include "CLHEP/Vector/LorentzRotation.h"
-#include "CLHEP/Vector/ThreeVector.h"
+#include "clebschGordan.h"
+#include "wignerD.h"
+#include "TLorentzVector.h"
+#include "TLorentzRotation.h"
+#include "TVector.h"
 
 TwoPiAngles::TwoPiAngles(const vector<string> &args) :
   UserAmplitude<TwoPiAngles>()
@@ -35,32 +35,32 @@ TwoPiAngles::TwoPiAngles(const vector<string> &args) :
 complex< GDouble >
 TwoPiAngles::calcAmplitude( GDouble** pKin ) const {
 
-  HepLorentzVector gamma ( pKin[0][1], pKin [0][2], pKin[0][3], pKin[0][0] );
-  HepLorentzVector p1    ( pKin[1][1], pKin [1][2], pKin[1][3], pKin[1][0] );
-  HepLorentzVector p2    ( pKin[2][1], pKin [2][2], pKin[2][3], pKin[2][0] );
+  TLorentzVector gamma ( pKin[0][1], pKin [0][2], pKin[0][3], pKin[0][0] );
+  TLorentzVector p1    ( pKin[1][1], pKin [1][2], pKin[1][3], pKin[1][0] );
+  TLorentzVector p2    ( pKin[2][1], pKin [2][2], pKin[2][3], pKin[2][0] );
 
-  GDouble cosTheta_g = -gamma.vect().cosTheta();
-  GDouble phi_g = gamma.vect().phi();
+  GDouble cosTheta_g = -gamma.Vect().CosTheta();
+  GDouble phi_g = gamma.Vect().Phi();
 
-  HepLorentzVector resonance = p1 + p2;
+  TLorentzVector resonance = p1 + p2;
 
-  HepLorentzRotation resRestBoost( -resonance.boostVector() );
+  TLorentzRotation resRestBoost( -resonance.BoostVector() );
 
-  HepLorentzVector p1_res = resRestBoost * p1;
+  TLorentzVector p1_res = resRestBoost * p1;
 
   // phi is generated randomly, we just need to pick a direction?
-  Hep3Vector z = -gamma.vect().unit();
-  //  Hep3Vector y = -p1.vect().cross(z).unit();
-  Hep3Vector bdir ( 0.0, 0.0, 1.0 );
-  Hep3Vector y = bdir.cross(z).unit();
-  Hep3Vector x = y.cross(z).unit();
+  TVector3 z = -gamma.Vect().Unit();
+  //  TVector3 y = -p1.vect().cross(z).unit();
+  TVector3 bdir ( 0.0, 0.0, 1.0 );
+  TVector3 y = bdir.Cross(z).Unit();
+  TVector3 x = y.Cross(z).Unit();
 
-  Hep3Vector angles( (p1_res.vect()).dot(x),
-		     (p1_res.vect()).dot(y),
-		     (p1_res.vect()).dot(z) );
+  TVector3 angles( (p1_res.Vect()).Dot(x),
+		     (p1_res.Vect()).Dot(y),
+		     (p1_res.Vect()).Dot(z) );
 
-  GDouble cosTheta = angles.cosTheta();
-  GDouble phi = angles.phi();
+  GDouble cosTheta = angles.CosTheta();
+  GDouble phi = angles.Phi();
 
   // we have to pass in theta_1 instead of cos(theta_1) because 
   // cos(-theta) = cos(theta) - we will lose the minus sign difference on theta
