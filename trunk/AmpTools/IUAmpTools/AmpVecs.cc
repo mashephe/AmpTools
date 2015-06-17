@@ -164,10 +164,10 @@ AmpVecs::loadEvent( const Kinematics* pKinematics, unsigned long long iEvent,
 #ifndef GPU_ACCELERATION
   
   for (int iParticle = 0; iParticle < m_iNParticles; iParticle++){
-    m_pdData[4*iEvent*m_iNParticles+4*iParticle+0]=pKinematics->particle(iParticle).e();
-    m_pdData[4*iEvent*m_iNParticles+4*iParticle+1]=pKinematics->particle(iParticle).px();
-    m_pdData[4*iEvent*m_iNParticles+4*iParticle+2]=pKinematics->particle(iParticle).py();
-    m_pdData[4*iEvent*m_iNParticles+4*iParticle+3]=pKinematics->particle(iParticle).pz();
+    m_pdData[4*iEvent*m_iNParticles+4*iParticle+0]=pKinematics->particle(iParticle).E();
+    m_pdData[4*iEvent*m_iNParticles+4*iParticle+1]=pKinematics->particle(iParticle).Px();
+    m_pdData[4*iEvent*m_iNParticles+4*iParticle+2]=pKinematics->particle(iParticle).Py();
+    m_pdData[4*iEvent*m_iNParticles+4*iParticle+3]=pKinematics->particle(iParticle).Pz();
   }
 #else
   for (int iParticle = 0; iParticle < m_iNParticles; iParticle++){
@@ -296,7 +296,7 @@ AmpVecs::getEvent( int iEvent ){
   // check to be sure the event request is realistic
   assert( iEvent < m_iNTrueEvents );
   
-  vector< HepLorentzVector > particleList;
+  vector< TLorentzVector > particleList;
   
   for( int iPart = 0; iPart < m_iNParticles; ++iPart ){
     
@@ -305,12 +305,12 @@ AmpVecs::getEvent( int iEvent ){
 #ifndef GPU_ACCELERATION
     
     int i = iEvent*4*m_iNParticles + 4*iPart;
-    particleList.push_back( HepLorentzVector( m_pdData[i+1], m_pdData[i+2],
+    particleList.push_back( TLorentzVector( m_pdData[i+1], m_pdData[i+2],
                                              m_pdData[i+3], m_pdData[i] ) );
 #else
     
     particleList.
-    push_back( HepLorentzVector( m_pdData[(4*iPart+1)*m_iNEvents+iEvent],
+    push_back( TLorentzVector( m_pdData[(4*iPart+1)*m_iNEvents+iEvent],
                                 m_pdData[(4*iPart+2)*m_iNEvents+iEvent],
                                 m_pdData[(4*iPart+3)*m_iNEvents+iEvent],
                                 m_pdData[(4*iPart+0)*m_iNEvents+iEvent] ) );

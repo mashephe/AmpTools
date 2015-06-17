@@ -40,11 +40,9 @@
 #include <vector>
 #include <cassert>
 
-#include "CLHEP/Vector/LorentzVector.h"
+#include "TLorentzVector.h"
 
 using namespace std;
-using namespace CLHEP;
-
 
 /**
  * This object contains a simple description of the particle kinematics
@@ -54,7 +52,7 @@ using namespace CLHEP;
  * is unique.
  *
  * Note that this class is where one of the few external dependencies in
- * AmpTools resides:  it utilizes the HepLorentzVector class from CLHEP,
+ * AmpTools resides:  it utilizes the TLorentzVector class from CLHEP,
  * which is a convenient mechanism for manipulating four-vectors.
  *
  * \ingroup IUAmpTools
@@ -79,14 +77,14 @@ public:
    * The constructor.
    *
    * This constructor generates a kinematics object from a vector
-   * of HepLorentzVector, which is a data type provided by the CLHEP
+   * of TLorentzVector, which is a data type provided by the CLHEP
    * package.  A weight can be provided as an optional argument.
    *
-   * \param[in] particleList a vector of HepLorentzVector containing
+   * \param[in] particleList a vector of TLorentzVector containing
    *   the four-momenta of all particles
    * \param[in] weight (optional) a weight to apply to this event
    */
-  Kinematics( const vector< HepLorentzVector >& particleList,
+  Kinematics( const vector< TLorentzVector >& particleList,
              float weight = 1.0 ) :
   m_eventID(  Kinematics::m_globalEventID++ ),
   m_particleList( particleList ),
@@ -125,13 +123,13 @@ public:
    * This method will replace the current list of four vectors with the
    * four vectors being passed in an argument to this function call.
    *
-   * \param[in] particleList the vector of HepLorentzVector that describes
+   * \param[in] particleList the vector of TLorentzVector that describes
    *   the kinematics for the event
    *
    * \see particle
    * \see particleList
    */
-  void setParticleList( const vector< HepLorentzVector >& particleList );
+  void setParticleList( const vector< TLorentzVector >& particleList );
   
   /**
    * Set the weight of an event.
@@ -149,18 +147,18 @@ public:
   /**
    * Get the list of four-vectors for an event.
    *
-   * This method returns a vector of HepLorentzVector corresponding
+   * This method returns a vector of TLorentzVector corresponding
    * to the list of four-vectors for an event.
    *
    * \see setParticleList
    * \see particle
    */
-  const vector<HepLorentzVector>& particleList() const;
+  const vector<TLorentzVector>& particleList() const;
 
   /**
    * Get a particular four-vector.
    *
-   * This method returns a HepLorentzVector corresponding to the
+   * This method returns a TLorentzVector corresponding to the
    * four-momentum of the particle with the designated index.
    *
    * \param[in] index index of the particle
@@ -168,7 +166,7 @@ public:
    * \see particleList
    * \see setParticleList
    */
-  const HepLorentzVector& particle( unsigned int index ) const;
+  const TLorentzVector& particle( unsigned int index ) const;
 
   /**
    * Get the event ID.
@@ -191,7 +189,7 @@ public:
 private:
   
   int m_eventID;
-  vector<HepLorentzVector> m_particleList;
+  vector<TLorentzVector> m_particleList;
   float m_weight;
   
   static int m_globalEventID;

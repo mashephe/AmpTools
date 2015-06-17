@@ -54,9 +54,7 @@ m_purelyReal( purelyReal ),
 m_realPar( NULL ),
 m_imPar( NULL )
 { 
-  
-  assert( &fitManager != 0 );
-  
+    
   // be sure we have a valid reference to MinuitMinimizationManager before
   // registering the new parameters -- otherwise this object looks
   // just like complex number

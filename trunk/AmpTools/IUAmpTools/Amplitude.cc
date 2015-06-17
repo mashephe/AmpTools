@@ -117,7 +117,7 @@ Amplitude::calcAmplitude( const Kinematics* pKin ) const {
   
   vector<int> permutation;
   
-  vector<HepLorentzVector> particleList = pKin->particleList();
+  vector<TLorentzVector> particleList = pKin->particleList();
   
   for (int i = 0; i < particleList.size(); i++){
     permutation.push_back(i);
@@ -137,7 +137,7 @@ Amplitude::calcAmplitude( const Kinematics* pKin, const vector< int >& permutati
   VT_TRACER( info.c_str() );
 #endif
 
-  vector<HepLorentzVector> particleList = pKin->particleList();
+  vector<TLorentzVector> particleList = pKin->particleList();
   
   GDouble** pData = new GDouble*[particleList.size()];
   
@@ -145,10 +145,10 @@ Amplitude::calcAmplitude( const Kinematics* pKin, const vector< int >& permutati
   
   for (int i = 0; i < particleList.size(); i++){
     pData[i] = new GDouble[4];
-    pData[i][0] = particleList[permutation[i]].e();
-    pData[i][1] = particleList[permutation[i]].px();
-    pData[i][2] = particleList[permutation[i]].py();
-    pData[i][3] = particleList[permutation[i]].pz();
+    pData[i][0] = particleList[permutation[i]].E();
+    pData[i][1] = particleList[permutation[i]].Px();
+    pData[i][2] = particleList[permutation[i]].Py();
+    pData[i][3] = particleList[permutation[i]].Pz();
   }
   
   complex< GDouble > value = calcAmplitude(pData);

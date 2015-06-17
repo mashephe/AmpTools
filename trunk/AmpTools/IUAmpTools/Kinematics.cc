@@ -35,18 +35,21 @@
 //******************************************************************************
 
 #include <vector>
-#include <assert.h>
+#include <cassert>
+#include <iostream>
 
 #include "IUAmpTools/Kinematics.h"
-#include "CLHEP/Vector/LorentzVector.h"
+#include "TLorentzVector.h"
 
-const vector< HepLorentzVector >&
+using namespace std;
+
+const vector< TLorentzVector >&
 Kinematics::particleList() const {
   
   return m_particleList;
 }
 
-const HepLorentzVector&
+const TLorentzVector&
 Kinematics::particle( unsigned int index ) const {
   
   if( index >= m_particleList.size() ){
@@ -61,7 +64,7 @@ Kinematics::particle( unsigned int index ) const {
 }
 
 void
-Kinematics::setParticleList( const vector< HepLorentzVector >& particleList ){
+Kinematics::setParticleList( const vector< TLorentzVector >& particleList ){
   
   assert( particleList.size() <= kMaxParticles );
   
