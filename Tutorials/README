@@ -23,6 +23,14 @@ in bins of K K invariant mass.
 
 RELEASE NOTES:
 
+v0.8 (17-Jun-15):
+
+Fix a bug that appears on some platforms in newer versions of ROOT where the
+user gets "missing dictionary" warnings and occassionally a segmentation
+fault.
+
+Modify all tutorials to remove dependence on CLHEP.
+
 v0.6 (28-Jun-13):
 
 Modify to make compatible with v0.6 of AmpTools.  This mainly involves more complete
