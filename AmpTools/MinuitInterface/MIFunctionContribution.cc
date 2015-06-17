@@ -44,12 +44,12 @@ MIFunctionContribution::MIFunctionContribution( MinuitMinimizationManager& aMana
    m_contribution( 0 ),
    m_contributing( true )
 {
-  if( &m_manager != 0 ) m_manager.attach( this );
+  m_manager.attach( this );
 }
 
 MIFunctionContribution::~MIFunctionContribution() {
 
-  if( &m_manager != 0 ) m_manager.detach( this );
+  m_manager.detach( this );
 }
 
 void
