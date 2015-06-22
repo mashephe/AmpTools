@@ -117,7 +117,7 @@ AmpToolsInterface::resetConfigurationInfo(ConfigurationInfo* configurationInfo){
     // create a ParameterManager
     // ************************
 
-    m_parameterManager = new ParameterManager ( *m_minuitMinimizationManager, m_intensityManagers );
+    m_parameterManager = new ParameterManager ( m_minuitMinimizationManager, m_intensityManagers );
     m_parameterManager->setupFromConfigurationInfo( m_configurationInfo );
 
   }
@@ -147,6 +147,9 @@ AmpToolsInterface::resetConfigurationInfo(ConfigurationInfo* configurationInfo){
         if (reaction->data().first == m_userDataReaders[i]->name())
           m_dataReaderMap[reactionName]
           = m_userDataReaders[i]->newDataReader(reaction->data().second);
+        if (reaction->bkgnd().first == m_userDataReaders[i]->name())
+          m_bkgndReaderMap[reactionName]
+          = m_userDataReaders[i]->newDataReader(reaction->bkgnd().second);
         if (reaction->genMC().first == m_userDataReaders[i]->name())
           m_genMCReaderMap[reactionName]
           = m_userDataReaders[i]->newDataReader(reaction->genMC().second);
@@ -155,6 +158,7 @@ AmpToolsInterface::resetConfigurationInfo(ConfigurationInfo* configurationInfo){
           = m_userDataReaders[i]->newDataReader(reaction->accMC().second);
       }
       DataReader* dataRdr  =  dataReader(reactionName);
+      DataReader* bkgndRdr = bkgndReader(reactionName);
       DataReader* genMCRdr = genMCReader(reactionName);
       DataReader* accMCRdr = accMCReader(reactionName);
       
@@ -198,7 +202,7 @@ AmpToolsInterface::resetConfigurationInfo(ConfigurationInfo* configurationInfo){
 
         LikelihoodCalculator* likCalc = NULL;
         if (intenMan && normInt && dataRdr && m_parameterManager){
-          likCalc = new LikelihoodCalculator(*intenMan, *normInt, *dataRdr, *m_parameterManager);
+          likCalc = new LikelihoodCalculator(*intenMan, *normInt, dataRdr, bkgndRdr, *m_parameterManager);
           m_likCalcMap[reactionName] = likCalc;
         }
         else{
@@ -301,6 +305,12 @@ AmpToolsInterface::dataReader (const string& reactionName) const {
   return (DataReader*) NULL;
 }
 
+DataReader*
+AmpToolsInterface::bkgndReader (const string& reactionName) const {
+  if (m_bkgndReaderMap.find(reactionName) != m_bkgndReaderMap.end())
+    return m_bkgndReaderMap.find(reactionName)->second;
+  return (DataReader*) NULL;
+}
 
 DataReader*
 AmpToolsInterface::genMCReader (const string& reactionName) const {

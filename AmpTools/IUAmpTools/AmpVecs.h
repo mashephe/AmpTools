@@ -75,6 +75,14 @@ struct AmpVecs
   unsigned long long m_iNTrueEvents;
   
   /**
+   * A double that stores the absolute value of the sum of the weights.  (For
+   * cases where all weights are unity, this is simply the number of true 
+   * events.)
+   */
+  
+  double m_dAbsSumWeights;
+  
+  /**
    * An integer that stores the number of particles in the final state.
    */
   unsigned int m_iNParticles;
@@ -202,11 +210,12 @@ struct AmpVecs
    * a null pointer is provided (signaling the end of the source).
    *
    * \param[in] pDataReader a pointer to a user-defined data reader
+   * \param[in] bForceNegativeWeight sets weight = -abs( weight )
    * 
    * \see DataReader::resetSource
    * \see DataReader::getEvent
    */
-  void loadData( DataReader* pDataReader );
+  void loadData( DataReader* pDataReader, bool bForceNegativeWeight = false );
   
   /**
    * This routine fills the arrays of data and weights event by event
@@ -219,11 +228,13 @@ struct AmpVecs
    * \param[in] pKinematics a pointer to a Kinematics object
    * \param[in] iEvent an event counter (increment this for every event loaded)
    * \param[in] iNTrueEvents the total number of events to be loaded
+   * \param[in] bForceNegativeWeight sets weight = -abs( weight )
    *
    * \see loadData
    */
   void loadEvent( const Kinematics* pKinematics, unsigned long long iEvent = 0,
-                 unsigned long long iNTrueEvents = 1 );
+                  unsigned long long iNTrueEvents = 1,
+                  bool bForceNegativeWeight = false );
   
   /**
    * A helper routine to get an event i from the array of data and weights.

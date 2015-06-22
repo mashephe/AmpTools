@@ -42,7 +42,7 @@
 #include "IUAmpToolsMPI/MPITag.h"
 
 ParameterManagerMPI::
-ParameterManagerMPI( MinuitMinimizationManager& minuitManager,
+ParameterManagerMPI( MinuitMinimizationManager* minuitManager,
                     IntensityManager* intenManager ) :
 ParameterManager( minuitManager, intenManager )
 {
@@ -58,7 +58,7 @@ ParameterManager( minuitManager, intenManager )
 }
 
 ParameterManagerMPI::
-ParameterManagerMPI( MinuitMinimizationManager& minuitManager,
+ParameterManagerMPI( MinuitMinimizationManager* minuitManager,
                     const vector<IntensityManager*>& intenManagers ) :
 ParameterManager( minuitManager, intenManagers )
 {

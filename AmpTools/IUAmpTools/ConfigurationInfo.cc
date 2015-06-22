@@ -684,6 +684,12 @@ ReactionInfo::display(string fileName, bool append){
   for (unsigned int i = 0; i < m_data.second.size(); i++){
     cout << "\t\t\t\t" << m_data.second[i] << endl;
   }
+  if( m_bkgnd.first != "" ){
+    cout << "        BACKGROUND READER:  " << m_bkgnd.first << endl;
+    for (unsigned int i = 0; i < m_bkgnd.second.size(); i++){
+      cout << "\t\t\t\t" << m_bkgnd.second[i] << endl;
+    }
+  }
   cout << "      ACC MC READER:  " << m_accMC.first << endl;
   for (unsigned int i = 0; i < m_accMC.second.size(); i++){
     cout << "\t\t\t\t" << m_accMC.second[i] << endl;
@@ -908,6 +914,7 @@ void
 ReactionInfo::clear(){
   vector<string> empty;
   m_data  = pair<string, vector<string> >("",empty);
+  m_bkgnd = pair<string, vector<string> >("",empty);
   m_genMC = pair<string, vector<string> >("",empty);
   m_accMC = pair<string, vector<string> >("",empty);
   m_normIntFile = "";

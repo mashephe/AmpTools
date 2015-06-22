@@ -38,7 +38,7 @@
 #include "MinuitInterface/MIFunctionContribution.h"
 
 
-GaussianBound::GaussianBound( MinuitMinimizationManager& manager, Parameter* par,
+GaussianBound::GaussianBound( MinuitMinimizationManager* manager, Parameter* par,
                              double centralValue, double error ) :
 
 MIFunctionContribution( manager ),
@@ -50,6 +50,6 @@ double
 GaussianBound::operator()() {
   
   return ( ( m_par->value() - m_centralValue ) * ( m_par->value() - m_centralValue ) ) /
-  ( m_error * m_error );
+  ( 2 * m_error * m_error );
           
 }

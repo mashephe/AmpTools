@@ -98,7 +98,8 @@ class LikelihoodCalculatorMPI : public LikelihoodCalculator
   
   LikelihoodCalculatorMPI( const IntensityManager& intenManager,
                            const NormIntInterface& normInt,
-                           DataReader& dataReader,
+                           DataReader* dataReaderSignal,
+                           DataReader* dataReaderBkgnd,
                            ParameterManagerMPI& parManager );
   
   /**

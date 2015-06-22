@@ -60,15 +60,15 @@ public:
   // in an array of indices
   enum { kFixedIndex = -1 };
   
-  ParameterManager( MinuitMinimizationManager& minuitManager,
+  ParameterManager( MinuitMinimizationManager* minuitManager,
                     IntensityManager* intenManager );
   
-  ParameterManager( MinuitMinimizationManager& minuitManager,
+  ParameterManager( MinuitMinimizationManager* minuitManager,
                    const vector<IntensityManager*>& intenManagers );
   
   ~ParameterManager();
   
-  MinuitMinimizationManager& fitManager() const { return m_minuitManager; }
+  MinuitMinimizationManager* fitManager() const { return m_minuitManager; }
   
   void setupFromConfigurationInfo( ConfigurationInfo* cfgInfo );
     
@@ -121,7 +121,7 @@ protected:
   ComplexParameter* findParameter(const string& ampName) const;
   void updateParCovariance();
   
-  MinuitMinimizationManager& m_minuitManager;
+  MinuitMinimizationManager* m_minuitManager;
   
   vector< IntensityManager* > m_intenManagers;
   

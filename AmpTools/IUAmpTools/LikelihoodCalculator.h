@@ -73,7 +73,8 @@ public:
   
   LikelihoodCalculator( const IntensityManager& intenManager,
                         const NormIntInterface& normInt,
-                        DataReader& dataReader,
+                        DataReader* dataReaderSignal,
+                        DataReader* dataReaderBkgnd,
                         const ParameterManager& parManager );
   
   virtual ~LikelihoodCalculator();
@@ -90,11 +91,27 @@ protected:
   double dataTerm();
   double normIntTerm();
   
+  // these are useful for MPI implementations since there are a
+  // few sums that must be maintained across all processes to properly
+  // compute the normalization integral terms of the likelihood
+  
+  double sumBkgWeights() const { return m_sumBkgWeights; }
+  double numBkgEvents()  const { return m_numBkgEvents;  }
+  double numDataEvents() const { return m_numDataEvents; }
+  
+  void setSumBkgWeights( double sum ) { m_sumBkgWeights = sum; }
+  void setNumBkgEvents ( double num ) { m_numBkgEvents  = num; }
+  void setNumDataEvents( double num ) { m_numDataEvents = num; }
+  
 private:
+  
+  bool m_hasBackground;
   
   const IntensityManager& m_intenManager;
   const NormIntInterface& m_normInt;
-  DataReader& m_dataReader;
+
+  DataReader* m_dataReaderSignal;
+  DataReader* m_dataReaderBkgnd;
   
   bool m_firstNormIntCalc;
   bool m_firstDataCalc;
@@ -104,8 +121,12 @@ private:
   const double* m_ampIntArray;
   
   // The flat array of kinematics and amplitudes 
-  AmpVecs m_ampVecs;
+  AmpVecs m_ampVecsSignal;
+  AmpVecs m_ampVecsBkgnd;
   
+  double m_sumBkgWeights;
+  double m_numBkgEvents;
+  double m_numDataEvents;
 };
 
 #endif
