@@ -53,6 +53,7 @@ m_eventCounter( 0 ){
     m_inTree->SetBranchAddress( "PyP3", &m_PyP3 );
     m_inTree->SetBranchAddress( "PzP3", &m_PzP3 );
 
+    m_inTree->SetBranchAddress( "weight", &m_weight );
   }
 
 }
@@ -78,7 +79,7 @@ DalitzDataReader::getEvent(){
     particleList.push_back( TLorentzVector( m_PxP2, m_PyP2, m_PzP2, m_EnP2 ) );
     particleList.push_back( TLorentzVector( m_PxP3, m_PyP3, m_PzP3, m_EnP3 ) );
 
-    return new Kinematics( particleList );
+    return new Kinematics( particleList, m_weight );
 
   }
 
