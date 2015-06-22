@@ -16,7 +16,6 @@
 
 using std::complex;
 using namespace std;
-using namespace CLHEP;
 
 int main( int argc, char* argv[] ){
 
