@@ -49,6 +49,8 @@ private:
   float m_PxP3;
   float m_PyP3;
   float m_PzP3;
+  
+  float m_weight;
 
 };
 

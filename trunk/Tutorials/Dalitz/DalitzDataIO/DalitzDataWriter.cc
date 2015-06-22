@@ -32,9 +32,11 @@ DalitzDataWriter::DalitzDataWriter( const string& outFile ){
   m_outTree->Branch( "PxP3", &m_PxP3, "PxP3/F" );
   m_outTree->Branch( "PyP3", &m_PyP3, "PyP3/F" );
   m_outTree->Branch( "PzP3", &m_PzP3, "PzP3/F" );
-
+  
   m_outTree->Branch( "s12", &m_s12, "s12/F" );
   m_outTree->Branch( "s23", &m_s23, "s23/F" );
+
+  m_outTree->Branch( "weight", &m_weight, "weight/F" );
 
   m_eventCounter = 0;
 
@@ -72,6 +74,8 @@ DalitzDataWriter::writeEvent( const Kinematics& kin ){
 
   m_s12 = (particleList[0]+particleList[1]).M2();
   m_s23 = (particleList[1]+particleList[2]).M2();
+  
+  m_weight = kin.weight();
 
   m_outTree->Fill();
     

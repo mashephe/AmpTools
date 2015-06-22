@@ -38,6 +38,8 @@ private:
   float m_PyP3;
   float m_PzP3;
 
+  float m_weight;
+  
   float m_s12;
   float m_s23;
 
