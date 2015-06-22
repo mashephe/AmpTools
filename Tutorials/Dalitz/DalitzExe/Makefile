@@ -2,7 +2,7 @@
 INC_DIR :=  -I.. -I$(shell root-config --incdir) \
   -I$(AMPTOOLS) -I$(AMPPLOTTER) -I$(DALITZ)
 
-LIB_DIR := -L-I$(shell root-config --libdir) \
+LIB_DIR := -L$(shell root-config --libdir) \
 	-L$(AMPTOOLS)/lib -L$(AMPPLOTTER)/lib -L$(DALITZ)/lib
 
 ROOTLIBS := $(shell root-config --glibs)
