@@ -37,19 +37,19 @@
 #include "MinuitInterface/MIFunctionContribution.h"
 #include "MinuitInterface/MinuitMinimizationManager.h"
 
-MIFunctionContribution::MIFunctionContribution( MinuitMinimizationManager& aManager ) :
+MIFunctionContribution::MIFunctionContribution( MinuitMinimizationManager* aManager ) :
    MIObserver(),
    m_manager( aManager ),
    m_functionEvaluated( false ),
    m_contribution( 0 ),
    m_contributing( true )
 {
-  m_manager.attach( this );
+  if( m_manager != NULL ) m_manager->attach( this );
 }
 
 MIFunctionContribution::~MIFunctionContribution() {
 
-  m_manager.detach( this );
+  if( m_manager != NULL ) m_manager->detach( this );
 }
 
 void
@@ -60,7 +60,7 @@ MIFunctionContribution::update( const MISubject* callingSubject ) {
 
 double
 MIFunctionContribution::contribution() {
-   if ( ! m_functionEvaluated ) {update(&m_manager);}
+   if ( ! m_functionEvaluated ) {update(m_manager);}
    return m_contribution;
 }
 

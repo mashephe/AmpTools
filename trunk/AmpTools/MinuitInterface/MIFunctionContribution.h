@@ -49,7 +49,7 @@ public :
     // this flag is 
     static const double kUnkownDerivative;
     
-   MIFunctionContribution( MinuitMinimizationManager& );
+   MIFunctionContribution( MinuitMinimizationManager* );
    virtual ~MIFunctionContribution();
    
    virtual double operator()() = 0;
@@ -68,7 +68,7 @@ public :
    
 private:
    
-   MinuitMinimizationManager& m_manager; 
+   MinuitMinimizationManager* m_manager;
    
    bool m_functionEvaluated;
    double m_contribution;

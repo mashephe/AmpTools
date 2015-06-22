@@ -50,6 +50,7 @@ AmpVecs::AmpVecs(){
   
   m_iNEvents        = 0 ;
   m_iNTrueEvents    = 0 ;
+  m_dAbsSumWeights  = 0 ;
   m_iNParticles     = 0 ;
   m_iNTerms         = 0 ;
   m_maxFactPerEvent = 0 ;
@@ -74,6 +75,7 @@ AmpVecs::deallocAmpVecs()
   
   m_iNEvents        = 0 ;
   m_iNTrueEvents    = 0 ;
+  m_dAbsSumWeights     = 0 ;
   m_iNParticles     = 0 ;
   m_iNTerms         = 0 ;
   m_maxFactPerEvent = 0 ;
@@ -124,7 +126,7 @@ AmpVecs::deallocAmpVecs()
 
 void
 AmpVecs::loadEvent( const Kinematics* pKinematics, unsigned long long iEvent,
-                    unsigned long long iNTrueEvents ){
+                    unsigned long long iNTrueEvents, bool bForceNegativeWeight ){
   
   // allocate memory and set variables
   //  if this is the first call to this method
@@ -178,7 +180,9 @@ AmpVecs::loadEvent( const Kinematics* pKinematics, unsigned long long iEvent,
   }
 #endif
 
-  m_pdWeights[iEvent] = pKinematics->weight();
+  m_pdWeights[iEvent] = ( bForceNegativeWeight ?
+                         -fabsf( pKinematics->weight() ) :
+                         pKinematics->weight() );
   
   m_termsValid = false;
   m_integralValid = false;
@@ -186,7 +190,7 @@ AmpVecs::loadEvent( const Kinematics* pKinematics, unsigned long long iEvent,
 
 
 void
-AmpVecs::loadData( DataReader* pDataReader ){
+AmpVecs::loadData( DataReader* pDataReader, bool bForceNegativeWeight ){
   
   //  Make sure no data is already loaded
   
@@ -210,14 +214,15 @@ AmpVecs::loadData( DataReader* pDataReader ){
   Kinematics* pKinematics;
   for(int iEvent = 0; iEvent < m_iNTrueEvents; iEvent++){ 
     pKinematics = pDataReader->getEvent();
-    loadEvent(pKinematics, iEvent, m_iNTrueEvents);
+    loadEvent(pKinematics, iEvent, m_iNTrueEvents, bForceNegativeWeight );
+    m_dAbsSumWeights += fabsf( pKinematics->weight() );
     if (iEvent < (m_iNTrueEvents - 1)) delete pKinematics;
   }
   
   // Fill any remaining space in the data array with the last event's kinematics
   
-  for (int iEvent = m_iNTrueEvents; iEvent < m_iNEvents; iEvent++){
-    loadEvent(pKinematics, iEvent, m_iNTrueEvents);
+  for (unsigned long long int iEvent = m_iNTrueEvents; iEvent < m_iNEvents; iEvent++){
+    loadEvent(pKinematics, iEvent, m_iNTrueEvents, bForceNegativeWeight );
   }
   delete pKinematics;
   

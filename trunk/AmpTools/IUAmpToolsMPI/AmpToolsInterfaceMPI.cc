@@ -60,7 +60,7 @@ AmpToolsInterfaceMPI::AmpToolsInterfaceMPI(ConfigurationInfo* configurationInfo)
     parameterManagerMPI = new ParameterManagerMPI( m_intensityManagers );
   }
   else{
-    parameterManagerMPI = new ParameterManagerMPI( *m_minuitMinimizationManager,
+    parameterManagerMPI = new ParameterManagerMPI( m_minuitMinimizationManager,
                                                    m_intensityManagers );
   }
   parameterManagerMPI->setupFromConfigurationInfo( m_configurationInfo );
@@ -88,7 +88,10 @@ AmpToolsInterfaceMPI::AmpToolsInterfaceMPI(ConfigurationInfo* configurationInfo)
       if (reaction->data().first == m_userDataReaders[i]->name()) 
         m_dataReaderMap[reactionName] 
           = m_userDataReaders[i]->newDataReader(reaction->data().second);
-      if (reaction->genMC().first == m_userDataReaders[i]->name()) 
+      if (reaction->bkgnd().first == m_userDataReaders[i]->name())
+        m_bkgndReaderMap[reactionName]
+        = m_userDataReaders[i]->newDataReader(reaction->bkgnd().second);
+      if (reaction->genMC().first == m_userDataReaders[i]->name())
         m_genMCReaderMap[reactionName]
           = m_userDataReaders[i]->newDataReader(reaction->genMC().second);
       if (reaction->accMC().first == m_userDataReaders[i]->name()) 
@@ -96,6 +99,7 @@ AmpToolsInterfaceMPI::AmpToolsInterfaceMPI(ConfigurationInfo* configurationInfo)
           = m_userDataReaders[i]->newDataReader(reaction->accMC().second);
     }
     DataReader* dataRdr  =  dataReader(reactionName);
+    DataReader* bkgndRdr = bkgndReader(reactionName);
     DataReader* genMCRdr = genMCReader(reactionName);
     DataReader* accMCRdr = accMCReader(reactionName);
 
@@ -126,7 +130,7 @@ AmpToolsInterfaceMPI::AmpToolsInterfaceMPI(ConfigurationInfo* configurationInfo)
 
     LikelihoodCalculatorMPI* likCalc = NULL;
     if (intenMan && normInt && dataRdr && m_parameterManager){
-      likCalc = new LikelihoodCalculatorMPI(*intenMan, *normInt, *dataRdr, *parameterManagerMPI); 
+      likCalc = new LikelihoodCalculatorMPI(*intenMan, *normInt, dataRdr, bkgndRdr, *parameterManagerMPI);
       m_likCalcMap[reactionName] = likCalc;
     }
     else{

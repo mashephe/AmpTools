@@ -46,7 +46,7 @@ class GaussianBound : MIFunctionContribution
   
 public:
   
-  GaussianBound( MinuitMinimizationManager& manager, Parameter* par,
+  GaussianBound( MinuitMinimizationManager* manager, Parameter* par,
                 double centralValue, double error );
   
   double operator()();

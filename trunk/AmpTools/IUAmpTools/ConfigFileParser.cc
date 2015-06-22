@@ -299,6 +299,7 @@ ConfigFileParser::setupConfigurationInfo(){
         ((*lineItr).keyword() == "genmcfile") ||
         ((*lineItr).keyword() == "accmcfile") ||
         ((*lineItr).keyword() == "data") ||
+        ((*lineItr).keyword() == "bkgnd") ||
         ((*lineItr).keyword() == "genmc") ||
         ((*lineItr).keyword() == "accmc"))  doData(*lineItr);
 
@@ -381,6 +382,7 @@ ConfigFileParser::checkSyntax() const{
   keywordParameters["fit"]           = pair<int,int>(1,1);
   keywordParameters["reaction"]      = pair<int,int>(3,100);
   keywordParameters["data"]          = pair<int,int>(2,100);
+  keywordParameters["bkgnd"]         = pair<int,int>(2,100);
   keywordParameters["genmc"]         = pair<int,int>(2,100);
   keywordParameters["accmc"]         = pair<int,int>(2,100);
   keywordParameters["normintfile"]   = pair<int,int>(2,3);
@@ -476,9 +478,10 @@ ConfigFileParser::doData(const ConfigFileLine& line){
     line.printLine();
     exit(1);
   }
-  if (line.keyword() == "data")  rct->setData (classname, dataargs);
-  if (line.keyword() == "genmc") rct->setGenMC(classname, dataargs);
-  if (line.keyword() == "accmc") rct->setAccMC(classname, dataargs);
+  if (line.keyword() == "data")    rct->setData (classname, dataargs);
+  if (line.keyword() == "bkgnd")   rct->setBkgnd(classname, dataargs);
+  if (line.keyword() == "genmc")   rct->setGenMC(classname, dataargs);
+  if (line.keyword() == "accmc")   rct->setAccMC(classname, dataargs);
 }
 
 

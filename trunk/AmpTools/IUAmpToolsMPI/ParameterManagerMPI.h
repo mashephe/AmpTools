@@ -59,9 +59,9 @@ public:
   // an additional constructor for the worker nodes
   
   // this constructor is called on the head node
-  ParameterManagerMPI( MinuitMinimizationManager& minuitManager,
+  ParameterManagerMPI( MinuitMinimizationManager* minuitManager,
                       IntensityManager* intenManager );
-  ParameterManagerMPI( MinuitMinimizationManager& minuitManager,
+  ParameterManagerMPI( MinuitMinimizationManager* minuitManager,
                       const vector< IntensityManager* >& intenManagers );
   
   // this constructor should be called on the worker nodes

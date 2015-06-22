@@ -164,6 +164,11 @@ class AmpToolsInterface{
 
     DataReader*           dataReader           (const string& reactionName) const;
 
+  /** Returns a pointer to a DataReader (for background).
+   *  There is one for each reaction.
+   */
+  
+    DataReader*           bkgndReader           (const string& reactionName) const;
 
   /** Returns a pointer to a DataReader (for accepted Monte Carlo).
    *  There is one for each reaction.
@@ -410,6 +415,7 @@ class AmpToolsInterface{
 
 
     map<string,DataReader*> m_dataReaderMap;
+    map<string,DataReader*> m_bkgndReaderMap;
     map<string,DataReader*> m_genMCReaderMap;
     map<string,DataReader*> m_accMCReaderMap;
 

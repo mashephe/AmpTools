@@ -529,6 +529,14 @@ public:
 
   /**
    * Returns the name of a DataReader and a vector of arguments (e.g. file names)
+   * to that DataReader for BACKGROUND associated with this reaction.
+   *
+   * \see setBkgnd
+   */
+  const pair< string, vector<string> >& bkgnd()  const {return m_bkgnd;}
+
+  /**
+   * Returns the name of a DataReader and a vector of arguments (e.g. file names)
    * to that DataReader for GENERATED MC associated with this reaction.
    *
    * \see setGenMC
@@ -600,6 +608,18 @@ public:
    */
   void  setData   (const string& classname, const vector<string>& args)
                             { m_data = pair<string, vector<string> >(classname,args); }
+  
+  /**
+   * Sets the name of a DataReader and a vector of arguments (e.g. file names)
+   * to that DataReader for BACKGROUND associated with this reaction.
+   *
+   * \param[in] classname the name of the DataReader that will read DATA
+   * \param[in] args arguments to the DataReader
+   *
+   * \see data
+   */
+  void  setBkgnd  (const string& classname, const vector<string>& args)
+  { m_bkgnd = pair<string, vector<string> >(classname,args); }
 
   /**
    * Sets the name of a DataReader and a vector of arguments (e.g. file names)
@@ -643,6 +663,7 @@ private:
   string                         m_reactionName;
   vector<string>                 m_particleList;
   pair< string, vector<string> > m_data;
+  pair< string, vector<string> > m_bkgnd;
   pair< string, vector<string> > m_genMC;
   pair< string, vector<string> > m_accMC;
   string                         m_normIntFile;

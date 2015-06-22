@@ -43,9 +43,10 @@
 LikelihoodCalculatorMPI::
 LikelihoodCalculatorMPI( const IntensityManager& intenManager,
                         const NormIntInterface& normInt,
-                        DataReader& dataReader,
+                        DataReader* dataReader,
+                        DataReader* bkgReader,
                         ParameterManagerMPI& parManager ) :
-LikelihoodCalculator( intenManager, normInt, dataReader, parManager ),
+LikelihoodCalculator( intenManager, normInt, dataReader, bkgReader, parManager ),
 m_intenManager( intenManager ),
 m_parManager( parManager ),
 m_thisId( m_idCounter++ ),
@@ -134,16 +135,26 @@ LikelihoodCalculatorMPI::operator()()
   }
   
   double lnL = 0;
-  double partialSum;
+  double sumBkgWeights = 0;
+  double numBkgEvents  = 0;
+  double numDataEvents = 0;
+  double data[4];
   
   // collect the sums
   for( int i = 1; i < m_numProc; ++i ){
     
-    MPI_Recv( &partialSum, 1, MPI_DOUBLE, i, MPITag::kDoubleSend,
+    MPI_Recv( &data, 4, MPI_DOUBLE, i, MPITag::kDoubleSend,
              MPI_COMM_WORLD, &status );
     
-    lnL += partialSum;
+    lnL           += data[0];
+    sumBkgWeights += data[1];
+    numBkgEvents  += data[2];
+    numDataEvents += data[3];
   }
+  
+  setSumBkgWeights( sumBkgWeights );
+  setNumBkgEvents ( numBkgEvents  );
+  setNumDataEvents( numDataEvents );
   
   // if we have an amplitude with a free parameter, the call to normIntTerm()
   // will trigger recomputation of NI's -- we need to put the workers in the
@@ -190,8 +201,14 @@ LikelihoodCalculatorMPI::computeLikelihood()
 {
   assert( !m_isMaster );
   
-  double lnL = dataTerm();
-  MPI_Send( &lnL, 1, MPI_DOUBLE, 0, MPITag::kDoubleSend, MPI_COMM_WORLD );
+  double data[4];
+  
+  data[0] = dataTerm();
+  data[1] = sumBkgWeights();
+  data[2] = numBkgEvents();
+  data[3] = numDataEvents();
+  
+  MPI_Send( &data, 4, MPI_DOUBLE, 0, MPITag::kDoubleSend, MPI_COMM_WORLD );
 }
 
 void

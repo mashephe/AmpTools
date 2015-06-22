@@ -55,15 +55,22 @@
 
 LikelihoodCalculator::LikelihoodCalculator( const IntensityManager& intenManager,
                                             const NormIntInterface& normInt,
-                                            DataReader& dataReader,
+                                            DataReader* dataReaderSignal,
+                                            DataReader* dataReaderBkgnd,
                                             const ParameterManager& parManager ) :
 MIFunctionContribution( parManager.fitManager() ),
 m_intenManager( intenManager ),
 m_normInt( normInt ),
-m_dataReader( dataReader ),
+m_dataReaderSignal( dataReaderSignal ),
+m_dataReaderBkgnd( dataReaderBkgnd ),
 m_firstDataCalc( true ),
-m_firstNormIntCalc( true )
+m_firstNormIntCalc( true ),
+m_sumBkgWeights( 0 ),
+m_numBkgEvents( 0 ),
+m_numDataEvents( 0 )
 {
+  
+  m_hasBackground = ( dataReaderBkgnd != NULL );
   
 // avoid caching data here in the constructor so that MPI-based classes that
 // inherit from this class can have better control of what triggers the
@@ -168,7 +175,34 @@ LikelihoodCalculator::normIntTerm(){
   
   m_firstNormIntCalc = false;
   
-  return normTerm;
+  if( m_hasBackground ){
+    
+    // in this case let's match the number of observed events to sum of the
+    // predicted signal and the provided background
+
+    // this is the number of predicted signal and background events
+    double nPred = normTerm + m_sumBkgWeights;
+
+    // this is variance of the sum of background weights
+    double varBkg = ( m_sumBkgWeights * m_sumBkgWeights ) / m_numBkgEvents;
+ 
+    // this the sum of the variance of the prediction and observation
+    double varNObs = m_numDataEvents + varBkg;
+    
+    normTerm = ( m_numDataEvents - m_sumBkgWeights ) * log( normTerm );
+    normTerm += ( ( m_numDataEvents - nPred ) *
+                  ( m_numDataEvents - nPred ) / ( 2 * varNObs ) );
+    
+    return normTerm;
+  }
+  else{
+    
+    // this is the standard extended maximum likelihood technique that uses
+    // a Poisson distribution of the predicted signal and the number of
+    // observed events to normalize the fit components
+    
+    return normTerm;
+  }
 }
 
 double
@@ -185,12 +219,29 @@ LikelihoodCalculator::dataTerm(){
     cout << "Allocating Data and Amplitude Array in LikelihoodCalculator for " 
          << m_intenManager.reactionName() << "..." << endl;
     
-    m_ampVecs.loadData( &m_dataReader );
-    m_ampVecs.allocateTerms( m_intenManager, true );
+    m_ampVecsSignal.loadData( m_dataReaderSignal );
+    m_ampVecsSignal.allocateTerms( m_intenManager, true );
+
+    m_numDataEvents = m_ampVecsSignal.m_iNTrueEvents;
+    
+    if( m_hasBackground ){
+    
+      m_ampVecsBkgnd.loadData( m_dataReaderBkgnd, true );
+      m_ampVecsBkgnd.allocateTerms( m_intenManager, true );
+
+      m_sumBkgWeights = m_ampVecsBkgnd.m_dAbsSumWeights;
+      m_numBkgEvents = m_ampVecsBkgnd.m_iNTrueEvents;
+    }
+    
     cout << "\tDone." << endl;
   }
   
-  double sumLnI = m_intenManager.calcSumLogIntensity( m_ampVecs );
+  double sumLnI = m_intenManager.calcSumLogIntensity( m_ampVecsSignal );
+  
+  if( m_hasBackground ){
+
+    sumLnI += m_intenManager.calcSumLogIntensity( m_ampVecsBkgnd );
+  }
   
   m_firstDataCalc = false;
   

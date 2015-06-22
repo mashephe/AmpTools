@@ -48,25 +48,25 @@
 #include "MinuitInterface/MinuitParameterManager.h"
 #include "GPUManager/GPUCustomTypes.h"
 
-ParameterManager::ParameterManager( MinuitMinimizationManager& minuitManager,
+ParameterManager::ParameterManager( MinuitMinimizationManager* minuitManager,
                                     IntensityManager* intenManager ) :
 MIObserver(),
 m_minuitManager( minuitManager ),
 m_intenManagers( 0 )
 { 
-  m_minuitManager.attach( this );
+  m_minuitManager->attach( this );
   m_intenManagers.push_back(intenManager);
 //  cout << "Parameter manager initialized." << endl;
 }
 
 ParameterManager::
-ParameterManager( MinuitMinimizationManager& minuitManager,
+ParameterManager( MinuitMinimizationManager* minuitManager,
                  const vector<IntensityManager*>& intenManagers ) :
 MIObserver(),
 m_minuitManager( minuitManager ),
 m_intenManagers( intenManagers )
 { 
-  m_minuitManager.attach( this );
+  m_minuitManager->attach( this );
 //  cout << "Parameter manager initialized." << endl;
 }
 
@@ -79,7 +79,7 @@ m_intenManagers( intenManagers )
 // pointer.
 
 ParameterManager::ParameterManager( IntensityManager* ampManager ) :
-  m_minuitManager( *static_cast< MinuitMinimizationManager* >( NULL ) ),
+  m_minuitManager( NULL ),
   m_intenManagers( 0 )
 { 
   m_intenManagers.push_back(ampManager);
@@ -88,7 +88,7 @@ ParameterManager::ParameterManager( IntensityManager* ampManager ) :
 
 ParameterManager::
 ParameterManager( const vector<IntensityManager*>& intenManagers ) :
-  m_minuitManager( *static_cast< MinuitMinimizationManager* >( NULL ) ),
+  m_minuitManager( NULL ),
   m_intenManagers( intenManagers )
 { 
 //  cout << "Parameter manager initialized." << endl;
@@ -166,7 +166,7 @@ ParameterManager::addAmplitudeParameter( const string& termName, const Parameter
     
 //    cout << "Creating new amplitude parameter:  " << parInfo->parName() << endl;
     
-    parPtr = new MinuitParameter( parName, m_minuitManager.parameterManager(), 
+    parPtr = new MinuitParameter( parName, m_minuitManager->parameterManager(),
                                  parInfo->value());
     
     // attach to allow the parameter to call back this class when it is updated
@@ -263,7 +263,7 @@ ParameterManager::addProductionParameter( const string& termName, bool real, boo
   if (!par){
 //    cout << "ParameterManager:  Creating new complex production amplitude parameter for "
 //         << termName << endl;
-    par = new ComplexParameter( termName, m_minuitManager, initialValue, real );
+    par = new ComplexParameter( termName, *m_minuitManager, initialValue, real );
     m_prodPtrCache.push_back( par );
   }
   
@@ -497,7 +497,7 @@ ParameterManager::updateParCovariance(){
   int nPar = m_parList.size();
   
   const vector< vector< double > >& minCovMtx = 
-  m_minuitManager.parameterManager().covarianceMatrix();
+  m_minuitManager->parameterManager().covarianceMatrix();
   
   m_covMatrix.clear();
   for( int i = 0; i < nPar; ++i ){
