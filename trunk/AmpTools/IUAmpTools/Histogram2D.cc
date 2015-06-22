@@ -72,7 +72,10 @@ Histogram2D::Histogram2D( HistStruct& hist )
     m_entries = hist.entries;
 }
 
-Histogram2D::Histogram2D( int nBinsX, double xLow, double xHigh,int nBinsY, double yLow, double yHigh )
+Histogram2D::Histogram2D( int nBinsX, double xLow, double xHigh,
+                          int nBinsY, double yLow, double yHigh,
+                          string name, string title ) :
+Histogram( name, title )
  {
 	m_xLow=xLow;
 	m_xHigh=xHigh;
@@ -109,7 +112,8 @@ Histogram2D::fill(vector < double > values, double weight ){
 
 TH1* Histogram2D::toRoot( void ) const {
  
-    TH2F *plot2D=new TH2F( "hist", "Histogram", m_nBinsX, m_xLow, m_xHigh,m_nBinsY, m_yLow, m_yHigh );
+    TH2F *plot2D=new TH2F( name().c_str(), title().c_str(),
+                           m_nBinsX, m_xLow, m_xHigh,m_nBinsY, m_yLow, m_yHigh );
     int ibinX,ibinY;
     for( unsigned int i = 0; i < m_binContents.size(); ++i ){
 	//  int ibin=ibinY*m_nBinsX+ibinX; I used this. So:

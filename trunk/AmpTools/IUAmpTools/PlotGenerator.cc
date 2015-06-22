@@ -308,7 +308,7 @@ PlotGenerator::getAmpIndex( const string& ampName) const {
 }
 
 void
-PlotGenerator::bookHistogram( int index, const string& title,Histogram* hist){
+PlotGenerator::bookHistogram( int index, const string& title, Histogram* hist){
   
   if( index >= m_histVect.size() ){
     
@@ -318,6 +318,12 @@ PlotGenerator::bookHistogram( int index, const string& title,Histogram* hist){
   
   m_histVect[index] = hist;
   m_histTitles[index] = title;
+}
+
+void
+PlotGenerator::bookHistogram( int index, Histogram* hist){
+
+  bookHistogram( index, hist->title(), hist );
 }
 
 void

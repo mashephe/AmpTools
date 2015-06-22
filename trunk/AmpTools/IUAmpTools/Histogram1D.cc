@@ -43,12 +43,13 @@
 
 using namespace std;
 
-Histogram1D::Histogram1D() 
+Histogram1D::Histogram1D() : Histogram()
 {
 	m_dimensions=1;
 }
 
-Histogram1D::Histogram1D( HistStruct& hist )
+Histogram1D::Histogram1D( HistStruct& hist ) :
+Histogram()
 {
 	m_binContents.resize(hist.nBins);
 	m_binContents.clear();
@@ -67,7 +68,9 @@ Histogram1D::Histogram1D( HistStruct& hist )
     m_entries = hist.entries;
 }
 
-Histogram1D::Histogram1D( int nBins, double xLow, double xHigh ) 
+Histogram1D::Histogram1D( int nBins, double xLow, double xHigh,
+                          string name, string title ) :
+Histogram( name, title )
 {
 	m_nBinsX = nBins;
 	m_nBins = nBins;
@@ -100,7 +103,8 @@ Histogram1D::fill( vector < double > values, double weight ){
 
 TH1* Histogram1D::toRoot( void ) const {
  
-    TH1F *plot= new TH1F( "hist", "Histogram", m_nBins, m_xLow, m_xHigh );
+    TH1F *plot= new TH1F( name().c_str(), title().c_str(),
+                          m_nBins, m_xLow, m_xHigh );
     
     for( unsigned int i = 0; i < m_binContents.size(); ++i ){
         

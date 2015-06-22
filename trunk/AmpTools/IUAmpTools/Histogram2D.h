@@ -53,10 +53,11 @@ public:
     
     Histogram2D();
     ~Histogram2D(){};
-    Histogram2D( int nBinsX, double xLow, double xHigh,int nBinsY, double yLow, double yHigh );
+    Histogram2D( int nBinsX, double xLow, double xHigh,
+                 int nBinsY, double yLow, double yHigh,
+                 string name = "hist2d", string title = "2D Histogram" );
     Histogram2D( HistStruct& hist );
  
-    
     virtual void fill(vector < double > values,double weight = 1.0 );
     virtual TH1* toRoot() const;
     virtual HistStruct toStruct() const;

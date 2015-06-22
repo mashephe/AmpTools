@@ -42,12 +42,14 @@
 
 using namespace std;
 
-Histogram::Histogram() :
+Histogram::Histogram( string name, string title ) :
 m_nBins( 0 ),
 m_xLow( 0 ),
 m_xHigh( 0 ),
 m_entries( 0 ),
-m_binContents( 0 ){}
+m_binContents( 0 ),
+m_name( name ),
+m_title( title ){}
 
 
 void

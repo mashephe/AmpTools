@@ -59,7 +59,8 @@ class Histogram
     
 public:
   
-	Histogram();
+  Histogram( string name = "Histogram", string title = "hist" );
+  
 	virtual ~Histogram(){};
 	/*Pure virtual methods*/
 	virtual void fill( vector< double > value, double weight = 1.0 )= 0;
@@ -69,9 +70,12 @@ public:
 	virtual Histogram* Clone() const=0;
 	
 	void normalize( double scaleFactor );
-	double entries(){ return( m_entries); }
+	double entries(){ return( m_entries ); }
 	void clear();
 	void operator+=( HistStruct& hStruct );
+  
+  string title() const { return m_title; }
+  string name()  const { return m_name;  }
   
 	bool empty() const { return( m_entries == 0 ); }
   
@@ -86,6 +90,11 @@ protected:
   double m_binSizeX;
 	
   int m_dimensions;
+
+private:
+  
+  string m_title;
+  string m_name;
 };
 
 #endif
