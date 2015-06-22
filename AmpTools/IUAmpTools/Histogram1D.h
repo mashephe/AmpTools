@@ -52,7 +52,8 @@ public:
     Histogram1D();
     ~Histogram1D(){};
     Histogram1D( HistStruct& hist );
-    Histogram1D( int nBins, double xLow, double xHigh );
+    Histogram1D( int nBins, double xLow, double xHigh,
+                 string name = "hist1d", string title = "1D Histogram" );
 
     virtual void fill( vector< double > value, double weight = 1.0 );
    
