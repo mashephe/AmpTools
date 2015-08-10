@@ -68,6 +68,14 @@ is fitting to multiple coherent sums of amplitudes.
 
 RELEASE NOTES:
 
+v0.9.0 (10-Aug-2015):
+
+Add new method of accounting for background in samples.  A background
+sample is specified in the configuration file using the "bkgnd" keyword.
+This sample should be normalized such that the sum of the weights is
+equal to the estimated size of the background.  This contribution will
+be subtracted during the fit.
+
 v0.8.0 (17-Jun-2015):
 
 Removed dependence on CLHEP.  Lorentz vector classes are provided by ROOT
