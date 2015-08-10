@@ -183,15 +183,8 @@ LikelihoodCalculator::normIntTerm(){
     // this is the number of predicted signal and background events
     double nPred = normTerm + m_sumBkgWeights;
 
-    // this is variance of the sum of background weights
-    double varBkg = ( m_sumBkgWeights * m_sumBkgWeights ) / m_numBkgEvents;
- 
-    // this the sum of the variance of the prediction and observation
-    double varNObs = m_numDataEvents + varBkg;
-    
     normTerm = ( m_numDataEvents - m_sumBkgWeights ) * log( normTerm );
-    normTerm += ( ( m_numDataEvents - nPred ) *
-                  ( m_numDataEvents - nPred ) / ( 2 * varNObs ) );
+    normTerm += nPred - ( m_numDataEvents * log( nPred ) );
     
     return normTerm;
   }
