@@ -354,8 +354,8 @@ PlotGenerator::fillProjections( const string& reactName, unsigned int type ){
     Kinematics* kin = m_ati.kinematics(i, dataIndex);
     
     m_currentEventWeight = ( isData ? 1.0 : m_ati.intensity( i, dataIndex ) );
-    m_currentEventWeight *= kin->weight();
-	  
+    // m_ati.intensity already contains a possible MC-event weight
+    
     // the user defines this function in the derived class and it
     // calls the fillHistogram method immediately below
     
