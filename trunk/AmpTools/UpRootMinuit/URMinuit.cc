@@ -489,7 +489,7 @@ Int_urt URMinuit::Migrad()
      Int_urt err;
   
 // configure command arguments here
-     Double_urt plist[] = { fMaxIterations };
+     Double_urt plist[] = { static_cast<Double_urt>(fMaxIterations) };
      Int_urt npar = 1;
 
      mnexcm( "MIGRAD", plist, npar, err );
@@ -504,7 +504,7 @@ Int_urt URMinuit::Hesse()
    Int_urt err;
 
   // configure command arguments here
-   Double_urt plist[] = { fMaxIterations };
+   Double_urt plist[] = { static_cast<Double_urt>(fMaxIterations) };
    Int_urt npar = 1;
   
    mnexcm( "HESSE", plist, npar, err );
@@ -519,7 +519,7 @@ Int_urt URMinuit::Minos()
    Int_urt err;
   
   // configure command arguments here
-   Double_urt plist[] = { fMaxIterations };
+   Double_urt plist[] = { static_cast<Double_urt>(fMaxIterations) };
    Int_urt npar = 1;
    
    mnexcm( "MINOS", plist, npar, err );
