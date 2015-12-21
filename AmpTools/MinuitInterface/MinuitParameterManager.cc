@@ -133,7 +133,7 @@ MinuitParameterManager::synchronizeMinuit()
     // force the minuit value to the current value of the parameter
     if ( value != parameter->value() ) 
     {
-      double commandParameters[]  = { minuitId, parameter->value() };
+      double commandParameters[]  = { static_cast<double>(minuitId), parameter->value() };
       int status;
       theMinimizer.mnexcm( "SET PAR", commandParameters, 2, status );
     }
@@ -168,7 +168,7 @@ MinuitParameterManager::synchronizeMinuit()
       } 
       else 
       {
-        double commandParameters[] = {minuitId, parameter->lowerBound(), 
+        double commandParameters[] = {static_cast<double>(minuitId), parameter->lowerBound(), 
           parameter->upperBound()};
         theMinimizer.mnexcm( limCommand, commandParameters, 3,  status );
       }
