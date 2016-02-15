@@ -173,10 +173,10 @@ AmpVecs::loadEvent( const Kinematics* pKinematics, unsigned long long iEvent,
   }
 #else
   for (int iParticle = 0; iParticle < m_iNParticles; iParticle++){
-    m_pdData[(4*iParticle+0)*m_iNEvents+iEvent] = pKinematics->particle(iParticle).e();
-    m_pdData[(4*iParticle+1)*m_iNEvents+iEvent] = pKinematics->particle(iParticle).px();
-    m_pdData[(4*iParticle+2)*m_iNEvents+iEvent] = pKinematics->particle(iParticle).py();
-    m_pdData[(4*iParticle+3)*m_iNEvents+iEvent] = pKinematics->particle(iParticle).pz();
+    m_pdData[(4*iParticle+0)*m_iNEvents+iEvent] = pKinematics->particle(iParticle).E();
+    m_pdData[(4*iParticle+1)*m_iNEvents+iEvent] = pKinematics->particle(iParticle).Px();
+    m_pdData[(4*iParticle+2)*m_iNEvents+iEvent] = pKinematics->particle(iParticle).Py();
+    m_pdData[(4*iParticle+3)*m_iNEvents+iEvent] = pKinematics->particle(iParticle).Pz();
   }
 #endif
 
