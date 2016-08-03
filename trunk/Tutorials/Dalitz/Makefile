@@ -2,7 +2,7 @@
 INC_DIR :=  -I.. -I$(shell root-config --incdir) -I$(AMPTOOLS)
 
 CXX := gcc
-CXX_FLAGS := -O3
+CXX_FLAGS := -O3 $(shell root-config --cflags)
 
 SRCDIRS := DalitzDataIO DalitzAmp DalitzPlot
 TARGET_LIBS := $(addsuffix .a, $(addprefix lib, $(SRCDIRS)))

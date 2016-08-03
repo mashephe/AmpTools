@@ -2,7 +2,7 @@
 INC_DIR :=  -I.. -I$(ROOTSYS)/include -I$(AMPTOOLS)
 
 CXX := gcc
-CXX_FLAGS := -O3
+CXX_FLAGS := -O3 $(shell root-config --cflags)
 
 SRCDIRS := gammaKKDataIO gammaKKAmp gammaKKPlot
 TARGET_LIBS := $(addsuffix .a, $(addprefix lib, $(SRCDIRS)))
