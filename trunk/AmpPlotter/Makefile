@@ -4,7 +4,7 @@ INC_DIR :=  -I.. -I$(shell root-config --incdir) -I$(AMPTOOLS)
 SRCDIRS := AmpPlotter
 
 CXX := gcc
-CXX_FLAGS := -O3
+CXX_FLAGS := -O3 $(shell root-config --cflags)
 
 TARGET_LIBS := $(addsuffix .a, $(addprefix lib, $(SRCDIRS)))
 
