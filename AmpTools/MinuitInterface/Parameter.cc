@@ -50,8 +50,17 @@ Parameter::~Parameter() {}
 
 void
 Parameter::setValue( double newValue ) {
-   m_value = newValue;
-   notify();
+
+  if( m_value != newValue ){
+
+    // In practice the comparison above could probably "safely" be
+    // done within some tolerance, but set to exact comparison for now.
+    // This check avoids falsely notifying observers when the
+    // parameter hasn't actually changed.
+    
+    m_value = newValue;
+    notify();
+  }
 }
 
 void
