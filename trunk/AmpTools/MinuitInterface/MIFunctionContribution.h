@@ -47,7 +47,7 @@ class MIFunctionContribution : public MIObserver
 public :
     
     // this flag is 
-    static const double kUnkownDerivative;
+    static const double kUnknownDerivative;
     
    MIFunctionContribution( MinuitMinimizationManager* );
    virtual ~MIFunctionContribution();
