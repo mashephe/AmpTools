@@ -74,4 +74,4 @@ MIFunctionContribution::derivative( const MinuitParameter& par ){
 
 // this value is the same as fUndefi in the URMinuit class
 // when derivatives cannot be computed it should be returned
-const double MIFunctionContribution::kUnkownDerivative = -54321;
+const double MIFunctionContribution::kUnknownDerivative = -54321;
