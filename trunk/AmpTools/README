@@ -68,6 +68,14 @@ is fitting to multiple coherent sums of amplitudes.
 
 RELEASE NOTES:
 
+v0.9.2 (25-Aug-2016):
+
+Fix bug in loading kinematic data for GPU accelerated fits.
+
+Use root-config more in Makefiles to easy transition to ROOT v.6.
+
+Correct a bug that results in double-weighting of events in PlotGenerator.
+
 v0.9.1 (11-Aug-2015):
 
 Fix problem with AmpPlotter Makefile.  No other functional changes.
