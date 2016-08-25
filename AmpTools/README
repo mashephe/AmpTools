@@ -76,6 +76,10 @@ Use root-config more in Makefiles to easy transition to ROOT v.6.
 
 Correct a bug that results in double-weighting of events in PlotGenerator.
 
+Insert optimization to be sure parameter has changed before recalculating
+amplitudes with free parameters.  This may accelerate some fits with
+floating parameters in amplitudes.
+
 v0.9.1 (11-Aug-2015):
 
 Fix problem with AmpPlotter Makefile.  No other functional changes.
