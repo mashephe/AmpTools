@@ -68,7 +68,7 @@ MIFunctionContribution::contribution() {
 double
 MIFunctionContribution::derivative( const MinuitParameter& par ){
     
-    return kUnkownDerivative;
+    return kUnknownDerivative;
 }
 
 
