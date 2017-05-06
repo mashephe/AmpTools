@@ -1,0 +1,10 @@
+<map id="URMath::Pi" name="URMath::Pi">
+<area shape="rect" id="node3" href="$d0/da7/class_u_r_math.html#a53f26e56f137c261da596a7732f92c5f" title="URMath::TwoPi" alt="" coords="147,5,245,30"/>
+<area shape="rect" id="node5" href="$d0/da7/class_u_r_math.html#a325cea12c052f1a0fb8287a598afbde9" title="URMath::PiOver2" alt="" coords="141,53,251,78"/>
+<area shape="rect" id="node7" href="$d0/da7/class_u_r_math.html#a8bcd1b5a6da3308aaa5b1270570fb323" title="URMath::PiOver4" alt="" coords="141,101,251,126"/>
+<area shape="rect" id="node9" href="$d0/da7/class_u_r_math.html#adc43db6c21be94328a804c0a56f11a02" title="URMath::InvPi" alt="" coords="149,149,243,174"/>
+<area shape="rect" id="node11" href="$d0/da7/class_u_r_math.html#aa633513c695a030d3866b0e230acadec" title="URMath::RadToDeg" alt="" coords="135,197,257,222"/>
+<area shape="rect" id="node13" href="$d0/da7/class_u_r_math.html#a835373645f0c1f78b7bf6868bf962858" title="URMath::DegToRad" alt="" coords="135,245,257,270"/>
+<area shape="rect" id="node15" href="$d0/da7/class_u_r_math.html#a0fdc14faab279d6b9b5cd15b0de4817c" title="URMath::ATan2" alt="" coords="144,293,248,318"/>
+<area shape="rect" id="node17" href="$d0/da7/class_u_r_math.html#a10399284d92d329857d709a8a12d0d0d" title="URMath::QeUncertainty" alt="" coords="307,293,453,318"/>
+</map>

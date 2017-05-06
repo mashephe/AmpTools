@@ -1,0 +1,8 @@
+<map id="IntensityManager::calcIntensities" name="IntensityManager::calcIntensities">
+<area shape="rect" id="node3" href="$d8/d1a/class_amp_tools_interface.html#aac03ebb75e46050da8972435cbbc71bd" title="AmpToolsInterface::\lprocessEvents" alt="" coords="279,46,404,85"/>
+<area shape="rect" id="node9" href="$d5/d23/class_intensity_manager.html#a8e293355daa12d30764a995f696781d2" title="IntensityManager::calcIntensity" alt="" coords="248,107,435,133"/>
+<area shape="rect" id="node5" href="$d5/deb/class_plot_generator.html#a90b2f89c7ad79d9481b65a9d7f06e3bf" title="PlotGenerator::PlotGenerator" alt="" coords="488,5,659,30"/>
+<area shape="rect" id="node7" href="$d5/deb/class_plot_generator.html#af4ee2b7b587a36b3317f4c0cd430e13d" title="PlotGenerator::bookHistogram" alt="" coords="484,53,663,78"/>
+<area shape="rect" id="node11" href="$d8/d1a/class_amp_tools_interface.html#a3dc96d2036456048a3f432f27ecf199b" title="AmpToolsInterface::\lprintIntensity" alt="" coords="511,101,636,139"/>
+<area shape="rect" id="node13" href="$d8/d1a/class_amp_tools_interface.html#ad7f8f8aadef23dfc7504cf1a5bdf54f6" title="AmpToolsInterface::\lprintEventDetails" alt="" coords="713,101,839,139"/>
+</map>

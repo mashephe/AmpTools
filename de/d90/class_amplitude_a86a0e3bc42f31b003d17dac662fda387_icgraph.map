@@ -1,0 +1,16 @@
+<map id="Amplitude::name" name="Amplitude::name">
+<area shape="rect" id="node3" href="$de/d90/class_amplitude.html#acbc21e8f992581e7020e797430896a14" title="Amplitude::calcAmplitudeAll" alt="" coords="173,5,347,30"/>
+<area shape="rect" id="node5" href="$de/d90/class_amplitude.html#ad43ad7343b76e11b91846b9590468784" title="Amplitude::calcAmplitude" alt="" coords="180,53,340,78"/>
+<area shape="rect" id="node7" href="$de/d90/class_amplitude.html#af253028a9697e0649db8fd98b1623c02" title="Amplitude::calcAmplitudeGPU" alt="" coords="169,101,351,126"/>
+<area shape="rect" id="node9" href="$d2/d8c/class_g_p_u_manager.html#ae333b427c7ac7654efa74de5ab27837c" title="GPUManager::calcAmplitudeAll" alt="" coords="401,113,588,138"/>
+<area shape="rect" id="node24" href="$de/ddb/class_amplitude_manager.html#a71b177ad6ec728f6796428607ee18cec" title="AmplitudeManager::register\lAmplitudeFactor" alt="" coords="176,199,344,238"/>
+<area shape="rect" id="node11" href="$de/ddb/class_amplitude_manager.html#a56607e0f733eb741506caaad4077e20e" title="AmplitudeManager::calcTerms" alt="" coords="637,113,821,138"/>
+<area shape="rect" id="node13" href="$de/ddb/class_amplitude_manager.html#a55cb7f0628571991cc8301292ea01edd" title="AmplitudeManager::calcIntensities" alt="" coords="869,38,1075,63"/>
+<area shape="rect" id="node15" href="$de/ddb/class_amplitude_manager.html#a8573acaa3fe263bc9bb51c5cf40681f0" title="AmplitudeManager::calcSum\lLogIntensity" alt="" coords="1124,57,1300,95"/>
+<area shape="rect" id="node18" href="$de/ddb/class_amplitude_manager.html#afb2c06f97aef57355a25f19214e0013e" title="AmplitudeManager::calcIntegrals" alt="" coords="873,137,1071,162"/>
+<area shape="rect" id="node20" href="$d8/d1a/class_amp_tools_interface.html#a3123e64aed18e71d30de368cac7dd381" title="AmpToolsInterface::\lprintAmplitudes" alt="" coords="909,185,1035,223"/>
+<area shape="rect" id="node22" href="$d8/d1a/class_amp_tools_interface.html#ad7f8f8aadef23dfc7504cf1a5bdf54f6" title="AmpToolsInterface::\lprintEventDetails" alt="" coords="1149,185,1275,223"/>
+<area shape="rect" id="node26" href="$d8/d1a/class_amp_tools_interface.html#a71baee8b3b6cd49a774a09c7f81adc88" title="AmpToolsInterface::\lresetConfigurationInfo" alt="" coords="425,186,564,225"/>
+<area shape="rect" id="node30" href="$df/da1/class_amp_tools_interface_m_p_i.html#a2b9b44e835e059d8157710f686525640" title="AmpToolsInterfaceMPI\l::AmpToolsInterfaceMPI" alt="" coords="423,247,567,286"/>
+<area shape="rect" id="node28" href="$d8/d1a/class_amp_tools_interface.html#a43a8d6a69859af9705595ed2078f3c41" title="AmpToolsInterface::\lAmpToolsInterface" alt="" coords="667,186,792,225"/>
+</map>

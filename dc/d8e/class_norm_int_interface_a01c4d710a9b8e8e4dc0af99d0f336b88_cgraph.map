@@ -1,0 +1,27 @@
+<map id="NormIntInterface::normInt" name="NormIntInterface::normInt">
+<area shape="rect" id="node3" href="$dc/d8e/class_norm_int_interface.html#a2d227844ccc0a04ff6860e10e68c13bf" title="NormIntInterface::hasNormInt" alt="" coords="225,79,404,105"/>
+<area shape="rect" id="node5" href="$dc/d8e/class_norm_int_interface.html#a49e2698c6aae86154b8cfd5028dc95f0" title="NormIntInterface::forceCache\lUpdate" alt="" coords="225,229,404,267"/>
+<area shape="rect" id="node7" href="$d5/d23/class_intensity_manager.html#a290891c378c734466b4bd3717e72f542" title="IntensityManager::calcIntegrals" alt="" coords="465,125,652,150"/>
+<area shape="rect" id="node9" href="$dc/d8e/class_norm_int_interface.html#a692646b5b21e2fa51adc24b95dceb1be" title="NormIntInterface::setNorm\lIntMatrix" alt="" coords="477,173,640,211"/>
+<area shape="rect" id="node51" href="$dc/d8e/class_norm_int_interface.html#a49486544a3ed6838ebdc6a09b5a203b1" title="NormIntInterface::hasAccessToMC" alt="" coords="215,290,415,315"/>
+<area shape="rect" id="node53" href="$d5/d23/class_intensity_manager.html#ab4b9ed4c5ddebdc187b5e88376f353cd" title="IntensityManager::hasTerm\lWithFreeParam" alt="" coords="232,338,397,377"/>
+<area shape="rect" id="node11" href="$dd/df6/struct_amp_vecs.html#a26a7aa01c6a82258ea7c485da17d0dd4" title="AmpVecs::deallocAmpVecs" alt="" coords="477,343,640,369"/>
+<area shape="rect" id="node17" href="$dd/df6/struct_amp_vecs.html#a35213589c7832c1006cefc98b0f111bd" title="AmpVecs::loadData" alt="" coords="496,234,621,259"/>
+<area shape="rect" id="node36" href="$dd/df6/struct_amp_vecs.html#a834d738dcbd6d71855576e8b761bc0c3" title="AmpVecs::allocateTerms" alt="" coords="484,478,633,503"/>
+<area shape="rect" id="node49" href="$dc/d8e/class_norm_int_interface.html#a4b5049aefcb89ee2845ca089021d1c67" title="NormIntInterface::setAmp\lIntMatrix" alt="" coords="480,282,637,321"/>
+<area shape="rect" id="node13" href="$d2/d8c/class_g_p_u_manager.html#a960a798cd9eed310e0c18b5d3b72bd99" title="GPUManager::clearAll" alt="" coords="961,369,1097,394"/>
+<area shape="rect" id="node15" href="$da/df4/_u_r_math_8h.html#acdb55c1010a6c379a49db0201bf55d89" title="sqrt" alt="" coords="1171,369,1213,394"/>
+<area shape="rect" id="node19" href="$d3/d3a/class_data_reader.html#ae9ff00fa722b1a9d0356f574ea188af6" title="DataReader::resetSource" alt="" coords="719,198,871,223"/>
+<area shape="rect" id="node21" href="$d3/d3a/class_data_reader.html#a80771273b9729088695ea92425023c5e" title="DataReader::numEvents" alt="" coords="720,246,869,271"/>
+<area shape="rect" id="node23" href="$d3/d3a/class_data_reader.html#ae1848f21596cd2bd22aef5fd1abb0dbb" title="DataReader::getEvent" alt="" coords="725,294,864,319"/>
+<area shape="rect" id="node25" href="$dd/df6/struct_amp_vecs.html#ad85e27fbb633dc794434409620632976" title="AmpVecs::loadEvent" alt="" coords="729,99,860,125"/>
+<area shape="rect" id="node33" href="$dd/d01/class_kinematics.html#aa911304e9bafd63cfc82bd33d0950516" title="Kinematics::weight" alt="" coords="968,149,1091,174"/>
+<area shape="rect" id="node27" href="$d2/d8c/class_g_p_u_manager.html#aedd840e94249b4dfd6b0f03a404d58b6" title="GPUManager::calcNEventsGPU" alt="" coords="936,53,1123,78"/>
+<area shape="rect" id="node29" href="$dd/d01/class_kinematics.html#a89069e1778171e12823ce6a395fe819e" title="Kinematics::particleList" alt="" coords="957,101,1101,126"/>
+<area shape="rect" id="node31" href="$dd/d01/class_kinematics.html#a0332f321c9c7c99a36814bdac55d959c" title="Kinematics::particle" alt="" coords="967,5,1092,30"/>
+<area shape="rect" id="node38" href="$d5/d23/class_intensity_manager.html#aee6721f18846f5411c315f97a812e6cc" title="IntensityManager::getTerm\lNames" alt="" coords="713,611,876,650"/>
+<area shape="rect" id="node40" href="$d5/d23/class_intensity_manager.html#addb6489e6c387d0f84b2f88243138517" title="IntensityManager::maxFactor\lStoragePerEvent" alt="" coords="707,441,883,479"/>
+<area shape="rect" id="node42" href="$d5/d23/class_intensity_manager.html#a660379b6f947c9efa47751d3607ddbf3" title="IntensityManager::termStorage\lPerEvent" alt="" coords="701,502,888,541"/>
+<area shape="rect" id="node44" href="$d2/d8c/class_g_p_u_manager.html#ac59701270bd6aa15b7804d8afd59ec7c" title="GPUManager::init" alt="" coords="737,393,852,418"/>
+<area shape="rect" id="node47" href="$d2/d8c/class_g_p_u_manager.html#a977942cbc9105a6175d6e2fd2400a566" title="GPUManager::copyDataToGPU" alt="" coords="703,563,887,589"/>
+</map>

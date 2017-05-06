@@ -1,0 +1,18 @@
+<map id="ParameterManagerMPI::addAmplitudeParameter" name="ParameterManagerMPI::addAmplitudeParameter">
+<area shape="rect" id="node3" href="$df/d91/class_parameter_info.html#ad6735a7c7a7a0d1d610bc0adcf77169f" title="ParameterInfo::parName" alt="" coords="493,5,645,30"/>
+<area shape="rect" id="node5" href="$d7/d58/class_parameter_manager.html#a04cf39d4173b68bdb548bdabc533538d" title="ParameterManager::addAmplitude\lParameter" alt="" coords="215,262,420,301"/>
+<area shape="rect" id="node10" href="$df/d91/class_parameter_info.html#aa55feba0154837a5d9cceaf7f27af977" title="ParameterInfo::value" alt="" coords="504,53,635,78"/>
+<area shape="rect" id="node14" href="$df/d91/class_parameter_info.html#a4103a2238de724ec2130fd8faebd208c" title="ParameterInfo::fixed" alt="" coords="505,101,633,126"/>
+<area shape="rect" id="node34" href="$d7/d58/class_parameter_manager.html#ac2e8429549201604a1eba2cb170d290d" title="ParameterManager::getAmp\lParPtr" alt="" coords="232,323,403,362"/>
+<area shape="rect" id="node8" href="$db/d6e/class_minuit_minimization_manager.html#a0d00d520e8502e3844058a27e12fc2f9" title="MinuitMinimizationManager\l::parameterManager" alt="" coords="484,581,655,619"/>
+<area shape="rect" id="node12" href="$d3/dab/class_m_i_subject.html#ae946fb2a706db4ea0ff6a8691787ae8d" title="MISubject::attach" alt="" coords="512,642,627,667"/>
+<area shape="rect" id="node16" href="$d6/df5/class_minuit_parameter.html#a2e0f3fa0265b230f95c5794e3a3d44fb" title="MinuitParameter::fix" alt="" coords="505,149,633,174"/>
+<area shape="rect" id="node18" href="$df/d91/class_parameter_info.html#a2885ad75b4b7ded308c5dcc31b5966f2" title="ParameterInfo::bounded" alt="" coords="495,197,644,222"/>
+<area shape="rect" id="node20" href="$d6/df5/class_minuit_parameter.html#a6f9796e9b85e3668b57e5381e192af0f" title="MinuitParameter::bound" alt="" coords="495,245,644,270"/>
+<area shape="rect" id="node22" href="$df/d91/class_parameter_info.html#ad067243f5aa923b3429b355f66012471" title="ParameterInfo::lowerBound" alt="" coords="487,293,652,318"/>
+<area shape="rect" id="node24" href="$df/d91/class_parameter_info.html#ac0a65b04385b5a307cfd08202a846adb" title="ParameterInfo::upperBound" alt="" coords="485,341,653,366"/>
+<area shape="rect" id="node26" href="$df/d91/class_parameter_info.html#ac3df3342f290144e011ed9066356ae67" title="ParameterInfo::gaussianBounded" alt="" coords="471,389,668,414"/>
+<area shape="rect" id="node28" href="$df/d91/class_parameter_info.html#aa00bbe2f2b40c63bb6defc0bcf6734c2" title="ParameterInfo::centralValue" alt="" coords="484,437,655,462"/>
+<area shape="rect" id="node30" href="$df/d91/class_parameter_info.html#a14bc7a2051d5b185dd245ed9337bb927" title="ParameterInfo::gaussianError" alt="" coords="481,485,657,510"/>
+<area shape="rect" id="node32" href="$df/dd8/class_parameter.html#a586b9518a99d9f6fd9e71aa804f2f910" title="Parameter::constValuePtr" alt="" coords="492,533,647,558"/>
+</map>

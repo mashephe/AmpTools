@@ -1,0 +1,7 @@
+<map id="IntensityManager::termsAreRenormalized" name="IntensityManager::termsAreRenormalized">
+<area shape="rect" id="node3" href="$de/ddb/class_amplitude_manager.html#a55cb7f0628571991cc8301292ea01edd" title="AmplitudeManager::calcIntensities" alt="" coords="221,5,427,30"/>
+<area shape="rect" id="node5" href="$de/ddb/class_amplitude_manager.html#a8573acaa3fe263bc9bb51c5cf40681f0" title="AmplitudeManager::calcSum\lLogIntensity" alt="" coords="476,19,652,58"/>
+<area shape="rect" id="node8" href="$db/d5e/class_likelihood_calculator.html#a0f9b16c69bb52c9d11b7e81fc0528550" title="LikelihoodCalculator\l::normIntTerm" alt="" coords="259,103,389,142"/>
+<area shape="rect" id="node10" href="$db/d5e/class_likelihood_calculator.html#aec5f4bb6d7d36caa2831b11bda0f49bc" title="LikelihoodCalculator\l::operator()" alt="" coords="499,91,629,130"/>
+<area shape="rect" id="node12" href="$da/dda/class_likelihood_calculator_m_p_i.html#a4697892bb267864abe0438c267f077ab" title="LikelihoodCalculatorMPI\l::operator()" alt="" coords="491,153,637,191"/>
+</map>

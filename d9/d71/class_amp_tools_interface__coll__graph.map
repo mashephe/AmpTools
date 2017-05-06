@@ -1,0 +1,11 @@
+<map id="AmpToolsInterface" name="AmpToolsInterface">
+<area shape="rect" id="node2" href="$d1/d65/class_configuration_info.html" title="ConfigurationInfo" alt="" coords="5,94,120,119"/>
+<area shape="rect" id="node4" href="$d8/da5/class_fit_results.html" title="FitResults" alt="" coords="168,94,240,119"/>
+<area shape="rect" id="node6" href="$dd/df6/struct_amp_vecs.html" title="AmpVecs" alt="" coords="264,94,333,119"/>
+<area shape="rect" id="node8" href="$d2/d8c/class_g_p_u_manager.html" title="GPUManager" alt="" coords="253,6,344,31"/>
+<area shape="rect" id="node10" href="$db/d6e/class_minuit_minimization_manager.html" title="MinuitMinimizationManager" alt="" coords="357,94,528,119"/>
+<area shape="rect" id="node12" href="$d3/dab/class_m_i_subject.html" title="MISubject" alt="" coords="381,6,456,31"/>
+<area shape="rect" id="node14" href="$db/d65/class_u_r_fcn.html" title="URFcn" alt="" coords="480,6,536,31"/>
+<area shape="rect" id="node16" href="$d7/d58/class_parameter_manager.html" title="ParameterManager" alt="" coords="552,94,675,119"/>
+<area shape="rect" id="node18" href="$d5/d2e/class_m_i_observer.html" title="MIObserver" alt="" coords="573,6,653,31"/>
+</map>

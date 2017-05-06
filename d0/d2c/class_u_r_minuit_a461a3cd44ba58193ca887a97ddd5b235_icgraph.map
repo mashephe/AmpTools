@@ -1,0 +1,15 @@
+<map id="URMinuit::mncomd" name="URMinuit::mncomd">
+<area shape="rect" id="node3" href="$d0/d2c/class_u_r_minuit.html#a99cd1d753467ba3f336f060af3145e07" title="URMinuit::Command" alt="" coords="188,195,321,221"/>
+<area shape="rect" id="node26" href="$d0/d2c/class_u_r_minuit.html#a3e13b3fca8b76b51257b69ba9402f8f3" title="URMinuit::SetLogStream" alt="" coords="180,141,329,166"/>
+<area shape="rect" id="node5" href="$db/d6e/class_minuit_minimization_manager.html#ab5479b9cf5678e66b313c83ed223e561" title="MinuitMinimizationManager\l::setPrecision" alt="" coords="379,66,549,105"/>
+<area shape="rect" id="node15" href="$db/d6e/class_minuit_minimization_manager.html#a28b69944a66a1e5e1d925197e10ca098" title="MinuitMinimizationManager\l::setStrategy" alt="" coords="379,189,549,227"/>
+<area shape="rect" id="node22" href="$db/d6e/class_minuit_minimization_manager.html#a26b356649d5bff78820e1bc6da7e3510" title="MinuitMinimizationManager\l::enableDerivatives" alt="" coords="379,311,549,350"/>
+<area shape="rect" id="node24" href="$db/d6e/class_minuit_minimization_manager.html#abfd0ad7fc606dad1e4e9bae2c9cc9270" title="MinuitMinimizationManager\l::disableDerivatives" alt="" coords="379,250,549,289"/>
+<area shape="rect" id="node7" href="$d8/d1a/class_amp_tools_interface.html#a71baee8b3b6cd49a774a09c7f81adc88" title="AmpToolsInterface::\lresetConfigurationInfo" alt="" coords="617,66,756,105"/>
+<area shape="rect" id="node11" href="$df/da1/class_amp_tools_interface_m_p_i.html#a2b9b44e835e059d8157710f686525640" title="AmpToolsInterfaceMPI\l::AmpToolsInterfaceMPI" alt="" coords="615,5,759,43"/>
+<area shape="rect" id="node13" href="$db/d6e/class_minuit_minimization_manager.html#afd87444ee097df396ef532d0feaf83b3" title="MinuitMinimizationManager\l::derivativesEnabled" alt="" coords="601,127,772,166"/>
+<area shape="rect" id="node9" href="$d8/d1a/class_amp_tools_interface.html#a43a8d6a69859af9705595ed2078f3c41" title="AmpToolsInterface::\lAmpToolsInterface" alt="" coords="847,66,972,105"/>
+<area shape="rect" id="node17" href="$db/d6e/class_minuit_minimization_manager.html#a07750b445681f792be70f5e748b9332d" title="MinuitMinimizationManager\l::MinuitMinimizationManager" alt="" coords="599,189,775,227"/>
+<area shape="rect" id="node19" href="$db/d6e/class_minuit_minimization_manager.html#a4c5db522b9ff0d569ef498c54af29e86" title="MinuitMinimizationManager\l::setUserFlagFunction" alt="" coords="824,189,995,227"/>
+<area shape="rect" id="node28" href="$db/d6e/class_minuit_minimization_manager.html#ad39169a769620c5cbda86fbf047ed0c4" title="MinuitMinimizationManager\l::setLogStream" alt="" coords="379,127,549,166"/>
+</map>

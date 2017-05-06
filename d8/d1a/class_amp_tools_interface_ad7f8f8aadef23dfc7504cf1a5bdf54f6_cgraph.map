@@ -1,0 +1,37 @@
+<map id="AmpToolsInterface::printEventDetails" name="AmpToolsInterface::printEventDetails">
+<area shape="rect" id="node3" href="$d8/d1a/class_amp_tools_interface.html#a6cc07932cf3f48473757835890bb09f5" title="AmpToolsInterface::\lprintKinematics" alt="" coords="183,81,308,119"/>
+<area shape="rect" id="node11" href="$d8/d1a/class_amp_tools_interface.html#a3123e64aed18e71d30de368cac7dd381" title="AmpToolsInterface::\lprintAmplitudes" alt="" coords="388,435,513,474"/>
+<area shape="rect" id="node72" href="$d8/d1a/class_amp_tools_interface.html#a3dc96d2036456048a3f432f27ecf199b" title="AmpToolsInterface::\lprintIntensity" alt="" coords="183,221,308,259"/>
+<area shape="rect" id="node5" href="$d1/d65/class_configuration_info.html#ad42ae71ffe13f38f25bc0efd0dc41c5e" title="ConfigurationInfo::\lreaction" alt="" coords="391,53,511,91"/>
+<area shape="rect" id="node7" href="$dd/d01/class_kinematics.html#a89069e1778171e12823ce6a395fe819e" title="Kinematics::particleList" alt="" coords="881,119,1025,145"/>
+<area shape="rect" id="node9" href="$d0/d83/class_reaction_info.html#acdf594b4f9a880e4a24dd86b3fc25315" title="ReactionInfo::particleList" alt="" coords="375,5,527,30"/>
+<area shape="rect" id="node13" href="$d8/d1a/class_amp_tools_interface.html#af2c5be7b82bc0ff22c7f190f6ad0ea30" title="AmpToolsInterface::\lintensityManager" alt="" coords="639,213,764,251"/>
+<area shape="rect" id="node15" href="$d5/d23/class_intensity_manager.html#a99fb00dbc44d135fe5cbbac82a2f9499" title="IntensityManager::type" alt="" coords="631,514,772,539"/>
+<area shape="rect" id="node17" href="$d5/d23/class_intensity_manager.html#aee6721f18846f5411c315f97a812e6cc" title="IntensityManager::getTerm\lNames" alt="" coords="872,598,1035,637"/>
+<area shape="rect" id="node19" href="$dd/df6/struct_amp_vecs.html#ad85e27fbb633dc794434409620632976" title="AmpVecs::loadEvent" alt="" coords="636,274,767,299"/>
+<area shape="rect" id="node28" href="$dd/df6/struct_amp_vecs.html#a834d738dcbd6d71855576e8b761bc0c3" title="AmpVecs::allocateTerms" alt="" coords="627,322,776,347"/>
+<area shape="rect" id="node43" href="$de/ddb/class_amplitude_manager.html#a56607e0f733eb741506caaad4077e20e" title="AmplitudeManager::calcTerms" alt="" coords="609,709,793,734"/>
+<area shape="rect" id="node60" href="$dd/df6/struct_amp_vecs.html#add07d35cf39a5860abb07a987c41f1b1" title="AmpVecs::allocateCPUAmpStorage" alt="" coords="599,466,804,491"/>
+<area shape="rect" id="node63" href="$d2/d8c/class_g_p_u_manager.html#ac425f54fcf7f0ab6c52fe17e199572d7" title="GPUManager::copyAmpsFromGPU" alt="" coords="600,562,803,587"/>
+<area shape="rect" id="node65" href="$de/ddb/class_amplitude_manager.html#a77032845d4b3ee29089a97a746664a14" title="AmplitudeManager::getFactors" alt="" coords="609,610,793,635"/>
+<area shape="rect" id="node67" href="$de/ddb/class_amplitude_manager.html#a820846f77eed7b407cbd2edfd1464066" title="AmplitudeManager::getPermutations" alt="" coords="593,418,809,443"/>
+<area shape="rect" id="node69" href="$dd/df6/struct_amp_vecs.html#a26a7aa01c6a82258ea7c485da17d0dd4" title="AmpVecs::deallocAmpVecs" alt="" coords="620,370,783,395"/>
+<area shape="rect" id="node21" href="$d2/d8c/class_g_p_u_manager.html#aedd840e94249b4dfd6b0f03a404d58b6" title="GPUManager::calcNEventsGPU" alt="" coords="860,219,1047,245"/>
+<area shape="rect" id="node24" href="$dd/d01/class_kinematics.html#a0332f321c9c7c99a36814bdac55d959c" title="Kinematics::particle" alt="" coords="891,267,1016,293"/>
+<area shape="rect" id="node26" href="$dd/d01/class_kinematics.html#aa911304e9bafd63cfc82bd33d0950516" title="Kinematics::weight" alt="" coords="892,171,1015,197"/>
+<area shape="rect" id="node31" href="$d5/d23/class_intensity_manager.html#addb6489e6c387d0f84b2f88243138517" title="IntensityManager::maxFactor\lStoragePerEvent" alt="" coords="865,411,1041,450"/>
+<area shape="rect" id="node33" href="$d5/d23/class_intensity_manager.html#a660379b6f947c9efa47751d3607ddbf3" title="IntensityManager::termStorage\lPerEvent" alt="" coords="860,523,1047,562"/>
+<area shape="rect" id="node35" href="$d2/d8c/class_g_p_u_manager.html#ac59701270bd6aa15b7804d8afd59ec7c" title="GPUManager::init" alt="" coords="896,363,1011,389"/>
+<area shape="rect" id="node41" href="$d2/d8c/class_g_p_u_manager.html#a977942cbc9105a6175d6e2fd2400a566" title="GPUManager::copyDataToGPU" alt="" coords="861,315,1045,341"/>
+<area shape="rect" id="node37" href="$d2/d8c/class_g_p_u_manager.html#a960a798cd9eed310e0c18b5d3b72bd99" title="GPUManager::clearAll" alt="" coords="1120,474,1256,499"/>
+<area shape="rect" id="node39" href="$da/df4/_u_r_math_8h.html#acdb55c1010a6c379a49db0201bf55d89" title="sqrt" alt="" coords="1395,591,1437,617"/>
+<area shape="rect" id="node46" href="$d2/d8c/class_g_p_u_manager.html#ae333b427c7ac7654efa74de5ab27837c" title="GPUManager::calcAmplitudeAll" alt="" coords="860,759,1047,785"/>
+<area shape="rect" id="node56" href="$d2/d8c/class_g_p_u_manager.html#adce7569a0c12ed0c681f75d04793e668" title="GPUManager::assembleTerms" alt="" coords="864,659,1043,685"/>
+<area shape="rect" id="node48" href="$de/d90/class_amplitude.html#af253028a9697e0649db8fd98b1623c02" title="Amplitude::calcAmplitudeGPU" alt="" coords="1097,809,1279,834"/>
+<area shape="rect" id="node50" href="$de/d90/class_amplitude.html#a86a0e3bc42f31b003d17dac662fda387" title="Amplitude::name" alt="" coords="1359,759,1473,785"/>
+<area shape="rect" id="node52" href="$de/d90/class_amplitude.html#a280a81133d31207ad23ef4396a9f78f9" title="Amplitude::launchGPUKernel" alt="" coords="1328,809,1504,834"/>
+<area shape="rect" id="node58" href="$d7/de4/_g_p_u_kernel_8h.html#af3d706f751b1e743731691c5b8c644cd" title="GPU_ExecFactPermKernel" alt="" coords="1109,659,1267,685"/>
+<area shape="rect" id="node75" href="$d8/d1a/class_amp_tools_interface.html#a922a6f1ccb4608d31889ccfb30a57fc0" title="AmpToolsInterface::\lintensity" alt="" coords="388,165,513,203"/>
+<area shape="rect" id="node77" href="$d5/d23/class_intensity_manager.html#a8e293355daa12d30764a995f696781d2" title="IntensityManager::calcIntensity" alt="" coords="357,277,544,302"/>
+<area shape="rect" id="node81" href="$d5/d23/class_intensity_manager.html#ae748f1f42897ad9a36ae0e72b00ea095" title="IntensityManager::calcIntensities" alt="" coords="604,165,799,190"/>
+</map>

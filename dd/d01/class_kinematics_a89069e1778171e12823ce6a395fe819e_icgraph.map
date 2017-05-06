@@ -1,0 +1,29 @@
+<map id="Kinematics::particleList" name="Kinematics::particleList">
+<area shape="rect" id="node3" href="$de/d90/class_amplitude.html#ae58272c1a7aaf568091f8f2cf905f935" title="Amplitude::calcAmplitude" alt="" coords="205,493,365,518"/>
+<area shape="rect" id="node5" href="$d8/d1a/class_amp_tools_interface.html#a6cc07932cf3f48473757835890bb09f5" title="AmpToolsInterface::\lprintKinematics" alt="" coords="223,589,348,627"/>
+<area shape="rect" id="node9" href="$dd/df6/struct_amp_vecs.html#ad85e27fbb633dc794434409620632976" title="AmpVecs::loadEvent" alt="" coords="220,541,351,566"/>
+<area shape="rect" id="node62" href="$dc/d00/class_data_reader_m_p_i.html#a1821a64f4f249db35c682765a9220af1" title="DataReaderMPI::numEvents" alt="" coords="201,650,369,675"/>
+<area shape="rect" id="node7" href="$d8/d1a/class_amp_tools_interface.html#ad7f8f8aadef23dfc7504cf1a5bdf54f6" title="AmpToolsInterface::\lprintEventDetails" alt="" coords="904,613,1029,651"/>
+<area shape="rect" id="node11" href="$d8/d1a/class_amp_tools_interface.html#abf0b7a52ca85a828fe6c230d0e08c06b" title="AmpToolsInterface::\lloadEvent" alt="" coords="449,565,575,603"/>
+<area shape="rect" id="node13" href="$d8/d1a/class_amp_tools_interface.html#a3123e64aed18e71d30de368cac7dd381" title="AmpToolsInterface::\lprintAmplitudes" alt="" coords="449,503,575,542"/>
+<area shape="rect" id="node16" href="$dd/df6/struct_amp_vecs.html#a35213589c7832c1006cefc98b0f111bd" title="AmpVecs::loadData" alt="" coords="449,402,575,427"/>
+<area shape="rect" id="node22" href="$dd/df6/struct_amp_vecs.html#ad0c8865a167d6bd711b43b7c0b1a5b11" title="AmpVecs::~AmpVecs" alt="" coords="676,457,809,482"/>
+<area shape="rect" id="node57" href="$d5/d23/class_intensity_manager.html#a8e293355daa12d30764a995f696781d2" title="IntensityManager::calcIntensity" alt="" coords="419,626,605,651"/>
+<area shape="rect" id="node18" href="$d8/d1a/class_amp_tools_interface.html#a530bf6cdde2ab764eb3616720e411568" title="AmpToolsInterface::\lloadEvents" alt="" coords="680,395,805,434"/>
+<area shape="rect" id="node24" href="$db/d5e/class_likelihood_calculator.html#a1d103a47be0f21c36fbd69e303575d23" title="LikelihoodCalculator\l::dataTerm" alt="" coords="901,341,1032,379"/>
+<area shape="rect" id="node30" href="$dc/d8e/class_norm_int_interface.html#a49e2698c6aae86154b8cfd5028dc95f0" title="NormIntInterface::forceCache\lUpdate" alt="" coords="653,169,832,207"/>
+<area shape="rect" id="node20" href="$d5/deb/class_plot_generator.html#a90b2f89c7ad79d9481b65a9d7f06e3bf" title="PlotGenerator::PlotGenerator" alt="" coords="881,402,1052,427"/>
+<area shape="rect" id="node26" href="$db/d5e/class_likelihood_calculator.html#aec5f4bb6d7d36caa2831b11bda0f49bc" title="LikelihoodCalculator\l::operator()" alt="" coords="1127,289,1257,327"/>
+<area shape="rect" id="node28" href="$da/dda/class_likelihood_calculator_m_p_i.html#a4697892bb267864abe0438c267f077ab" title="LikelihoodCalculatorMPI\l::operator()" alt="" coords="1119,350,1265,389"/>
+<area shape="rect" id="node32" href="$d8/da5/class_fit_results.html#a10c0ebd397b1167d34fa4481992c6837" title="FitResults::writeResults" alt="" coords="896,223,1037,249"/>
+<area shape="rect" id="node38" href="$db/d5e/class_likelihood_calculator.html#a0f9b16c69bb52c9d11b7e81fc0528550" title="LikelihoodCalculator\l::normIntTerm" alt="" coords="901,279,1032,318"/>
+<area shape="rect" id="node42" href="$dc/d8e/class_norm_int_interface.html#a01c4d710a9b8e8e4dc0af99d0f336b88" title="NormIntInterface::normInt" alt="" coords="887,127,1047,153"/>
+<area shape="rect" id="node48" href="$dc/d8e/class_norm_int_interface.html#a71e06974b746890fc38f28da66055acf" title="NormIntInterface::ampInt" alt="" coords="888,175,1045,201"/>
+<area shape="rect" id="node51" href="$dc/d8e/class_norm_int_interface.html#af0073ed0c69de571a70caccfed77e55a" title="NormIntInterface::export\lNormIntCache" alt="" coords="892,66,1041,105"/>
+<area shape="rect" id="node53" href="$d9/d21/class_norm_int_interface_m_p_i.html#aa0e86b70760ff8ff2fc9b6263e289dbf" title="NormIntInterfaceMPI\l::forceCacheUpdate" alt="" coords="901,5,1032,43"/>
+<area shape="rect" id="node34" href="$d8/d1a/class_amp_tools_interface.html#aa880e6e3b577236265cf42a999b29203" title="AmpToolsInterface::\lfinalizeFit" alt="" coords="1129,227,1255,266"/>
+<area shape="rect" id="node36" href="$df/da1/class_amp_tools_interface_m_p_i.html#ae3c8e7b9ea199f2213ae4269e8a3bc0f" title="AmpToolsInterfaceMPI\l::finalizeFit" alt="" coords="1123,166,1261,205"/>
+<area shape="rect" id="node44" href="$dc/d8e/class_norm_int_interface.html#a397a2b511069c8de9551ac64cfa083a1" title="NormIntInterface::operator+=" alt="" coords="1103,118,1281,143"/>
+<area shape="rect" id="node46" href="$d9/d21/class_norm_int_interface_m_p_i.html#a4c14c31c337d6106f4b629235693e6b5" title="NormIntInterfaceMPI\l::normInt" alt="" coords="1127,26,1257,65"/>
+<area shape="rect" id="node59" href="$d8/d1a/class_amp_tools_interface.html#a3dc96d2036456048a3f432f27ecf199b" title="AmpToolsInterface::\lprintIntensity" alt="" coords="680,613,805,651"/>
+</map>

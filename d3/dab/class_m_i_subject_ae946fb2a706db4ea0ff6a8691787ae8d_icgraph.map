@@ -1,0 +1,15 @@
+<map id="MISubject::attach" name="MISubject::attach">
+<area shape="rect" id="node3" href="$da/d3e/class_complex_parameter.html#a49f49aa9662c5b10cddf6d294fc5ffb0" title="ComplexParameter::Complex\lParameter" alt="" coords="184,29,360,67"/>
+<area shape="rect" id="node6" href="$d3/ddc/class_m_i_function_contribution.html#ae4169ba48fd3d4c5550d529521e234f9" title="MIFunctionContribution\l::MIFunctionContribution" alt="" coords="196,90,348,129"/>
+<area shape="rect" id="node8" href="$d7/d58/class_parameter_manager.html#a0eb76f7f4c68da325a1988480d2563d6" title="ParameterManager::Parameter\lManager" alt="" coords="180,175,364,214"/>
+<area shape="rect" id="node11" href="$d7/d58/class_parameter_manager.html#a04cf39d4173b68bdb548bdabc533538d" title="ParameterManager::addAmplitude\lParameter" alt="" coords="169,237,375,275"/>
+<area shape="rect" id="node13" href="$d7/d58/class_parameter_manager.html#acad73936323ee74acc054bd0dd1553cf" title="ParameterManager::setupFrom\lConfigurationInfo" alt="" coords="425,165,612,203"/>
+<area shape="rect" id="node23" href="$d7/d58/class_parameter_manager.html#a78ed783781e36b3192b2a99d1210b878" title="ParameterManager::covariance\lMatrix" alt="" coords="425,237,612,275"/>
+<area shape="rect" id="node29" href="$d9/d9c/class_parameter_manager_m_p_i.html#ac85e16e9e1ad51de71b7db3dfea560d0" title="ParameterManagerMPI\l::addAmplitudeParameter" alt="" coords="440,298,597,337"/>
+<area shape="rect" id="node15" href="$d8/d1a/class_amp_tools_interface.html#a71baee8b3b6cd49a774a09c7f81adc88" title="AmpToolsInterface::\lresetConfigurationInfo" alt="" coords="687,83,825,122"/>
+<area shape="rect" id="node19" href="$df/da1/class_amp_tools_interface_m_p_i.html#a2b9b44e835e059d8157710f686525640" title="AmpToolsInterfaceMPI\l::AmpToolsInterfaceMPI" alt="" coords="684,145,828,183"/>
+<area shape="rect" id="node21" href="$d7/d58/class_parameter_manager.html#a51447ea5cf55d08e7587882495cce21d" title="ParameterManager::fitManager" alt="" coords="663,206,849,231"/>
+<area shape="rect" id="node17" href="$d8/d1a/class_amp_tools_interface.html#a43a8d6a69859af9705595ed2078f3c41" title="AmpToolsInterface::\lAmpToolsInterface" alt="" coords="900,83,1025,122"/>
+<area shape="rect" id="node25" href="$d8/da5/class_fit_results.html#aa7e9475e422d538306469c5ca2aa85d5" title="FitResults::loadResults" alt="" coords="687,254,825,279"/>
+<area shape="rect" id="node27" href="$d8/da5/class_fit_results.html#a3fb182786a6eb7bb7e5bb67195c1310e" title="FitResults::FitResults" alt="" coords="899,254,1027,279"/>
+</map>

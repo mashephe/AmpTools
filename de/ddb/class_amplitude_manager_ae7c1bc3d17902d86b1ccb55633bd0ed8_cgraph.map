@@ -1,0 +1,8 @@
+<map id="AmplitudeManager::addAmpFactor" name="AmplitudeManager::addAmpFactor">
+<area shape="rect" id="node3" href="$de/d90/class_amplitude.html#a4923337536efed619db40a8a18680989" title="Amplitude::newAmplitude" alt="" coords="255,5,415,30"/>
+<area shape="rect" id="node5" href="$d5/d23/class_intensity_manager.html#a49cecc23aea7b630246af659bb88080e" title="IntensityManager::hasTerm" alt="" coords="252,53,417,78"/>
+<area shape="rect" id="node7" href="$d5/d23/class_intensity_manager.html#a0e118ac797f4224d361e1b1235c0d043" title="IntensityManager::addTerm" alt="" coords="251,101,419,126"/>
+<area shape="rect" id="node11" href="$d5/d23/class_intensity_manager.html#abd953e249d81ba67bd5d7aa4381047f5" title="IntensityManager::termIndex" alt="" coords="248,149,421,174"/>
+<area shape="rect" id="node13" href="$de/d90/class_amplitude.html#a5c4e9286792fc9764c57c3c718fa3dea" title="Amplitude::containsFreeParameters" alt="" coords="229,197,440,222"/>
+<area shape="rect" id="node9" href="$d5/d23/class_intensity_manager.html#a969fe8105dfaca4ce72dee0471e71c46" title="IntensityManager::setDefault\lProductionFactor" alt="" coords="489,94,663,133"/>
+</map>

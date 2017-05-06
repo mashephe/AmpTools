@@ -1,0 +1,11 @@
+<map id="FitResults::ampList" name="FitResults::ampList">
+<area shape="rect" id="node3" href="$d8/da5/class_fit_results.html#aabee2c18dae3ca199c9a9da5f3c2debd" title="FitResults::intensity" alt="" coords="201,29,324,54"/>
+<area shape="rect" id="node11" href="$d8/da5/class_fit_results.html#afc8a67b7c5dcd2a1171134b4e3a4e459" title="FitResults::phaseDiff" alt="" coords="199,77,327,102"/>
+<area shape="rect" id="node13" href="$d8/da5/class_fit_results.html#a98c5f1203d604c8674be4a654dac5b69" title="FitResults::ampProdParMap" alt="" coords="180,125,345,150"/>
+<area shape="rect" id="node15" href="$d8/da5/class_fit_results.html#a0183f104d236d0969c867c09c79ab103" title="FitResults::ampScaleParMap" alt="" coords="177,173,348,198"/>
+<area shape="rect" id="node17" href="$d8/da5/class_fit_results.html#a8a5390d8af97ed0adfc5776220d7fe8f" title="FitResults::writeSeed" alt="" coords="197,221,328,246"/>
+<area shape="rect" id="node19" href="$d5/deb/class_plot_generator.html#a90b2f89c7ad79d9481b65a9d7f06e3bf" title="PlotGenerator::PlotGenerator" alt="" coords="177,269,348,294"/>
+<area shape="rect" id="node5" href="$d8/da5/class_fit_results.html#a0b291b2ff7ab38ea4a06b89d48c8d5f5" title="FitResults::intensity" alt="" coords="409,5,532,30"/>
+<area shape="rect" id="node7" href="$d5/deb/class_plot_generator.html#a8be45fed4f50f95cd9aa22e4b155bd11" title="PlotGenerator::intensity" alt="" coords="399,53,543,78"/>
+<area shape="rect" id="node9" href="$d5/deb/class_plot_generator.html#a0f0118e826d410f16ff39128f0fa054e" title="PlotGenerator::projection" alt="" coords="592,53,744,78"/>
+</map>

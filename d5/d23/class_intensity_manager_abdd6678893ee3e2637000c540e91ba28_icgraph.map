@@ -1,0 +1,8 @@
+<map id="IntensityManager::reactionName" name="IntensityManager::reactionName">
+<area shape="rect" id="node3" href="$de/ddb/class_amplitude_manager.html#aaa089d54ed30c14e7fc95a07e8d0132b" title="AmplitudeManager::setupFrom\lConfigurationInfo" alt="" coords="248,5,435,43"/>
+<area shape="rect" id="node5" href="$d8/da5/class_fit_results.html#aa7e9475e422d538306469c5ca2aa85d5" title="FitResults::loadResults" alt="" coords="272,66,411,91"/>
+<area shape="rect" id="node9" href="$db/d5e/class_likelihood_calculator.html#a1d103a47be0f21c36fbd69e303575d23" title="LikelihoodCalculator\l::dataTerm" alt="" coords="276,114,407,153"/>
+<area shape="rect" id="node7" href="$d8/da5/class_fit_results.html#a3fb182786a6eb7bb7e5bb67195c1310e" title="FitResults::FitResults" alt="" coords="493,66,621,91"/>
+<area shape="rect" id="node11" href="$db/d5e/class_likelihood_calculator.html#aec5f4bb6d7d36caa2831b11bda0f49bc" title="LikelihoodCalculator\l::operator()" alt="" coords="492,114,623,153"/>
+<area shape="rect" id="node13" href="$da/dda/class_likelihood_calculator_m_p_i.html#a4697892bb267864abe0438c267f077ab" title="LikelihoodCalculatorMPI\l::operator()" alt="" coords="484,175,631,214"/>
+</map>

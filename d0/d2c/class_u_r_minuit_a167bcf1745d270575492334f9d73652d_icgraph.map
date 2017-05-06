@@ -1,0 +1,11 @@
+<map id="URMinuit::GetParameterList" name="URMinuit::GetParameterList">
+<area shape="rect" id="node3" href="$db/d6e/class_minuit_minimization_manager.html#a3512525a6f7489392ae457fc11db512c" title="MinuitMinimizationManager\l::minuitWorkingValues" alt="" coords="221,21,392,59"/>
+<area shape="rect" id="node5" href="$db/d6e/class_minuit_minimization_manager.html#a4c5db522b9ff0d569ef498c54af29e86" title="MinuitMinimizationManager\l::setUserFlagFunction" alt="" coords="1083,5,1253,43"/>
+<area shape="rect" id="node7" href="$d8/d14/class_minuit_parameter_manager.html#ad62d2f39b21d36a3e9bb605b09d0a4a5" title="MinuitParameterManager\l::update" alt="" coords="440,63,597,102"/>
+<area shape="rect" id="node9" href="$db/d6e/class_minuit_minimization_manager.html#ae9f14f06a902c5d86168d88d3d5d0cc3" title="MinuitMinimizationManager\l::evaluateFunction" alt="" coords="645,94,816,133"/>
+<area shape="rect" id="node11" href="$db/d6e/class_minuit_minimization_manager.html#a010e4236de62b07f77f2152c466d2946" title="MinuitMinimizationManager\l::migradMinimization" alt="" coords="864,94,1035,133"/>
+<area shape="rect" id="node15" href="$db/d6e/class_minuit_minimization_manager.html#a62c0af78ab887673a7f8e6a4c23a6794" title="MinuitMinimizationManager\l::minosMinimization" alt="" coords="864,155,1035,194"/>
+<area shape="rect" id="node18" href="$db/d6e/class_minuit_minimization_manager.html#a9463d352229bab29bdbb8c26f4d32f8f" title="MinuitMinimizationManager\l::hesseEvaluation" alt="" coords="864,217,1035,255"/>
+<area shape="rect" id="node21" href="$db/d6e/class_minuit_minimization_manager.html#ae04c7f806c3fdf1a3230a1d054e4e7ab" title="MinuitMinimizationManager\l::operator()" alt="" coords="864,33,1035,71"/>
+<area shape="rect" id="node13" href="$db/d6e/class_minuit_minimization_manager.html#afd87444ee097df396ef532d0feaf83b3" title="MinuitMinimizationManager\l::derivativesEnabled" alt="" coords="1083,155,1253,194"/>
+</map>

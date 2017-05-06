@@ -1,0 +1,8 @@
+<map id="MinuitMinimizationManager::maxIterations" name="MinuitMinimizationManager::maxIterations">
+<area shape="rect" id="node3" href="$d0/d2c/class_u_r_minuit.html#adbdecdc8f7bdf1a5421f1136b1c32d33" title="URMinuit::GetMaxIterations" alt="" coords="225,77,391,102"/>
+<area shape="rect" id="node5" href="$d0/d2c/class_u_r_minuit.html#ace9caf298190f3a262526a401028cb14" title="URMinuit::GetNumFixedPars" alt="" coords="440,5,611,30"/>
+<area shape="rect" id="node7" href="$d0/d2c/class_u_r_minuit.html#ac1836baa468fb899fa1e1f208b6a057d" title="URMinuit::GetNumFreePars" alt="" coords="443,53,608,78"/>
+<area shape="rect" id="node9" href="$d0/d2c/class_u_r_minuit.html#a51b4925bf2d3b0ecf25e99e66b9c3e11" title="URMinuit::GetNumPars" alt="" coords="455,101,596,126"/>
+<area shape="rect" id="node11" href="$d0/d2c/class_u_r_minuit.html#a8c2993a87f9ae464317b58fa2f8c3fcc" title="URMinuit::GetParameter" alt="" coords="451,149,600,174"/>
+<area shape="rect" id="node13" href="$d0/d2c/class_u_r_minuit.html#afda37b3c31c44b27b2fb467d9356b5c3" title="URMinuit::mnpout" alt="" coords="660,149,777,174"/>
+</map>

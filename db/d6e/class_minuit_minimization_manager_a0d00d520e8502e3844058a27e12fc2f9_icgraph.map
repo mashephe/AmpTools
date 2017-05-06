@@ -1,0 +1,16 @@
+<map id="MinuitMinimizationManager::parameterManager" name="MinuitMinimizationManager::parameterManager">
+<area shape="rect" id="node3" href="$da/d3e/class_complex_parameter.html#a49f49aa9662c5b10cddf6d294fc5ffb0" title="ComplexParameter::Complex\lParameter" alt="" coords="240,29,416,67"/>
+<area shape="rect" id="node6" href="$db/d6e/class_minuit_minimization_manager.html#a9463d352229bab29bdbb8c26f4d32f8f" title="MinuitMinimizationManager\l::hesseEvaluation" alt="" coords="243,90,413,129"/>
+<area shape="rect" id="node10" href="$d7/d58/class_parameter_manager.html#a04cf39d4173b68bdb548bdabc533538d" title="ParameterManager::addAmplitude\lParameter" alt="" coords="225,151,431,190"/>
+<area shape="rect" id="node30" href="$d7/d58/class_parameter_manager.html#ade97c00adf0565c0942c89ff101ce42c" title="ParameterManager::update" alt="" coords="244,213,412,238"/>
+<area shape="rect" id="node8" href="$db/d6e/class_minuit_minimization_manager.html#afd87444ee097df396ef532d0feaf83b3" title="MinuitMinimizationManager\l::derivativesEnabled" alt="" coords="489,59,660,98"/>
+<area shape="rect" id="node12" href="$d7/d58/class_parameter_manager.html#acad73936323ee74acc054bd0dd1553cf" title="ParameterManager::setupFrom\lConfigurationInfo" alt="" coords="481,121,668,159"/>
+<area shape="rect" id="node22" href="$d7/d58/class_parameter_manager.html#a78ed783781e36b3192b2a99d1210b878" title="ParameterManager::covariance\lMatrix" alt="" coords="481,182,668,221"/>
+<area shape="rect" id="node28" href="$d9/d9c/class_parameter_manager_m_p_i.html#ac85e16e9e1ad51de71b7db3dfea560d0" title="ParameterManagerMPI\l::addAmplitudeParameter" alt="" coords="496,243,653,282"/>
+<area shape="rect" id="node14" href="$d8/d1a/class_amp_tools_interface.html#a71baee8b3b6cd49a774a09c7f81adc88" title="AmpToolsInterface::\lresetConfigurationInfo" alt="" coords="743,39,881,78"/>
+<area shape="rect" id="node18" href="$df/da1/class_amp_tools_interface_m_p_i.html#a2b9b44e835e059d8157710f686525640" title="AmpToolsInterfaceMPI\l::AmpToolsInterfaceMPI" alt="" coords="740,101,884,139"/>
+<area shape="rect" id="node20" href="$d7/d58/class_parameter_manager.html#a51447ea5cf55d08e7587882495cce21d" title="ParameterManager::fitManager" alt="" coords="719,162,905,187"/>
+<area shape="rect" id="node16" href="$d8/d1a/class_amp_tools_interface.html#a43a8d6a69859af9705595ed2078f3c41" title="AmpToolsInterface::\lAmpToolsInterface" alt="" coords="956,39,1081,78"/>
+<area shape="rect" id="node24" href="$d8/da5/class_fit_results.html#aa7e9475e422d538306469c5ca2aa85d5" title="FitResults::loadResults" alt="" coords="743,210,881,235"/>
+<area shape="rect" id="node26" href="$d8/da5/class_fit_results.html#a3fb182786a6eb7bb7e5bb67195c1310e" title="FitResults::FitResults" alt="" coords="955,210,1083,235"/>
+</map>

@@ -1,0 +1,10 @@
+<map id="AmpToolsInterface::alternateIntensity" name="AmpToolsInterface::alternateIntensity">
+<area shape="rect" id="node3" href="$d1/d65/class_configuration_info.html#a6479b08973ec0d87a591e76f2957799a" title="ConfigurationInfo::\lcoherentSumList" alt="" coords="205,5,325,43"/>
+<area shape="rect" id="node5" href="$d1/d65/class_configuration_info.html#a350584a91eac9a6a8c9654cf56161e0a" title="ConfigurationInfo::\lamplitudeList" alt="" coords="205,66,325,105"/>
+<area shape="rect" id="node7" href="$d8/d1a/class_amp_tools_interface.html#a05104c7c951e4922305f9825b9f5db29" title="AmpToolsInterface::\lscaledProductionAmplitude" alt="" coords="183,127,348,166"/>
+<area shape="rect" id="node17" href="$d8/d1a/class_amp_tools_interface.html#ac61313f9ce8148d1cfca52ab294ef207" title="AmpToolsInterface::\ldecayAmplitude" alt="" coords="203,189,328,227"/>
+<area shape="rect" id="node9" href="$d8/d1a/class_amp_tools_interface.html#af2c5be7b82bc0ff22c7f190f6ad0ea30" title="AmpToolsInterface::\lintensityManager" alt="" coords="424,189,549,227"/>
+<area shape="rect" id="node11" href="$d5/d23/class_intensity_manager.html#a55a2d2907ff5b06656cac0b2a84d4b41" title="IntensityManager::getScale" alt="" coords="404,79,569,105"/>
+<area shape="rect" id="node15" href="$d5/d23/class_intensity_manager.html#a61425b00d18275a95aa109ed11860b7e" title="IntensityManager::production\lFactor" alt="" coords="399,127,575,166"/>
+<area shape="rect" id="node13" href="$d5/d23/class_intensity_manager.html#abd953e249d81ba67bd5d7aa4381047f5" title="IntensityManager::termIndex" alt="" coords="625,166,799,191"/>
+</map>

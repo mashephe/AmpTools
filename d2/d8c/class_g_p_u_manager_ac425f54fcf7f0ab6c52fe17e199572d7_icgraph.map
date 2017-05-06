@@ -1,0 +1,6 @@
+<map id="GPUManager::copyAmpsFromGPU" name="GPUManager::copyAmpsFromGPU">
+<area shape="rect" id="node3" href="$de/ddb/class_amplitude_manager.html#a55cb7f0628571991cc8301292ea01edd" title="AmplitudeManager::calcIntensities" alt="" coords="256,14,461,39"/>
+<area shape="rect" id="node7" href="$d8/d1a/class_amp_tools_interface.html#a3123e64aed18e71d30de368cac7dd381" title="AmpToolsInterface::\lprintAmplitudes" alt="" coords="296,63,421,102"/>
+<area shape="rect" id="node5" href="$de/ddb/class_amplitude_manager.html#a8573acaa3fe263bc9bb51c5cf40681f0" title="AmplitudeManager::calcSum\lLogIntensity" alt="" coords="511,5,687,43"/>
+<area shape="rect" id="node9" href="$d8/d1a/class_amp_tools_interface.html#ad7f8f8aadef23dfc7504cf1a5bdf54f6" title="AmpToolsInterface::\lprintEventDetails" alt="" coords="536,66,661,105"/>
+</map>

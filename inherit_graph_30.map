@@ -1,0 +1,16 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$d5/d2e/class_m_i_observer.html" title="MIObserver" alt="" coords="173,65,253,90"/>
+<area shape="rect" id="node3" href="$da/d3e/class_complex_parameter.html" title="ComplexParameter" alt="" coords="360,5,483,30"/>
+<area shape="rect" id="node5" href="$d8/d20/class_derived_parameter.html" title="DerivedParameter\&lt; T \&gt;" alt="" coords="348,149,495,174"/>
+<area shape="rect" id="node7" href="$d3/ddc/class_m_i_function_contribution.html" title="MIFunctionContribution" alt="" coords="348,53,495,78"/>
+<area shape="rect" id="node15" href="$d7/d58/class_parameter_manager.html" title="ParameterManager" alt="" coords="360,101,483,126"/>
+<area shape="rect" id="node9" href="$dc/dca/class_gaussian_bound.html" title="GaussianBound" alt="" coords="563,5,669,30"/>
+<area shape="rect" id="node11" href="$db/d5e/class_likelihood_calculator.html" title="LikelihoodCalculator" alt="" coords="551,53,681,78"/>
+<area shape="rect" id="node13" href="$da/dda/class_likelihood_calculator_m_p_i.html" title="LikelihoodCalculatorMPI" alt="" coords="737,53,884,78"/>
+<area shape="rect" id="node17" href="$d9/d9c/class_parameter_manager_m_p_i.html" title="ParameterManagerMPI" alt="" coords="545,101,687,126"/>
+<area shape="rect" id="node18" href="$d3/dab/class_m_i_subject.html" title="MISubject" alt="" coords="5,173,80,198"/>
+<area shape="rect" id="node20" href="$db/d6e/class_minuit_minimization_manager.html" title="MinuitMinimizationManager" alt="" coords="128,125,299,150"/>
+<area shape="rect" id="node22" href="$df/dd8/class_parameter.html" title="Parameter" alt="" coords="175,173,252,198"/>
+<area shape="rect" id="node25" href="$d6/df5/class_minuit_parameter.html" title="MinuitParameter" alt="" coords="367,197,476,222"/>
+<area shape="rect" id="node26" href="$db/d65/class_u_r_fcn.html" title="URFcn" alt="" coords="15,125,71,150"/>
+</map>

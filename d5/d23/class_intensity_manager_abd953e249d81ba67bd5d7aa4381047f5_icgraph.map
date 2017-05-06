@@ -1,0 +1,12 @@
+<map id="IntensityManager::termIndex" name="IntensityManager::termIndex">
+<area shape="rect" id="node3" href="$de/ddb/class_amplitude_manager.html#ae7c1bc3d17902d86b1ccb55633bd0ed8" title="AmplitudeManager::addAmp\lFactor" alt="" coords="229,5,405,43"/>
+<area shape="rect" id="node7" href="$de/ddb/class_amplitude_manager.html#ae67668158d29f3eadf48cda962f77b94" title="AmplitudeManager::setParPtr" alt="" coords="229,66,405,91"/>
+<area shape="rect" id="node9" href="$de/ddb/class_amplitude_manager.html#a5d41a3cf51dce77cd8689b3e72122eb5" title="AmplitudeManager::setPar\lValue" alt="" coords="236,114,399,153"/>
+<area shape="rect" id="node12" href="$d8/d1a/class_amp_tools_interface.html#ac61313f9ce8148d1cfca52ab294ef207" title="AmpToolsInterface::\ldecayAmplitude" alt="" coords="484,163,609,202"/>
+<area shape="rect" id="node16" href="$d5/d23/class_intensity_manager.html#a55a2d2907ff5b06656cac0b2a84d4b41" title="IntensityManager::getScale" alt="" coords="235,231,400,257"/>
+<area shape="rect" id="node5" href="$de/ddb/class_amplitude_manager.html#aaa089d54ed30c14e7fc95a07e8d0132b" title="AmplitudeManager::setupFrom\lConfigurationInfo" alt="" coords="453,57,640,95"/>
+<area shape="rect" id="node14" href="$d8/d1a/class_amp_tools_interface.html#a828a1ad66afe455a65f8414ee79f206c" title="AmpToolsInterface::\lalternateIntensity" alt="" coords="689,194,815,233"/>
+<area shape="rect" id="node18" href="$d8/d1a/class_amp_tools_interface.html#a05104c7c951e4922305f9825b9f5db29" title="AmpToolsInterface::\lscaledProductionAmplitude" alt="" coords="464,225,629,263"/>
+<area shape="rect" id="node21" href="$d8/da5/class_fit_results.html#aa7e9475e422d538306469c5ca2aa85d5" title="FitResults::loadResults" alt="" coords="477,286,616,311"/>
+<area shape="rect" id="node23" href="$d8/da5/class_fit_results.html#a3fb182786a6eb7bb7e5bb67195c1310e" title="FitResults::FitResults" alt="" coords="688,286,816,311"/>
+</map>

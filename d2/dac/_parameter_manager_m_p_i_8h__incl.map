@@ -1,0 +1,28 @@
+<map id="ParameterManagerMPI.h" name="ParameterManagerMPI.h">
+<area shape="rect" id="node9" href="$d7/d45/_parameter_manager_8h.html" title="IUAmpTools/ParameterManager.h" alt="" coords="1273,87,1473,113"/>
+<area shape="rect" id="node19" href="$d3/de0/_m_i_observer_8h.html" title="MinuitInterface/MIObserver.h" alt="" coords="20,433,193,458"/>
+<area shape="rect" id="node108" href="$d6/de2/_amplitude_manager_8h.html" title="IUAmpTools/AmplitudeManager.h" alt="" coords="2668,87,2868,113"/>
+<area shape="rect" id="node151" href="$d2/d8a/_likelihood_manager_m_p_i_8h.html" title="IUAmpToolsMPI/Likelihood\lManagerMPI.h" alt="" coords="4019,81,4176,119"/>
+<area shape="rect" id="node15" href="$d9/df5/_complex_parameter_8h.html" title="IUAmpTools/ComplexParameter.h" alt="" coords="1343,175,1543,201"/>
+<area shape="rect" id="node26" href="$de/d0e/_m_i_subject_8h.html" title="MinuitInterface/MISubject.h" alt="" coords="311,433,479,458"/>
+<area shape="rect" id="node34" href="$d5/dd8/_minuit_minimization_manager_8h.html" title="MinuitInterface/MinuitMinimization\lManager.h" alt="" coords="1023,169,1231,207"/>
+<area shape="rect" id="node69" href="$da/da7/_gaussian_bound_8h.html" title="MinuitInterface/Gaussian\lBound.h" alt="" coords="313,257,468,295"/>
+<area shape="rect" id="node79" href="$d6/dc0/_intensity_manager_8h.html" title="IUAmpTools/IntensityManager.h" alt="" coords="2125,175,2315,201"/>
+<area shape="rect" id="node21" href="$d0/d6e/_minuit_parameter_8h.html" title="MinuitInterface/MinuitParameter.h" alt="" coords="1341,263,1544,289"/>
+<area shape="rect" id="node23" href="$d8/d9c/_parameter_8h.html" title="MinuitInterface/Parameter.h" alt="" coords="571,351,741,377"/>
+<area shape="rect" id="node30" href="$de/db0/_asymmetric_error_8h.html" title="MinuitInterface/Asymmetric\lError.h" alt="" coords="2277,345,2445,383"/>
+<area shape="rect" id="node42" href="$da/d1b/_minuit_parameter_manager_8h.html" title="MinuitInterface/MinuitParameter\lManager.h" alt="" coords="949,345,1144,383"/>
+<area shape="rect" id="node49" href="$db/d7f/_u_r_fcn_8h.html" title="UpRootMinuit/URFcn.h" alt="" coords="1168,351,1309,377"/>
+<area shape="rect" id="node58" href="$d9/d50/_u_r_minuit_8h.html" title="UpRootMinuit/URMinuit.h" alt="" coords="811,263,965,289"/>
+<area shape="rect" id="node52" href="$d8/d7d/_u_rtypes_8h.html" title="UpRootMinuit/URtypes.h" alt="" coords="881,433,1031,458"/>
+<area shape="rect" id="node54" href="$d3/d95/_u_r_config_8h.html" title="UpRootMinuit/URConfig.h" alt="" coords="749,507,907,533"/>
+<area shape="rect" id="node72" href="$d5/da3/_m_i_function_contribution_8h.html" title="MinuitInterface/MIFunction\lContribution.h" alt="" coords="144,345,307,383"/>
+<area shape="rect" id="node81" href="$dd/dbc/_amp_vecs_8h.html" title="IUAmpTools/AmpVecs.h" alt="" coords="2941,263,3088,289"/>
+<area shape="rect" id="node100" href="$d7/d46/_amp_parameter_8h.html" title="IUAmpTools/AmpParameter.h" alt="" coords="1821,263,2000,289"/>
+<area shape="rect" id="node83" href="$db/da7/_g_p_u_custom_types_8h.html" title="GPUManager/GPUCustomTypes.h" alt="" coords="2828,433,3028,458"/>
+<area shape="rect" id="node86" href="$d7/d25/_g_p_u_manager_8h.html" title="GPUManager/GPUManager.h" alt="" coords="3059,351,3235,377"/>
+<area shape="rect" id="node116" href="$d1/ded/_amplitude_8h.html" title="IUAmpTools/Amplitude.h" alt="" coords="3213,263,3365,289"/>
+<area shape="rect" id="node134" href="$db/dc1/_data_reader_8h.html" title="IUAmpTools/DataReader.h" alt="" coords="1941,351,2101,377"/>
+<area shape="rect" id="node139" href="$dc/d40/_configuration_info_8h.html" title="IUAmpTools/Configuration\lInfo.h" alt="" coords="2469,345,2629,383"/>
+<area shape="rect" id="node123" href="$d0/dee/_kinematics_8h.html" title="IUAmpTools/Kinematics.h" alt="" coords="3584,351,3741,377"/>
+</map>

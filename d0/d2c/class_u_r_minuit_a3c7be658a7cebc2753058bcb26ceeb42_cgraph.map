@@ -1,0 +1,17 @@
+<map id="URMinuit::mnline" name="URMinuit::mnline">
+<area shape="rect" id="node3" href="$d0/d2c/class_u_r_minuit.html#a5a2038cdbabf48d9b0f21a814a7df1c2" title="URMinuit::mninex" alt="" coords="172,5,287,30"/>
+<area shape="rect" id="node9" href="$d0/d2c/class_u_r_minuit.html#a7ac5aed3afde3dc5b89b012ea451317b" title="URMinuit::Eval" alt="" coords="180,53,279,78"/>
+<area shape="rect" id="node11" href="$d0/da7/class_u_r_math.html#ab0ad6812a6b8e967f68551b19ff3b82f" title="URMath::Abs" alt="" coords="185,101,273,126"/>
+<area shape="rect" id="node13" href="$d0/da7/class_u_r_math.html#a9db54720d498a5bf80a2e2d6b5bc638a" title="URMath::Max" alt="" coords="511,150,601,175"/>
+<area shape="rect" id="node15" href="$d0/d2c/class_u_r_minuit.html#a3ef87998ecfec92e0e547920fcbf97b9" title="URMinuit::mnpfit" alt="" coords="173,199,285,225"/>
+<area shape="rect" id="node17" href="$d0/da7/class_u_r_math.html#ac2c2dae5d98813b5c8ad45a8380eb87b" title="URMath::Min" alt="" coords="512,294,600,319"/>
+<area shape="rect" id="node19" href="$d0/d2c/class_u_r_minuit.html#a62a512e507aff110eea3fddf291784d8" title="URMinuit::mnwarn" alt="" coords="169,295,289,321"/>
+<area shape="rect" id="node21" href="$d0/d2c/class_u_r_minuit.html#a84774bfa875a9110c5a44a3adc97fbf5" title="URMinuit::mnplot" alt="" coords="172,247,287,273"/>
+<area shape="rect" id="node5" href="$d0/da7/class_u_r_math.html#a3c34f43b6aa64f71fb3a4c089ad813d3" title="URMath::Sin" alt="" coords="355,5,440,30"/>
+<area shape="rect" id="node7" href="$da/df4/_u_r_math_8h.html#ad910bc71940a50c2a35d308c236013b6" title="sin" alt="" coords="537,5,575,30"/>
+<area shape="rect" id="node24" href="$d0/d2c/class_u_r_minuit.html#a329f15d6897c5c6943ca67d5ac7d7cac" title="URMinuit::mnbins" alt="" coords="340,245,455,270"/>
+<area shape="rect" id="node28" href="$d0/da7/class_u_r_math.html#a86d72e37b88dc1bc15ad88212b1e3622" title="URMath::Log10" alt="" coords="505,198,607,223"/>
+<area shape="rect" id="node32" href="$d0/da7/class_u_r_math.html#a57efc068aa889fc3ac8f97ff395f172b" title="URMath::Power" alt="" coords="505,246,607,271"/>
+<area shape="rect" id="node30" href="$da/df4/_u_r_math_8h.html#a9dc77c64d7b6f9cd8b78e2fd74d63a16" title="log10" alt="" coords="657,198,708,223"/>
+<area shape="rect" id="node34" href="$da/df4/_u_r_math_8h.html#a96ae9abed439401fd6dd28a1e2c2f94e" title="pow" alt="" coords="661,246,704,271"/>
+</map>

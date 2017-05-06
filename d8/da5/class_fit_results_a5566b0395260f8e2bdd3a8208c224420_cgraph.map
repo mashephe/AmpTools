@@ -1,0 +1,8 @@
+<map id="FitResults::rotateResults" name="FitResults::rotateResults">
+<area shape="rect" id="node3" href="$d1/d65/class_configuration_info.html#a1875094cfa274b56d8d98c49918f0ec3" title="ConfigurationInfo::\lreactionList" alt="" coords="229,5,349,43"/>
+<area shape="rect" id="node5" href="$d1/d65/class_configuration_info.html#a6479b08973ec0d87a591e76f2957799a" title="ConfigurationInfo::\lcoherentSumList" alt="" coords="229,66,349,105"/>
+<area shape="rect" id="node7" href="$d1/d65/class_configuration_info.html#a350584a91eac9a6a8c9654cf56161e0a" title="ConfigurationInfo::\lamplitudeList" alt="" coords="229,127,349,166"/>
+<area shape="rect" id="node9" href="$d8/da5/class_fit_results.html#ae70fc889e3aaa81768e276463a39b80e" title="FitResults::realProdParName" alt="" coords="204,189,375,214"/>
+<area shape="rect" id="node11" href="$d8/da5/class_fit_results.html#a0611854647a6c4cdc2cb3f8fb6a79471" title="FitResults::imagProdParName" alt="" coords="200,237,379,262"/>
+<area shape="rect" id="node13" href="$d8/da5/class_fit_results.html#aa105a8bf1838837d81bc2963e5df22f3" title="FitResults::ampScaleName" alt="" coords="208,285,371,310"/>
+</map>

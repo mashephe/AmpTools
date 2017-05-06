@@ -1,0 +1,18 @@
+<map id="URMinuit::DefineParameter" name="URMinuit::DefineParameter">
+<area shape="rect" id="node3" href="$d0/d2c/class_u_r_minuit.html#acef2d0806e68080ed0a524df04bae9f3" title="URMinuit::mnparm" alt="" coords="219,200,341,225"/>
+<area shape="rect" id="node5" href="$d0/d2c/class_u_r_minuit.html#a62a512e507aff110eea3fddf291784d8" title="URMinuit::mnwarn" alt="" coords="881,26,1001,52"/>
+<area shape="rect" id="node7" href="$d0/d2c/class_u_r_minuit.html#a7b65ed953ed283f573727d2021bcee5c" title="URMinuit::mnfree" alt="" coords="389,76,504,101"/>
+<area shape="rect" id="node11" href="$d0/d2c/class_u_r_minuit.html#ad7112cd0822813ba9bfb8a0e2fa25d5f" title="URMinuit::mnpint" alt="" coords="717,76,832,101"/>
+<area shape="rect" id="node22" href="$d0/da7/class_u_r_math.html#a9db54720d498a5bf80a2e2d6b5bc638a" title="URMath::Max" alt="" coords="565,224,656,249"/>
+<area shape="rect" id="node24" href="$d0/d2c/class_u_r_minuit.html#a8e2ba6a77f49ca3af34b0771cdd5e2ef" title="URMinuit::mnrset" alt="" coords="391,273,503,298"/>
+<area shape="rect" id="node26" href="$d0/da7/class_u_r_math.html#ab0ad6812a6b8e967f68551b19ff3b82f" title="URMath::Abs" alt="" coords="567,298,655,324"/>
+<area shape="rect" id="node31" href="$d0/da7/class_u_r_math.html#a67209a5a1635c0c413edec654088a26b" title="URMath::Sqrt" alt="" coords="401,372,492,397"/>
+<area shape="rect" id="node35" href="$d0/d2c/class_u_r_minuit.html#a380ad70f70e404b96866a5a9e7723681" title="URMinuit::mnfixp" alt="" coords="389,174,504,200"/>
+<area shape="rect" id="node9" href="$d0/d2c/class_u_r_minuit.html#a606704663ca492de5d06c343a64ea5a7" title="URMinuit::mnexin" alt="" coords="553,76,668,101"/>
+<area shape="rect" id="node13" href="$d0/da7/class_u_r_math.html#a3c34f43b6aa64f71fb3a4c089ad813d3" title="URMath::Sin" alt="" coords="899,122,984,148"/>
+<area shape="rect" id="node18" href="$d0/da7/class_u_r_math.html#a188c584d28c90194793799eca3d92de2" title="URMath::ASin" alt="" coords="895,74,988,100"/>
+<area shape="rect" id="node15" href="$da/df4/_u_r_math_8h.html#ad910bc71940a50c2a35d308c236013b6" title="sin" alt="" coords="1055,122,1092,148"/>
+<area shape="rect" id="node20" href="$da/df4/_u_r_math_8h.html#ae2859a53d3027ae629da4eff74f3837e" title="asin" alt="" coords="1052,74,1095,100"/>
+<area shape="rect" id="node33" href="$da/df4/_u_r_math_8h.html#acdb55c1010a6c379a49db0201bf55d89" title="sqrt" alt="" coords="589,372,632,397"/>
+<area shape="rect" id="node38" href="$d0/da7/class_u_r_math.html#ac2c2dae5d98813b5c8ad45a8380eb87b" title="URMath::Min" alt="" coords="567,174,655,200"/>
+</map>

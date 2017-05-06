@@ -1,0 +1,5 @@
+<map id="AmplitudeManager::maxFactorStoragePerEvent" name="AmplitudeManager::maxFactorStoragePerEvent">
+<area shape="rect" id="node3" href="$d5/d23/class_intensity_manager.html#aee6721f18846f5411c315f97a812e6cc" title="IntensityManager::getTerm\lNames" alt="" coords="268,5,431,43"/>
+<area shape="rect" id="node5" href="$de/ddb/class_amplitude_manager.html#a820846f77eed7b407cbd2edfd1464066" title="AmplitudeManager::getPermutations" alt="" coords="241,66,457,91"/>
+<area shape="rect" id="node7" href="$de/ddb/class_amplitude_manager.html#a77032845d4b3ee29089a97a746664a14" title="AmplitudeManager::getFactors" alt="" coords="257,114,441,139"/>
+</map>

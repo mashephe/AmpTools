@@ -1,0 +1,21 @@
+<map id="MISubject::notify" name="MISubject::notify">
+<area shape="rect" id="node3" href="$d8/d20/class_derived_parameter.html#acd8d11947c9f26a0910f99de68bba0b0" title="DerivedParameter::setError" alt="" coords="391,250,553,275"/>
+<area shape="rect" id="node5" href="$db/d6e/class_minuit_minimization_manager.html#ae9f14f06a902c5d86168d88d3d5d0cc3" title="MinuitMinimizationManager\l::evaluateFunction" alt="" coords="165,127,336,166"/>
+<area shape="rect" id="node21" href="$df/dd8/class_parameter.html#a38fd60e620b0451c94bb3f9c4c92589c" title="Parameter::setValue" alt="" coords="187,371,315,397"/>
+<area shape="rect" id="node29" href="$df/dd8/class_parameter.html#a24b38894784dc01211c186ac5d1d42c7" title="Parameter::setError" alt="" coords="189,273,312,298"/>
+<area shape="rect" id="node32" href="$df/dd8/class_parameter.html#a1a8b341f85b7793529f08a20ddc730b7" title="Parameter::valuePtr" alt="" coords="409,298,535,323"/>
+<area shape="rect" id="node34" href="$df/dd8/class_parameter.html#add73d5f85b035904c4be944e42c2f32d" title="Parameter::setValueError" alt="" coords="175,449,327,474"/>
+<area shape="rect" id="node7" href="$db/d6e/class_minuit_minimization_manager.html#a010e4236de62b07f77f2152c466d2946" title="MinuitMinimizationManager\l::migradMinimization" alt="" coords="387,189,557,227"/>
+<area shape="rect" id="node11" href="$db/d6e/class_minuit_minimization_manager.html#a62c0af78ab887673a7f8e6a4c23a6794" title="MinuitMinimizationManager\l::minosMinimization" alt="" coords="387,66,557,105"/>
+<area shape="rect" id="node14" href="$db/d6e/class_minuit_minimization_manager.html#a9463d352229bab29bdbb8c26f4d32f8f" title="MinuitMinimizationManager\l::hesseEvaluation" alt="" coords="387,127,557,166"/>
+<area shape="rect" id="node17" href="$db/d6e/class_minuit_minimization_manager.html#ae04c7f806c3fdf1a3230a1d054e4e7ab" title="MinuitMinimizationManager\l::operator()" alt="" coords="387,5,557,43"/>
+<area shape="rect" id="node9" href="$db/d6e/class_minuit_minimization_manager.html#afd87444ee097df396ef532d0feaf83b3" title="MinuitMinimizationManager\l::derivativesEnabled" alt="" coords="608,127,779,166"/>
+<area shape="rect" id="node19" href="$db/d6e/class_minuit_minimization_manager.html#a4c5db522b9ff0d569ef498c54af29e86" title="MinuitMinimizationManager\l::setUserFlagFunction" alt="" coords="608,5,779,43"/>
+<area shape="rect" id="node23" href="$da/d3e/class_complex_parameter.html#a00972913ac6d21ecec4358ea493fc68d" title="ComplexParameter::setValue" alt="" coords="385,346,559,371"/>
+<area shape="rect" id="node25" href="$d8/d20/class_derived_parameter.html#a252d765d835fa0e2f6d6952dad77ceb1" title="DerivedParameter::setValue" alt="" coords="388,394,556,419"/>
+<area shape="rect" id="node27" href="$d8/d20/class_derived_parameter.html#ac7becbf1a833d8b69f0b282b48d5b40a" title="DerivedParameter::Derived\lParameter" alt="" coords="612,387,775,426"/>
+<area shape="rect" id="node36" href="$d8/d20/class_derived_parameter.html#ae395e6ed34d30573d34dedb3b15d25b9" title="DerivedParameter::setValue\lError" alt="" coords="388,442,556,481"/>
+<area shape="rect" id="node40" href="$df/dd8/class_parameter.html#a8524bbf02ea723d1dd9681a3515bdbc6" title="Parameter::error" alt="" coords="419,503,525,529"/>
+<area shape="rect" id="node38" href="$d8/d20/class_derived_parameter.html#a5527e306c3ac07b9e2602379a78d8eb7" title="DerivedParameter::update" alt="" coords="613,449,773,474"/>
+<area shape="rect" id="node42" href="$d6/df5/class_minuit_parameter.html#a05cd65eda956c887deda10c7a0027bdb" title="MinuitParameter::error" alt="" coords="624,503,763,529"/>
+</map>

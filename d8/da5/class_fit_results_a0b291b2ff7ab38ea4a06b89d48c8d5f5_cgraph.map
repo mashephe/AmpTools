@@ -1,0 +1,13 @@
+<map id="FitResults::intensity" name="FitResults::intensity">
+<area shape="rect" id="node3" href="$d8/da5/class_fit_results.html#ab8b315befae1fbb028606a3c00224d18" title="FitResults::ampList" alt="" coords="407,16,527,42"/>
+<area shape="rect" id="node5" href="$d8/da5/class_fit_results.html#a6cb99a5bfd82506f6502773c11a98a5a" title="FitResults::errorMatrix" alt="" coords="199,47,332,72"/>
+<area shape="rect" id="node7" href="$d8/da5/class_fit_results.html#aabee2c18dae3ca199c9a9da5f3c2debd" title="FitResults::intensity" alt="" coords="204,95,327,120"/>
+<area shape="rect" id="node10" href="$d8/da5/class_fit_results.html#abe96cc1f6b592c3c1015e6fba6d77f07" title="FitResults::ampParMap" alt="" coords="195,143,336,168"/>
+<area shape="rect" id="node16" href="$da/df4/_u_r_math_8h.html#acdb55c1010a6c379a49db0201bf55d89" title="sqrt" alt="" coords="579,168,621,194"/>
+<area shape="rect" id="node18" href="$d8/da5/class_fit_results.html#ae70fc889e3aaa81768e276463a39b80e" title="FitResults::realProdParName" alt="" coords="180,242,351,267"/>
+<area shape="rect" id="node20" href="$d8/da5/class_fit_results.html#a0611854647a6c4cdc2cb3f8fb6a79471" title="FitResults::imagProdParName" alt="" coords="176,290,355,315"/>
+<area shape="rect" id="node22" href="$d8/da5/class_fit_results.html#aa105a8bf1838837d81bc2963e5df22f3" title="FitResults::ampScaleName" alt="" coords="184,338,347,363"/>
+<area shape="rect" id="node24" href="$d8/da5/class_fit_results.html#a6b495d4f8aa05b553a91d54d0390e024" title="FitResults::ampScale" alt="" coords="200,386,331,411"/>
+<area shape="rect" id="node12" href="$d1/d65/class_configuration_info.html#a3abc6f1e4dcc7b9b90dea7fec5979562" title="ConfigurationInfo::\lparameterList" alt="" coords="407,82,527,120"/>
+<area shape="rect" id="node14" href="$d8/da5/class_fit_results.html#ac4ee32c5edba94429e6f810866048d20" title="FitResults::parValue" alt="" coords="404,143,529,168"/>
+</map>

@@ -1,0 +1,10 @@
+<map id="FitResults::realProdParName" name="FitResults::realProdParName">
+<area shape="rect" id="node3" href="$d8/da5/class_fit_results.html#a0b291b2ff7ab38ea4a06b89d48c8d5f5" title="FitResults::intensity" alt="" coords="259,5,381,30"/>
+<area shape="rect" id="node5" href="$d8/da5/class_fit_results.html#afc8a67b7c5dcd2a1171134b4e3a4e459" title="FitResults::phaseDiff" alt="" coords="256,53,384,78"/>
+<area shape="rect" id="node7" href="$d8/da5/class_fit_results.html#a60685caedc7f817e28db61c2271beb25" title="FitResults::productionParameter" alt="" coords="225,101,415,126"/>
+<area shape="rect" id="node15" href="$d8/da5/class_fit_results.html#a8a5390d8af97ed0adfc5776220d7fe8f" title="FitResults::writeSeed" alt="" coords="255,149,385,174"/>
+<area shape="rect" id="node17" href="$d8/da5/class_fit_results.html#a5566b0395260f8e2bdd3a8208c224420" title="FitResults::rotateResults" alt="" coords="247,197,393,222"/>
+<area shape="rect" id="node9" href="$d8/da5/class_fit_results.html#a98c5f1203d604c8674be4a654dac5b69" title="FitResults::ampProdParMap" alt="" coords="468,46,633,71"/>
+<area shape="rect" id="node11" href="$d8/da5/class_fit_results.html#a706ef15d4e9368abbe9efccfe875e8f4" title="FitResults::scaledProduction\lParameter" alt="" coords="467,94,635,133"/>
+<area shape="rect" id="node13" href="$d5/deb/class_plot_generator.html#a90b2f89c7ad79d9481b65a9d7f06e3bf" title="PlotGenerator::PlotGenerator" alt="" coords="465,155,636,181"/>
+</map>

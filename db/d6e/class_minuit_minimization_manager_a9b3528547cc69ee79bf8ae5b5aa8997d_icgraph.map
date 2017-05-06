@@ -1,0 +1,9 @@
+<map id="MinuitMinimizationManager::precision" name="MinuitMinimizationManager::precision">
+<area shape="rect" id="node3" href="$d8/da5/class_fit_results.html#aa7e9475e422d538306469c5ca2aa85d5" title="FitResults::loadResults" alt="" coords="240,35,379,61"/>
+<area shape="rect" id="node7" href="$db/d6e/class_minuit_minimization_manager.html#ab5479b9cf5678e66b313c83ed223e561" title="MinuitMinimizationManager\l::setPrecision" alt="" coords="224,114,395,153"/>
+<area shape="rect" id="node15" href="$db/d6e/class_minuit_minimization_manager.html#afd87444ee097df396ef532d0feaf83b3" title="MinuitMinimizationManager\l::derivativesEnabled" alt="" coords="443,175,613,214"/>
+<area shape="rect" id="node5" href="$d8/da5/class_fit_results.html#a3fb182786a6eb7bb7e5bb67195c1310e" title="FitResults::FitResults" alt="" coords="464,5,592,30"/>
+<area shape="rect" id="node9" href="$d8/d1a/class_amp_tools_interface.html#a71baee8b3b6cd49a774a09c7f81adc88" title="AmpToolsInterface::\lresetConfigurationInfo" alt="" coords="459,53,597,91"/>
+<area shape="rect" id="node13" href="$df/da1/class_amp_tools_interface_m_p_i.html#a2b9b44e835e059d8157710f686525640" title="AmpToolsInterfaceMPI\l::AmpToolsInterfaceMPI" alt="" coords="456,114,600,153"/>
+<area shape="rect" id="node11" href="$d8/d1a/class_amp_tools_interface.html#a43a8d6a69859af9705595ed2078f3c41" title="AmpToolsInterface::\lAmpToolsInterface" alt="" coords="663,53,788,91"/>
+</map>

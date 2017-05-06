@@ -1,0 +1,6 @@
+<map id="IntensityManager::productionFactor" name="IntensityManager::productionFactor">
+<area shape="rect" id="node3" href="$de/ddb/class_amplitude_manager.html#a55cb7f0628571991cc8301292ea01edd" title="AmplitudeManager::calcIntensities" alt="" coords="232,5,437,30"/>
+<area shape="rect" id="node5" href="$de/ddb/class_amplitude_manager.html#a8573acaa3fe263bc9bb51c5cf40681f0" title="AmplitudeManager::calcSum\lLogIntensity" alt="" coords="487,21,663,59"/>
+<area shape="rect" id="node8" href="$d8/d1a/class_amp_tools_interface.html#a05104c7c951e4922305f9825b9f5db29" title="AmpToolsInterface::\lscaledProductionAmplitude" alt="" coords="252,103,417,142"/>
+<area shape="rect" id="node10" href="$d8/d1a/class_amp_tools_interface.html#a828a1ad66afe455a65f8414ee79f206c" title="AmpToolsInterface::\lalternateIntensity" alt="" coords="512,103,637,142"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="MinuitMinimizationManager::status" name="MinuitMinimizationManager::status">
+<area shape="rect" id="node3" href="$d8/da5/class_fit_results.html#aa7e9475e422d538306469c5ca2aa85d5" title="FitResults::loadResults" alt="" coords="233,5,372,30"/>
+<area shape="rect" id="node7" href="$d8/d14/class_minuit_parameter_manager.html#a83a1def67eca01953adfe9c2c964e25a" title="MinuitParameterManager\l::updateErrors" alt="" coords="224,53,381,91"/>
+<area shape="rect" id="node5" href="$d8/da5/class_fit_results.html#a3fb182786a6eb7bb7e5bb67195c1310e" title="FitResults::FitResults" alt="" coords="455,5,583,30"/>
+<area shape="rect" id="node9" href="$d6/df5/class_minuit_parameter.html#a05cd65eda956c887deda10c7a0027bdb" title="MinuitParameter::error" alt="" coords="449,55,588,81"/>
+<area shape="rect" id="node11" href="$d6/df5/class_minuit_parameter.html#a216c6edcec1020a686efb01a46d77f7f" title="MinuitParameter::asymmetric\lErrors" alt="" coords="429,103,608,142"/>
+</map>

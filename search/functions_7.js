@@ -1,0 +1,28 @@
+var searchData=
+[
+  ['h',['H',['../d0/da7/class_u_r_math.html#a696fa0adfe003f2cc35967a7b31fbed9',1,'URMath']]],
+  ['hasaccesstomc',['hasAccessToMC',['../dc/d8e/class_norm_int_interface.html#a49486544a3ed6838ebdc6a09b5a203b1',1,'NormIntInterface']]],
+  ['hasampint',['hasAmpInt',['../dc/d8e/class_norm_int_interface.html#a04ab7960937134f77d9c7d17235fcc0e',1,'NormIntInterface']]],
+  ['hasconstraint',['hasConstraint',['../d5/d5c/class_amplitude_info.html#ac3a0865687fe7f3375b0bea687fdd43d',1,'AmplitudeInfo']]],
+  ['hasconstraints',['hasConstraints',['../d7/d58/class_parameter_manager.html#aa0b8d5cc2b759337e30c7ca93e003678',1,'ParameterManager']]],
+  ['hasexternalptr',['hasExternalPtr',['../d0/d09/class_amp_parameter.html#ac44777c54b43c3bdb855b9f0fdc55f35',1,'AmpParameter']]],
+  ['hash',['Hash',['../d0/da7/class_u_r_math.html#a7fea63fdd1b8df7c5ed208247a3e6b96',1,'URMath::Hash(const void *txt, Int_urt ntxt)'],['../d0/da7/class_u_r_math.html#abf87ce8c302c340258747020df2b43c5',1,'URMath::Hash(const char *str)']]],
+  ['hasnormint',['hasNormInt',['../dc/d8e/class_norm_int_interface.html#a2d227844ccc0a04ff6860e10e68c13bf',1,'NormIntInterface']]],
+  ['hasparameter',['hasParameter',['../d7/d58/class_parameter_manager.html#ab4943aaa2978c89238cc9f04c6098ace',1,'ParameterManager']]],
+  ['hasterm',['hasTerm',['../d5/d23/class_intensity_manager.html#a49cecc23aea7b630246af659bb88080e',1,'IntensityManager']]],
+  ['hastermwithfreeparam',['hasTermWithFreeParam',['../de/ddb/class_amplitude_manager.html#a6c3ab91e2b1467dfac9182427fe2bc3a',1,'AmplitudeManager::hasTermWithFreeParam()'],['../d5/d23/class_intensity_manager.html#ab4b9ed4c5ddebdc187b5e88376f353cd',1,'IntensityManager::hasTermWithFreeParam()']]],
+  ['haveamp',['haveAmp',['../d5/deb/class_plot_generator.html#a54636078d6021b99a0c4ccac4dff6aad',1,'PlotGenerator']]],
+  ['hbar',['Hbar',['../d0/da7/class_u_r_math.html#a9c08c831e6047a2c454f2977218bef8a',1,'URMath']]],
+  ['hbarcgs',['Hbarcgs',['../d0/da7/class_u_r_math.html#acaedc5391dd711c9566d1be9ecb3dfb2',1,'URMath']]],
+  ['hbaruncertainty',['HbarUncertainty',['../d0/da7/class_u_r_math.html#af2e29f17ee140b4eccab2e3f6ff4da28',1,'URMath']]],
+  ['hc',['HC',['../d0/da7/class_u_r_math.html#a5ebada93ca5795557ae763adc9e9f2b1',1,'URMath']]],
+  ['hccgs',['HCcgs',['../d0/da7/class_u_r_math.html#a7194b7964a92efaa67d3384c1ed3f034',1,'URMath']]],
+  ['hcgs',['Hcgs',['../d0/da7/class_u_r_math.html#a1d73a2b95b83d123acd97c9cd72763aa',1,'URMath']]],
+  ['hesse',['Hesse',['../d0/d2c/class_u_r_minuit.html#aeb47fd20ebaf6e4b5b4349452cdbebe6',1,'URMinuit']]],
+  ['hesseevaluation',['hesseEvaluation',['../db/d6e/class_minuit_minimization_manager.html#a9463d352229bab29bdbb8c26f4d32f8f',1,'MinuitMinimizationManager']]],
+  ['histogram',['Histogram',['../d5/d2b/class_histogram.html#a72d93eb23e2b3ae1153030d72e10e800',1,'Histogram']]],
+  ['histogram1d',['Histogram1D',['../d4/de4/class_histogram1_d.html#ac0c995108e2f01f1c86db2675b5d6407',1,'Histogram1D::Histogram1D()'],['../d4/de4/class_histogram1_d.html#ae9976b094b89ae43ea7b9f069bcc2cae',1,'Histogram1D::Histogram1D(HistStruct &amp;hist)'],['../d4/de4/class_histogram1_d.html#a6b5094cc02addfe1aee6c2ae61ef7b22',1,'Histogram1D::Histogram1D(int nBins, double xLow, double xHigh, string name=&quot;hist1d&quot;, string title=&quot;1D Histogram&quot;)']]],
+  ['histogram2d',['Histogram2D',['../d4/dc7/class_histogram2_d.html#a3f4c2072003d60f6cd2f1dd1c47c0130',1,'Histogram2D::Histogram2D()'],['../d4/dc7/class_histogram2_d.html#acbbb6ffaff6cd14764274ef8c2730966',1,'Histogram2D::Histogram2D(int nBinsX, double xLow, double xHigh, int nBinsY, double yLow, double yHigh, string name=&quot;hist2d&quot;, string title=&quot;2D Histogram&quot;)'],['../d4/dc7/class_histogram2_d.html#a4fb90a2a5fcd991f112ec33ad6aecbd6',1,'Histogram2D::Histogram2D(HistStruct &amp;hist)']]],
+  ['huncertainty',['HUncertainty',['../d0/da7/class_u_r_math.html#ab2fb3e94f30c4f1947e56f22ebf1349f',1,'URMath']]],
+  ['hypot',['Hypot',['../d0/da7/class_u_r_math.html#a0ce360bb5ee20bd7ae61d6f79b468e3b',1,'URMath::Hypot(Double_urt x, Double_urt y)'],['../d0/da7/class_u_r_math.html#afb53509c53bf4eddbc9e4d3c8ea1825e',1,'URMath::Hypot(Long_urt x, Long_urt y)']]]
+];

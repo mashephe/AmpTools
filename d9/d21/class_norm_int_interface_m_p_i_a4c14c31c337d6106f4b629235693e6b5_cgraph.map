@@ -1,0 +1,37 @@
+<map id="NormIntInterfaceMPI::normInt" name="NormIntInterfaceMPI::normInt">
+<area shape="rect" id="node3" href="$dc/d8e/class_norm_int_interface.html#a49486544a3ed6838ebdc6a09b5a203b1" title="NormIntInterface::hasAccessToMC" alt="" coords="425,5,625,30"/>
+<area shape="rect" id="node5" href="$dc/d8e/class_norm_int_interface.html#ab51607839c0d5a22ae9df8e812b03287" title="NormIntInterface::intenManager" alt="" coords="184,523,376,549"/>
+<area shape="rect" id="node7" href="$d9/d21/class_norm_int_interface_m_p_i.html#aa0e86b70760ff8ff2fc9b6263e289dbf" title="NormIntInterfaceMPI\l::forceCacheUpdate" alt="" coords="215,462,345,501"/>
+<area shape="rect" id="node71" href="$dc/d8e/class_norm_int_interface.html#a01c4d710a9b8e8e4dc0af99d0f336b88" title="NormIntInterface::normInt" alt="" coords="200,165,360,190"/>
+<area shape="rect" id="node9" href="$dc/d8e/class_norm_int_interface.html#a49e2698c6aae86154b8cfd5028dc95f0" title="NormIntInterface::forceCache\lUpdate" alt="" coords="436,213,615,251"/>
+<area shape="rect" id="node13" href="$dc/d8e/class_norm_int_interface.html#a692646b5b21e2fa51adc24b95dceb1be" title="NormIntInterface::setNorm\lIntMatrix" alt="" coords="688,458,851,497"/>
+<area shape="rect" id="node53" href="$dc/d8e/class_norm_int_interface.html#a4b5049aefcb89ee2845ca089021d1c67" title="NormIntInterface::setAmp\lIntMatrix" alt="" coords="691,561,848,599"/>
+<area shape="rect" id="node55" href="$dc/d8e/class_norm_int_interface.html#a56f689019d1ea39692dd1531438a201a" title="NormIntInterface::setGen\lEvents" alt="" coords="448,434,603,473"/>
+<area shape="rect" id="node57" href="$dc/d8e/class_norm_int_interface.html#a2ca3a09a886c1099df078f6711e0d167" title="NormIntInterface::setAcc\lEvents" alt="" coords="449,546,601,585"/>
+<area shape="rect" id="node59" href="$dc/d8e/class_norm_int_interface.html#ab91dcd0443ca652a87a5e88828bf0d21" title="NormIntInterface::numGen\lEvents" alt="" coords="443,658,608,697"/>
+<area shape="rect" id="node61" href="$dc/d8e/class_norm_int_interface.html#a6ecea6830e41efcbaecc1ba1e23e78b3" title="NormIntInterface::numAcc\lEvents" alt="" coords="444,719,607,758"/>
+<area shape="rect" id="node63" href="$dc/d8e/class_norm_int_interface.html#ab8aa43f8f217c9c13b51154583d5f4d6" title="NormIntInterface::normInt\lMatrix" alt="" coords="445,781,605,819"/>
+<area shape="rect" id="node65" href="$dc/d8e/class_norm_int_interface.html#a57a1ff44bc131446ab27aa1c53f5f140" title="NormIntInterface::ampInt\lMatrix" alt="" coords="447,325,604,363"/>
+<area shape="rect" id="node67" href="$dc/d8e/class_norm_int_interface.html#a76699e89e1774349207ddb3398c49862" title="NormIntInterface::cacheSize" alt="" coords="440,386,611,411"/>
+<area shape="rect" id="node11" href="$d5/d23/class_intensity_manager.html#a290891c378c734466b4bd3717e72f542" title="IntensityManager::calcIntegrals" alt="" coords="676,117,863,142"/>
+<area shape="rect" id="node15" href="$dd/df6/struct_amp_vecs.html#a26a7aa01c6a82258ea7c485da17d0dd4" title="AmpVecs::deallocAmpVecs" alt="" coords="688,166,851,191"/>
+<area shape="rect" id="node21" href="$dd/df6/struct_amp_vecs.html#a35213589c7832c1006cefc98b0f111bd" title="AmpVecs::loadData" alt="" coords="707,410,832,435"/>
+<area shape="rect" id="node40" href="$dd/df6/struct_amp_vecs.html#a834d738dcbd6d71855576e8b761bc0c3" title="AmpVecs::allocateTerms" alt="" coords="695,218,844,243"/>
+<area shape="rect" id="node17" href="$d2/d8c/class_g_p_u_manager.html#a960a798cd9eed310e0c18b5d3b72bd99" title="GPUManager::clearAll" alt="" coords="1172,58,1308,83"/>
+<area shape="rect" id="node19" href="$da/df4/_u_r_math_8h.html#acdb55c1010a6c379a49db0201bf55d89" title="sqrt" alt="" coords="1381,58,1424,83"/>
+<area shape="rect" id="node23" href="$d3/d3a/class_data_reader.html#ae9ff00fa722b1a9d0356f574ea188af6" title="DataReader::resetSource" alt="" coords="929,410,1081,435"/>
+<area shape="rect" id="node25" href="$d3/d3a/class_data_reader.html#a80771273b9729088695ea92425023c5e" title="DataReader::numEvents" alt="" coords="931,458,1080,483"/>
+<area shape="rect" id="node27" href="$d3/d3a/class_data_reader.html#ae1848f21596cd2bd22aef5fd1abb0dbb" title="DataReader::getEvent" alt="" coords="936,506,1075,531"/>
+<area shape="rect" id="node29" href="$dd/df6/struct_amp_vecs.html#ad85e27fbb633dc794434409620632976" title="AmpVecs::loadEvent" alt="" coords="940,362,1071,387"/>
+<area shape="rect" id="node37" href="$dd/d01/class_kinematics.html#aa911304e9bafd63cfc82bd33d0950516" title="Kinematics::weight" alt="" coords="1179,506,1301,531"/>
+<area shape="rect" id="node31" href="$d2/d8c/class_g_p_u_manager.html#aedd840e94249b4dfd6b0f03a404d58b6" title="GPUManager::calcNEventsGPU" alt="" coords="1147,362,1333,387"/>
+<area shape="rect" id="node33" href="$dd/d01/class_kinematics.html#a89069e1778171e12823ce6a395fe819e" title="Kinematics::particleList" alt="" coords="1168,410,1312,435"/>
+<area shape="rect" id="node35" href="$dd/d01/class_kinematics.html#a0332f321c9c7c99a36814bdac55d959c" title="Kinematics::particle" alt="" coords="1177,314,1303,339"/>
+<area shape="rect" id="node42" href="$d5/d23/class_intensity_manager.html#aee6721f18846f5411c315f97a812e6cc" title="IntensityManager::getTerm\lNames" alt="" coords="924,239,1087,278"/>
+<area shape="rect" id="node44" href="$d5/d23/class_intensity_manager.html#addb6489e6c387d0f84b2f88243138517" title="IntensityManager::maxFactor\lStoragePerEvent" alt="" coords="917,301,1093,339"/>
+<area shape="rect" id="node46" href="$d5/d23/class_intensity_manager.html#a660379b6f947c9efa47751d3607ddbf3" title="IntensityManager::termStorage\lPerEvent" alt="" coords="912,130,1099,169"/>
+<area shape="rect" id="node48" href="$d2/d8c/class_g_p_u_manager.html#ac59701270bd6aa15b7804d8afd59ec7c" title="GPUManager::init" alt="" coords="948,82,1063,107"/>
+<area shape="rect" id="node51" href="$d2/d8c/class_g_p_u_manager.html#a977942cbc9105a6175d6e2fd2400a566" title="GPUManager::copyDataToGPU" alt="" coords="913,191,1097,217"/>
+<area shape="rect" id="node73" href="$dc/d8e/class_norm_int_interface.html#a2d227844ccc0a04ff6860e10e68c13bf" title="NormIntInterface::hasNormInt" alt="" coords="436,165,615,190"/>
+<area shape="rect" id="node77" href="$d5/d23/class_intensity_manager.html#ab4b9ed4c5ddebdc187b5e88376f353cd" title="IntensityManager::hasTerm\lWithFreeParam" alt="" coords="443,53,608,91"/>
+</map>

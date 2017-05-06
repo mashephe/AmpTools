@@ -1,0 +1,7 @@
+<map id="AmpVecs::allocateCPUAmpStorage" name="AmpVecs::allocateCPUAmpStorage">
+<area shape="rect" id="node3" href="$de/ddb/class_amplitude_manager.html#a55cb7f0628571991cc8301292ea01edd" title="AmplitudeManager::calcIntensities" alt="" coords="261,14,467,39"/>
+<area shape="rect" id="node7" href="$d8/d1a/class_amp_tools_interface.html#a3123e64aed18e71d30de368cac7dd381" title="AmpToolsInterface::\lprintAmplitudes" alt="" coords="301,63,427,102"/>
+<area shape="rect" id="node11" href="$dd/df6/struct_amp_vecs.html#ad0c8865a167d6bd711b43b7c0b1a5b11" title="AmpVecs::~AmpVecs" alt="" coords="297,125,431,150"/>
+<area shape="rect" id="node5" href="$de/ddb/class_amplitude_manager.html#a8573acaa3fe263bc9bb51c5cf40681f0" title="AmplitudeManager::calcSum\lLogIntensity" alt="" coords="516,5,692,43"/>
+<area shape="rect" id="node9" href="$d8/d1a/class_amp_tools_interface.html#ad7f8f8aadef23dfc7504cf1a5bdf54f6" title="AmpToolsInterface::\lprintEventDetails" alt="" coords="541,66,667,105"/>
+</map>

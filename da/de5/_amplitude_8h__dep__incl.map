@@ -1,0 +1,20 @@
+<map id="Amplitude.h" name="Amplitude.h">
+<area shape="rect" id="node3" href="$d5/d1c/_amplitude_8cc.html" title="Amplitude.cc" alt="" coords="565,81,656,106"/>
+<area shape="rect" id="node5" href="$d6/de2/_amplitude_manager_8h.html" title="AmplitudeManager.h" alt="" coords="680,81,813,106"/>
+<area shape="rect" id="node36" href="$d5/dce/_amp_tools_interface_8h.html" title="AmpToolsInterface.h" alt="" coords="964,81,1095,106"/>
+<area shape="rect" id="node45" href="$d7/dd2/_user_amplitude_8h.html" title="UserAmplitude.h" alt="" coords="1119,81,1228,106"/>
+<area shape="rect" id="node7" href="$d7/d8b/_g_p_u_manager_8cc.html" title="GPUManager.cc" alt="" coords="603,155,709,181"/>
+<area shape="rect" id="node9" href="$db/dce/_amplitude_manager_8cc.html" title="AmplitudeManager.cc" alt="" coords="5,155,144,181"/>
+<area shape="rect" id="node11" href="$df/df1/_amp_tools_interface_8cc.html" title="AmpToolsInterface.cc" alt="" coords="963,155,1096,181"/>
+<area shape="rect" id="node13" href="$d3/d3c/_fit_results_8cc.html" title="FitResults.cc" alt="" coords="344,155,429,181"/>
+<area shape="rect" id="node15" href="$d9/d63/_norm_int_interface_8cc.html" title="NormIntInterface.cc" alt="" coords="453,155,579,181"/>
+<area shape="rect" id="node17" href="$d1/dfa/_plot_generator_8cc.html" title="PlotGenerator.cc" alt="" coords="832,230,941,255"/>
+<area shape="rect" id="node19" href="$de/dea/_plot_generator_8h.html" title="PlotGenerator.h" alt="" coords="835,155,939,181"/>
+<area shape="rect" id="node22" href="$d6/d75/_amp_tools_interface_m_p_i_8cc.html" title="AmpToolsInterfaceMPI.cc" alt="" coords="671,305,823,330"/>
+<area shape="rect" id="node24" href="$d3/de4/_parameter_manager_m_p_i_8h.html" title="ParameterManagerMPI.h" alt="" coords="168,155,320,181"/>
+<area shape="rect" id="node27" href="$d8/d43/_likelihood_calculator_m_p_i_8h.html" title="LikelihoodCalculatorMPI.h" alt="" coords="383,230,540,255"/>
+<area shape="rect" id="node34" href="$d7/d34/_parameter_manager_m_p_i_8cc.html" title="ParameterManagerMPI.cc" alt="" coords="165,230,323,255"/>
+<area shape="rect" id="node30" href="$d1/da5/_likelihood_calculator_m_p_i_8cc.html" title="LikelihoodCalculatorMPI.cc" alt="" coords="449,305,612,330"/>
+<area shape="rect" id="node32" href="$dc/d55/_likelihood_manager_m_p_i_8cc.html" title="LikelihoodManagerMPI.cc" alt="" coords="271,305,425,330"/>
+<area shape="rect" id="node42" href="$d7/de0/_amp_tools_interface_m_p_i_8h.html" title="AmpToolsInterfaceMPI.h" alt="" coords="1221,230,1368,255"/>
+</map>

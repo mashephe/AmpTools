@@ -1,0 +1,9 @@
+<map id="AmpVecs::allocateTerms" name="AmpVecs::allocateTerms">
+<area shape="rect" id="node3" href="$d5/d23/class_intensity_manager.html#aee6721f18846f5411c315f97a812e6cc" title="IntensityManager::getTerm\lNames" alt="" coords="217,5,380,43"/>
+<area shape="rect" id="node5" href="$d5/d23/class_intensity_manager.html#addb6489e6c387d0f84b2f88243138517" title="IntensityManager::maxFactor\lStoragePerEvent" alt="" coords="211,66,387,105"/>
+<area shape="rect" id="node7" href="$d5/d23/class_intensity_manager.html#a660379b6f947c9efa47751d3607ddbf3" title="IntensityManager::termStorage\lPerEvent" alt="" coords="205,127,392,166"/>
+<area shape="rect" id="node9" href="$d2/d8c/class_g_p_u_manager.html#ac59701270bd6aa15b7804d8afd59ec7c" title="GPUManager::init" alt="" coords="241,189,356,214"/>
+<area shape="rect" id="node15" href="$d2/d8c/class_g_p_u_manager.html#a977942cbc9105a6175d6e2fd2400a566" title="GPUManager::copyDataToGPU" alt="" coords="207,237,391,262"/>
+<area shape="rect" id="node11" href="$d2/d8c/class_g_p_u_manager.html#a960a798cd9eed310e0c18b5d3b72bd99" title="GPUManager::clearAll" alt="" coords="441,189,577,214"/>
+<area shape="rect" id="node13" href="$da/df4/_u_r_math_8h.html#acdb55c1010a6c379a49db0201bf55d89" title="sqrt" alt="" coords="627,189,669,214"/>
+</map>

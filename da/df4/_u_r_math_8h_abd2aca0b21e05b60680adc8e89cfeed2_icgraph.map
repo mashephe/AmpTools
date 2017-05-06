@@ -1,0 +1,10 @@
+<map id="atan" name="atan">
+<area shape="rect" id="node3" href="$d0/da7/class_u_r_math.html#a094b4224d129bd479208f9d4f165cd14" title="URMath::Range" alt="" coords="101,5,205,30"/>
+<area shape="rect" id="node5" href="$d0/da7/class_u_r_math.html#a942f6cb1e89a02aa578e4e43c6a7a128" title="URMath::ATan" alt="" coords="105,53,201,78"/>
+<area shape="rect" id="node7" href="$d0/da7/class_u_r_math.html#a10399284d92d329857d709a8a12d0d0d" title="URMath::QeUncertainty" alt="" coords="253,29,400,54"/>
+<area shape="rect" id="node9" href="$d0/d2c/class_u_r_minuit.html#a7f53463b488fac14c197e7595b7f89b2" title="URMinuit::mninit" alt="" coords="272,77,381,102"/>
+<area shape="rect" id="node11" href="$d0/d2c/class_u_r_minuit.html#a2e64e022412bac388af9bf3c2c0d9196" title="URMinuit::URMinuit" alt="" coords="463,53,585,78"/>
+<area shape="rect" id="node13" href="$d0/d2c/class_u_r_minuit.html#a3e13b3fca8b76b51257b69ba9402f8f3" title="URMinuit::SetLogStream" alt="" coords="449,101,599,126"/>
+<area shape="rect" id="node15" href="$db/d6e/class_minuit_minimization_manager.html#ad39169a769620c5cbda86fbf047ed0c4" title="MinuitMinimizationManager\l::setLogStream" alt="" coords="648,94,819,133"/>
+<area shape="rect" id="node17" href="$db/d6e/class_minuit_minimization_manager.html#afd87444ee097df396ef532d0feaf83b3" title="MinuitMinimizationManager\l::derivativesEnabled" alt="" coords="867,94,1037,133"/>
+</map>

@@ -1,0 +1,16 @@
+<map id="MinuitMinimizationManager::minuitMinimizer" name="MinuitMinimizationManager::minuitMinimizer">
+<area shape="rect" id="node3" href="$db/d6e/class_minuit_minimization_manager.html#a4c5db522b9ff0d569ef498c54af29e86" title="MinuitMinimizationManager\l::setUserFlagFunction" alt="" coords="224,22,395,61"/>
+<area shape="rect" id="node5" href="$d8/d14/class_minuit_parameter_manager.html#a83a1def67eca01953adfe9c2c964e25a" title="MinuitParameterManager\l::updateErrors" alt="" coords="231,83,388,122"/>
+<area shape="rect" id="node11" href="$d8/d14/class_minuit_parameter_manager.html#a6b85af4c2c98951701b91066679d651c" title="MinuitParameterManager\l::synchronizeMinuit" alt="" coords="231,175,388,214"/>
+<area shape="rect" id="node23" href="$d8/d14/class_minuit_parameter_manager.html#ad1f7fdf50880337efbf863f5dc145e74" title="MinuitParameterManager\l::registerParameter" alt="" coords="231,267,388,306"/>
+<area shape="rect" id="node27" href="$d8/d14/class_minuit_parameter_manager.html#abde6e5fb0233e623fc8f4d74f2ec0f66" title="MinuitParameterManager\l::covarianceMatrix" alt="" coords="231,359,388,398"/>
+<area shape="rect" id="node7" href="$d6/df5/class_minuit_parameter.html#a05cd65eda956c887deda10c7a0027bdb" title="MinuitParameter::error" alt="" coords="463,5,601,30"/>
+<area shape="rect" id="node9" href="$d6/df5/class_minuit_parameter.html#a216c6edcec1020a686efb01a46d77f7f" title="MinuitParameter::asymmetric\lErrors" alt="" coords="443,53,621,91"/>
+<area shape="rect" id="node13" href="$db/d6e/class_minuit_minimization_manager.html#a010e4236de62b07f77f2152c466d2946" title="MinuitMinimizationManager\l::migradMinimization" alt="" coords="447,114,617,153"/>
+<area shape="rect" id="node17" href="$db/d6e/class_minuit_minimization_manager.html#a62c0af78ab887673a7f8e6a4c23a6794" title="MinuitMinimizationManager\l::minosMinimization" alt="" coords="447,175,617,214"/>
+<area shape="rect" id="node20" href="$db/d6e/class_minuit_minimization_manager.html#a9463d352229bab29bdbb8c26f4d32f8f" title="MinuitMinimizationManager\l::hesseEvaluation" alt="" coords="447,237,617,275"/>
+<area shape="rect" id="node15" href="$db/d6e/class_minuit_minimization_manager.html#afd87444ee097df396ef532d0feaf83b3" title="MinuitMinimizationManager\l::derivativesEnabled" alt="" coords="669,175,840,214"/>
+<area shape="rect" id="node25" href="$d6/df5/class_minuit_parameter.html#aaf2aeeb01939fb3270cd67dac16f2518" title="MinuitParameter::register\lWithManager" alt="" coords="455,298,609,337"/>
+<area shape="rect" id="node29" href="$d8/d14/class_minuit_parameter_manager.html#af388f4d166e2a8a18f15d5d5a9b02f01" title="MinuitParameterManager\l::correlationMatrix" alt="" coords="453,359,611,398"/>
+<area shape="rect" id="node31" href="$d7/d58/class_parameter_manager.html#ade97c00adf0565c0942c89ff101ce42c" title="ParameterManager::update" alt="" coords="448,421,616,446"/>
+</map>

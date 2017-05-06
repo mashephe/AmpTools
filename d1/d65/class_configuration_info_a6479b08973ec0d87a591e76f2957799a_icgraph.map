@@ -1,0 +1,9 @@
+<map id="ConfigurationInfo::coherentSumList" name="ConfigurationInfo::coherentSumList">
+<area shape="rect" id="node3" href="$d8/d1a/class_amp_tools_interface.html#a828a1ad66afe455a65f8414ee79f206c" title="AmpToolsInterface::\lalternateIntensity" alt="" coords="187,5,312,43"/>
+<area shape="rect" id="node5" href="$d1/d65/class_configuration_info.html#a43e60630a283a596fc2d9081ce54f33c" title="ConfigurationInfo::\lremoveCoherentSum" alt="" coords="183,66,316,105"/>
+<area shape="rect" id="node11" href="$d1/d65/class_configuration_info.html#afd19129b9d172bbe44fb268788e981f8" title="ConfigurationInfo::\lwrite" alt="" coords="189,127,309,166"/>
+<area shape="rect" id="node13" href="$d1/d65/class_configuration_info.html#a0d1cc4cdd92389a93c7b577b76dbdbb0" title="ConfigurationInfo::\ldisplay" alt="" coords="189,189,309,227"/>
+<area shape="rect" id="node15" href="$d8/da5/class_fit_results.html#a5566b0395260f8e2bdd3a8208c224420" title="FitResults::rotateResults" alt="" coords="176,250,323,275"/>
+<area shape="rect" id="node7" href="$d1/d65/class_configuration_info.html#a7ff0272d36a9feaecf9be9f34ea93f7c" title="ConfigurationInfo::\lremoveReaction" alt="" coords="372,66,492,105"/>
+<area shape="rect" id="node9" href="$d1/d65/class_configuration_info.html#ad001f995fecde1ccdc374a6e17ee2ac3" title="ConfigurationInfo::\l~ConfigurationInfo" alt="" coords="543,66,665,105"/>
+</map>

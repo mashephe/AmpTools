@@ -1,0 +1,16 @@
+<map id="URMinuit::mnlims" name="URMinuit::mnlims">
+<area shape="rect" id="node3" href="$d0/d2c/class_u_r_minuit.html#a6ac5fc0bf9ececf306c0f70b0323333b" title="URMinuit::mndxdi" alt="" coords="171,5,288,30"/>
+<area shape="rect" id="node5" href="$d0/da7/class_u_r_math.html#ab0ad6812a6b8e967f68551b19ff3b82f" title="URMath::Abs" alt="" coords="349,54,437,79"/>
+<area shape="rect" id="node12" href="$d0/da7/class_u_r_math.html#ac2c2dae5d98813b5c8ad45a8380eb87b" title="URMath::Min" alt="" coords="185,103,273,129"/>
+<area shape="rect" id="node14" href="$d0/da7/class_u_r_math.html#a9db54720d498a5bf80a2e2d6b5bc638a" title="URMath::Max" alt="" coords="348,177,439,202"/>
+<area shape="rect" id="node16" href="$d0/d2c/class_u_r_minuit.html#a606704663ca492de5d06c343a64ea5a7" title="URMinuit::mnexin" alt="" coords="172,250,287,275"/>
+<area shape="rect" id="node30" href="$d0/d2c/class_u_r_minuit.html#a8e2ba6a77f49ca3af34b0771cdd5e2ef" title="URMinuit::mnrset" alt="" coords="173,151,285,177"/>
+<area shape="rect" id="node7" href="$d0/da7/class_u_r_math.html#a49a6d69d258c07ac164a5ea76346ded2" title="URMath::Cos" alt="" coords="349,5,437,30"/>
+<area shape="rect" id="node9" href="$da/df4/_u_r_math_8h.html#a75f4e4dd379376514613d7ec27902d07" title="cos" alt="" coords="541,5,579,30"/>
+<area shape="rect" id="node18" href="$d0/d2c/class_u_r_minuit.html#ad7112cd0822813ba9bfb8a0e2fa25d5f" title="URMinuit::mnpint" alt="" coords="336,250,451,275"/>
+<area shape="rect" id="node20" href="$d0/da7/class_u_r_math.html#a3c34f43b6aa64f71fb3a4c089ad813d3" title="URMath::Sin" alt="" coords="517,250,603,275"/>
+<area shape="rect" id="node24" href="$d0/d2c/class_u_r_minuit.html#a62a512e507aff110eea3fddf291784d8" title="URMinuit::mnwarn" alt="" coords="500,298,620,323"/>
+<area shape="rect" id="node26" href="$d0/da7/class_u_r_math.html#a188c584d28c90194793799eca3d92de2" title="URMath::ASin" alt="" coords="513,202,607,227"/>
+<area shape="rect" id="node22" href="$da/df4/_u_r_math_8h.html#ad910bc71940a50c2a35d308c236013b6" title="sin" alt="" coords="673,250,711,275"/>
+<area shape="rect" id="node28" href="$da/df4/_u_r_math_8h.html#ae2859a53d3027ae629da4eff74f3837e" title="asin" alt="" coords="671,202,713,227"/>
+</map>

@@ -1,0 +1,8 @@
+<map id="URMinuit::mnerrs" name="URMinuit::mnerrs">
+<area shape="rect" id="node3" href="$d8/d14/class_minuit_parameter_manager.html#a83a1def67eca01953adfe9c2c964e25a" title="MinuitParameterManager\l::updateErrors" alt="" coords="168,53,325,91"/>
+<area shape="rect" id="node9" href="$d0/d2c/class_u_r_minuit.html#a3e13b3fca8b76b51257b69ba9402f8f3" title="URMinuit::SetLogStream" alt="" coords="172,117,321,142"/>
+<area shape="rect" id="node5" href="$d6/df5/class_minuit_parameter.html#a05cd65eda956c887deda10c7a0027bdb" title="MinuitParameter::error" alt="" coords="393,5,532,30"/>
+<area shape="rect" id="node7" href="$d6/df5/class_minuit_parameter.html#a216c6edcec1020a686efb01a46d77f7f" title="MinuitParameter::asymmetric\lErrors" alt="" coords="373,53,552,91"/>
+<area shape="rect" id="node11" href="$db/d6e/class_minuit_minimization_manager.html#ad39169a769620c5cbda86fbf047ed0c4" title="MinuitMinimizationManager\l::setLogStream" alt="" coords="377,114,548,153"/>
+<area shape="rect" id="node13" href="$db/d6e/class_minuit_minimization_manager.html#afd87444ee097df396ef532d0feaf83b3" title="MinuitMinimizationManager\l::derivativesEnabled" alt="" coords="600,114,771,153"/>
+</map>

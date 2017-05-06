@@ -1,0 +1,10 @@
+<map id="Amplitude::launchGPUKernel" name="Amplitude::launchGPUKernel">
+<area shape="rect" id="node3" href="$de/d90/class_amplitude.html#af253028a9697e0649db8fd98b1623c02" title="Amplitude::calcAmplitudeGPU" alt="" coords="231,79,412,105"/>
+<area shape="rect" id="node5" href="$d2/d8c/class_g_p_u_manager.html#ae333b427c7ac7654efa74de5ab27837c" title="GPUManager::calcAmplitudeAll" alt="" coords="463,79,649,105"/>
+<area shape="rect" id="node7" href="$de/ddb/class_amplitude_manager.html#a56607e0f733eb741506caaad4077e20e" title="AmplitudeManager::calcTerms" alt="" coords="699,79,883,105"/>
+<area shape="rect" id="node9" href="$de/ddb/class_amplitude_manager.html#a55cb7f0628571991cc8301292ea01edd" title="AmplitudeManager::calcIntensities" alt="" coords="931,5,1136,30"/>
+<area shape="rect" id="node11" href="$de/ddb/class_amplitude_manager.html#a8573acaa3fe263bc9bb51c5cf40681f0" title="AmplitudeManager::calcSum\lLogIntensity" alt="" coords="1185,23,1361,62"/>
+<area shape="rect" id="node14" href="$de/ddb/class_amplitude_manager.html#afb2c06f97aef57355a25f19214e0013e" title="AmplitudeManager::calcIntegrals" alt="" coords="935,103,1132,129"/>
+<area shape="rect" id="node16" href="$d8/d1a/class_amp_tools_interface.html#a3123e64aed18e71d30de368cac7dd381" title="AmpToolsInterface::\lprintAmplitudes" alt="" coords="971,151,1096,190"/>
+<area shape="rect" id="node18" href="$d8/d1a/class_amp_tools_interface.html#ad7f8f8aadef23dfc7504cf1a5bdf54f6" title="AmpToolsInterface::\lprintEventDetails" alt="" coords="1211,151,1336,190"/>
+</map>

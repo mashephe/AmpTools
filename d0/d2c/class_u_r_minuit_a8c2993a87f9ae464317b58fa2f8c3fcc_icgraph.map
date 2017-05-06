@@ -1,0 +1,5 @@
+<map id="URMinuit::GetParameter" name="URMinuit::GetParameter">
+<area shape="rect" id="node3" href="$d0/d2c/class_u_r_minuit.html#adbdecdc8f7bdf1a5421f1136b1c32d33" title="URMinuit::GetMaxIterations" alt="" coords="207,11,372,37"/>
+<area shape="rect" id="node5" href="$db/d6e/class_minuit_minimization_manager.html#aa12389c93df8b41b32ed4290eae5db98" title="MinuitMinimizationManager\l::maxIterations" alt="" coords="421,5,592,43"/>
+<area shape="rect" id="node7" href="$db/d6e/class_minuit_minimization_manager.html#afd87444ee097df396ef532d0feaf83b3" title="MinuitMinimizationManager\l::derivativesEnabled" alt="" coords="640,5,811,43"/>
+</map>

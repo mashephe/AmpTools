@@ -1,0 +1,10 @@
+<map id="AmplitudeManager::calcTerms" name="AmplitudeManager::calcTerms">
+<area shape="rect" id="node3" href="$d5/d23/class_intensity_manager.html#aee6721f18846f5411c315f97a812e6cc" title="IntensityManager::getTerm\lNames" alt="" coords="251,5,413,43"/>
+<area shape="rect" id="node5" href="$d2/d8c/class_g_p_u_manager.html#ae333b427c7ac7654efa74de5ab27837c" title="GPUManager::calcAmplitudeAll" alt="" coords="239,66,425,91"/>
+<area shape="rect" id="node14" href="$da/df4/_u_r_math_8h.html#acdb55c1010a6c379a49db0201bf55d89" title="sqrt" alt="" coords="311,114,353,139"/>
+<area shape="rect" id="node16" href="$d2/d8c/class_g_p_u_manager.html#adce7569a0c12ed0c681f75d04793e668" title="GPUManager::assembleTerms" alt="" coords="243,162,421,187"/>
+<area shape="rect" id="node7" href="$de/d90/class_amplitude.html#af253028a9697e0649db8fd98b1623c02" title="Amplitude::calcAmplitudeGPU" alt="" coords="476,90,657,115"/>
+<area shape="rect" id="node9" href="$de/d90/class_amplitude.html#a86a0e3bc42f31b003d17dac662fda387" title="Amplitude::name" alt="" coords="737,42,852,67"/>
+<area shape="rect" id="node11" href="$de/d90/class_amplitude.html#a280a81133d31207ad23ef4396a9f78f9" title="Amplitude::launchGPUKernel" alt="" coords="707,90,883,115"/>
+<area shape="rect" id="node18" href="$d7/de4/_g_p_u_kernel_8h.html#af3d706f751b1e743731691c5b8c644cd" title="GPU_ExecFactPermKernel" alt="" coords="488,162,645,187"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="AmpToolsInterface::printKinematics" name="AmpToolsInterface::printKinematics">
+<area shape="rect" id="node3" href="$d1/d65/class_configuration_info.html#ad42ae71ffe13f38f25bc0efd0dc41c5e" title="ConfigurationInfo::\lreaction" alt="" coords="197,5,317,43"/>
+<area shape="rect" id="node5" href="$dd/d01/class_kinematics.html#a89069e1778171e12823ce6a395fe819e" title="Kinematics::particleList" alt="" coords="185,66,329,91"/>
+<area shape="rect" id="node7" href="$d0/d83/class_reaction_info.html#acdf594b4f9a880e4a24dd86b3fc25315" title="ReactionInfo::particleList" alt="" coords="181,114,333,139"/>
+</map>

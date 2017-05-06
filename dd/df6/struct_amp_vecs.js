@@ -1,0 +1,26 @@
+var struct_amp_vecs =
+[
+    [ "AmpVecs", "dd/df6/struct_amp_vecs.html#a2cb171f144684a77d9c78f22d8bb223b", null ],
+    [ "~AmpVecs", "dd/df6/struct_amp_vecs.html#ad0c8865a167d6bd711b43b7c0b1a5b11", null ],
+    [ "allocateCPUAmpStorage", "dd/df6/struct_amp_vecs.html#add07d35cf39a5860abb07a987c41f1b1", null ],
+    [ "allocateTerms", "dd/df6/struct_amp_vecs.html#a834d738dcbd6d71855576e8b761bc0c3", null ],
+    [ "deallocAmpVecs", "dd/df6/struct_amp_vecs.html#a26a7aa01c6a82258ea7c485da17d0dd4", null ],
+    [ "getEvent", "dd/df6/struct_amp_vecs.html#afcdacfd2adef1ad065d3a8b88dec834e", null ],
+    [ "loadData", "dd/df6/struct_amp_vecs.html#a35213589c7832c1006cefc98b0f111bd", null ],
+    [ "loadEvent", "dd/df6/struct_amp_vecs.html#ad85e27fbb633dc794434409620632976", null ],
+    [ "m_dAbsSumWeights", "dd/df6/struct_amp_vecs.html#a51cbee9104440890cfd7d9fca52b6f8f", null ],
+    [ "m_gpuMan", "dd/df6/struct_amp_vecs.html#af84314ae40b96bef3d4988f6274a0086", null ],
+    [ "m_iNEvents", "dd/df6/struct_amp_vecs.html#abce64af08bb8fc8dc41e3010c17f0530", null ],
+    [ "m_iNParticles", "dd/df6/struct_amp_vecs.html#a4650bd5ea892926821dc9193e61535f1", null ],
+    [ "m_integralValid", "dd/df6/struct_amp_vecs.html#ad761a9f28defe39045c7b973b7302391", null ],
+    [ "m_iNTerms", "dd/df6/struct_amp_vecs.html#ad18cf1b2ad21d6aa4039f3c13d1e3ffb", null ],
+    [ "m_iNTrueEvents", "dd/df6/struct_amp_vecs.html#a2ebca2833c10587cbaad573a1502bc52", null ],
+    [ "m_maxFactPerEvent", "dd/df6/struct_amp_vecs.html#aafbf6b6cff8a0056cad09bcf82afd74e", null ],
+    [ "m_pdAmpFactors", "dd/df6/struct_amp_vecs.html#ac07bb052f6c1bcda4007128cba49a4ab", null ],
+    [ "m_pdAmps", "dd/df6/struct_amp_vecs.html#ac5e82c09cceae53cd1135b937693b173", null ],
+    [ "m_pdData", "dd/df6/struct_amp_vecs.html#afcf4dbeed0f2d5a17280fbeababe7298", null ],
+    [ "m_pdIntegralMatrix", "dd/df6/struct_amp_vecs.html#a186148a8c7498677645262f4c3775464", null ],
+    [ "m_pdIntensity", "dd/df6/struct_amp_vecs.html#ae96213b2c9988e720b120c3cc0bb5d1a", null ],
+    [ "m_pdWeights", "dd/df6/struct_amp_vecs.html#ad1b1825cbef759d9d1931bf799b252df", null ],
+    [ "m_termsValid", "dd/df6/struct_amp_vecs.html#ade5c8ad65c2cf931dd419205f33128cc", null ]
+];

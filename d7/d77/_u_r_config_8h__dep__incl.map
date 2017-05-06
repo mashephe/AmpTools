@@ -1,0 +1,28 @@
+<map id="URConfig.h" name="URConfig.h">
+<area shape="rect" id="node3" href="$d8/d7d/_u_rtypes_8h.html" title="URtypes.h" alt="" coords="987,81,1061,106"/>
+<area shape="rect" id="node5" href="$db/d7f/_u_r_fcn_8h.html" title="URFcn.h" alt="" coords="920,155,987,181"/>
+<area shape="rect" id="node58" href="$d9/d50/_u_r_minuit_8h.html" title="URMinuit.h" alt="" coords="981,230,1061,255"/>
+<area shape="rect" id="node64" href="$da/df4/_u_r_math_8h.html" title="URMath.h" alt="" coords="1063,155,1137,181"/>
+<area shape="rect" id="node7" href="$d5/dd8/_minuit_minimization_manager_8h.html" title="MinuitMinimizationManager.h" alt="" coords="803,305,984,330"/>
+<area shape="rect" id="node9" href="$df/df1/_amp_tools_interface_8cc.html" title="AmpToolsInterface.cc" alt="" coords="912,529,1045,554"/>
+<area shape="rect" id="node11" href="$d5/dce/_amp_tools_interface_8h.html" title="AmpToolsInterface.h" alt="" coords="1277,454,1408,479"/>
+<area shape="rect" id="node19" href="$d6/d75/_amp_tools_interface_m_p_i_8cc.html" title="AmpToolsInterfaceMPI.cc" alt="" coords="423,603,575,629"/>
+<area shape="rect" id="node24" href="$d9/d10/_complex_parameter_8cc.html" title="ComplexParameter.cc" alt="" coords="737,379,876,405"/>
+<area shape="rect" id="node26" href="$d3/d3c/_fit_results_8cc.html" title="FitResults.cc" alt="" coords="371,454,456,479"/>
+<area shape="rect" id="node28" href="$d1/db1/_likelihood_calculator_8cc.html" title="LikelihoodCalculator.cc" alt="" coords="707,454,851,479"/>
+<area shape="rect" id="node30" href="$d2/d6a/_parameter_manager_8cc.html" title="ParameterManager.cc" alt="" coords="875,454,1013,479"/>
+<area shape="rect" id="node32" href="$d7/d45/_parameter_manager_8h.html" title="ParameterManager.h" alt="" coords="479,379,612,405"/>
+<area shape="rect" id="node52" href="$d0/d31/_m_i_function_contribution_8cc.html" title="MIFunctionContribution.cc" alt="" coords="900,379,1060,405"/>
+<area shape="rect" id="node54" href="$d7/d49/_minuit_minimization_manager_8cc.html" title="MinuitMinimizationManager.cc" alt="" coords="1380,379,1567,405"/>
+<area shape="rect" id="node56" href="$d3/d5c/_minuit_parameter_manager_8cc.html" title="MinuitParameterManager.cc" alt="" coords="1084,379,1255,405"/>
+<area shape="rect" id="node14" href="$d1/dfa/_plot_generator_8cc.html" title="PlotGenerator.cc" alt="" coords="1332,603,1441,629"/>
+<area shape="rect" id="node16" href="$de/dea/_plot_generator_8h.html" title="PlotGenerator.h" alt="" coords="1291,529,1395,554"/>
+<area shape="rect" id="node21" href="$d7/de0/_amp_tools_interface_m_p_i_8h.html" title="AmpToolsInterfaceMPI.h" alt="" coords="1069,529,1216,554"/>
+<area shape="rect" id="node39" href="$d3/de4/_parameter_manager_m_p_i_8h.html" title="ParameterManagerMPI.h" alt="" coords="480,454,632,479"/>
+<area shape="rect" id="node42" href="$d8/d43/_likelihood_calculator_m_p_i_8h.html" title="LikelihoodCalculatorMPI.h" alt="" coords="139,529,296,554"/>
+<area shape="rect" id="node49" href="$d7/d34/_parameter_manager_m_p_i_8cc.html" title="ParameterManagerMPI.cc" alt="" coords="536,529,693,554"/>
+<area shape="rect" id="node45" href="$d1/da5/_likelihood_calculator_m_p_i_8cc.html" title="LikelihoodCalculatorMPI.cc" alt="" coords="5,603,168,629"/>
+<area shape="rect" id="node47" href="$dc/d55/_likelihood_manager_m_p_i_8cc.html" title="LikelihoodManagerMPI.cc" alt="" coords="192,603,347,629"/>
+<area shape="rect" id="node62" href="$d7/dbc/_u_r_minuit_8cc.html" title="URMinuit.cc" alt="" coords="1059,305,1144,330"/>
+<area shape="rect" id="node66" href="$db/d86/_u_r_math_8cc.html" title="URMath.cc" alt="" coords="1137,230,1215,255"/>
+</map>

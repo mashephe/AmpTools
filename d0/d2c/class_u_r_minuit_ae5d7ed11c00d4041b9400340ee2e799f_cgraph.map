@@ -1,0 +1,23 @@
+<map id="URMinuit::mnscan" name="URMinuit::mnscan">
+<area shape="rect" id="node3" href="$d0/da7/class_u_r_math.html#ac2c2dae5d98813b5c8ad45a8380eb87b" title="URMath::Min" alt="" coords="523,5,611,30"/>
+<area shape="rect" id="node5" href="$d0/da7/class_u_r_math.html#a9db54720d498a5bf80a2e2d6b5bc638a" title="URMath::Max" alt="" coords="521,150,612,175"/>
+<area shape="rect" id="node7" href="$d0/d2c/class_u_r_minuit.html#acd43693003e1d345a45e9c621c5edffc" title="URMinuit::mnamin" alt="" coords="173,347,296,373"/>
+<area shape="rect" id="node9" href="$d0/d2c/class_u_r_minuit.html#a606704663ca492de5d06c343a64ea5a7" title="URMinuit::mnexin" alt="" coords="345,298,460,323"/>
+<area shape="rect" id="node23" href="$d0/d2c/class_u_r_minuit.html#a7ac5aed3afde3dc5b89b012ea451317b" title="URMinuit::Eval" alt="" coords="353,371,452,397"/>
+<area shape="rect" id="node25" href="$d0/d2c/class_u_r_minuit.html#a329f15d6897c5c6943ca67d5ac7d7cac" title="URMinuit::mnbins" alt="" coords="345,102,460,127"/>
+<area shape="rect" id="node39" href="$d0/d2c/class_u_r_minuit.html#a84774bfa875a9110c5a44a3adc97fbf5" title="URMinuit::mnplot" alt="" coords="177,99,292,125"/>
+<area shape="rect" id="node43" href="$d0/d2c/class_u_r_minuit.html#a1ccc40ade14912340172c8a25511d9ed" title="URMinuit::mnprin" alt="" coords="177,198,292,223"/>
+<area shape="rect" id="node11" href="$d0/d2c/class_u_r_minuit.html#ad7112cd0822813ba9bfb8a0e2fa25d5f" title="URMinuit::mnpint" alt="" coords="509,298,624,323"/>
+<area shape="rect" id="node13" href="$d0/da7/class_u_r_math.html#a3c34f43b6aa64f71fb3a4c089ad813d3" title="URMath::Sin" alt="" coords="691,250,776,275"/>
+<area shape="rect" id="node17" href="$d0/d2c/class_u_r_minuit.html#a62a512e507aff110eea3fddf291784d8" title="URMinuit::mnwarn" alt="" coords="673,298,793,323"/>
+<area shape="rect" id="node19" href="$d0/da7/class_u_r_math.html#a188c584d28c90194793799eca3d92de2" title="URMath::ASin" alt="" coords="687,346,780,371"/>
+<area shape="rect" id="node15" href="$da/df4/_u_r_math_8h.html#ad910bc71940a50c2a35d308c236013b6" title="sin" alt="" coords="847,250,884,275"/>
+<area shape="rect" id="node21" href="$da/df4/_u_r_math_8h.html#ae2859a53d3027ae629da4eff74f3837e" title="asin" alt="" coords="844,346,887,371"/>
+<area shape="rect" id="node29" href="$d0/da7/class_u_r_math.html#a86d72e37b88dc1bc15ad88212b1e3622" title="URMath::Log10" alt="" coords="516,54,617,79"/>
+<area shape="rect" id="node33" href="$d0/da7/class_u_r_math.html#a57efc068aa889fc3ac8f97ff395f172b" title="URMath::Power" alt="" coords="516,102,617,127"/>
+<area shape="rect" id="node31" href="$da/df4/_u_r_math_8h.html#a9dc77c64d7b6f9cd8b78e2fd74d63a16" title="log10" alt="" coords="708,54,759,79"/>
+<area shape="rect" id="node35" href="$da/df4/_u_r_math_8h.html#a96ae9abed439401fd6dd28a1e2c2f94e" title="pow" alt="" coords="712,102,755,127"/>
+<area shape="rect" id="node46" href="$d0/da7/class_u_r_math.html#ab0ad6812a6b8e967f68551b19ff3b82f" title="URMath::Abs" alt="" coords="359,150,447,175"/>
+<area shape="rect" id="node48" href="$d0/da7/class_u_r_math.html#a49a6d69d258c07ac164a5ea76346ded2" title="URMath::Cos" alt="" coords="359,198,447,223"/>
+<area shape="rect" id="node50" href="$da/df4/_u_r_math_8h.html#a75f4e4dd379376514613d7ec27902d07" title="cos" alt="" coords="548,198,585,223"/>
+</map>

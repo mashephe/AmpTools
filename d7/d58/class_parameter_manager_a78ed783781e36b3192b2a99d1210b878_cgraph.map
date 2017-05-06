@@ -1,0 +1,25 @@
+<map id="ParameterManager::covarianceMatrix" name="ParameterManager::covarianceMatrix">
+<area shape="rect" id="node3" href="$d7/d58/class_parameter_manager.html#aa0b8d5cc2b759337e30c7ca93e003678" title="ParameterManager::hasConstraints" alt="" coords="244,169,452,194"/>
+<area shape="rect" id="node5" href="$d7/d58/class_parameter_manager.html#ab4943aaa2978c89238cc9f04c6098ace" title="ParameterManager::hasParameter" alt="" coords="247,217,449,242"/>
+<area shape="rect" id="node7" href="$d7/d58/class_parameter_manager.html#a630827ab291badaa55b4a145fcbbbf81" title="ParameterManager::update" alt="" coords="264,265,432,290"/>
+<area shape="rect" id="node9" href="$d7/d58/class_parameter_manager.html#ae7502e6b7abab1eacec98f2a48fa9662" title="ParameterManager::addProduction\lParameter" alt="" coords="245,313,451,351"/>
+<area shape="rect" id="node17" href="$d7/d58/class_parameter_manager.html#a04cf39d4173b68bdb548bdabc533538d" title="ParameterManager::addAmplitude\lParameter" alt="" coords="245,374,451,413"/>
+<area shape="rect" id="node46" href="$d7/d58/class_parameter_manager.html#afd54852274bb695c90e47fbf4248ef11" title="ParameterManager::getProd\lParPtr" alt="" coords="263,435,433,474"/>
+<area shape="rect" id="node48" href="$d7/d58/class_parameter_manager.html#ac2e8429549201604a1eba2cb170d290d" title="ParameterManager::getAmp\lParPtr" alt="" coords="263,497,433,535"/>
+<area shape="rect" id="node11" href="$da/d3e/class_complex_parameter.html#a166c26e00ee706f3d3341747ff30fef4" title="ComplexParameter::fix" alt="" coords="532,5,673,30"/>
+<area shape="rect" id="node15" href="$da/d3e/class_complex_parameter.html#aea0fd2c1a7ad6dce8ef6551ca8d49ce3" title="ComplexParameter::constValuePtr" alt="" coords="501,53,704,78"/>
+<area shape="rect" id="node13" href="$d6/df5/class_minuit_parameter.html#a2e0f3fa0265b230f95c5794e3a3d44fb" title="MinuitParameter::fix" alt="" coords="753,54,881,79"/>
+<area shape="rect" id="node19" href="$df/d91/class_parameter_info.html#ad6735a7c7a7a0d1d610bc0adcf77169f" title="ParameterInfo::parName" alt="" coords="527,151,679,177"/>
+<area shape="rect" id="node21" href="$db/d6e/class_minuit_minimization_manager.html#a0d00d520e8502e3844058a27e12fc2f9" title="MinuitMinimizationManager\l::parameterManager" alt="" coords="517,199,688,238"/>
+<area shape="rect" id="node23" href="$df/d91/class_parameter_info.html#aa55feba0154837a5d9cceaf7f27af977" title="ParameterInfo::value" alt="" coords="537,261,668,286"/>
+<area shape="rect" id="node25" href="$d3/dab/class_m_i_subject.html#ae946fb2a706db4ea0ff6a8691787ae8d" title="MISubject::attach" alt="" coords="545,309,660,334"/>
+<area shape="rect" id="node27" href="$df/d91/class_parameter_info.html#a4103a2238de724ec2130fd8faebd208c" title="ParameterInfo::fixed" alt="" coords="539,357,667,382"/>
+<area shape="rect" id="node30" href="$df/d91/class_parameter_info.html#a2885ad75b4b7ded308c5dcc31b5966f2" title="ParameterInfo::bounded" alt="" coords="528,405,677,430"/>
+<area shape="rect" id="node32" href="$d6/df5/class_minuit_parameter.html#a6f9796e9b85e3668b57e5381e192af0f" title="MinuitParameter::bound" alt="" coords="528,453,677,478"/>
+<area shape="rect" id="node34" href="$df/d91/class_parameter_info.html#ad067243f5aa923b3429b355f66012471" title="ParameterInfo::lowerBound" alt="" coords="520,501,685,526"/>
+<area shape="rect" id="node36" href="$df/d91/class_parameter_info.html#ac0a65b04385b5a307cfd08202a846adb" title="ParameterInfo::upperBound" alt="" coords="519,549,687,574"/>
+<area shape="rect" id="node38" href="$df/d91/class_parameter_info.html#ac3df3342f290144e011ed9066356ae67" title="ParameterInfo::gaussianBounded" alt="" coords="504,597,701,622"/>
+<area shape="rect" id="node40" href="$df/d91/class_parameter_info.html#aa00bbe2f2b40c63bb6defc0bcf6734c2" title="ParameterInfo::centralValue" alt="" coords="517,645,688,670"/>
+<area shape="rect" id="node42" href="$df/d91/class_parameter_info.html#a14bc7a2051d5b185dd245ed9337bb927" title="ParameterInfo::gaussianError" alt="" coords="515,693,691,718"/>
+<area shape="rect" id="node44" href="$df/dd8/class_parameter.html#a586b9518a99d9f6fd9e71aa804f2f910" title="Parameter::constValuePtr" alt="" coords="525,741,680,766"/>
+</map>

@@ -1,0 +1,15 @@
+<map id="NormIntInterface::setNormIntMatrix" name="NormIntInterface::setNormIntMatrix">
+<area shape="rect" id="node3" href="$dc/d8e/class_norm_int_interface.html#a01c4d710a9b8e8e4dc0af99d0f336b88" title="NormIntInterface::normInt" alt="" coords="443,250,603,275"/>
+<area shape="rect" id="node9" href="$dc/d8e/class_norm_int_interface.html#a49e2698c6aae86154b8cfd5028dc95f0" title="NormIntInterface::forceCache\lUpdate" alt="" coords="216,189,395,227"/>
+<area shape="rect" id="node29" href="$d9/d21/class_norm_int_interface_m_p_i.html#aa0e86b70760ff8ff2fc9b6263e289dbf" title="NormIntInterfaceMPI\l::forceCacheUpdate" alt="" coords="457,298,588,337"/>
+<area shape="rect" id="node5" href="$dc/d8e/class_norm_int_interface.html#a397a2b511069c8de9551ac64cfa083a1" title="NormIntInterface::operator+=" alt="" coords="652,250,831,275"/>
+<area shape="rect" id="node7" href="$d9/d21/class_norm_int_interface_m_p_i.html#a4c14c31c337d6106f4b629235693e6b5" title="NormIntInterfaceMPI\l::normInt" alt="" coords="676,298,807,337"/>
+<area shape="rect" id="node11" href="$d8/da5/class_fit_results.html#a10c0ebd397b1167d34fa4481992c6837" title="FitResults::writeResults" alt="" coords="452,83,593,109"/>
+<area shape="rect" id="node17" href="$db/d5e/class_likelihood_calculator.html#a0f9b16c69bb52c9d11b7e81fc0528550" title="LikelihoodCalculator\l::normIntTerm" alt="" coords="457,141,588,179"/>
+<area shape="rect" id="node24" href="$dc/d8e/class_norm_int_interface.html#a71e06974b746890fc38f28da66055acf" title="NormIntInterface::ampInt" alt="" coords="444,202,601,227"/>
+<area shape="rect" id="node27" href="$dc/d8e/class_norm_int_interface.html#af0073ed0c69de571a70caccfed77e55a" title="NormIntInterface::export\lNormIntCache" alt="" coords="448,22,597,61"/>
+<area shape="rect" id="node13" href="$d8/d1a/class_amp_tools_interface.html#aa880e6e3b577236265cf42a999b29203" title="AmpToolsInterface::\lfinalizeFit" alt="" coords="679,5,804,43"/>
+<area shape="rect" id="node15" href="$df/da1/class_amp_tools_interface_m_p_i.html#ae3c8e7b9ea199f2213ae4269e8a3bc0f" title="AmpToolsInterfaceMPI\l::finalizeFit" alt="" coords="672,66,811,105"/>
+<area shape="rect" id="node19" href="$db/d5e/class_likelihood_calculator.html#aec5f4bb6d7d36caa2831b11bda0f49bc" title="LikelihoodCalculator\l::operator()" alt="" coords="676,127,807,166"/>
+<area shape="rect" id="node21" href="$da/dda/class_likelihood_calculator_m_p_i.html#a4697892bb267864abe0438c267f077ab" title="LikelihoodCalculatorMPI\l::operator()" alt="" coords="668,189,815,227"/>
+</map>
