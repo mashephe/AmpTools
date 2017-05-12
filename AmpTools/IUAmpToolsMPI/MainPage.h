@@ -12,5 +12,4 @@
  * functions of the IUAmpTools framework.  Where possible the constructors
  * to these clases were kept the same as IUAmpTools.  This should facilitate
  * an easy switch between single process and MPI implementations.
- *
  */
