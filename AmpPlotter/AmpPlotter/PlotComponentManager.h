@@ -58,6 +58,7 @@ public:
 	void toggleData( int dataIndex );
   
 	const ComponentGroup* dataGroup() const;
+  const ComponentGroup* bkgndGroup() const;
 	const ComponentGroup* genMCGroup() const;
 	const ComponentGroup* accMCGroup() const;
 	
@@ -65,6 +66,9 @@ public:
   
 	void enableData()  { m_dataGroup->enable();  }
 	void disableData() { m_dataGroup->disable(); }
+
+  void enableBkgnd()  { m_bkgndGroup->enable();  }
+  void disableBkgnd() { m_bkgndGroup->disable(); }
   
   void enableGenMC()  { m_genMCGroup->enable();  }
 	void disableGenMC() { m_genMCGroup->disable(); }
@@ -83,8 +87,9 @@ private:
 	vector<ComponentGroup*> m_reactionGroup;
   
 	// these groups allow for turning off and on the data, 
-	// generated, and accepted MC
+	// background, generated, and accepted MC
   ComponentGroup* m_dataGroup;
+  ComponentGroup* m_bkgndGroup;
   ComponentGroup* m_genMCGroup;
   ComponentGroup* m_accMCGroup;
   

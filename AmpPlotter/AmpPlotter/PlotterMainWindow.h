@@ -68,7 +68,7 @@ class PlotterMainWindow : public TGMainFrame
 	
   enum { kExit, kPlot, kSelectAllAmp, kClearAmp, kSelectAllSum, kClearSum,
          kChoosePlot, kChoosePad , kclearCanv, kChooseCanv};
-  enum { kData, kAccMC, kGenMC };
+  enum { kData, kBkgnd, kAccMC, kGenMC };
   enum { kSumSelect, kAmpSelect };  
   
   

@@ -97,6 +97,10 @@ m_generator( factory.generator() )
   m_typeButtons[kAccMC] = new TGCheckButton( m_typeFrame, "Accepted Monte Carlo", kAccMC | kType );
   m_typeButtons[kAccMC]->Associate( this );
   m_typeFrame->AddFrame( m_typeButtons[kAccMC], &reactionLayoutHints );
+
+  m_typeButtons[kBkgnd] = new TGCheckButton( m_typeFrame, "Background (if used)", kBkgnd | kType );
+  m_typeButtons[kBkgnd]->Associate( this );
+  m_typeFrame->AddFrame( m_typeButtons[kBkgnd], &reactionLayoutHints );
   
   m_typeButtons[kData] = new TGCheckButton( m_typeFrame, "Data", kData | kType );
   m_typeButtons[kData]->Associate( this );
@@ -322,6 +326,17 @@ PlotterMainWindow::ProcessMessage( long mes, long p1, long p2 )
                   else{
                     
                     m_componentManager.disableData();
+                  }
+                  break;
+                case kBkgnd:
+                                    
+                  if( m_typeButtons[kBkgnd]->GetState()  == kButtonDown ){
+                    
+                    m_componentManager.enableBkgnd();
+                  }
+                  else{
+                    
+                    m_componentManager.disableBkgnd();
                   }
                   break;
                 case kAccMC:
