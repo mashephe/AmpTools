@@ -425,8 +425,12 @@ AmpToolsInterface::loadEvents(DataReader* dataReader,
   }
 
   clearEvents(iDataSet);
-  m_ampVecs[iDataSet].loadData(dataReader);
-
+  
+  // if the data reader is null then this will just leave the AmpVecs
+  // object in a state where it contains no data, which is consistent
+  // with no data reader available (some DataReaders, like those for
+  // background) are optional
+  if( dataReader != NULL ) m_ampVecs[iDataSet].loadData(dataReader);
 }
 
 
