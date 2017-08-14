@@ -561,7 +561,17 @@ ConfigurationInfo::write( ostream& ff ) const {
       ff << "data " << R->reactionName() << " " << cls;
       for (unsigned int j = 0; j < args.size(); j++){ ff << " " << args[j];}
       ff << endl;}}
+
+  // bkgnd
   
+  for (unsigned int i = 0; i < Rs.size(); i++){
+    ReactionInfo* R = Rs[i];
+    string cls = R->bkgnd().first;
+    vector<string> args = R->bkgnd().second;
+    if (cls != ""){
+      ff << "bkgnd " << R->reactionName() << " " << cls;
+      for (unsigned int j = 0; j < args.size(); j++){ ff << " " << args[j];}
+      ff << endl;}}
   
   // genmc
   
