@@ -61,7 +61,7 @@ class PlotGenerator
   
 public:
   
-  enum { kData = 0, kGenMC, kAccMC, kNumTypes };
+  enum { kData = 0, kBkgnd, kGenMC, kAccMC, kNumTypes };
   
   PlotGenerator( const FitResults& fitResults );
   
@@ -165,10 +165,11 @@ private:
   // a map from ampConfiguration -> final state -> histogram cache
   mutable map< string, map< string, vector< Histogram* > > > m_accMCHistCache;
   mutable map< string, map< string, vector< Histogram* > > > m_genMCHistCache;
-  // note that for data the ampConfiguration is useless, but keep the
+  // note that for data and bkgnd the ampConfiguration is useless, but keep the
   // same structure for ease of coding -- bypass first string
   // in the code that fetches projections
   mutable map< string, map< string, vector< Histogram* > > > m_dataHistCache;
+  mutable map< string, map< string, vector< Histogram* > > > m_bkgndHistCache;
   
   vector< string > m_histTitles;
   mutable vector< Histogram*> m_histVect,m_histVect_clone;

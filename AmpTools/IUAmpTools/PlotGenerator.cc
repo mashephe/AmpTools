@@ -141,6 +141,7 @@ m_histTitles( 0 )
     
     // now load up the data and MC for that reaction
     m_ati.loadEvents( m_ati.dataReader( reactName ), i * kNumTypes + kData );
+    m_ati.loadEvents( m_ati.bkgndReader( reactName ), i * kNumTypes + kBkgnd );
     m_ati.loadEvents( m_ati.accMCReader( reactName ), i * kNumTypes + kAccMC );
     m_ati.loadEvents( m_ati.genMCReader( reactName ), i * kNumTypes + kGenMC );
     
@@ -182,6 +183,13 @@ PlotGenerator::~PlotGenerator(){
 			}
 		}
 	}
+  for( map < string, map< string, vector< Histogram* > > >::iterator hit1 = m_bkgndHistCache.begin();hit1 != m_bkgndHistCache.end();++hit1 ){
+    for(  map< string, vector< Histogram* > >::iterator hit2 = (hit1->second).begin();hit2 != (hit1->second).end();++hit2 ){
+      for (vector< Histogram* >::iterator hit3 = (hit2->second).begin();hit3 != (hit2->second).end();++hit3){
+        if (*hit3) delete (*hit3);
+      }
+    }
+  }
   
   for( int i=0; i < m_histVect.size(); i++) {
 
@@ -221,7 +229,8 @@ Histogram* PlotGenerator::projection( unsigned int projectionIndex, string react
   
   // use same ampConfig for data since data histograms are
   // independent of which projections are turned on
-  string config = ( type == kData ? "" : m_currentConfiguration );
+  string config = ( ( type == kData ) || ( type == kBkgnd ) ?
+                   "" : m_currentConfiguration );
   
   map< string, map< string, vector< Histogram* > > > *cachePtr;
   
@@ -230,6 +239,11 @@ Histogram* PlotGenerator::projection( unsigned int projectionIndex, string react
     case kData:
       
       cachePtr = &m_dataHistCache;
+      break;
+
+    case kBkgnd:
+      
+      cachePtr = &m_bkgndHistCache;
       break;
       
     case kAccMC:
@@ -340,25 +354,28 @@ PlotGenerator::clearHistograms(){
 void
 PlotGenerator::fillProjections( const string& reactName, unsigned int type ){
   
-  bool isData = ( type == kData ? true : false );
+  bool isDataOrBkgnd = ( ( type == kData ) || ( type == kBkgnd ) ? true : false );
   int dataIndex = m_reactIndex[reactName] * kNumTypes + type;
       
   // calculate intensities for MC:
-  if( !isData ) m_ati.processEvents( reactName, dataIndex );
-      
+  if( !isDataOrBkgnd ) m_ati.processEvents( reactName, dataIndex );
+        
   // loop over ampVecs and fill histograms
   for( unsigned int i = 0; i < m_ati.numEvents( dataIndex ); ++i ){
     
     // the subsequent calls here allocate new memory for
     // the Kinematics object
     Kinematics* kin = m_ati.kinematics(i, dataIndex);
+    m_currentEventWeight = kin->weight();
     
-    m_currentEventWeight = ( isData ? 1.0 : m_ati.intensity( i, dataIndex ) );
-    // m_ati.intensity already contains a possible MC-event weight
-    
+    if( !isDataOrBkgnd ){
+
+      // m_ati.intensity already contains a possible MC-event weight
+      m_currentEventWeight = m_ati.intensity( i, dataIndex );
+    }
+       
     // the user defines this function in the derived class and it
     // calls the fillHistogram method immediately below
-    
     projectEvent( kin );
     
     // cleanup allocated memory
