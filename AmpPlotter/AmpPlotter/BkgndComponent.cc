@@ -33,70 +33,37 @@
 // any other party arising from use of the program.
 //******************************************************************************
 
-#if (!defined PLOTCOMPONENTMANAGER)
-#define PLOTCOMPONENTMANAGER
-
-#include <vector>
+#include <iostream>
 #include <string>
-#include <map>
 
-#include "AmpPlotter/PlotComponent.h"
-#include "AmpPlotter/ComponentGroup.h"
-#include "IUAmpTools/PlotGenerator.h"
+#include "TH1.h"
+
+#include "AmpPlotter/BkgndComponent.h"
+#include "IUAmpTools/Histogram.h"
 
 using namespace std;
 
-class PlotComponentManager
+BkgndComponent::BkgndComponent( const string& title, 
+                              const string& reaction,
+                              PlotGenerator& pltGen ) :
+PlotComponent( title, reaction, pltGen )
 {
-	
-public:
-  
-	PlotComponentManager( const vector< string >& reactionVec,
-                        PlotGenerator& pltGen,
-                        bool boringPlots = false );
-	
-	void toggleData( int dataIndex );
-  
-	const ComponentGroup* dataGroup() const;
-  const ComponentGroup* bkgndGroup() const;
-	const ComponentGroup* genMCGroup() const;
-	const ComponentGroup* accMCGroup() const;
-	
-	const vector<ComponentGroup*>& reactionGroups() const;
-  
-	void enableData()  { m_dataGroup->enable();  }
-	void disableData() { m_dataGroup->disable(); }
+  setDataOK();
+}
 
-  void enableBkgnd()  { m_bkgndGroup->enable();  }
-  void disableBkgnd() { m_bkgndGroup->disable(); }
+TH1*
+BkgndComponent::deliverPlot( unsigned int plotIndex, 
+                            double scale ) {
+			
+  Histogram* hist = generator().projection( plotIndex, reaction(),
+                                           PlotGenerator::kBkgnd );
+	
+  TH1* plot = hist->toRoot();
   
-  void enableGenMC()  { m_genMCGroup->enable();  }
-	void disableGenMC() { m_genMCGroup->disable(); }
+  plot->SetFillStyle( fillStyle() );
+  plot->SetFillColor( fillColor() );
+  plot->Scale( scale );
+  plot->SetLineColor( fillColor() );
   
-  void enableAccMC()  { m_accMCGroup->enable();  }
-	void disableAccMC() { m_accMCGroup->disable(); }
-  
-  void enableReaction( int reactionIndex );
-	void disableReaction( int reactionIndex );
-  
-private:
-  
-  PlotGenerator& m_generator;
-  
-	// this groups all components by reaction
-	vector<ComponentGroup*> m_reactionGroup;
-  
-	// these groups allow for turning off and on the data, 
-	// background, generated, and accepted MC
-  ComponentGroup* m_dataGroup;
-  ComponentGroup* m_bkgndGroup;
-  ComponentGroup* m_genMCGroup;
-  ComponentGroup* m_accMCGroup;
-  
-	bool m_boringPlots;
-  
-  map< string, int > m_reactionIndex;
-  vector< string > m_reactionVec;
-};
-
-#endif
+	return plot;
+}

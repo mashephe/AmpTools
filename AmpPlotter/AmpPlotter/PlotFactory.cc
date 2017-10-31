@@ -140,11 +140,34 @@ PlotFactory::drawPlot( void )
   bool is2D = false;
     
   // let's first get and stack up the acc MC components
-  // get a list of the individual contributions
+  // get a list of the individual contributions --
   THStack* accStack = new THStack( "acc_stack", m_title.c_str() );
   m_activeObjects[m_currentPad-1].push( accStack );
 
-  const list<PlotComponent*>& accComponentList = 
+  // background should be on the bottom of the acc_stack only
+  const list<PlotComponent*>& bkgndComponentList =
+  m_componentManager.bkgndGroup()->componentList();
+  for( list<PlotComponent*>::const_iterator part = bkgndComponentList.begin();
+      part != bkgndComponentList.end(); ++part ){
+    
+    // if the part has data available and enabled ask it to deliver
+    // plots
+    if( ! ( (*part)->isAvailable() && (*part)->isEnabled() ) ) continue;
+
+    TH1* h = (*part)->deliverPlot( m_currentPlot );
+				
+    // skip over empty default histograms that may be returned
+    if( h->GetEntries() == 0 ) continue;
+    
+    haveAcc = true;
+    
+    is2D = ( h->GetDimension() == 2 );
+    h->SetTitleOffset( m_showTitle ? 1 : 100 );
+    accStack->Add( h, "hist" );
+  }
+  
+  // now stack on the accMC components
+  const list<PlotComponent*>& accComponentList =
     m_componentManager.accMCGroup()->componentList();
   for( list<PlotComponent*>::const_iterator part = accComponentList.begin();
        part != accComponentList.end(); ++part ){
@@ -152,14 +175,15 @@ PlotFactory::drawPlot( void )
     // if the part has data available and enabled ask it to deliver
     // plots
     if( ! ( (*part)->isAvailable() && (*part)->isEnabled() ) ) continue;
-         
+    
     TH1* h = (*part)->deliverPlot( m_currentPlot );
 				
     // skip over empty default histograms that may be returned
     if( h->GetEntries() == 0 ) continue;
- 
-    is2D = ( h->GetDimension() == 2 );
+
     haveAcc = true;
+
+    is2D = ( h->GetDimension() == 2 );
     h->SetTitleOffset( m_showTitle ? 1 : 100 );
     accStack->Add( h, "hist" );
   }
