@@ -118,6 +118,14 @@ public:
   ~FitResults();
 
   /**
+   * Empty constructor.
+   *
+   * Used only for PlotGenerator to contain histograms during
+   * event generation.
+   */
+  FitResults() {};
+
+  /**
    * A function to test if the FitResults object is valid.  This
    * returns true if the object was successfully constructed from
    * a file
@@ -451,13 +459,6 @@ protected:
    * FitResults may hold pointers to many objects.
    */
   FitResults( const FitResults& fitResults );
-
-  /**
-   * Default constructor.
-   *
-   * Disabled.  The user should use one of the two provided constructors.
-   */
-  FitResults();
 
   /**
    * The assignment operator is disabled due to complications with
