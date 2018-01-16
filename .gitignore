@@ -1,2 +1,4 @@
 doc/html
-
+*.a
+*.dep
+*.o
