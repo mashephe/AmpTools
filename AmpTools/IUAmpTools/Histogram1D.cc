@@ -79,7 +79,6 @@ Histogram( name, title )
 	m_entries= 0;
 	m_dimensions= 1;
 	m_binContents.resize(nBins);
-	m_binContents.clear();
 	m_binSizeX = ( xHigh - xLow ) / nBins;
 }
 
