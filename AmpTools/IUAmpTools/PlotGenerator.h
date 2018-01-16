@@ -64,7 +64,8 @@ public:
   enum { kData = 0, kBkgnd, kGenMC, kAccMC, kNumTypes };
   
   PlotGenerator( const FitResults& fitResults );
-  
+  PlotGenerator( ); // empty constructor
+
   virtual ~PlotGenerator();
   
   // get intensity for all amplitudes that are turned on
@@ -101,7 +102,9 @@ public:
   bool isReactionEnabled( const string& reactName ) const;
   bool isAmpEnabled( unsigned int uniqueAmpIndex ) const;
   bool isSumEnabled( unsigned int uniqueSumIndex ) const;
-  
+   
+  Histogram* getHistogram( int index );
+
 protected:
   
   // this function maintained to support older code 
@@ -113,7 +116,7 @@ protected:
   void fillHistogram( int index, vector <double> &data, double weight = 1);
   
   unsigned int getAmpIndex( const string& ampName ) const;
-  
+ 
 private:
  
   // this function should be overridden by the derived class
