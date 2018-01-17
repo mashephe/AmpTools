@@ -156,6 +156,14 @@ m_histTitles( 0 )
   recordConfiguration();
 }
 
+/*Empty constructor to contain histograms during event generation*/
+PlotGenerator::PlotGenerator( ) :
+m_fitResults( FitResults() ),
+m_histVect( 0 ),
+m_histTitles( 0 ),
+m_currentEventWeight( 1 )
+{ }
+
 /*Delete the histograms in the cache*/
 PlotGenerator::~PlotGenerator(){
 	map < string, map< string, vector< Histogram* > > >::iterator hit1;
@@ -319,6 +327,11 @@ PlotGenerator::getAmpIndex( const string& ampName) const {
   }
   
   return mapItr->second;
+}
+
+Histogram*
+PlotGenerator::getHistogram( int index ){
+  return (Histogram*)m_histVect[index];
 }
 
 void
