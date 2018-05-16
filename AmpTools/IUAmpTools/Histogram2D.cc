@@ -64,9 +64,7 @@ Histogram2D::Histogram2D( HistStruct& hist )
   m_entries = hist.entries;
   m_dimensions = 2;
   m_binContents.resize(m_nBins);
-  m_binContents.clear();
   m_sumWeightSq.resize(m_nBins);
-  m_sumWeightSq.clear();
   
   for( int i = 0; i < m_nBins; ++i ){
     
@@ -90,8 +88,8 @@ Histogram( name, title )
   m_nBins=nBinsX*nBinsY;
   m_dimensions = 2;
   m_entries=0;
-  m_binContents.resize( nBinsX*nBinsY );
-  m_sumWeightSq.resize( nBinsX*nBinsY );
+  m_binContents.resize( nBinsX*nBinsY, 0 );
+  m_sumWeightSq.resize( nBinsX*nBinsY, 0 );
   m_binSizeX = ( xHigh - xLow ) / nBinsX;
   m_binSizeY = ( yHigh - yLow ) / nBinsY;
 }

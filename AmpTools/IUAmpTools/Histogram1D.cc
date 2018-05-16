@@ -52,9 +52,7 @@ Histogram1D::Histogram1D( HistStruct& hist ) :
 Histogram()
 {
   m_binContents.resize(hist.nBins);
-  m_binContents.clear();
   m_sumWeightSq.resize(hist.nBins);
-  m_sumWeightSq.clear();
   m_entries = hist.entries;
   m_dimensions = 1;
   m_nBinsX = hist.nBins;
@@ -79,8 +77,8 @@ Histogram( name, title )
   m_xHigh= xHigh;
   m_entries= 0;
   m_dimensions= 1;
-  m_binContents.resize(nBins);
-  m_sumWeightSq.resize(nBins);
+  m_binContents.resize(nBins, 0);
+  m_sumWeightSq.resize(nBins, 0);
   m_binSizeX = ( xHigh - xLow ) / nBins;
 }
 
