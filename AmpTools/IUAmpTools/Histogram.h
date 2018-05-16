@@ -51,6 +51,7 @@ struct HistStruct {
 	float yLow,yHigh;
 	float entries;
 	float contents[MAXBINS];
+  float sumW2[MAXBINS];
 };
 
 
@@ -86,7 +87,8 @@ protected:
   double m_xHigh;
   
   double m_entries;
-  vector< double > m_binContents;
+  vector< double > m_binContents;  // this is the sum of the weights
+  vector< double > m_sumWeightSq;
   double m_binSizeX;
 	
   int m_dimensions;
