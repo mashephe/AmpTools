@@ -216,7 +216,7 @@ m_generator( factory.generator() )
   
   // create a list box to select which pad to draw on
   m_padButton = new TGComboBox( m_canvFrame, kChoosePad );
-  char tmp[20];
+  char tmp[22];
   for( int i=0; i<factory.getMaxNoPads(); i++ ){
     sprintf(tmp,"Select pad %d",i+1);
     m_padButton->AddEntry( tmp, i+1 );
