@@ -56,6 +56,7 @@ void
 Histogram::clear( void ){
   
   m_binContents = vector< double >( m_nBins );
+  m_sumWeightSq = vector< double >( m_nBins );
   m_entries = 0;
 }
 
@@ -67,6 +68,7 @@ Histogram::normalize( double integral ){
   for( int i = 0; i < m_nBins; ++i ){
     
     m_binContents[i] *= scaleFactor;
+    m_sumWeightSq[i] *= scaleFactor*scaleFactor;
   }
   
   m_entries *= scaleFactor;
@@ -74,13 +76,14 @@ Histogram::normalize( double integral ){
 
 void
 Histogram::operator+=( HistStruct& hStruct ){
-	
-	assert( m_nBins <= MAXBINS );
-	
-	for( int i = 0; i < m_nBins; ++i ){
-		
-		m_binContents[i] += hStruct.contents[i];
-	}
-	
-	m_entries += hStruct.entries;
+  
+  assert( m_nBins <= MAXBINS );
+  
+  for( int i = 0; i < m_nBins; ++i ){
+    
+    m_binContents[i] += hStruct.contents[i];
+    m_sumWeightSq[i] += hStruct.sumW2[i];
+  }
+  
+  m_entries += hStruct.entries;
 }
