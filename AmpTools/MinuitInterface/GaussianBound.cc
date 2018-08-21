@@ -50,6 +50,6 @@ double
 GaussianBound::operator()() {
   
   return ( ( m_par->value() - m_centralValue ) * ( m_par->value() - m_centralValue ) ) /
-  ( 2 * m_error * m_error );
+  ( m_error * m_error );
           
 }
