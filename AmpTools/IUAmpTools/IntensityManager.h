@@ -81,7 +81,7 @@ public:
   /**
    * This function should return the number of doubles required to store
    * all terms for an event.  It should be equal to or smaller
-   * than that returned by the termFactorStoragePerEvent.  The
+   * than that returned by the maxFactorStoragePerEvent.  The
    * reason being that each term may be composed of multiple
    * factors (for multiple permutations in the case of an amplitude fit).
    * Once the factors are assembled into a term then, as long
@@ -90,11 +90,27 @@ public:
    */
   
   virtual unsigned int termStoragePerEvent() const = 0;
+  
+  /**
+   * This function should return the number of doubles required to
+   * store optional user data for all factors and permutations
+   * for a single event.
+   */
+  
+  virtual unsigned int userStoragePerEvent() const { return 0; }
 
   /*
    * These functions perform computations based on the current state
    * of the IntensityManager and should be defined by the the derived class.
    */
+  
+  /**
+   * This function triggers the calculation of optional user data
+   * that can be stored in the AmpVecs class to expedite subsequent
+   * calculations of amplitudes and integrals.
+   */
+  
+  virtual void calcUserData( AmpVecs& ampVecs ) const = 0;
   
   /**
    * This function caculates the various intensity terms for each data event.
