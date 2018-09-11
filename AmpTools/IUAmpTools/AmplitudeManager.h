@@ -129,6 +129,26 @@ public:
   unsigned int termStoragePerEvent() const;
   
   /**
+   * This function returns the number of doubles needed to store optional
+   * user data for all factors and permutations.
+   */
+  
+  unsigned int userStoragePerEvent() const;
+  
+  
+  /**
+   * This function triggers the calculation of optional user data that
+   * can be stored with each amplitude to expedite future calculations.
+   *
+   * \param[in,out] ampVecs a reference to the AmpVecs storage structure, four vectors
+   * will be read from this class and caculations will be written to
+   * this class
+   *
+   */
+  
+  void calcUserData( AmpVecs& ampVecs ) const;
+  
+  /**
    * This function caculates the amplitudes for each data event and stores
    * them in the AmpVecs structure.  It returns true if it alters the
    * terms in the structure (helpful to see if an update actually
@@ -436,6 +456,8 @@ private:
   
   // vector to short-cut recomputation of terms with all fixed factors
   vector< bool > m_vbIsAmpFixed;
+  
+  map< const Amplitude*, unsigned int > m_userStorageIndex;
   
   // some internal members to optimize amplitude recalculation
   bool m_optimizeParIteration;

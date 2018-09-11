@@ -187,6 +187,29 @@ AmplitudeManager::termStoragePerEvent() const {
   return 2 * getTermNames().size();
 }
 
+unsigned int
+AmplitudeManager::userStoragePerEvent() const {
+  
+  vector< string > ampNames = getTermNames();
+  
+  unsigned int userStorage = 0;
+  
+  for( int i = 0; i < getTermNames().size(); i++ ) {
+
+    unsigned int iNPermutations = getPermutations( ampNames[i] ).size();
+    vector< const Amplitude* > factorVec = m_mapNameToAmps[ampNames[i]];
+
+    for( int j = 0; j < factorVec.size(); ++j ){
+      
+      m_userStorageIndex[ factorVec[i] ] = userStorage;
+      userStorage += iNPermuatations * factorVec[i]->numUserVars();
+    
+    }
+  }
+  
+  return userStorage;
+}
+
 
 bool
 AmplitudeManager::hasTermWithFreeParam() const {
@@ -200,6 +223,27 @@ AmplitudeManager::hasTermWithFreeParam() const {
   
   return false;
 }
+
+void
+AmplitudeManager::calcUserData( AmpVecs& a ) const
+{
+
+#ifdef VTRACE
+  VT_TRACER( "AmplitudeManager::calcUserData" );
+#endif
+
+  const vector< string >& ampNames = getTermNames();
+  
+  int iNAmps = ampNames.size();
+  
+  assert( iNAmps && a.m_iNEvents && a.m_iNTrueEvents );
+#ifndef GPU_ACCELERATION
+  assert( a.m_pdUserData );
+#endif
+
+  
+}
+
 
 bool
 AmplitudeManager::calcTerms( AmpVecs& a ) const
