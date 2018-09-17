@@ -59,7 +59,8 @@ AmpVecs::AmpVecs(){
   m_pdWeights   = 0 ;
   
   m_pdAmps       = 0 ;
-  m_pdAmpFactors = 0 ; 
+  m_pdAmpFactors = 0 ;
+  m_pdUserData   = 0 ;
   
   m_pdIntensity      = 0 ;
   m_pdIntegralMatrix = 0 ;
@@ -108,7 +109,11 @@ AmpVecs::deallocAmpVecs()
   if(m_pdAmpFactors)
     delete[] m_pdAmpFactors;
   m_pdAmpFactors=0;
-  
+
+  if(m_pdUserData)
+    delete[] m_pdUserData;
+  m_pdUserData=0;
+
 #else
   //Deallocate "pinned memory"
   if(m_pdAmps)
@@ -234,10 +239,11 @@ AmpVecs::loadData( DataReader* pDataReader, bool bForceNegativeWeight ){
 void
 AmpVecs::allocateTerms( const IntensityManager& intenMan, bool bAllocIntensity ){
 
-  m_iNTerms         = intenMan.getTermNames().size();
-  m_maxFactPerEvent = intenMan.maxFactorStoragePerEvent();
+  m_iNTerms          = intenMan.getTermNames().size();
+  m_maxFactPerEvent  = intenMan.maxFactorStoragePerEvent();
+  m_userVarsPerEvent = intenMan.userVarsPerEvent();
   
-  if( m_pdAmps!=0 || m_pdAmpFactors!=0 || m_pdIntensity!=0 )
+  if( m_pdAmps!=0 || m_pdAmpFactors!=0 || m_pdUserData!=0 || m_pdIntensity!=0 )
   {
     cout << "ERROR:  trying to reallocate terms in AmpVecs after\n" << flush;
     cout << "        they have already been allocated.  Please\n" << flush;
@@ -258,6 +264,8 @@ AmpVecs::allocateTerms( const IntensityManager& intenMan, bool bAllocIntensity )
   {
     m_pdIntensity = new GDouble[m_iNEvents];
   }
+  
+  m_pdUserData = new GDouble[m_iNEvents * m_userVarsPerEvent];
   
 #ifndef GPU_ACCELERATION
   

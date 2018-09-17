@@ -98,6 +98,12 @@ struct AmpVecs
    * and permutations for any term for an event.
    */
   unsigned int m_maxFactPerEvent;
+  
+  /**
+   * An integer that is the number of doubles required to store all
+   * (optionally) user-calculated data per event.
+   */
+  unsigned int m_userVarsPerEvent;
 
   /**
    * An array of length 4 * iNEvents * iNParticles that stores the four-vectors
@@ -121,7 +127,14 @@ struct AmpVecs
    * real and imaginary parts for every factor of the decay amplitude and 
    * every permutation.
    */
-  GDouble* m_pdAmpFactors; 
+  GDouble* m_pdAmpFactors;
+  
+  /**
+   * An array of length iNEvents * m_userDataPerEvent that is used to 
+   * store user-calculated and cached data to expedite subsequent
+   * amplitude calculations.
+   */
+  GDouble* m_pdUserData;
   
   /**
    * An array of length 2 * iNTerms * iNTerms that holds the sums of
