@@ -27,7 +27,7 @@ UserAmplitude< BreitWigner >(args)
 
 
 complex< GDouble >
-BreitWigner::calcAmplitude( GDouble** pKin ) const {
+BreitWigner::calcAmplitude( GDouble** pKin, GDouble* userData ) const {
 
   TLorentzVector P1(pKin[m_daughter1-1][1], pKin[m_daughter1-1][2],
                       pKin[m_daughter1-1][3], pKin[m_daughter1-1][0]);
@@ -35,11 +35,27 @@ BreitWigner::calcAmplitude( GDouble** pKin ) const {
   TLorentzVector P2(pKin[m_daughter2-1][1], pKin[m_daughter2-1][2],
                       pKin[m_daughter2-1][3], pKin[m_daughter2-1][0]);
 
+    GDouble mass2 = (P1+P2).M2();
+  //GDouble mass2 = userData[kMass2];
+  
+  //  cout << "True:  " << (P1+P2).M2() << "    Cached: " << mass2 << endl;
+  
   return  complex<GDouble>(1.0,0.0) /
-          complex<GDouble>((P1+P2).M2() - m_mass*m_mass, m_mass*m_width);
+          complex<GDouble>( mass2 - m_mass*m_mass, m_mass*m_width);
 
 }
 
+void
+BreitWigner::calcUserData( GDouble** pKin, GDouble* userData ) const {
+  
+  TLorentzVector P1(pKin[m_daughter1-1][1], pKin[m_daughter1-1][2],
+                    pKin[m_daughter1-1][3], pKin[m_daughter1-1][0]);
+  
+  TLorentzVector P2(pKin[m_daughter2-1][1], pKin[m_daughter2-1][2],
+                    pKin[m_daughter2-1][3], pKin[m_daughter2-1][0]);
+
+  userData[kMass2] = (P1+P2).M2();
+}
 
 
 #ifdef GPU_ACCELERATION

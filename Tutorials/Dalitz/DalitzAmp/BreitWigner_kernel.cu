@@ -18,8 +18,10 @@ BreitWigner_kernel( GPU_AMP_PROTO, GDouble mass0, GDouble width0,
                                      - SQ(p1[2]+p2[2])
                                      - SQ(p1[3]+p2[3]));
 
- 
-  WCUComplex bwBot = { SQ( m ) - SQ( mass0 ), mass0 * width0 };
+//  WCUComplex bwBot = { SQ( m ) - SQ( mass0 ), mass0 * width0 };
+
+  GDouble m2 = GPU_UDATA(0);
+  WCUComplex bwBot = { m2 - SQ( mass0 ), mass0 * width0 };
 
   pcDevAmp[iEvent] = ( 1.0 / bwBot );
 

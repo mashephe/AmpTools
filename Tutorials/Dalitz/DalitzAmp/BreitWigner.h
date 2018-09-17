@@ -27,7 +27,7 @@ class Kinematics;
 class BreitWigner : public UserAmplitude< BreitWigner >{
 
 public:
-
+  
   BreitWigner() : UserAmplitude< BreitWigner >() { }
 
   BreitWigner( const vector< string >& args );
@@ -36,8 +36,13 @@ public:
 
   string name() const { return "BreitWigner"; }
 
-  complex< GDouble > calcAmplitude( GDouble** pKin ) const;
+  //  complex< GDouble > calcAmplitude( GDouble** pKin ) const;
+  complex< GDouble > calcAmplitude( GDouble** pKin, GDouble* userData ) const;
 
+  enum UserVars { kMass2 = 0, kNumUserVars };
+  unsigned int numUserVars() const { return kNumUserVars; }
+  void calcUserData( GDouble** pKin, GDouble* userData ) const;
+  
 #ifdef GPU_ACCELERATION
 
   void launchGPUKernel( dim3 dimGrid, dim3 dimBlock, GPU_AMP_PROTO ) const;
