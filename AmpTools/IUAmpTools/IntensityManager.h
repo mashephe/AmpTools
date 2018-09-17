@@ -97,7 +97,7 @@ public:
    * for a single event.
    */
   
-  virtual unsigned int userStoragePerEvent() const { return 0; }
+  virtual unsigned int userVarsPerEvent() const = 0;
 
   /*
    * These functions perform computations based on the current state
@@ -479,7 +479,7 @@ private:
   // term index -> production amplitude
   vector< const complex< double >* > m_prodFactorVec;
   
-  // a vector of amplitude names -- keep also a set of amplitude indices
+  // a vector of amplitude names -- keep also a set of term indices
   // these can be useful speeding up intesity calculations by removing
   // slower map element look-ups
   vector< string > m_termNames;
