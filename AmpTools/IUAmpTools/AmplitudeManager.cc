@@ -50,7 +50,8 @@
 AmplitudeManager::AmplitudeManager( const vector< string >& reaction,
                                     const string& reactionName) :
 IntensityManager( reaction, reactionName ),
-m_optimizeParIteration( false )
+m_optimizeParIteration( false ),
+m_needsUserDataOnly( true )
 {
   cout << endl << "## AMPLITUDE MANAGER INITIALIZATION ##" << endl;
   cout << " Creating amplitude manager for reaction:  " << reactionName << endl;
@@ -188,7 +189,7 @@ AmplitudeManager::termStoragePerEvent() const {
 }
 
 unsigned int
-AmplitudeManager::userStoragePerEvent() const {
+AmplitudeManager::userVarsPerEvent() const {
   
   vector< string > ampNames = getTermNames();
   
@@ -197,12 +198,12 @@ AmplitudeManager::userStoragePerEvent() const {
   for( int i = 0; i < getTermNames().size(); i++ ) {
 
     unsigned int iNPermutations = getPermutations( ampNames[i] ).size();
-    vector< const Amplitude* > factorVec = m_mapNameToAmps[ampNames[i]];
+    vector< const Amplitude* > factorVec =
+      m_mapNameToAmps.find( ampNames[i] )->second;
 
     for( int j = 0; j < factorVec.size(); ++j ){
       
-      m_userStorageIndex[ factorVec[i] ] = userStorage;
-      userStorage += iNPermuatations * factorVec[i]->numUserVars();
+      userStorage += iNPermutations * factorVec[j]->numUserVars();
     
     }
   }
@@ -236,12 +237,83 @@ AmplitudeManager::calcUserData( AmpVecs& a ) const
   
   int iNAmps = ampNames.size();
   
-  assert( iNAmps && a.m_iNEvents && a.m_iNTrueEvents );
-#ifndef GPU_ACCELERATION
-  assert( a.m_pdUserData );
-#endif
+  assert( iNAmps && a.m_iNEvents && a.m_iNTrueEvents && a.m_pdUserData);
 
-  
+  int iAmpIndex;
+  unsigned long long iUserDataOffset = 0;
+  for( iAmpIndex = 0; iAmpIndex < iNAmps; iAmpIndex++ )
+  {
+    
+    map< string, vector< vector< int > > >::const_iterator permItr =
+    m_ampPermutations.find( ampNames[iAmpIndex] );
+    assert( permItr != m_ampPermutations.end() );
+    const vector< vector< int > >& vvPermuations = permItr->second;
+    int iNPerms = vvPermuations.size();
+    
+    vector< const Amplitude* > vAmps =
+    m_mapNameToAmps.find(ampNames.at(iAmpIndex))->second;
+    
+    int iFactor, iNFactors = vAmps.size();
+    
+    // calculate all the factors that make up an amplitude for
+    // for all events serially on CPU or in parallel on GPU
+    const Amplitude* pCurrAmp = 0;
+    for( iFactor=0; iFactor < iNFactors; iFactor++ ){
+      
+      pCurrAmp = vAmps.at( iFactor );
+      
+      int iNVars = pCurrAmp->numUserVars();
+      int iNData = iNVars * a.m_iNEvents * iNPerms;
+      
+      // calculation of user-defined kinematics data
+      // is something that should only be done once
+      // per fit, so do it on the CPU no matter what
+      
+      pCurrAmp->
+        calcUserDataAll( a.m_pdData,
+                         a.m_pdUserData + iUserDataOffset,
+                         a.m_iNEvents, &vvPermuations );
+    
+#ifdef GPU_ACCELERATION
+      
+      // we want to reorder the userData if we are working on the
+      // GPU so that the same variable for neighboring events is
+      // next to each other, this will enhance block read and
+      // caching ability
+      
+      GDouble* tmpVarStorage = new GDouble[iNData];
+      
+      for( int iEvt = 0; iEvt < a.m_iNEvents; ++iEvt ){
+        for( int iPerm = 0; iPerm < iNPerms; ++iPerm ){
+          for( int iVar = 0; iVar < iNVars; ++iVar ){
+            
+            unsigned long long cpuIndex =
+              iUserDataOffset + iEvt*iNVars*iNPerms + iPerm*iNVars + iVar;
+            unsigned long long gpuIndex =
+              iPerm*a.m_iNEvents*iNVars + iVar*a.m_iNEvents + iEvt;
+            
+            tmpVarStorage[gpuIndex] = a.m_pdUserData[cpuIndex];
+            memcpy( a.mpdUserData + iUserDataOffset,
+                    tmpVarStorage, iNData*sizeof(GDouble) );
+          }
+        }
+      }
+      
+      delete tmpVarStorage;
+#endif //GPU_ACCELERATION
+      
+      iUserDataOffset += iNData;
+    }
+  }
+
+  // and if we are doing a GPU accelerated fit
+  // copy the entire user data block to the GPU so we have it there
+
+#ifdef GPU_ACCELERATION
+  a.m_gpuMan.copyUserDataToGPU( a );
+#endif //GPU_ACCELERATION
+
+  return;
 }
 
 
@@ -252,6 +324,10 @@ AmplitudeManager::calcTerms( AmpVecs& a ) const
 #ifdef VTRACE
   VT_TRACER( "AmplitudeManager::calcTerms" );
 #endif
+  
+  // on the first pass through this data set be sure to calculate
+  // the user data first, if needed, before doing term calculations
+  if( !a.m_termsValid && a.m_userVarsPerEvent > 0 ) calcUserData( a );
   
   bool modifiedTerm = false;
   
@@ -265,6 +341,7 @@ AmplitudeManager::calcTerms( AmpVecs& a ) const
 #endif
   
   int iAmpIndex;
+  unsigned long long iUserDataOffset = 0;
   for( iAmpIndex = 0; iAmpIndex < iNAmps; iAmpIndex++ )
   {
     
@@ -293,6 +370,12 @@ AmplitudeManager::calcTerms( AmpVecs& a ) const
     bool recalculateFactors = false;
 
     const Amplitude* pCurrAmp = 0;
+    
+    // need to track the number of user variables summed over all
+    // factors in this amplitude so we can increment the user data
+    // array in case we don't recalculate this amplitude
+    int thisAmpUserVars = 0;
+    
     for( iFactor=0; iFactor < iNFactors; iFactor++ ){
     
       pCurrAmp = vAmps.at( iFactor );
@@ -307,10 +390,16 @@ AmplitudeManager::calcTerms( AmpVecs& a ) const
         recalculateFactors = true;
         m_dataAmpIteration[&a][pCurrAmp] = m_ampIteration[pCurrAmp];
       }
+      
+      thisAmpUserVars += pCurrAmp->numUserVars();
     }
     
-    if( !recalculateFactors ) continue;
-
+    if( !recalculateFactors ){
+     
+      iUserDataOffset += thisAmpUserVars * a.m_iNEvents * iNPermutations;
+      continue;
+    }
+    
     // if we get to here, we are changing the stored factors of the
     // amplitude
     
@@ -318,7 +407,7 @@ AmplitudeManager::calcTerms( AmpVecs& a ) const
     
     // calculate all the factors that make up an amplitude for
     // for all events serially on CPU or in parallel on GPU
-    int iLocalOffset = 0;
+    unsigned long long iLocalOffset = 0;
     for( iFactor=0; iFactor < iNFactors;
          iFactor++, iLocalOffset += 2 * a.m_iNEvents * iNPermutations ){
       
@@ -328,11 +417,15 @@ AmplitudeManager::calcTerms( AmpVecs& a ) const
       pCurrAmp->
       calcAmplitudeAll( a.m_pdData,
                         a.m_pdAmpFactors + iLocalOffset,
-                        a.m_iNEvents, &vvPermuations );
+                        a.m_iNEvents, &vvPermuations,
+                        a.m_pdUserData + iUserDataOffset );
 #else
       a.m_gpuMan.calcAmplitudeAll( pCurrAmp, iLocalOffset,
-                                   &vvPermuations );
+                                   &vvPermuations,
+                                   iUserDataOffset );
 #endif//GPU_ACCELERATION
+      
+      iUserDataOffset += pCurrAmp->numUserVars() * a.m_iNEvents * iNPermutations;
     }
     
     
@@ -753,6 +846,8 @@ AmplitudeManager::addAmpFactor( const string& name,
   }
 
   m_mapNameToAmps[name].push_back( newAmp );
+  
+  m_needsUserDataOnly = m_needsUserDataOnly && newAmp->needsUserDataOnly();
   
   //Enable a short-cut if no factors are variable in the amplitude
   m_vbIsAmpFixed[termIndex(name)] =

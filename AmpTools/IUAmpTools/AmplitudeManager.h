@@ -133,7 +133,7 @@ public:
    * user data for all factors and permutations.
    */
   
-  unsigned int userStoragePerEvent() const;
+  unsigned int userVarsPerEvent() const;
   
   
   /**
@@ -456,11 +456,10 @@ private:
   
   // vector to short-cut recomputation of terms with all fixed factors
   vector< bool > m_vbIsAmpFixed;
-  
-  map< const Amplitude*, unsigned int > m_userStorageIndex;
-  
+    
   // some internal members to optimize amplitude recalculation
   bool m_optimizeParIteration;
+  bool m_needsUserDataOnly;
   mutable map< const Amplitude*, int > m_ampIteration;
   mutable map< AmpVecs*, map< const Amplitude*, int > > m_dataAmpIteration;
 };
