@@ -86,6 +86,7 @@ public:
   // Interface Utils
   // First Amplitude calculation interface
   void copyDataToGPU( const AmpVecs& a );
+  void copyUserDataToGPU( const AmpVecs& a );
   
   void calcAmplitudeAll( const Amplitude* amp, unsigned long long offset,
                          const vector< vector< int > >* pvPermutations );
@@ -118,6 +119,7 @@ private:
   unsigned long long m_iNEvents;
   unsigned long long m_iNTrueEvents;
   unsigned int m_iNAmps;
+  unsigned int m_iNUserVars;
   
   // array sizes
   unsigned long long m_iEventArrSize;
@@ -133,6 +135,7 @@ private:
   
   //Device Arrays 
   GDouble* m_pfDevData;
+  GDouble* m_pfDevUserData;
   GDouble* m_pfDevWeights;
   GDouble* m_pcDevCalcAmp;
   int*     m_piDevPerm;

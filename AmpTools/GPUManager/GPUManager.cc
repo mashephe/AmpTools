@@ -167,6 +167,7 @@ GPUManager::init( const AmpVecs& a )
   m_iNEvents     = a.m_iNEvents;
   m_iNParticles  = a.m_iNParticles;
   m_iNAmps       = a.m_iNTerms;
+  m_iNUserVars   = a.m_userVarsPerEvent;
   
   // the rest of the data are derived:
   m_iEventArrSize     = sizeof(GDouble) * m_iNEvents;
@@ -186,6 +187,7 @@ GPUManager::init( const AmpVecs& a )
   
   totalMemory += m_iVArrSize;
   totalMemory += 4 * m_iEventArrSize;
+  totalMemory += m_iNUserVars * m_iEventArrSize;
   totalMemory += 4 * m_iNParticles * m_iEventArrSize;
   totalMemory += m_iNParticles * sizeof( int );
   totalMemory += a.m_maxFactPerEvent * m_iEventArrSize;
@@ -204,6 +206,7 @@ GPUManager::init( const AmpVecs& a )
   
   // allocate device memory needed for amplitude calculations
   gpuErrChk( cudaMalloc(  (void**)&m_pfDevData    , 4 * m_iNParticles * m_iEventArrSize    ) ) ;
+  gpuErrChk( cudaMalloc(  (void**)&m_pfDevUserData, m_iNUserVars * m_iEventArrSize         ) ) ;
   gpuErrChk( cudaMalloc(  (void**)&m_piDevPerm    , m_iNParticles * sizeof( int )          ) ) ;
   gpuErrChk( cudaMalloc(  (void**)&m_pcDevCalcAmp , a.m_maxFactPerEvent * m_iEventArrSize  ) ) ;
   gpuErrChk( cudaMalloc(  (void**)&m_pfDevAmps    , m_iAmpArrSize                          ) ) ;
@@ -239,6 +242,24 @@ GPUManager::copyDataToGPU( const AmpVecs& a )
 }
 
 void
+GPUManager::copyUserDataToGPU( const AmpVecs& a )
+{
+  
+#ifdef VTRACE
+  VT_TRACER( "GPUManager::copyUserDataToGPU" );
+#endif
+  
+  // make sure AmpVecs has been loaded with data
+  assert( a.m_pdUserData );
+  
+  // copy the data into the device
+  gpuErrChk( cudaMemcpy( m_pfDevUserData, a.m_pdUserData,
+                        m_iNUserVars * m_iEventArrSize,
+                        cudaMemcpyHostToDevice ) );
+}
+
+
+void
 GPUManager::copyAmpsFromGPU( AmpVecs& a )
 {
 
@@ -261,7 +282,9 @@ GPUManager::copyAmpsFromGPU( AmpVecs& a )
 
 void 
 GPUManager::calcAmplitudeAll( const Amplitude* amp, unsigned long long offset,
-                              const vector< vector< int > >* pvPermutations )
+                              const vector< vector< int > >* pvPermutations,
+                              GDouble* userDataBlock,
+                              unsigned long long iUserDataOffset )
 {
  
 #ifdef VTRACE
@@ -290,7 +313,8 @@ GPUManager::calcAmplitudeAll( const Amplitude* amp, unsigned long long offset,
     // casting amp array to WCUComplex for 8 or 16 bit write 
     // operation of both real and complex parts at once
     
-    amp->calcAmplitudeGPU( dimGrid, dimBlock, m_pfDevData, 
+    amp->calcAmplitudeGPU( dimGrid, dimBlock, m_pfDevData,
+                           &m_pdfDevUserData[iUserDataOffset+permOffset/2],
                           (WCUComplex*)&m_pcDevCalcAmp[offset+permOffset],
                            m_piDevPerm, m_iNParticles, m_iNEvents,
                            *permItr );
