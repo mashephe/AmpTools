@@ -631,6 +631,8 @@ AmpToolsInterface::printAmplitudes(string reactionName, Kinematics* kin) const {
     cout << "NOTE:  printAmplitudes is being called for a reaction "
          << "       that is not setup for an amplitude fit."
          << "       (Nothing more will be printed.)" << endl;
+    
+    return;
   }
   
   AmplitudeManager* ampMan = dynamic_cast< AmplitudeManager* >( intenMan );
