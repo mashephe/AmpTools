@@ -565,8 +565,13 @@ AmplitudeManager::calcIntensities( AmpVecs& a ) const
   {
     dIntensity = 0;
     for( i = 0; i < iNAmps; i++ ){
+
+      cout << a.m_pdAmps[2*a.m_iNEvents*i+2*iEvent] << "\t" 
+	   << a.m_pdAmps[2*a.m_iNEvents*i+2*iEvent+1] << endl;
+	  
       for( j = 0; j <= i; j++ ){
         
+
         // remove cross terms from incoherent amplitudes
         if( !m_sumCoherently[i][j] ) continue;
         

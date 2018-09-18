@@ -659,7 +659,7 @@ AmpToolsInterface::printAmplitudes(string reactionName, Kinematics* kin) const {
   // in AmplitudeManager::calcAmplitudes with the assumption that
   // the number of events is 1 and we are working with event index 0
   
-  int iAmpFactOffset = 0;
+  int iAmpOffset = 0;
   
   for (unsigned int iamp = 0; iamp < nAmps; iamp++){
     
@@ -673,7 +673,7 @@ AmpToolsInterface::printAmplitudes(string reactionName, Kinematics* kin) const {
     int nPerm = permutations.size();
     int nFact = ampFactors.size();
     
-    int iLocalOffset = 0;
+    int iAmpFactOffset = 0;
     
     for (unsigned int iperm = 0; iperm < nPerm; iperm++){
 
@@ -683,21 +683,34 @@ AmpToolsInterface::printAmplitudes(string reactionName, Kinematics* kin) const {
       }
       
       cout << endl << endl;
+
+      cout << "       PRODUCT OF FACTORS = ( " 
+	   << aVecs.m_pdAmps[iAmpOffset+iperm*2] << ", "
+	   << aVecs.m_pdAmps[iAmpOffset+iperm*2+1] << endl;
       
       int iOffsetP = iAmpFactOffset + 2 * iperm;
-      
-      for (unsigned int ifact = 0; ifact < nFact; ifact++){
-        
-        int iOffsetF = iOffsetP + 2 * nPerm * ifact;
 
-        cout << "          AMPLITUDE FACTOR = " << ampFactors[ifact]->name() << endl;
-        cout << "          RESULT = ( "
-             << aVecs.m_pdAmpFactors[iOffsetF] << ", "
-             << aVecs.m_pdAmpFactors[iOffsetF+1] << " )"
-             << endl << endl;
+      if( iamp == nAmps-1 ){
+
+	// for the last amplitude, the pdAmpFactors array will still hold
+	// the data for all of the factors of the amplitude so go ahead
+	// and print those to the screen for the user
       
-        iLocalOffset += 2;
+	for (unsigned int ifact = 0; ifact < nFact; ifact++){
+        
+	  int iOffsetF = iOffsetP + 2 * nPerm * ifact;
+
+	  cout << "          AMPLITUDE FACTOR = " << ampFactors[ifact]->name() << endl;
+	  cout << "          RESULT = ( "
+	       << aVecs.m_pdAmpFactors[iOffsetF] << ", "
+	       << aVecs.m_pdAmpFactors[iOffsetF+1] << " )"
+	       << endl << endl;
+      
+	  iLocalOffset += 2;
+	}
       }
+
+      iAmpOffset += 2*nPerm;
     }
     
     // since there is only one event, we should be incrementing iAmpFactOffset
