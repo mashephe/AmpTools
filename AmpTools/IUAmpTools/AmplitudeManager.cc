@@ -293,11 +293,12 @@ AmplitudeManager::calcUserData( AmpVecs& a ) const
               iPerm*a.m_iNEvents*iNVars + iVar*a.m_iNEvents + iEvt;
             
             tmpVarStorage[gpuIndex] = a.m_pdUserData[cpuIndex];
-            memcpy( a.mpdUserData + iUserDataOffset,
-                    tmpVarStorage, iNData*sizeof(GDouble) );
           }
         }
       }
+
+      memcpy( a.m_pdUserData + iUserDataOffset, tmpVarStorage, 
+	      iNData*sizeof(GDouble) );
       
       delete tmpVarStorage;
 #endif //GPU_ACCELERATION

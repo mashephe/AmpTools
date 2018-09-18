@@ -89,7 +89,8 @@ public:
   void copyUserDataToGPU( const AmpVecs& a );
   
   void calcAmplitudeAll( const Amplitude* amp, unsigned long long offset,
-                         const vector< vector< int > >* pvPermutations );
+                         const vector< vector< int > >* pvPermutations,
+			 unsigned long long userDataOffset );
   
   void assembleTerms( int iAmpInd, int nFact, int nPerm );
   

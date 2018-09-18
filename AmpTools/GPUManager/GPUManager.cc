@@ -65,6 +65,7 @@ GPUManager::GPUManager()
   m_iNTrueEvents=0;
   
   m_iNAmps=0;
+  m_iNUserVars=0;
   
   m_iEventArrSize=0;
   m_iAmpArrSize=0;
@@ -283,7 +284,6 @@ GPUManager::copyAmpsFromGPU( AmpVecs& a )
 void 
 GPUManager::calcAmplitudeAll( const Amplitude* amp, unsigned long long offset,
                               const vector< vector< int > >* pvPermutations,
-                              GDouble* userDataBlock,
                               unsigned long long iUserDataOffset )
 {
  
@@ -314,7 +314,7 @@ GPUManager::calcAmplitudeAll( const Amplitude* amp, unsigned long long offset,
     // operation of both real and complex parts at once
     
     amp->calcAmplitudeGPU( dimGrid, dimBlock, m_pfDevData,
-                           &m_pdfDevUserData[iUserDataOffset+permOffset/2],
+                           &m_pfDevUserData[iUserDataOffset+permOffset/2],
                           (WCUComplex*)&m_pcDevCalcAmp[offset+permOffset],
                            m_piDevPerm, m_iNParticles, m_iNEvents,
                            *permItr );

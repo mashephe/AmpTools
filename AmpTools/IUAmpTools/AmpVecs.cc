@@ -54,6 +54,7 @@ AmpVecs::AmpVecs(){
   m_iNParticles     = 0 ;
   m_iNTerms         = 0 ;
   m_maxFactPerEvent = 0 ;
+  m_userVarsPerEvent = 0;
   
   m_pdData      = 0 ;
   m_pdWeights   = 0 ;
@@ -80,6 +81,7 @@ AmpVecs::deallocAmpVecs()
   m_iNParticles     = 0 ;
   m_iNTerms         = 0 ;
   m_maxFactPerEvent = 0 ;
+  m_userVarsPerEvent = 0;
   
   m_termsValid    = false ;
   m_integralValid = false ;
@@ -99,6 +101,10 @@ AmpVecs::deallocAmpVecs()
   if(m_pdIntegralMatrix)
     delete[] m_pdIntegralMatrix;
   m_pdIntegralMatrix=0;
+
+  if(m_pdUserData)
+    delete[] m_pdUserData;
+  m_pdUserData=0;
   
 #ifndef GPU_ACCELERATION
   
@@ -109,10 +115,6 @@ AmpVecs::deallocAmpVecs()
   if(m_pdAmpFactors)
     delete[] m_pdAmpFactors;
   m_pdAmpFactors=0;
-
-  if(m_pdUserData)
-    delete[] m_pdUserData;
-  m_pdUserData=0;
 
 #else
   //Deallocate "pinned memory"
