@@ -654,8 +654,6 @@ AmpToolsInterface::printAmplitudes(string reactionName, Kinematics* kin) const {
 #endif
   
   int nAmps = ampNames.size();
-  int iAmpOffset = 0;
-  
   for (unsigned int iamp = 0; iamp < nAmps; iamp++){
     
     cout << "    ----------------------------------" << endl;
@@ -665,27 +663,29 @@ AmpToolsInterface::printAmplitudes(string reactionName, Kinematics* kin) const {
     vector< const Amplitude* > ampFactors = ampMan->getFactors(ampNames[iamp]);
     vector <vector <int> > permutations = ampMan->getPermutations(ampNames[iamp]);
     
+    cout << "      PRODUCT OF FACTORS" << endl
+         << "      SUMMED OVER PERMUTATIONS = ( "
+         << aVecs.m_pdAmps[iamp*2] << ", "
+         << aVecs.m_pdAmps[iamp*2+1] << " )" << endl << endl;
+    
     int nPerm = permutations.size();
-    int nFact = ampFactors.size();
- 
-    for (unsigned int iperm = 0; iperm < nPerm; iperm++){
+    
+    if( iamp == nAmps-1 ){
       
-      cout << "        PERMUTATION = ";
-      for (unsigned int ipar = 0; ipar < permutations[iperm].size(); ipar++){
-        cout << permutations[iperm][ipar] << " ";
-      }
+      // for the last amplitude, the pdAmpFactors array will still hold
+      // the data for all of the factors and permutations of the amplitude
+      // so go ahead and print those to the screen for the user
       
-      cout << endl << endl;
-      
-      cout << "        PRODUCT OF FACTORS = ( "
-           << aVecs.m_pdAmps[iAmpOffset+iperm*2] << ", "
-           << aVecs.m_pdAmps[iAmpOffset+iperm*2+1] << " )" << endl;
-      
-      if( iamp == nAmps-1 ){
+      for (unsigned int iperm = 0; iperm < nPerm; iperm++){
         
-        // for the last amplitude, the pdAmpFactors array will still hold
-        // the data for all of the factors of the amplitude so go ahead
-        // and print those to the screen for the user
+        cout << "        PERMUTATION = ";
+        for (unsigned int ipar = 0; ipar < permutations[iperm].size(); ipar++){
+          cout << permutations[iperm][ipar] << " ";
+        }
+        
+        cout << endl << endl;
+        
+        int nFact = ampFactors.size();
         
         for (unsigned int ifact = 0; ifact < nFact; ifact++){
           
@@ -696,8 +696,6 @@ AmpToolsInterface::printAmplitudes(string reactionName, Kinematics* kin) const {
                << endl << endl;
         }
       }
-      
-      iAmpOffset += 2*nPerm;
     }
   }
   
