@@ -255,8 +255,6 @@ AmplitudeManager::calcUserData( AmpVecs& a ) const
     
     int iFactor, iNFactors = vAmps.size();
     
-    // calculate all the factors that make up an amplitude for
-    // for all events serially on CPU or in parallel on GPU
     const Amplitude* pCurrAmp = 0;
     for( iFactor=0; iFactor < iNFactors; iFactor++ ){
       
@@ -273,7 +271,25 @@ AmplitudeManager::calcUserData( AmpVecs& a ) const
         calcUserDataAll( a.m_pdData,
                          a.m_pdUserData + iUserDataOffset,
                          a.m_iNEvents, &vvPermuations );
-    
+   
+      
+      for( int iEvt = 0; iEvt < a.m_iNEvents; ++iEvt ){
+        for( int iPerm = 0; iPerm < iNPerms; ++iPerm ){
+          for( int iVar = 0; iVar < iNVars; ++iVar ){
+ 
+            unsigned long long cpuIndex =
+            iUserDataOffset + iEvt*iNVars*iNPerms + iPerm*iNVars + iVar;
+            unsigned long long gpuIndex =
+            iPerm*a.m_iNEvents*iNVars + iVar*a.m_iNEvents + iEvt;
+            
+            cout << iEvt << "\t" << iPerm << "\t" << iVar << ":  "
+                 << a.m_pdUserData[cpuIndex] << endl;
+            
+          }
+        }
+      }
+
+      
 #ifdef GPU_ACCELERATION
       
       // we want to reorder the userData if we are working on the
@@ -565,13 +581,8 @@ AmplitudeManager::calcIntensities( AmpVecs& a ) const
   {
     dIntensity = 0;
     for( i = 0; i < iNAmps; i++ ){
-
-      cout << a.m_pdAmps[2*a.m_iNEvents*i+2*iEvent] << "\t" 
-	   << a.m_pdAmps[2*a.m_iNEvents*i+2*iEvent+1] << endl;
-	  
       for( j = 0; j <= i; j++ ){
         
-
         // remove cross terms from incoherent amplitudes
         if( !m_sumCoherently[i][j] ) continue;
         
