@@ -253,6 +253,11 @@ GPUManager::copyUserDataToGPU( const AmpVecs& a )
   // make sure AmpVecs has been loaded with data
   assert( a.m_pdUserData );
   
+  for( int i = 0; i < m_iNUserVars * m_iNEvents; ++i ){
+
+    cout << i << "\t" << a.m_pdUserData[i] << endl;
+  }
+
   // copy the data into the device
   gpuErrChk( cudaMemcpy( m_pfDevUserData, a.m_pdUserData,
                         m_iNUserVars * m_iEventArrSize,
