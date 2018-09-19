@@ -248,14 +248,14 @@ GPUManager::copyDataToGPU( const AmpVecs& a )
   //
   // where pn is particle n and evn is event
   
-  GDouble* tmpStorage = new GDouble[4*m_iNparticles*m_iEventArrSize];
+  GDouble* tmpStorage = new GDouble[4*m_iNParticles*m_iEventArrSize];
   
   for( int iEvt = 0; iEvt < m_iNEvents; ++iEvt ){
     for( int iPart = 0; iPart < m_iNParticles; ++iPart ){
       for( int iVar = 0; iVar < 4; ++iVar ){
      
         int cpuIndex = 4*iEvt*m_iNParticles+4*iPart+iVar;
-        int gpuIndex = 4*m_iNEvents*iPart+iVar*m_iNEvents+iEvent;
+        int gpuIndex = 4*m_iNEvents*iPart+iVar*m_iNEvents+iEvt;
         
         tmpStorage[gpuIndex] = a.m_pdData[cpuIndex];
       }
@@ -284,11 +284,6 @@ GPUManager::copyUserDataToGPU( const AmpVecs& a )
   
   // make sure AmpVecs has been loaded with data
   assert( a.m_pdUserData );
-  
-  for( int i = 0; i < m_iNUserVars * m_iNEvents; ++i ){
-
-    cout << i << "\t" << a.m_pdUserData[i] << endl;
-  }
 
   // copy the data into the device
   gpuErrChk( cudaMemcpy( m_pfDevUserData, a.m_pdUserData,
