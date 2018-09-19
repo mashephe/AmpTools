@@ -232,14 +232,46 @@ GPUManager::copyDataToGPU( const AmpVecs& a )
   // make sure AmpVecs has been loaded with data
   assert( a.m_pdData );
   
+  // restructure kinematics in memory such that the same quantity
+  // for multiple events sits in a block to expedite parallel reads
+  // on the GPU
+  
+  // for cpu calculations, the m_pdData array is in this order:
+  //    e(p1,ev1), px(p1,ev1), py(p1,ev1), pz(p1,ev1),
+  //    e(p2,ev1), px(p2,ev1), ...,
+  //    e(p1,ev2), px(p1,ev2), ...
+  //
+  // for gpu calculations, want to fill the pdfDevData array like this:
+  //     e(p1,ev1),  e(p1,ev2),  e(p1,ev3), ...,
+  //    px(p1,ev1), px(p1,ev2), ...,
+  //     e(p2,ev1),  e(p2,ev2). ...
+  //
+  // where pn is particle n and evn is event
+  
+  GDouble* tmpStorage = new GDouble[4*m_iNparticles*m_iEventArrSize];
+  
+  for( int iEvt = 0; iEvt < m_iNEvents; ++iEvt ){
+    for( int iPart = 0; iPart < m_iNParticles; ++iPart ){
+      for( int iVar = 0; iVar < 4; ++iVar ){
+     
+        int cpuIndex = 4*iEvt*m_iNParticles+4*iPart+iVar;
+        int gpuIndex = 4*m_iNEvents*iPart+iVar*m_iNEvents+iEvent;
+        
+        tmpStorage[gpuIndex] = a.m_pdData[cpuIndex];
+      }
+    }
+  }
+  
   // copy the data into the device
-  gpuErrChk( cudaMemcpy( m_pfDevData, a.m_pdData,
+  gpuErrChk( cudaMemcpy( m_pfDevData, tmpStorage,
                          4 * m_iNParticles * m_iEventArrSize,
                         cudaMemcpyHostToDevice ) );
 
   // copy the weights to the GPU
   gpuErrChk( cudaMemcpy( m_pfDevWeights, a.m_pdWeights,
                          m_iEventArrSize, cudaMemcpyHostToDevice ) );
+
+  delete tmpStorage;
 }
 
 void
@@ -540,7 +572,7 @@ void GPUManager::clearAll()
   if(m_pfDevData)
     cudaFree(m_pfDevData);
   m_pfDevData=0;
-  
+
   if(m_pcDevCalcAmp)
     cudaFree(m_pcDevCalcAmp);
   m_pcDevCalcAmp=0;

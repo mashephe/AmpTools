@@ -170,7 +170,7 @@ AmpVecs::loadEvent( const Kinematics* pKinematics, unsigned long long iEvent,
   //
   // where pn is particle n and evn is event n  
   
-#ifndef GPU_ACCELERATION
+  //#ifndef GPU_ACCELERATION
   
   for (int iParticle = 0; iParticle < m_iNParticles; iParticle++){
     m_pdData[4*iEvent*m_iNParticles+4*iParticle+0]=pKinematics->particle(iParticle).E();
@@ -178,6 +178,7 @@ AmpVecs::loadEvent( const Kinematics* pKinematics, unsigned long long iEvent,
     m_pdData[4*iEvent*m_iNParticles+4*iParticle+2]=pKinematics->particle(iParticle).Py();
     m_pdData[4*iEvent*m_iNParticles+4*iParticle+3]=pKinematics->particle(iParticle).Pz();
   }
+  /*
 #else
   for (int iParticle = 0; iParticle < m_iNParticles; iParticle++){
     m_pdData[(4*iParticle+0)*m_iNEvents+iEvent] = pKinematics->particle(iParticle).E();
@@ -186,7 +187,7 @@ AmpVecs::loadEvent( const Kinematics* pKinematics, unsigned long long iEvent,
     m_pdData[(4*iParticle+3)*m_iNEvents+iEvent] = pKinematics->particle(iParticle).Pz();
   }
 #endif
-
+*/
   m_pdWeights[iEvent] = ( bForceNegativeWeight ?
                          -fabsf( pKinematics->weight() ) :
                          pKinematics->weight() );
