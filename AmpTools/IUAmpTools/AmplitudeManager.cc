@@ -271,25 +271,7 @@ AmplitudeManager::calcUserData( AmpVecs& a ) const
         calcUserDataAll( a.m_pdData,
                          a.m_pdUserData + iUserDataOffset,
                          a.m_iNEvents, &vvPermuations );
-   
-      
-      for( int iEvt = 0; iEvt < a.m_iNEvents; ++iEvt ){
-        for( int iPerm = 0; iPerm < iNPerms; ++iPerm ){
-          for( int iVar = 0; iVar < iNVars; ++iVar ){
- 
-            unsigned long long cpuIndex =
-            iUserDataOffset + iEvt*iNVars*iNPerms + iPerm*iNVars + iVar;
-            unsigned long long gpuIndex =
-            iPerm*a.m_iNEvents*iNVars + iVar*a.m_iNEvents + iEvt;
-            
-            cout << iEvt << "\t" << iPerm << "\t" << iVar << ":  "
-                 << a.m_pdUserData[cpuIndex] << endl;
-            
-          }
-        }
-      }
-
-      
+         
 #ifdef GPU_ACCELERATION
       
       // we want to reorder the userData if we are working on the
