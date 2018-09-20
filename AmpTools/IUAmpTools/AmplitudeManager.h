@@ -259,6 +259,16 @@ public:
    * \see setParValue
    */
   bool hasTermWithFreeParam() const;
+  
+  /**
+   * This function will return true if every amplitude factor can be
+   * calculated from user-defined data variables.  In some instances
+   * this flag is used to optimize memory consumption as it means
+   * that the raw four-vectors are not needed for amplitude
+   * computations.
+   */
+  
+  bool needsUserDataOnly() const { return m_needsUserDataOnly; }
 
   //
   // The functions below modify the state of the AmplitudeManager

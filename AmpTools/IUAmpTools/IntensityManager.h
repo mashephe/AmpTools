@@ -217,6 +217,16 @@ public:
   virtual bool hasTermWithFreeParam() const = 0;
   
   /**
+   * This function will return true if every amplitude factor can be
+   * calculated from user-defined data variables.  In some instances
+   * this flag is used to optimize memory consumption as it means
+   * that the raw four-vectors are not needed for amplitude
+   * computations.
+   */
+  
+  virtual bool needsUserDataOnly() const = 0;
+  
+  /**
    * This returns the internal index of a term.  It is useful for users
    * who may want to index data in an array.
    *

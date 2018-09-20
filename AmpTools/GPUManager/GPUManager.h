@@ -81,11 +81,11 @@ public:
   void clearAmpCalc();
   void clearLikeCalc();
   
-  void init( const AmpVecs& a );
+  void init( const AmpVecs& a, bool use4Vectors = true );
   
   // Interface Utils
   // First Amplitude calculation interface
-  void copyDataToGPU( const AmpVecs& a );
+  void copyDataToGPU( const AmpVecs& a, bool use4Vectors = true  );
   void copyUserDataToGPU( const AmpVecs& a );
   
   void calcAmplitudeAll( const Amplitude* amp, unsigned long long offset,

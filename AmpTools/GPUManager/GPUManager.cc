@@ -159,7 +159,7 @@ GPUManager::~GPUManager()
 // Initialization routines:
 
 void 
-GPUManager::init( const AmpVecs& a )
+GPUManager::init( const AmpVecs& a, bool use4Vecs )
 {
   clearAll();
     
@@ -189,7 +189,7 @@ GPUManager::init( const AmpVecs& a )
   totalMemory += m_iVArrSize;
   totalMemory += 4 * m_iEventArrSize;
   totalMemory += m_iNUserVars * m_iEventArrSize;
-  totalMemory += 4 * m_iNParticles * m_iEventArrSize;
+  if( useRawData ) totalMemory += 4 * m_iNParticles * m_iEventArrSize;
   totalMemory += m_iNParticles * sizeof( int );
   totalMemory += a.m_maxFactPerEvent * m_iEventArrSize;
   totalMemory += m_iAmpArrSize;
@@ -206,7 +206,7 @@ GPUManager::init( const AmpVecs& a )
   gpuErrChk( cudaMalloc( (void**)&m_pfDevREDUCE  , m_iEventArrSize   ) ) ;
   
   // allocate device memory needed for amplitude calculations
-  gpuErrChk( cudaMalloc(  (void**)&m_pfDevData    , 4 * m_iNParticles * m_iEventArrSize    ) ) ;
+  if( use4Vectors ) gpuErrChk( cudaMalloc(  (void**)&m_pfDevData    , 4 * m_iNParticles * m_iEventArrSize    ) ) ;
   gpuErrChk( cudaMalloc(  (void**)&m_pfDevUserData, m_iNUserVars * m_iEventArrSize         ) ) ;
   gpuErrChk( cudaMalloc(  (void**)&m_piDevPerm    , m_iNParticles * sizeof( int )          ) ) ;
   gpuErrChk( cudaMalloc(  (void**)&m_pcDevCalcAmp , a.m_maxFactPerEvent * m_iEventArrSize  ) ) ;
@@ -222,56 +222,65 @@ GPUManager::init( const AmpVecs& a )
 
 
 void
-GPUManager::copyDataToGPU( const AmpVecs& a )
+GPUManager::copyDataToGPU( const AmpVecs& a, bool use4Vectors )
 {  
 
 #ifdef VTRACE
   VT_TRACER( "GPUManager::copyDataToGPU" );
 #endif
-
-  // make sure AmpVecs has been loaded with data
-  assert( a.m_pdData );
   
-  // restructure kinematics in memory such that the same quantity
-  // for multiple events sits in a block to expedite parallel reads
-  // on the GPU
-  
-  // for cpu calculations, the m_pdData array is in this order:
-  //    e(p1,ev1), px(p1,ev1), py(p1,ev1), pz(p1,ev1),
-  //    e(p2,ev1), px(p2,ev1), ...,
-  //    e(p1,ev2), px(p1,ev2), ...
-  //
-  // for gpu calculations, want to fill the pdfDevData array like this:
-  //     e(p1,ev1),  e(p1,ev2),  e(p1,ev3), ...,
-  //    px(p1,ev1), px(p1,ev2), ...,
-  //     e(p2,ev1),  e(p2,ev2). ...
-  //
-  // where pn is particle n and evn is event
-  
-  GDouble* tmpStorage = new GDouble[4*m_iNParticles*m_iEventArrSize];
-  
-  for( int iEvt = 0; iEvt < m_iNEvents; ++iEvt ){
-    for( int iPart = 0; iPart < m_iNParticles; ++iPart ){
-      for( int iVar = 0; iVar < 4; ++iVar ){
-     
-        int cpuIndex = 4*iEvt*m_iNParticles+4*iPart+iVar;
-        int gpuIndex = 4*m_iNEvents*iPart+iVar*m_iNEvents+iEvt;
-        
-        tmpStorage[gpuIndex] = a.m_pdData[cpuIndex];
-      }
-    }
-  }
-  
-  // copy the data into the device
-  gpuErrChk( cudaMemcpy( m_pfDevData, tmpStorage,
-                         4 * m_iNParticles * m_iEventArrSize,
-                        cudaMemcpyHostToDevice ) );
-
   // copy the weights to the GPU
   gpuErrChk( cudaMemcpy( m_pfDevWeights, a.m_pdWeights,
-                         m_iEventArrSize, cudaMemcpyHostToDevice ) );
+                        m_iEventArrSize, cudaMemcpyHostToDevice ) );
+  
+  // we only need to copy the four vectors to the GPU if the
+  // amplitude evaulation kernels need them -- this is done by
+  // default unless signaled otherwise by the configuration
+  // of the amplitude manager
+  
+  if( use4Vectors ){
+    
+    
+    // make sure AmpVecs has been loaded with data
+    assert( a.m_pdData );
+    
+    // restructure kinematics in memory such that the same quantity
+    // for multiple events sits in a block to expedite parallel reads
+    // on the GPU
+    
+    // for cpu calculations, the m_pdData array is in this order:
+    //    e(p1,ev1), px(p1,ev1), py(p1,ev1), pz(p1,ev1),
+    //    e(p2,ev1), px(p2,ev1), ...,
+    //    e(p1,ev2), px(p1,ev2), ...
+    //
+    // for gpu calculations, want to fill the pdfDevData array like this:
+    //     e(p1,ev1),  e(p1,ev2),  e(p1,ev3), ...,
+    //    px(p1,ev1), px(p1,ev2), ...,
+    //     e(p2,ev1),  e(p2,ev2). ...
+    //
+    // where pn is particle n and evn is event
+    
+    GDouble* tmpStorage = new GDouble[4*m_iNParticles*m_iEventArrSize];
+    
+    for( int iEvt = 0; iEvt < m_iNEvents; ++iEvt ){
+      for( int iPart = 0; iPart < m_iNParticles; ++iPart ){
+        for( int iVar = 0; iVar < 4; ++iVar ){
+          
+          int cpuIndex = 4*iEvt*m_iNParticles+4*iPart+iVar;
+          int gpuIndex = 4*m_iNEvents*iPart+iVar*m_iNEvents+iEvt;
+          
+          tmpStorage[gpuIndex] = a.m_pdData[cpuIndex];
+        }
+      }
+    }
+    
+    // copy the data into the device
+    gpuErrChk( cudaMemcpy( m_pfDevData, tmpStorage,
+                          4 * m_iNParticles * m_iEventArrSize,
+                          cudaMemcpyHostToDevice ) );
 
-  delete tmpStorage;
+    delete tmpStorage;
+  }
 }
 
 void

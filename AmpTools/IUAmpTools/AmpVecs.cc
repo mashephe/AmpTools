@@ -242,9 +242,9 @@ AmpVecs::loadData( DataReader* pDataReader, bool bForceNegativeWeight ){
 void
 AmpVecs::allocateTerms( const IntensityManager& intenMan, bool bAllocIntensity ){
 
-  m_iNTerms          = intenMan.getTermNames().size();
-  m_maxFactPerEvent  = intenMan.maxFactorStoragePerEvent();
-  m_userVarsPerEvent = intenMan.userVarsPerEvent();
+  m_iNTerms           = intenMan.getTermNames().size();
+  m_maxFactPerEvent   = intenMan.maxFactorStoragePerEvent();
+  m_userVarsPerEvent  = intenMan.userVarsPerEvent();
   
   if( m_pdAmps!=0 || m_pdAmpFactors!=0 || m_pdUserData!=0 || m_pdIntensity!=0 )
   {
@@ -277,8 +277,8 @@ AmpVecs::allocateTerms( const IntensityManager& intenMan, bool bAllocIntensity )
   
 #else
   
-  m_gpuMan.init( *this );
-  m_gpuMan.copyDataToGPU( *this );
+  m_gpuMan.init( *this, !intenMan.needsUserDataOnly() );
+  m_gpuMan.copyDataToGPU( *this, !intenMan.needsUserDataOnly() );
 
 #endif // GPU_ACCELERATION
   
