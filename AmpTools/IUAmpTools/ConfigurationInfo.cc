@@ -779,7 +779,7 @@ AmplitudeInfo::display(string fileName, bool append){
     }
     cout << endl;
   }
-  cout << "       PERMUTATIONS:  " << m_permutations.size() << endl;
+  cout << " EXTRA PERMUTATIONS:  " << m_permutations.size() << endl;
   for (unsigned int i = 0; i < m_permutations.size(); i++){
     vector<int> permutation = m_permutations[i];
     cout << "\t\t" << i+1 << ".  ";
