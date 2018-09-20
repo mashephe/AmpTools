@@ -278,15 +278,15 @@ AmplitudeManager::calcUserData( AmpVecs& a ) const
       // GPU so that the same variable for neighboring events is
       // next to each other, this will enhance block read and
       // caching ability
-      
+
       GDouble* tmpVarStorage = new GDouble[iNData];
-      
-      for( int iEvt = 0; iEvt < a.m_iNEvents; ++iEvt ){
-        for( int iPerm = 0; iPerm < iNPerms; ++iPerm ){
+
+      for( int iPerm = 0; iPerm < iNPerms; ++iPerm ){
+        for( int iEvt = 0; iEvt < a.m_iNEvents; ++iEvt ){
           for( int iVar = 0; iVar < iNVars; ++iVar ){
             
             unsigned long long cpuIndex =
-              iUserDataOffset + iEvt*iNVars*iNPerms + iPerm*iNVars + iVar;
+              iUserDataOffset + iPerm*a.m_iNEvents*iNVars + iEvt*iNVars + iVar;
             unsigned long long gpuIndex =
               iPerm*a.m_iNEvents*iNVars + iVar*a.m_iNEvents + iEvt;
             
@@ -298,7 +298,7 @@ AmplitudeManager::calcUserData( AmpVecs& a ) const
       memcpy( a.m_pdUserData + iUserDataOffset, tmpVarStorage, 
 	      iNData*sizeof(GDouble) );
       
-      delete tmpVarStorage;
+      delete[] tmpVarStorage;
 #endif //GPU_ACCELERATION
       
       iUserDataOffset += iNData;
