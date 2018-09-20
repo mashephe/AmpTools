@@ -342,6 +342,7 @@ GPUManager::calcAmplitudeAll( const Amplitude* amp, unsigned long long offset,
   // if this is not true, AmplitudeManager hasn't been setup properly
   assert( permItr->size() == m_iNParticles );
   
+  unsigned long long udLocalOffset = 0;
   unsigned long long permOffset = 0;
   for( ; permItr != pvPermutations->end(); ++permItr ){
     
@@ -355,7 +356,7 @@ GPUManager::calcAmplitudeAll( const Amplitude* amp, unsigned long long offset,
     // operation of both real and complex parts at once
     
     amp->calcAmplitudeGPU( dimGrid, dimBlock, m_pfDevData,
-                           &m_pfDevUserData[iUserDataOffset+permOffset/2],
+                           &m_pfDevUserData[iUserDataOffset+udLocalOffset],
                           (WCUComplex*)&m_pcDevCalcAmp[offset+permOffset],
                            m_piDevPerm, m_iNParticles, m_iNEvents,
                            *permItr );
@@ -372,6 +373,7 @@ GPUManager::calcAmplitudeAll( const Amplitude* amp, unsigned long long offset,
     // increment the offset so that we place the computation for the
     // next permutation after the previous in pcResAmp
     permOffset += 2 * m_iNEvents;
+    udLocalOffset += amp->numUserVars() * m_iNEvents;
   }    
 }
 
