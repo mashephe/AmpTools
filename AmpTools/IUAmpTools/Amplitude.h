@@ -306,8 +306,8 @@ public:
    * for a set of four-vectos that describe the event kinematics.  
    * 
    * For the user to utilize user-defiend data in the amplitude calculation,
-   * this function must be overridden by the derived class.  If it is not
-   * overridden, it defaults....
+   * this function must be overridden by the derived class.  Either this function
+   * or the function above must be defined for any Amplitude class.
    *
    * \param[in] pKin a pointer to a single event.  pKin[0][0-3] define E, px,
    * py, pz for the first particle, pKin[1][0-3] for the second, and so on

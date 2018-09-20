@@ -174,13 +174,22 @@ Amplitude::calcAmplitude( const Kinematics* pKin, GDouble* userData ) const {
 complex< GDouble >
 Amplitude::calcAmplitude( GDouble** pKin, GDouble* userData ) const {
   
-  // if we end up here, then it looks like the user intended to
-  // use some data in the computation (the userData pointer is
-  // non-zero) but the user has not overridden the calcAmplitude
-  // function to use that data.  We should probably print an
-  // error and quit.
-  
-  cout << "Whoops!" << endl;
+  cout
+  << "***********************************************************"
+  << "ERROR in the construction of the class that defines\n"
+  << "the Amplitude named " << name() << ".\n"
+  << "One of the following two cases result in this error.\n"
+  << "(1) The numUserVars() method of the class indicates that\n"
+  << "    at least one user-defined variable will be calculated,\n"
+  << "    but the calcAmplitude method hasn't been defined such\n"
+  << "    that it can accept a pointer to the user-defined data\n"
+  << "    block.  Please define the function:\n"
+  << "      " << name() << "::\n"
+  << "         calcAmplitude( GDouble** pKin, GDouble* userData )\n"
+  << "(2) No calcAmplitude function (with or without user data\n"
+  << "    data pointer is defined in the class.\n"
+  << "***********************************************************"
+  << endl;
   
   assert( false );
   
@@ -188,10 +197,18 @@ Amplitude::calcAmplitude( GDouble** pKin, GDouble* userData ) const {
 
 complex< GDouble >
 Amplitude::calcAmplitude( GDouble** pKin ) const {
+
+  // It is possible to end up here if the user has
+  // defined calcAmplitude such that it takes two
+  // arguments and the number of user variables
+  // to calculate is zero. (This is the else clause
+  // in the next method.)  In this case try to call
+  // the user's calcAmplitude function by passing
+  // in a NULL pointer to the user data block.
+  // If that isn't defined either then the error
+  // above will print and the program will exit.
   
-  cout << "No calcamplitude defined" << endl;
-  
-  assert( false );
+  return calcAmplitude( pKin, NULL );
 }
 
 
@@ -229,7 +246,10 @@ Amplitude::calcAmplitude( const Kinematics* pKin,
   }
   else{
 
-    value = calcAmplitude( pData, userData );
+    // this call should ensure backwards compatibility with
+    // older Amplitude classes that just took one argument
+    
+    value = calcAmplitude( pData );
   }
   
   for (int i = 0; i < particleList.size(); i++){
