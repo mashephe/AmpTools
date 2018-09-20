@@ -159,7 +159,7 @@ GPUManager::~GPUManager()
 // Initialization routines:
 
 void 
-GPUManager::init( const AmpVecs& a, bool use4Vecs )
+GPUManager::init( const AmpVecs& a, bool use4Vectors )
 {
   clearAll();
     
@@ -189,7 +189,7 @@ GPUManager::init( const AmpVecs& a, bool use4Vecs )
   totalMemory += m_iVArrSize;
   totalMemory += 4 * m_iEventArrSize;
   totalMemory += m_iNUserVars * m_iEventArrSize;
-  if( useRawData ) totalMemory += 4 * m_iNParticles * m_iEventArrSize;
+  if( use4Vectors ) totalMemory += 4 * m_iNParticles * m_iEventArrSize;
   totalMemory += m_iNParticles * sizeof( int );
   totalMemory += a.m_maxFactPerEvent * m_iEventArrSize;
   totalMemory += m_iAmpArrSize;
