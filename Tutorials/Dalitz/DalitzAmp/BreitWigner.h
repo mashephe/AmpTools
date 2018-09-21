@@ -61,7 +61,6 @@ public:
 #ifdef GPU_ACCELERATION
 
   void launchGPUKernel( dim3 dimGrid, dim3 dimBlock, GPU_AMP_PROTO ) const;
-
   bool isGPUEnabled() const { return true; }
 
 #endif // GPU_ACCELERATION
