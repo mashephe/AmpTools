@@ -72,7 +72,7 @@ public:
    * this constructor.
    */
   UserAmplitude< T >( const vector< string >& args ) :
-  Amplitude( args ), m_dataCache = NULL { }
+  Amplitude( args ), m_dataCache( NULL ) { }
   
   
   /**
@@ -130,7 +130,7 @@ void UserAmplitude<T>::calcUserData( GDouble** pKin, GDouble* userData ) const {
   if( containsFreeParameters() || isGPUEnabled() ){
     
     // just pass the call through and return
-    T::calcUserData( pKin, userData );
+    dynamic_cast< const T* >(this)->calcUserData( pKin, userData );
     return;
   }
   
@@ -140,7 +140,7 @@ void UserAmplitude<T>::calcUserData( GDouble** pKin, GDouble* userData ) const {
   // and storing the result as user data and reading it back
   // with a standardized GPU amplitude kernel
   
-  unsigned int numVars = T::numUserVars();
+  unsigned int numVars = dynamic_cast< const T* >(this)->numUserVars();
   
   if( m_dataCache == NULL ){
     
@@ -151,13 +151,15 @@ void UserAmplitude<T>::calcUserData( GDouble** pKin, GDouble* userData ) const {
   
   if( numVars > 0 ){
    
-    T::calcUserData( pKin, m_dataCache );
+    dynamic_cast< const T* >(this)->calcUserData( pKin, m_dataCache );
     result = calcAmplitude( pKin, m_dataCache );
   }
   else{
     
     result = calcAmplitude( pKin );
   }
+
+  cout << result << endl;
   
   // and store the result as user data in the framework
   
@@ -168,15 +170,15 @@ void UserAmplitude<T>::calcUserData( GDouble** pKin, GDouble* userData ) const {
 template< class T >
 unsigned int UserAmplitude<T>::numUserVars() const {
   
-  return (constainsFreeParameters() || isGPUEnabled() ?
-          T::numUserVars() : 2 );
+  return ( containsFreeParameters() || isGPUEnabled() ?
+	   dynamic_cast< const T* >(this)->numUserVars() : 2 );
 }
 
 template< class T >
 bool UserAmplitude<T>::needsUserDataOnly() const {
   
-  return (constainsFreeParameters() || isGPUEnabled() ?
-          T::needsUserDataOnly() : true );
+  return (containsFreeParameters() || isGPUEnabled() ?
+          dynamic_cast< const T* >(this)->needsUserDataOnly() : true );
 }
 
 #endif // GPU_ACCELERATION

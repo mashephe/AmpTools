@@ -41,7 +41,7 @@
 
 
 __global__ void
-AmpCopy_kernel( GPU_AMP_PROTO, GDouble mass0, GDouble width0 ){
+AmpCopy_kernel( GPU_AMP_PROTO ){
 
   int iEvent = GPU_THIS_EVENT;
 
