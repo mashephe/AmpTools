@@ -106,9 +106,7 @@ AmpToolsInterface::resetConfigurationInfo(ConfigurationInfo* configurationInfo){
       ampMan->registerAmplitudeFactor( *m_userAmplitudes[i] );
     }
     ampMan->setupFromConfigurationInfo( m_configurationInfo );
-    if( m_functionality == kFull ) ampMan->setOptimizeParIteration( true );
     m_intensityManagers.push_back(ampMan);
-    
   }
   
   if( m_functionality == kFull ){
