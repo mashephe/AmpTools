@@ -50,6 +50,7 @@
 AmplitudeManager::AmplitudeManager( const vector< string >& reaction,
                                     const string& reactionName) :
 IntensityManager( reaction, reactionName ),
+m_optimizeParIteration( false ),
 m_needsUserDataOnly( true )
 {
   cout << endl << "## AMPLITUDE MANAGER INITIALIZATION ##" << endl;
@@ -382,7 +383,7 @@ AmplitudeManager::calcTerms( AmpVecs& a ) const
       // are the same as they were the last time they were evaluated
       // for this particular dataset -- if not, recalculate
 
-      if( !( a.m_termsValid &&
+      if( !( a.m_termsValid && m_optimizeParIteration &&
             m_dataAmpIteration[&a][pCurrAmp] == m_ampIteration[pCurrAmp] ) ){
 
         recalculateFactors = true;

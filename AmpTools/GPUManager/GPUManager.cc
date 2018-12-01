@@ -196,7 +196,7 @@ GPUManager::init( const AmpVecs& a, bool use4Vectors )
 
   totalMemory /= (1024*1024);
   
-  cout << "Attempting to allocate " << (int)totalMemory << " MB of global GPU memory." << endl;
+  cout << "Attempting to allocate " << totalMemory << " MB of global GPU memory." << endl;
   
   // device memory needed for intensity or integral calculation and sum
   gpuErrChk( cudaMalloc( (void**)&m_pfDevVVStar  , m_iVArrSize       ) ) ;
@@ -306,7 +306,7 @@ GPUManager::copyAmpsFromGPU( AmpVecs& a )
 {
 
 #ifdef VTRACE
-  VT_TRACER( "GPUManager::copyAmpsFromGPU" );
+  VT_TRACER( "GPUManager::copyAmpsToGPU" );
 #endif
   
   // this array is not allocated by default on GPU enabled code

@@ -273,15 +273,7 @@ Amplitude::calcAmplitudeGPU( dim3 dimGrid, dim3 dimBlock, GPU_AMP_PROTO,
 #endif
 
   m_currentPermutation = perm;
-  
-  if( isGPUEnabled() ){
-  
-    launchGPUKernel( dimGrid, dimBlock, GPU_AMP_ARGS );
-  }
-  else{
-    
-    AmpCopy_exec( dimGrid,  dimBlock, GPU_AMP_ARGS );
-  }
+  launchGPUKernel( dimGrid, dimBlock, GPU_AMP_ARGS );
 }
 #endif
 
