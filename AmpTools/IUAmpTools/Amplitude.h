@@ -50,6 +50,7 @@
 #include "cuda_runtime.h"
 #include "GPUManager/CUDA-Complex.cuh"
 class GPUManager;
+void AmpCopy_exec( dim3 dimGrid, dim3 dimBlock, GPU_AMP_PROTO);
 #endif //GPU_ACCELERATION
 
 using std::complex;
@@ -433,6 +434,14 @@ public:
     cout << "\nNo GPU function for calculating " << name() << " is defined." << endl;
     assert( false );
   }
+  
+  /**
+   * If AmpTools is compiled with GPU support, then every amplitude must
+   * define this function so the framework has the ability to determine
+   * which amplitudes have GPU execution kernels that are written for them.
+   */
+  
+  virtual bool isGPUEnabled() const = 0;
   
 #endif //GPU_ACCELERATION
   

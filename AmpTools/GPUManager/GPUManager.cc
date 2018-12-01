@@ -306,7 +306,7 @@ GPUManager::copyAmpsFromGPU( AmpVecs& a )
 {
 
 #ifdef VTRACE
-  VT_TRACER( "GPUManager::copyAmpsToGPU" );
+  VT_TRACER( "GPUManager::copyAmpsFromGPU" );
 #endif
   
   // this array is not allocated by default on GPU enabled code
