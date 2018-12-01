@@ -516,7 +516,7 @@ AmplitudeManager::calcIntensities( AmpVecs& a ) const
   // log( intensity ) calculation.
   
 #ifdef GPU_ACCELERATION
-  a.allocateCPUAmpStorage( *this );
+  if( a.m_pdAmps == NULL ) a.allocateCPUAmpStorage( *this );
   a.m_gpuMan.copyAmpsFromGPU( a );
 #endif
 
