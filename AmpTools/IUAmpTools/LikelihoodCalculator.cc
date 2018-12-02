@@ -164,6 +164,20 @@ LikelihoodCalculator::normIntTerm(){
       
     case IntensityManager::kPDF:
       
+      for( int a = 0; a < n; ++a ){
+      
+        double thisTerm = 0;
+        
+        thisTerm += m_prodFactorArray[2*a] * m_normIntArray[2*a*n+2*a];
+        
+        if( renormalize ){
+          
+          thisTerm /= m_ampIntArray[2*a*n+2*a];
+        }
+        
+        normTerm += thisTerm;
+      }
+      
       break;
       
     default:
