@@ -54,7 +54,7 @@ class IntensityManager {
 
 public:
   
-  enum Type { kAmplitude, kMoment };
+  enum Type { kAmplitude, kPDF };
   
   IntensityManager( const vector< string >& reaction,
                     const string& reactionName);

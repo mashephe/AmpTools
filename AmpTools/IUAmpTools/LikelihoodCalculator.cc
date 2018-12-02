@@ -162,7 +162,7 @@ LikelihoodCalculator::normIntTerm(){
       }
       break;
       
-    case IntensityManager::kMoment:
+    case IntensityManager::kPDF:
       
       break;
       

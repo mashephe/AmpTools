@@ -72,13 +72,13 @@ using namespace std;
  * \ingroup IUAmpTools
  */
 
-class MomentManager : public IntensityCalculator
+class PDFManager : public IntensityCalculator
 {
   
 public:
   
   /** Constructor.
-   * Constructs an MomentManager
+   * Constructs a PDFManager
    *
    * \param[in] finalState a vector of strings, one to identify each final state
    * argument.  Particles with identical string identifiers will be automatically
@@ -89,12 +89,12 @@ public:
    * \see getPermutations
    * \see addAmpPermutation
    */
-  MomentManager( const vector< string >& finalState,
-                 const string& reactionName = "");
+  PDFManager( const vector< string >& finalState,
+             const string& reactionName = "");
   
   /** Destructor.
    */
-  ~MomentManager();
+  ~PDFManager();
   
   
 private:
