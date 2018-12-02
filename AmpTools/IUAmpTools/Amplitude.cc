@@ -41,7 +41,6 @@
 #include <sstream>
 
 #include "IUAmpTools/Amplitude.h"
-#include "IUAmpTools/AmpParameter.h"
 #include "IUAmpTools/Kinematics.h"
 
 #ifdef VTRACE
@@ -162,7 +161,6 @@ Amplitude::calcAmplitude( const Kinematics* pKin, const vector< int >& permutati
   
 }
 
-
 #ifdef GPU_ACCELERATION 
 void
 Amplitude::calcAmplitudeGPU( dim3 dimGrid, dim3 dimBlock, GPU_AMP_PROTO,
@@ -177,108 +175,4 @@ Amplitude::calcAmplitudeGPU( dim3 dimGrid, dim3 dimBlock, GPU_AMP_PROTO,
   launchGPUKernel( dimGrid, dimBlock, GPU_AMP_ARGS );
 }
 #endif
-
-
-bool
-Amplitude::containsFreeParameters() const {
-  
-  bool hasFreeParam = false;
-  
-  for( vector< AmpParameter* >::const_iterator parItr = m_registeredParams.begin();
-      parItr != m_registeredParams.end();
-      ++parItr ){
-    
-    if( (**parItr).hasExternalPtr() ) hasFreeParam = true;
-  }
-  
-  return hasFreeParam;
-}
-
-bool
-Amplitude::setParPtr( const string& name, const double* ptr ) const {
-  
-  bool foundPar = false;
-  
-  for( vector< AmpParameter* >::const_iterator parItr = m_registeredParams.begin();
-      parItr != m_registeredParams.end();
-      ++parItr ){
-    
-    if( (**parItr).name().compare( name ) == 0 ){
-      
-      foundPar = true;
-      (**parItr).setExternalValue( ptr );
-      
-      // pass in the name here to
-      // use the const member function here so we only have one const-cast
-      // that calls the non-const user function
-      updatePar( (**parItr).name() );
-    }
-  }
-  
-  return foundPar;
-}
-
-bool
-Amplitude::setParValue( const string& name, double val ) const {
-  
-  bool foundPar = false;
-  
-  for( vector< AmpParameter* >::const_iterator parItr = m_registeredParams.begin();
-      parItr != m_registeredParams.end();
-      ++parItr ){
-    
-    if( (**parItr).name().compare( name ) == 0 ){
-      
-      foundPar = true;
-      (**parItr).setValue( val );
-      
-      // pass in the name here to
-      // use the const member function here so we only have one const-cast
-      // that calls the non-const user function
-      updatePar( (**parItr).name() );
-    }
-  }
-  
-  return foundPar;
-}
-
-bool
-Amplitude::updatePar( const string& name ) const {
-  
-#ifdef VTRACE
-  string info = (*this).name();
-  info += "::updatePar [";
-  info += name.c_str();
-  info += "]";
-  VT_TRACER( info.c_str() );
-#endif
-
-  
-  bool foundPar = false;
-  
-  for( vector< AmpParameter* >::const_iterator parItr = m_registeredParams.begin();
-      parItr != m_registeredParams.end();
-      ++parItr ){
-    
-    if( (**parItr).name().compare( name ) == 0 ){
-      
-      // The const_cast is a little bit undesirable here.  It can be removed
-      // at the expensive of requiring the user to declare all member data in
-      // the Amplitude class that is updated on a parameter update "mutable."
-      // Since we are trying to maximize user-friendliness, for now we will
-      // remove this potential annoyance.
-      
-      const_cast< Amplitude* >(this)->updatePar( **parItr );
-      foundPar = true;
-    }
-  }
-  
-  return foundPar;
-}
-
-void
-Amplitude::registerParameter( AmpParameter& par ){
-  
-  m_registeredParams.push_back( &par );
-}
 
