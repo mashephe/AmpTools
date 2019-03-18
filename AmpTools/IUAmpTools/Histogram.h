@@ -50,8 +50,8 @@ struct HistStruct {
 	float xLow,xHigh;
 	float yLow,yHigh;
 	float entries;
-	float contents[MAXBINS];
-  float sumW2[MAXBINS];
+	float contents[MAXBINS]; //this is the sum of weights
+	float sumw2[MAXBINS];   //this is the sum of weights squared
 };
 
 
@@ -66,6 +66,7 @@ public:
 	/*Pure virtual methods*/
 	virtual void fill( vector< double > value, double weight = 1.0 )= 0;
 	
+
 	virtual TH1* toRoot() const=0;
 	virtual HistStruct toStruct() const=0;
 	virtual Histogram* Clone() const=0;
@@ -87,8 +88,8 @@ protected:
   double m_xHigh;
   
   double m_entries;
-  vector< double > m_binContents;  // this is the sum of the weights
-  vector< double > m_sumWeightSq;
+  vector< double > m_binContents;
+  vector< double > m_squareOfWeights;
   double m_binSizeX;
 	
   int m_dimensions;
