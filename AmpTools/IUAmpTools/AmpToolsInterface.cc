@@ -101,14 +101,27 @@ AmpToolsInterface::resetConfigurationInfo(ConfigurationInfo* configurationInfo){
     ReactionInfo* reaction = m_configurationInfo->reactionList()[irct];
     string reactionName(reaction->reactionName());
 
-    AmplitudeManager* ampMan = new AmplitudeManager(reaction->particleList(),reactionName);
-    for (unsigned int i = 0; i < m_userAmplitudes.size(); i++){
-      ampMan->registerAmplitudeFactor( *m_userAmplitudes[i] );
+    // if( reaction->fitTyep() = IntensityManager::kAmplitude ){
+    if( false ){
+    
+      AmplitudeManager* ampMan = new AmplitudeManager(reaction->particleList(),reactionName);
+      for (unsigned int i = 0; i < m_userAmplitudes.size(); i++){
+        ampMan->registerAmplitudeFactor( *m_userAmplitudes[i] );
+      }
+      ampMan->setupFromConfigurationInfo( m_configurationInfo );
+      if( m_functionality == kFull ) ampMan->setOptimizeParIteration( true );
+      m_intensityManagers.push_back(ampMan);
     }
-    ampMan->setupFromConfigurationInfo( m_configurationInfo );
-    if( m_functionality == kFull ) ampMan->setOptimizeParIteration( true );
-    m_intensityManagers.push_back(ampMan);
-
+    else{
+      
+      PDFManager* pdfMan = new PDFManager(reaction->particleList(),reactionName);
+      for (unsigned int i = 0; i < m_userPDFs.size(); i++){
+        pdfMan->registerPDFFactor( *m_userPDFs[i] );
+      }
+      pdfMan->setupFromConfigurationInfo( m_configurationInfo );
+      if( m_functionality == kFull ) pdfMan->setOptimizeParIteration( true );
+      m_intensityManagers.push_back(pdfMan);
+    }
   }
 
   if( m_functionality == kFull ){
