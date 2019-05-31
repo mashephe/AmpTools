@@ -263,6 +263,12 @@ struct AmpVecs
    * contents (data and amplitudes) of AmpVecs
    */
   void deallocAmpVecs();
+  
+  /**
+   * This clears only the four vectors from memory.  It can be used
+   * in the case all amplitudes depend only on user data.
+   */
+  void clearFourVecs();
 };
 
 #endif 

@@ -132,6 +132,14 @@ AmpVecs::deallocAmpVecs()
 }
 
 void
+AmpVecs::clearFourVecs(){
+  
+  if(m_pdData)
+    delete[] m_pdData;
+  m_pdData=0;
+}
+
+void
 AmpVecs::loadEvent( const Kinematics* pKinematics, unsigned long long iEvent,
                     unsigned long long iNTrueEvents, bool bForceNegativeWeight ){
   

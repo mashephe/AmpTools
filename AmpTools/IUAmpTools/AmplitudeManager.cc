@@ -325,8 +325,11 @@ AmplitudeManager::calcTerms( AmpVecs& a ) const
   
   // on the first pass through this data set be sure to calculate
   // the user data first, if needed, before doing term calculations
-  if( !a.m_termsValid && a.m_userVarsPerEvent > 0 ) calcUserData( a );
-  
+  if( !a.m_termsValid && a.m_userVarsPerEvent > 0 ){
+    
+    calcUserData( a );
+    if( m_needsUserDataOnly ) a.clearFourVecs();
+  }
   bool modifiedTerm = false;
   
   const vector< string >& ampNames = getTermNames();
