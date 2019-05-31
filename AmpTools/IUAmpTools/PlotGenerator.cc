@@ -158,7 +158,7 @@ m_histTitles( 0 )
 
 /*Empty constructor to contain histograms during event generation*/
 PlotGenerator::PlotGenerator( ) :
-m_fitResults( FitResults() ),
+m_fitResults( *( new FitResults() ) ),
 m_histVect( 0 ),
 m_histTitles( 0 ),
 m_currentEventWeight( 1 )

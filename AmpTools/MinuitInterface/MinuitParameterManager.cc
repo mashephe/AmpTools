@@ -141,8 +141,8 @@ MinuitParameterManager::synchronizeMinuit()
     // make sure that minuit has all of its parameters held fixed as necessary
     // Note: a positive minuitVariableId => minuit considers the parameter floating
     if ( ! parameter->floating() ) {
-      cout << "Need to fix parameter " << minuitId << " MinuitVariableId = " 
-      << minuitVariableId << endl;
+//      cout << "Need to fix parameter " << minuitId << " MinuitVariableId = "
+//      << minuitVariableId << endl;
       if ( minuitVariableId > 0 ) {
         theMinimizer.FixParameter( minuitId );
       }
