@@ -145,7 +145,13 @@ Amplitude::calcAmplitudeAll( GDouble* pdData, GDouble* pdAmps, int iNEvents,
       
       unsigned int userIndex = iNEvents*iPermutation*numVars + iEvent*numVars;
 
-      cRes = calcAmplitude( pKin, &(pdUserData[userIndex]) );
+      if( pdUserData != NULL ){
+      
+        cRes = calcAmplitude( pKin, &(pdUserData[userIndex]) );
+      }
+      else{
+        cRes = calcAmplitude( pKin );
+      }
       
       pdAmps[2*iNEvents*iPermutation+2*iEvent] = cRes.real();
       pdAmps[2*iNEvents*iPermutation+2*iEvent+1] = cRes.imag();
@@ -175,20 +181,20 @@ complex< GDouble >
 Amplitude::calcAmplitude( GDouble** pKin, GDouble* userData ) const {
   
   cout
-  << "***********************************************************"
+  << "***********************************************************\n"
   << "ERROR in the construction of the class that defines\n"
   << "the Amplitude named " << name() << ".\n"
-  << "One of the following two cases result in this error.\n"
+  << "One of the following two cases result in this error.\n\n"
   << "(1) The numUserVars() method of the class indicates that\n"
   << "    at least one user-defined variable will be calculated,\n"
   << "    but the calcAmplitude method hasn't been defined such\n"
   << "    that it can accept a pointer to the user-defined data\n"
   << "    block.  Please define the function:\n"
   << "      " << name() << "::\n"
-  << "         calcAmplitude( GDouble** pKin, GDouble* userData )\n"
+  << "         calcAmplitude( GDouble** pKin, GDouble* userData )\n\n"
   << "(2) No calcAmplitude function (with or without user data\n"
   << "    data pointer is defined in the class.\n"
-  << "***********************************************************"
+  << "***********************************************************\n"
   << endl;
   
   assert( false );
