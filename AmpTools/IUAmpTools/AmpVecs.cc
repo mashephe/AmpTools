@@ -268,7 +268,14 @@ AmpVecs::allocateTerms( const IntensityManager& intenMan, bool bAllocIntensity )
     m_pdIntensity = new GDouble[m_iNEvents];
   }
   
-  m_pdUserData = new GDouble[m_iNEvents * m_userVarsPerEvent];
+  if( m_userVarsPerEvent > 0 ){
+    
+    // if there is no user data, we need pdUserData to be NULL
+    // in order to ensure backwards compatibility with older
+    // amplitude definitions
+    
+    m_pdUserData = new GDouble[m_iNEvents * m_userVarsPerEvent];
+  }
   
 #ifndef GPU_ACCELERATION
   
