@@ -57,6 +57,7 @@ Amplitude::identifier() const {
       arg != m_args.end(); ++arg ){
     
     id += *arg;
+    id += " ";
   }
   
   return id;
