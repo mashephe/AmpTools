@@ -47,7 +47,7 @@ using namespace std;
  * This class handles the creation and cloning of the user's amplitudes.
  *
  * It is intended that the user writes a functional amplitude that
- * inherits from this class (and thus the Amplitude base class through this 
+ * inherits from this class (and thus the Amplitude base class through this
  * class) and also defines the necessary virtual member functions.
  *
  * \ingroup IUAmpTools
@@ -56,45 +56,60 @@ using namespace std;
 template< class T >
 class UserAmplitude : public Amplitude
 {
-
+  
 public:
-
+  
   /**
    * This is the default constructor.  It should be called in the default
    * constructor of the user's derived class.
    */
-        UserAmplitude< T >() : Amplitude() { }
-
-
+  UserAmplitude< T >() : Amplitude() { }
+  
+  
   /**
    * This constructor takes a list of arguments and stores them.  There should
    * be a corresponding constructor in the user's derived class that calls
    * this constructor.
    */
-        UserAmplitude< T >( const vector< string >& args ) : Amplitude( args ) { }
-
-
+  UserAmplitude< T >( const vector< string >& args ) : Amplitude( args ) { }
+  
+  
   /**
    * This is the destructor.
    */
-        virtual ~UserAmplitude< T >() { }
-
-
+  virtual ~UserAmplitude< T >() { }
+  
+  
   /**
    * This method can create a new amplitude (of the derived type).
    */
-        Amplitude* newAmplitude( const vector< string >& args ) const{
-          return new T( args );
-        }
-
-
+  Amplitude* newAmplitude( const vector< string >& args ) const{
+    return new T( args );
+  }
+  
+  
   /**
    * This method can create a clone of an amplitude (of the derived type).
+   * First check to see if an existing instance will function in exactly
+   * the same way (has the same arguments).  If it will, use that,
+   * otherwise make a new one and save it.
    */
-        Amplitude* clone() const{
-          return ( isDefault() ? new T() : new T( arguments() ) );
-        }
-
+  Amplitude* clone() const {
+    
+    if( isDefault() ) return new T();
+    
+    if( m_ampInstances.find( identifier() ) == m_ampInstances.end() ){
+      
+      m_ampInstances[identifier()] = new T( arguments() );
+    }
+    
+    return m_ampInstances[identifier()];
+  }
+  
+private:
+  
+  mutable map< string, T* > m_ampInstances;
+  
 };
 
 #endif

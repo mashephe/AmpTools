@@ -37,8 +37,10 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
-
 #include <string.h>
+#include <set>
+
+using namespace std;
 
 #include "IUAmpTools/AmplitudeManager.h"
 #include "IUAmpTools/NormIntInterface.h"
@@ -190,6 +192,9 @@ AmplitudeManager::termStoragePerEvent() const {
 unsigned int
 AmplitudeManager::userVarsPerEvent() const {
   
+  set< string > countedStaticAmps;
+  set< string > countedUniqueAmps;
+  
   vector< string > ampNames = getTermNames();
   
   unsigned int userStorage = 0;
@@ -201,9 +206,30 @@ AmplitudeManager::userVarsPerEvent() const {
       m_mapNameToAmps.find( ampNames[i] )->second;
 
     for( int j = 0; j < factorVec.size(); ++j ){
+
+      if( factorVec[j]->isUserDataStatic() ){
+       
+        // for factors that have static data, we only want to
+        // count the allocation once -- if we have counted
+        // it already then skip to the next factor
+        if( countedStaticAmps.find( factorVec[j]->name() ) ==
+            countedStaticAmps.end() )
+          countedStaticAmps.insert( factorVec[j]->name() );
+        else continue;
+      }
+      else{
+        // user data is not static, so
+        // check to see if we have seen an instance of this
+        // same amplitude that would behave in the same way
+        // (i.e., has the same arguments) and if it exists, we
+        // will use user data block from it instead
+        if( countedUniqueAmps.find( factorVec[j]->identifier() ) ==
+           countedUniqueAmps.end() )
+          countedUniqueAmps.insert( factorVec[j]->identifier() );
+          else continue;
+      }
       
       userStorage += iNPermutations * factorVec[j]->numUserVars();
-    
     }
   }
   
@@ -258,6 +284,35 @@ AmplitudeManager::calcUserData( AmpVecs& a ) const
     for( iFactor=0; iFactor < iNFactors; iFactor++ ){
       
       pCurrAmp = vAmps.at( iFactor );
+      
+      if( pCurrAmp->isUserDataStatic() ){
+        if( !pCurrAmp->staticUserDataCalculated( a.m_pdData ) ){
+          
+          // if the static user data has not been calculated, record the
+          // location in user data bank where it will end up
+          // note that this offset is valid on both the CPU
+          // and the GPU as GPU ordering only affects user
+          // data variables within a factor
+          a.m_staticUserDataOffset[pCurrAmp->name()] = iUserDataOffset;
+        }
+        // if we have static data and it has been calculated
+        // then skip this amplitude factor
+        else continue;
+      }
+      else{
+        
+        // we don't have static user data so check and see
+        // if this instances of this amplitude has calculated
+        // user data for this data set
+        if( !pCurrAmp->userDataCalculated( a.m_pdData ) ){
+        
+          // likewise record where user data will end up
+          // for all amplitudes that have the same identifier
+          // (arguments) as this one
+          a.m_userDataOffset[pCurrAmp->identifier()] = iUserDataOffset;
+        }
+        else continue;
+      }
       
       int iNVars = pCurrAmp->numUserVars();
       int iNData = iNVars * a.m_iNEvents * iNPerms;
@@ -330,6 +385,7 @@ AmplitudeManager::calcTerms( AmpVecs& a ) const
     calcUserData( a );
     if( m_needsUserDataOnly ) a.clearFourVecs();
   }
+  
   bool modifiedTerm = false;
   
   const vector< string >& ampNames = getTermNames();
@@ -372,13 +428,8 @@ AmplitudeManager::calcTerms( AmpVecs& a ) const
 
     const Amplitude* pCurrAmp = 0;
     
-    // need to track the number of user variables summed over all
-    // factors in this amplitude so we can increment the user data
-    // array in case we don't recalculate this amplitude
-    int thisAmpUserVars = 0;
-    
     for( iFactor=0; iFactor < iNFactors; iFactor++ ){
-    
+      
       pCurrAmp = vAmps.at( iFactor );
       
       // now check to see if the value of this amplitudes parameters
@@ -391,15 +442,9 @@ AmplitudeManager::calcTerms( AmpVecs& a ) const
         recalculateFactors = true;
         m_dataAmpIteration[&a][pCurrAmp] = m_ampIteration[pCurrAmp];
       }
-      
-      thisAmpUserVars += pCurrAmp->numUserVars();
     }
     
-    if( !recalculateFactors ){
-     
-      iUserDataOffset += thisAmpUserVars * a.m_iNEvents * iNPermutations;
-      continue;
-    }
+    if( !recalculateFactors ) continue;
     
     // if we get to here, we are changing the stored factors of the
     // amplitude
@@ -414,16 +459,23 @@ AmplitudeManager::calcTerms( AmpVecs& a ) const
       
       pCurrAmp = vAmps.at( iFactor );
       
+      // if we have static user data, look up the location in the data array
+      // if not, then look up by identifier
+      unsigned long long uOffset =
+      ( pCurrAmp->isUserDataStatic() ?
+        a.m_staticUserDataOffset[pCurrAmp->name()] :
+        a.m_userDataOffset[pCurrAmp->identifier()] );
+      
 #ifndef GPU_ACCELERATION
       pCurrAmp->
       calcAmplitudeAll( a.m_pdData,
                         a.m_pdAmpFactors + iLocalOffset,
                         a.m_iNEvents, &vvPermuations,
-                        a.m_pdUserData + iUserDataOffset );
+                        a.m_pdUserData + uOffset );
 #else
       a.m_gpuMan.calcAmplitudeAll( pCurrAmp, iLocalOffset,
                                    &vvPermuations,
-                                   iUserDataOffset );
+                                   uOffset );
 #endif//GPU_ACCELERATION
       
       iUserDataOffset += pCurrAmp->numUserVars() * a.m_iNEvents * iNPermutations;

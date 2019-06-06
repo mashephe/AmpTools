@@ -48,6 +48,20 @@
 #include "vt_user.h"
 #endif
 
+string
+Amplitude::identifier() const {
+  
+  string id = name();
+  
+  for( vector< string >::const_iterator arg = m_args.begin();
+      arg != m_args.end(); ++arg ){
+    
+    id += *arg;
+  }
+  
+  return id;
+}
+
 void
 Amplitude::calcUserDataAll( GDouble* pdData, GDouble* pdUserData, int iNEvents,
                             const vector< vector< int > >* pvPermutations ) const
@@ -58,6 +72,8 @@ Amplitude::calcUserDataAll( GDouble* pdData, GDouble* pdUserData, int iNEvents,
   info += "::calcUserDataAll";
   VT_TRACER( info.c_str() );
 #endif
+  
+//  cout << "Caculating user data for " << name() << endl;
   
   unsigned int numVars = numUserVars();
   
@@ -96,9 +112,16 @@ Amplitude::calcUserDataAll( GDouble* pdData, GDouble* pdUserData, int iNEvents,
     }
   }
   
+  // if the user data is static, add a pointer to the data set for
+  // which we just did the calculation;  that we know later
+  // whether it has been calculated
+  if( isUserDataStatic() ) m_staticUserDataCalculated.insert( pdData );
+  m_userDataCalculated.insert( pdData );
+  
   delete[] pKin;
 }
 
+set< GDouble* > Amplitude::m_staticUserDataCalculated = set< GDouble* >();
 
 void 
 Amplitude::calcAmplitudeAll( GDouble* pdData, GDouble* pdAmps, int iNEvents,

@@ -42,6 +42,7 @@
 #include <vector>
 #include <string>
 #include <cassert>
+#include <set>
 
 #include "IUAmpTools/Kinematics.h"
 #include "GPUManager/GPUCustomTypes.h"
@@ -118,6 +119,14 @@ public:
    * instances when the AmplitudeManager is being setup.
    */
   virtual string name() const = 0;
+  
+  /**
+   * This method returns a string that uniquely identifies the instance
+   * of the amplitude.  It is the amplitude name and all the arguments
+   * concatenated together.  Every amplitude with the same identifier
+   * should behave the same way.
+   */
+  string identifier() const;
   
   /**
    * Returns a boolean to indicate if this amplitude contains at least one
@@ -370,11 +379,6 @@ public:
    * each event and each permutation of particles.  These may be expensive
    * quantities computed from kinematics that remain fixed for subsequent
    * amplitude calculations and hence caching them will expedite the fit.  
-   
-   * The function is virtual since, in principle, the user may choose 
-   * to override it and perform the loop and computation
-   * directly and more efficiently than using a separate function call
-   * for each event.
    *
    * \param[in] pdData a pointer to the array of data.  This is a long list
    * of GDoubles E, px, py, pz repeated sequentially for each particle in
@@ -393,8 +397,8 @@ public:
    * \see calcUserData
    */
  
-   virtual void calcUserDataAll( GDouble* pdData, GDouble* pdUserData, int iNEvents,
-                                 const vector< vector< int > >* pvPermutations ) const;
+   void calcUserDataAll( GDouble* pdData, GDouble* pdUserData, int iNEvents,
+                         const vector< vector< int > >* pvPermutations ) const;
   
   /**
    * The user should override this function in order to calculate data
@@ -412,8 +416,33 @@ public:
    */
   
   virtual void calcUserData( GDouble** pKin, GDouble* userData ) const {}
-   
   
+  /**
+   * If the calculated user data is the same for all instances of the
+   * amplitude (i.e. independent of the amplitude arguments) then the
+   * user can override this function and return 'true' to reduce
+   * memory consumption.
+   */
+  virtual bool isUserDataStatic() const { return false; }
+  
+  /**
+   * In the case of static user data, the framework needs to know
+   * if the user data have been calculated yet for a corresponding
+   * set of kinematics.
+   */
+  bool staticUserDataCalculated( GDouble* pdData ) const {
+    return( m_staticUserDataCalculated.find( pdData ) !=
+            m_staticUserDataCalculated.end() ); }
+
+  /**
+   * In the case of user data, the framework needs to know
+   * if the user data have been calculated yet for a corresponding
+   * set of kinematics by this instance of the Amplitude class.
+   */
+  bool userDataCalculated( GDouble* pdData ) const {
+    return( m_userDataCalculated.find( pdData ) !=
+            m_userDataCalculated.end() ); }
+
 #ifdef GPU_ACCELERATION 
   
   /**
@@ -466,6 +495,9 @@ protected:
 private:
   
   bool m_isDefault;
+  
+  static set< GDouble* > m_staticUserDataCalculated;
+  mutable set< GDouble* > m_userDataCalculated;
   
   vector<string> m_args;
   

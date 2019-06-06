@@ -39,9 +39,14 @@
 
 #include "GPUManager/GPUCustomTypes.h"
 
+#include <map>
+#include <string>
+
 #ifdef GPU_ACCELERATION
 #include "GPUManager/GPUManager.h"
 #endif
+
+using namespace std;
 
 class DataReader;
 class IntensityManager;
@@ -164,6 +169,23 @@ struct AmpVecs
    * (set to false) by the AmpVecs class itself.
    */
   bool m_integralValid;
+  
+  /**
+   * This is a map from amplitude name to the location in memory
+   * where static user data for that amplitude exists.  It is
+   * utilized by the AmplitudeManager, but the values are tied
+   * to the data set so it resides in the AmpVecs struct.
+   */
+  map< string, unsigned long long > m_staticUserDataOffset;
+
+  /**
+   * This is a map from amplitude identifer to the location in memory
+   * where user data for that amplitude exists.  It is
+   * utilized by the AmplitudeManager, but the values are tied
+   * to the data set so it resides in the AmpVecs struct.
+   */
+  map< string, unsigned long long > m_userDataOffset;
+
   
 #ifdef GPU_ACCELERATION
   /**
