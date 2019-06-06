@@ -420,7 +420,8 @@ AmplitudeManager::calcTerms( AmpVecs& a ) const
     if( a.m_termsValid && m_vbIsAmpFixed[iAmpIndex] ) continue;
     
     // now figure out if we need to recalculate a factors for an amplitude
-    // in the case we have optimization turned on, we may not have changed
+    // we may not have changed a parameter since the last call to
+    // calcTerms --
     // a parameter in the last iteration that is related to a factor in
     // this amplitude
 
@@ -440,7 +441,6 @@ AmplitudeManager::calcTerms( AmpVecs& a ) const
             m_dataAmpIteration[&a][pCurrAmp] == m_ampIteration[pCurrAmp] ) ){
 
         recalculateFactors = true;
-        m_dataAmpIteration[&a][pCurrAmp] = m_ampIteration[pCurrAmp];
       }
     }
     
@@ -541,7 +541,27 @@ AmplitudeManager::calcTerms( AmpVecs& a ) const
   }
   
   a.m_termsValid = true;
-  
+
+  // finally make a loop and record the iteration of parameters
+  // that was used to make this calculation -- this cannot
+  // be done above because some Amplitude instances may
+  // be reused for a number of amplitudes and it is important
+  // to recalculate all amplitudes that depend on a changed
+  // parameter
+  for( iAmpIndex = 0; iAmpIndex < iNAmps; iAmpIndex++ )
+  {
+    vector< const Amplitude* > vAmps =
+    m_mapNameToAmps.find(ampNames.at(iAmpIndex))->second;
+    
+    int iFactor, iNFactors = vAmps.size();
+    
+    for( iFactor=0; iFactor < iNFactors; iFactor++ ){
+
+      const Amplitude* pCurrAmp = vAmps.at( iFactor );
+      m_dataAmpIteration[&a][pCurrAmp] = m_ampIteration[pCurrAmp];
+    }
+  }
+
   return modifiedTerm;
 }
 
