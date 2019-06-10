@@ -113,7 +113,7 @@ Amplitude::calcUserVarsAll( GDouble* pdData, GDouble* pdUserVars, int iNEvents,
     }
   }
   
-  // if the user data is static, add a pointer to the data set for
+  // if the user variables are static, add a pointer to the data set for
   // which we just did the calculation;  that we know later
   // whether it has been calculated
   if( areUserVarsStatic() ) m_staticUserVarsCalculated.insert( pdData );
