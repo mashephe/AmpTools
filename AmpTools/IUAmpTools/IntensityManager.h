@@ -110,7 +110,7 @@ public:
    * calculations of amplitudes and integrals.
    */
   
-  virtual void calcUserData( AmpVecs& ampVecs ) const = 0;
+  virtual void calcUserVars( AmpVecs& ampVecs ) const = 0;
   
   /**
    * This function caculates the various intensity terms for each data event.
@@ -224,7 +224,7 @@ public:
    * computations.
    */
   
-  virtual bool needsUserDataOnly() const = 0;
+  virtual bool needsUserVarsOnly() const = 0;
   
   /**
    * This returns the internal index of a term.  It is useful for users

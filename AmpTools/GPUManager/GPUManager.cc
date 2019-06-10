@@ -207,7 +207,7 @@ GPUManager::init( const AmpVecs& a, bool use4Vectors )
   
   // allocate device memory needed for amplitude calculations
   if( use4Vectors ) gpuErrChk( cudaMalloc(  (void**)&m_pfDevData    , 4 * m_iNParticles * m_iEventArrSize    ) ) ;
-  gpuErrChk( cudaMalloc(  (void**)&m_pfDevUserData, m_iNUserVars * m_iEventArrSize         ) ) ;
+  gpuErrChk( cudaMalloc(  (void**)&m_pfDevUserVars, m_iNUserVars * m_iEventArrSize         ) ) ;
   gpuErrChk( cudaMalloc(  (void**)&m_piDevPerm    , m_iNParticles * sizeof( int )          ) ) ;
   gpuErrChk( cudaMalloc(  (void**)&m_pcDevCalcAmp , a.m_maxFactPerEvent * m_iEventArrSize  ) ) ;
   gpuErrChk( cudaMalloc(  (void**)&m_pfDevAmps    , m_iAmpArrSize                          ) ) ;
@@ -284,18 +284,18 @@ GPUManager::copyDataToGPU( const AmpVecs& a, bool use4Vectors )
 }
 
 void
-GPUManager::copyUserDataToGPU( const AmpVecs& a )
+GPUManager::copyUserVarsToGPU( const AmpVecs& a )
 {
   
 #ifdef VTRACE
-  VT_TRACER( "GPUManager::copyUserDataToGPU" );
+  VT_TRACER( "GPUManager::copyUserVarsToGPU" );
 #endif
   
   // make sure AmpVecs has been loaded with data
-  assert( a.m_pdUserData );
+  assert( a.m_pdUserVars );
 
   // copy the data into the device
-  gpuErrChk( cudaMemcpy( m_pfDevUserData, a.m_pdUserData,
+  gpuErrChk( cudaMemcpy( m_pfDevUserVars, a.m_pdUserVars,
                         m_iNUserVars * m_iEventArrSize,
                         cudaMemcpyHostToDevice ) );
 }
@@ -325,7 +325,7 @@ GPUManager::copyAmpsFromGPU( AmpVecs& a )
 void 
 GPUManager::calcAmplitudeAll( const Amplitude* amp, unsigned long long offset,
                               const vector< vector< int > >* pvPermutations,
-                              unsigned long long iUserDataOffset )
+                              unsigned long long iUserVarsOffset )
 {
  
 #ifdef VTRACE
@@ -356,7 +356,7 @@ GPUManager::calcAmplitudeAll( const Amplitude* amp, unsigned long long offset,
     // operation of both real and complex parts at once
     
     amp->calcAmplitudeGPU( dimGrid, dimBlock, m_pfDevData,
-                           &m_pfDevUserData[iUserDataOffset+udLocalOffset],
+                           &m_pfDevUserVars[iUserVarsOffset+udLocalOffset],
                           (WCUComplex*)&m_pcDevCalcAmp[offset+permOffset],
                            m_piDevPerm, m_iNParticles, m_iNEvents,
                            *permItr );

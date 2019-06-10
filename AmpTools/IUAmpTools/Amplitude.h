@@ -140,7 +140,7 @@ public:
    * particles, then this method should be overriden with a function that
    * returns the number of user variables that will be stored.  It is 
    * recommended these are indexed with an enum.  The user must also define
-   * the calcUserData method.
+   * the calcUserVars method.
    */
   virtual unsigned int numUserVars() const { return 0; }
   
@@ -153,7 +153,7 @@ public:
    * be copied to the GPU.
    */
   
-  virtual bool needsUserDataOnly() const { return false; }
+  virtual bool needsUserVarsOnly() const { return false; }
   
   /**
    * This must be overriden by the user and indicates how to convert a list
@@ -285,7 +285,7 @@ public:
    * permutations.  The size of this vector is the number of permutations and
    * the size of one element of this vector is the number of particles.
    *
-   * \param[in] pdUserData is a pointer to the block of user data that is
+   * \param[in] pdUserVars is a pointer to the block of user data that is
    *  optionally filled by the user with precalculated variables in advance
    *  of the computation
    *
@@ -294,7 +294,7 @@ public:
    */
   virtual void calcAmplitudeAll( GDouble* pdData, GDouble* pdAmps, int iNEvents,
                                 const vector< vector< int > >* pvPermutations,
-                                GDouble* pdUserData = 0 ) const;
+                                GDouble* pdUserVars = 0 ) const;
   
   
   /**
@@ -321,14 +321,14 @@ public:
    * \param[in] pKin a pointer to a single event.  pKin[0][0-3] define E, px,
    * py, pz for the first particle, pKin[1][0-3] for the second, and so on
    *
-   * \param[in] userData is an optional pointer to the user data block associated
+   * \param[in] userVars is an optional pointer to the user data block associated
    * with this event and this permutation of particles.  It can be used to store
    * intermediate portions of the calculation in the case that calcAmplitude
-   * must be called multiple times during the course of a fit.  The userData
-   * memory block is filled in calcUserData.
+   * must be called multiple times during the course of a fit.  The userVars
+   * memory block is filled in calcUserVars.
    */
   virtual complex< GDouble > calcAmplitude( GDouble** pKin,
-                                            GDouble* userData ) const;
+                                            GDouble* userVars ) const;
   
   /**
    * \overload
@@ -339,14 +339,14 @@ public:
    *
    * \param[in] pKin a pointer to a Kinematics object
    *
-   * \param[in] userData (optional) address of userData memory block that will
+   * \param[in] userVars (optional) address of userVars memory block that will
    * get passed onto the standard calcAmplitude method
    *
    * \see calcAmplitude
    */
   
   complex< GDouble > calcAmplitude( const Kinematics* pKin,
-                                    GDouble* userData = 0 ) const;
+                                    GDouble* userVars = 0 ) const;
   
   
   /**
@@ -360,7 +360,7 @@ public:
    * \param[in] pKin a pointer to a Kinematics object
    * \param[in] permutation a vector of permuted particle indices
    *
-   * \param[in] userData (optional) address of userData memory block that will
+   * \param[in] userVars (optional) address of userVars memory block that will
    * get passed onto the standard calcAmplitude method
    *
    * \see calcAmplitude
@@ -369,12 +369,12 @@ public:
   
   complex< GDouble > calcAmplitude( const Kinematics* pKin,
                                     const vector < int >& permutation,
-                                    GDouble* userData = 0 ) const;
+                                    GDouble* userVars = 0 ) const;
   
  
   /**
    * This loops over all events and calculates an optionally-defined
-   * function specified by the user, calcUserData, that allows the 
+   * function specified by the user, calcUserVars, that allows the 
    * user to compute and store particular quantities associated with 
    * each event and each permutation of particles.  These may be expensive
    * quantities computed from kinematics that remain fixed for subsequent
@@ -394,10 +394,10 @@ public:
    * permutations.  The size of this vector is the number of permutations and
    * the size of one element of this vector is the number of particles.
    *
-   * \see calcUserData
+   * \see calcUserVars
    */
  
-   void calcUserDataAll( GDouble* pdData, GDouble* pdUserData, int iNEvents,
+   void calcUserVarsAll( GDouble* pdData, GDouble* pdUserVars, int iNEvents,
                          const vector< vector< int > >* pvPermutations ) const;
   
   /**
@@ -407,7 +407,7 @@ public:
    * \param[in] pKin a pointer to a single event.  pKin[0][0-3] define E, px,
    * py, pz for the first particle, pKin[1][0-3] for the second, and so on
    *
-   * \param[in] userData is an optional pointer to the user data block associated
+   * \param[in] userVars is an optional pointer to the user data block associated
    * with this event and this permutation of particles.  It can be used to store
    * intermediate portions of the calculation in the case that calcAmplitude
    * must be called multiple times during the course of a fit.  It is strongly
@@ -415,7 +415,7 @@ public:
    * no ability to check that the user writes within bounds of the block.
    */
   
-  virtual void calcUserData( GDouble** pKin, GDouble* userData ) const {}
+  virtual void calcUserVars( GDouble** pKin, GDouble* userVars ) const {}
   
   /**
    * If the calculated user data is the same for all instances of the
@@ -423,25 +423,25 @@ public:
    * user can override this function and return 'true' to reduce
    * memory consumption.
    */
-  virtual bool isUserDataStatic() const { return false; }
+  virtual bool areUserVarsStatic() const { return false; }
   
   /**
    * In the case of static user data, the framework needs to know
    * if the user data have been calculated yet for a corresponding
    * set of kinematics.
    */
-  bool staticUserDataCalculated( GDouble* pdData ) const {
-    return( m_staticUserDataCalculated.find( pdData ) !=
-            m_staticUserDataCalculated.end() ); }
+  bool staticUserVarsCalculated( GDouble* pdData ) const {
+    return( m_staticUserVarsCalculated.find( pdData ) !=
+            m_staticUserVarsCalculated.end() ); }
 
   /**
    * In the case of user data, the framework needs to know
    * if the user data have been calculated yet for a corresponding
    * set of kinematics by this instance of the Amplitude class.
    */
-  bool userDataCalculated( GDouble* pdData ) const {
-    return( m_userDataCalculated.find( pdData ) !=
-            m_userDataCalculated.end() ); }
+  bool userVarsCalculated( GDouble* pdData ) const {
+    return( m_userVarsCalculated.find( pdData ) !=
+            m_userVarsCalculated.end() ); }
 
 #ifdef GPU_ACCELERATION 
   
@@ -496,8 +496,8 @@ private:
   
   bool m_isDefault;
   
-  static set< GDouble* > m_staticUserDataCalculated;
-  mutable set< GDouble* > m_userDataCalculated;
+  static set< GDouble* > m_staticUserVarsCalculated;
+  mutable set< GDouble* > m_userVarsCalculated;
   
   vector<string> m_args;
   

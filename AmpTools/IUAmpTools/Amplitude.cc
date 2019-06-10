@@ -64,13 +64,13 @@ Amplitude::identifier() const {
 }
 
 void
-Amplitude::calcUserDataAll( GDouble* pdData, GDouble* pdUserData, int iNEvents,
+Amplitude::calcUserVarsAll( GDouble* pdData, GDouble* pdUserVars, int iNEvents,
                             const vector< vector< int > >* pvPermutations ) const
 {
   
 #ifdef VTRACE
   string info = name();
-  info += "::calcUserDataAll";
+  info += "::calcUserVarsAll";
   VT_TRACER( info.c_str() );
 #endif
   
@@ -109,25 +109,25 @@ Amplitude::calcUserDataAll( GDouble* pdData, GDouble* pdUserData, int iNEvents,
       }
       
       unsigned int userIndex = iNEvents*iPermutation*numVars + iEvent*numVars;
-      calcUserData( pKin, &(pdUserData[userIndex]) );
+      calcUserVars( pKin, &(pdUserVars[userIndex]) );
     }
   }
   
   // if the user data is static, add a pointer to the data set for
   // which we just did the calculation;  that we know later
   // whether it has been calculated
-  if( isUserDataStatic() ) m_staticUserDataCalculated.insert( pdData );
-  m_userDataCalculated.insert( pdData );
+  if( areUserVarsStatic() ) m_staticUserVarsCalculated.insert( pdData );
+  m_userVarsCalculated.insert( pdData );
   
   delete[] pKin;
 }
 
-set< GDouble* > Amplitude::m_staticUserDataCalculated = set< GDouble* >();
+set< GDouble* > Amplitude::m_staticUserVarsCalculated = set< GDouble* >();
 
 void 
 Amplitude::calcAmplitudeAll( GDouble* pdData, GDouble* pdAmps, int iNEvents,
                             const vector< vector< int > >* pvPermutations,
-                             GDouble* pdUserData ) const
+                             GDouble* pdUserVars ) const
 {
   
 #ifdef VTRACE
@@ -171,7 +171,7 @@ Amplitude::calcAmplitudeAll( GDouble* pdData, GDouble* pdAmps, int iNEvents,
 
       if( numVars != 0 ){
       
-        cRes = calcAmplitude( pKin, &(pdUserData[userIndex]) );
+        cRes = calcAmplitude( pKin, &(pdUserVars[userIndex]) );
       }
       else{
         cRes = calcAmplitude( pKin );
@@ -187,7 +187,7 @@ Amplitude::calcAmplitudeAll( GDouble* pdData, GDouble* pdAmps, int iNEvents,
 
 
 complex< GDouble >
-Amplitude::calcAmplitude( const Kinematics* pKin, GDouble* userData ) const {
+Amplitude::calcAmplitude( const Kinematics* pKin, GDouble* userVars ) const {
   
   vector<int> permutation;
   
@@ -197,12 +197,12 @@ Amplitude::calcAmplitude( const Kinematics* pKin, GDouble* userData ) const {
     permutation.push_back(i);
   }
   
-  return calcAmplitude( pKin, permutation, userData );
+  return calcAmplitude( pKin, permutation, userVars );
   
 }
 
 complex< GDouble >
-Amplitude::calcAmplitude( GDouble** pKin, GDouble* userData ) const {
+Amplitude::calcAmplitude( GDouble** pKin, GDouble* userVars ) const {
   
   cout
   << "***********************************************************\n"
@@ -215,7 +215,7 @@ Amplitude::calcAmplitude( GDouble** pKin, GDouble* userData ) const {
   << "    that it can accept a pointer to the user-defined data\n"
   << "    block.  Please define the function:\n"
   << "      " << name() << "::\n"
-  << "         calcAmplitude( GDouble** pKin, GDouble* userData )\n\n"
+  << "         calcAmplitude( GDouble** pKin, GDouble* userVars )\n\n"
   << "(2) No calcAmplitude function (with or without user data\n"
   << "    data pointer is defined in the class.\n"
   << "***********************************************************\n"
@@ -246,7 +246,7 @@ Amplitude::calcAmplitude( GDouble** pKin ) const {
 complex< GDouble >
 Amplitude::calcAmplitude( const Kinematics* pKin,
                           const vector< int >& permutation,
-                          GDouble* userData ) const {
+                          GDouble* userVars ) const {
 
 #ifdef VTRACE
   string info = name();
@@ -270,9 +270,9 @@ Amplitude::calcAmplitude( const Kinematics* pKin,
   
   complex< GDouble > value;
   
-  if( userData != NULL ){
+  if( userVars != NULL ){
   
-    value = calcAmplitude( pData, userData );
+    value = calcAmplitude( pData, userVars );
   }
   else{
 

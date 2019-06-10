@@ -135,11 +135,11 @@ struct AmpVecs
   GDouble* m_pdAmpFactors;
   
   /**
-   * An array of length iNEvents * m_userDataPerEvent that is used to 
+   * An array of length iNEvents * m_userVarsPerEvent that is used to 
    * store user-calculated and cached data to expedite subsequent
    * amplitude calculations.
    */
-  GDouble* m_pdUserData;
+  GDouble* m_pdUserVars;
   
   /**
    * An array of length 2 * iNTerms * iNTerms that holds the sums of
@@ -176,7 +176,7 @@ struct AmpVecs
    * utilized by the AmplitudeManager, but the values are tied
    * to the data set so it resides in the AmpVecs struct.
    */
-  map< string, unsigned long long > m_staticUserDataOffset;
+  map< string, unsigned long long > m_staticUserVarsOffset;
 
   /**
    * This is a map from amplitude identifer to the location in memory
@@ -184,7 +184,7 @@ struct AmpVecs
    * utilized by the AmplitudeManager, but the values are tied
    * to the data set so it resides in the AmpVecs struct.
    */
-  map< string, unsigned long long > m_userDataOffset;
+  map< string, unsigned long long > m_userVarsOffset;
 
   
 #ifdef GPU_ACCELERATION

@@ -146,7 +146,7 @@ public:
    *
    */
   
-  void calcUserData( AmpVecs& ampVecs ) const;
+  void calcUserVars( AmpVecs& ampVecs ) const;
   
   /**
    * This function caculates the amplitudes for each data event and stores
@@ -268,7 +268,7 @@ public:
    * computations.
    */
   
-  bool needsUserDataOnly() const { return m_needsUserDataOnly; }
+  bool needsUserVarsOnly() const { return m_needsUserVarsOnly; }
 
   //
   // The functions below modify the state of the AmplitudeManager
@@ -454,10 +454,10 @@ private:
   vector< bool > m_vbIsAmpFixed;
     
   // some internal members to optimize amplitude recalculation
-  bool m_needsUserDataOnly;
+  bool m_needsUserVarsOnly;
   mutable map< const Amplitude*, int > m_ampIteration;
   mutable map< AmpVecs*, map< const Amplitude*, int > > m_dataAmpIteration;
-  mutable map< string, unsigned long long > m_staticUserDataOffset;
+  mutable map< string, unsigned long long > m_staticUserVarsOffset;
   
 };
 

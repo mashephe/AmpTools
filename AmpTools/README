@@ -68,6 +68,20 @@ is fitting to multiple coherent sums of amplitudes.
 
 RELEASE NOTES:
 
+v0.10.0 (10-Jun-2019):
+
+This update includes the ability for users calculate 
+
+v0.9.4 (13-Jun-2018):
+
+This release includes modifications to make the Histogram classes
+that are used for plotting properly handle weighted events.
+
+v0.9.3 (31-Oct-2017):
+
+New release to include features in the AmpPlotter and supporting
+packages that allow users to display background on plots.
+
 v0.9.2 (25-Aug-2016):
 
 Fix bug in loading kinematic data for GPU accelerated fits.

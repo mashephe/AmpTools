@@ -86,11 +86,11 @@ public:
   // Interface Utils
   // First Amplitude calculation interface
   void copyDataToGPU( const AmpVecs& a, bool use4Vectors = true  );
-  void copyUserDataToGPU( const AmpVecs& a );
+  void copyUserVarsToGPU( const AmpVecs& a );
   
   void calcAmplitudeAll( const Amplitude* amp, unsigned long long offset,
                          const vector< vector< int > >* pvPermutations,
-			 unsigned long long userDataOffset );
+			 unsigned long long userVarsOffset );
   
   void assembleTerms( int iAmpInd, int nFact, int nPerm );
   
@@ -136,7 +136,7 @@ private:
   
   //Device Arrays 
   GDouble* m_pfDevData;
-  GDouble* m_pfDevUserData;
+  GDouble* m_pfDevUserVars;
   GDouble* m_pfDevWeights;
   GDouble* m_pcDevCalcAmp;
   int*     m_piDevPerm;

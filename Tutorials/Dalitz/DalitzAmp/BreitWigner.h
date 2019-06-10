@@ -36,7 +36,7 @@ public:
 
   string name() const { return "BreitWigner"; }
 
-  complex< GDouble > calcAmplitude( GDouble** pKin, GDouble* userData ) const;
+  complex< GDouble > calcAmplitude( GDouble** pKin, GDouble* userVars ) const;
   
   // **********************
   // The following lines are optional and can be used to precalcualte
@@ -49,13 +49,13 @@ public:
   
   // This function needs to be defined -- see comments and discussion
   // in the .cc file.
-  void calcUserData( GDouble** pKin, GDouble* userData ) const;
+  void calcUserVars( GDouble** pKin, GDouble* userVars ) const;
   
   // This is an optional addition if the calcAmplitude routine
   // can run with only the user-defined data and not the original
   // four-vectors.  It is used to optimize memory usage in GPU
   // based fits.
-  bool needsUserDataOnly() const { return true; }
+  bool needsUserVarsOnly() const { return true; }
   // **  end of optional lines **
   
 #ifdef GPU_ACCELERATION

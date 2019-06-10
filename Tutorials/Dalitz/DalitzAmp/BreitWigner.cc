@@ -27,12 +27,12 @@ UserAmplitude< BreitWigner >(args)
 
 
 complex< GDouble >
-BreitWigner::calcAmplitude( GDouble** pKin, GDouble* userData ) const {
+BreitWigner::calcAmplitude( GDouble** pKin, GDouble* userVars ) const {
 
   /****
-   *  Equivalently one could switch needsUserDataOnly to false
+   *  Equivalently one could switch needsUserVarsOnly to false
    *  and uncomment the following lines to get the same 
-   *  result without the calcUserData function defined. 
+   *  result without the calcUserVars function defined. 
    *
    *  The role of user data is to optimize this function
    *  call in the instance it is repeated multiple times throughout
@@ -48,7 +48,7 @@ BreitWigner::calcAmplitude( GDouble** pKin, GDouble* userData ) const {
   GDouble mass2 = (P1+P2).M2();
   */
   
-  GDouble mass2 = userData[kMass2];
+  GDouble mass2 = userVars[kMass2];
     
   return  complex<GDouble>(1.0,0.0) /
           complex<GDouble>( mass2 - m_mass*m_mass, m_mass*m_width);
@@ -56,7 +56,7 @@ BreitWigner::calcAmplitude( GDouble** pKin, GDouble* userData ) const {
 }
 
 void
-BreitWigner::calcUserData( GDouble** pKin, GDouble* userData ) const {
+BreitWigner::calcUserVars( GDouble** pKin, GDouble* userVars ) const {
   
   // This method can be used to calculate more CPU-intensive quantities
   // that the amplitudes themselves depend on.  IMPORTANT:  it is called
@@ -77,7 +77,7 @@ BreitWigner::calcUserData( GDouble** pKin, GDouble* userData ) const {
   TLorentzVector P2(pKin[m_daughter2-1][1], pKin[m_daughter2-1][2],
                     pKin[m_daughter2-1][3], pKin[m_daughter2-1][0]);
 
-  userData[kMass2] = (P1+P2).M2();
+  userVars[kMass2] = (P1+P2).M2();
 }
 
 

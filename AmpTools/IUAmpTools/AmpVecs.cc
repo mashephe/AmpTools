@@ -61,7 +61,7 @@ AmpVecs::AmpVecs(){
   
   m_pdAmps       = 0 ;
   m_pdAmpFactors = 0 ;
-  m_pdUserData   = 0 ;
+  m_pdUserVars   = 0 ;
   
   m_pdIntensity      = 0 ;
   m_pdIntegralMatrix = 0 ;
@@ -102,9 +102,9 @@ AmpVecs::deallocAmpVecs()
     delete[] m_pdIntegralMatrix;
   m_pdIntegralMatrix=0;
 
-  if(m_pdUserData)
-    delete[] m_pdUserData;
-  m_pdUserData=0;
+  if(m_pdUserVars)
+    delete[] m_pdUserVars;
+  m_pdUserVars=0;
   
 #ifndef GPU_ACCELERATION
   
@@ -254,7 +254,7 @@ AmpVecs::allocateTerms( const IntensityManager& intenMan, bool bAllocIntensity )
   m_maxFactPerEvent   = intenMan.maxFactorStoragePerEvent();
   m_userVarsPerEvent  = intenMan.userVarsPerEvent();
   
-  if( m_pdAmps!=0 || m_pdAmpFactors!=0 || m_pdUserData!=0 || m_pdIntensity!=0 )
+  if( m_pdAmps!=0 || m_pdAmpFactors!=0 || m_pdUserVars!=0 || m_pdIntensity!=0 )
   {
     cout << "ERROR:  trying to reallocate terms in AmpVecs after\n" << flush;
     cout << "        they have already been allocated.  Please\n" << flush;
@@ -278,11 +278,11 @@ AmpVecs::allocateTerms( const IntensityManager& intenMan, bool bAllocIntensity )
   
   if( m_userVarsPerEvent > 0 ){
     
-    // if there is no user data, we need pdUserData to be NULL
+    // if there is no user data, we need pdUserVars to be NULL
     // in order to ensure backwards compatibility with older
     // amplitude definitions
     
-    m_pdUserData = new GDouble[m_iNEvents * m_userVarsPerEvent];
+    m_pdUserVars = new GDouble[m_iNEvents * m_userVarsPerEvent];
   }
   
 #ifndef GPU_ACCELERATION
@@ -292,8 +292,8 @@ AmpVecs::allocateTerms( const IntensityManager& intenMan, bool bAllocIntensity )
   
 #else
   
-  m_gpuMan.init( *this, !intenMan.needsUserDataOnly() );
-  m_gpuMan.copyDataToGPU( *this, !intenMan.needsUserDataOnly() );
+  m_gpuMan.init( *this, !intenMan.needsUserVarsOnly() );
+  m_gpuMan.copyDataToGPU( *this, !intenMan.needsUserVarsOnly() );
 
 #endif // GPU_ACCELERATION
   
