@@ -65,6 +65,7 @@ GPUManager::GPUManager()
   m_iNTrueEvents=0;
   
   m_iNAmps=0;
+  m_iNUserVars=0;
   
   m_iEventArrSize=0;
   m_iAmpArrSize=0;
@@ -158,7 +159,7 @@ GPUManager::~GPUManager()
 // Initialization routines:
 
 void 
-GPUManager::init( const AmpVecs& a )
+GPUManager::init( const AmpVecs& a, bool use4Vectors )
 {
   clearAll();
     
@@ -167,6 +168,7 @@ GPUManager::init( const AmpVecs& a )
   m_iNEvents     = a.m_iNEvents;
   m_iNParticles  = a.m_iNParticles;
   m_iNAmps       = a.m_iNTerms;
+  m_iNUserVars   = a.m_userVarsPerEvent;
   
   // the rest of the data are derived:
   m_iEventArrSize     = sizeof(GDouble) * m_iNEvents;
@@ -186,14 +188,15 @@ GPUManager::init( const AmpVecs& a )
   
   totalMemory += m_iVArrSize;
   totalMemory += 4 * m_iEventArrSize;
-  totalMemory += 4 * m_iNParticles * m_iEventArrSize;
+  totalMemory += m_iNUserVars * m_iEventArrSize;
+  if( use4Vectors ) totalMemory += 4 * m_iNParticles * m_iEventArrSize;
   totalMemory += m_iNParticles * sizeof( int );
   totalMemory += a.m_maxFactPerEvent * m_iEventArrSize;
   totalMemory += m_iAmpArrSize;
 
   totalMemory /= (1024*1024);
   
-  cout << "Attempting to allocate " << totalMemory << " MB of global GPU memory." << endl;
+  cout << "Attempting to allocate " << (int)totalMemory << " MB of global GPU memory." << endl;
   
   // device memory needed for intensity or integral calculation and sum
   gpuErrChk( cudaMalloc( (void**)&m_pfDevVVStar  , m_iVArrSize       ) ) ;
@@ -203,7 +206,8 @@ GPUManager::init( const AmpVecs& a )
   gpuErrChk( cudaMalloc( (void**)&m_pfDevREDUCE  , m_iEventArrSize   ) ) ;
   
   // allocate device memory needed for amplitude calculations
-  gpuErrChk( cudaMalloc(  (void**)&m_pfDevData    , 4 * m_iNParticles * m_iEventArrSize    ) ) ;
+  if( use4Vectors ) gpuErrChk( cudaMalloc(  (void**)&m_pfDevData    , 4 * m_iNParticles * m_iEventArrSize    ) ) ;
+  gpuErrChk( cudaMalloc(  (void**)&m_pfDevUserVars, m_iNUserVars * m_iEventArrSize         ) ) ;
   gpuErrChk( cudaMalloc(  (void**)&m_piDevPerm    , m_iNParticles * sizeof( int )          ) ) ;
   gpuErrChk( cudaMalloc(  (void**)&m_pcDevCalcAmp , a.m_maxFactPerEvent * m_iEventArrSize  ) ) ;
   gpuErrChk( cudaMalloc(  (void**)&m_pfDevAmps    , m_iAmpArrSize                          ) ) ;
@@ -218,25 +222,84 @@ GPUManager::init( const AmpVecs& a )
 
 
 void
-GPUManager::copyDataToGPU( const AmpVecs& a )
+GPUManager::copyDataToGPU( const AmpVecs& a, bool use4Vectors )
 {  
 
 #ifdef VTRACE
   VT_TRACER( "GPUManager::copyDataToGPU" );
 #endif
-
-  // make sure AmpVecs has been loaded with data
-  assert( a.m_pdData );
   
-  // copy the data into the device
-  gpuErrChk( cudaMemcpy( m_pfDevData, a.m_pdData,
-                         4 * m_iNParticles * m_iEventArrSize,
-                        cudaMemcpyHostToDevice ) );
-
   // copy the weights to the GPU
   gpuErrChk( cudaMemcpy( m_pfDevWeights, a.m_pdWeights,
-                         m_iEventArrSize, cudaMemcpyHostToDevice ) );
+                        m_iEventArrSize, cudaMemcpyHostToDevice ) );
+  
+  // we only need to copy the four vectors to the GPU if the
+  // amplitude evaulation kernels need them -- this is done by
+  // default unless signaled otherwise by the configuration
+  // of the amplitude manager
+  
+  if( use4Vectors ){
+    
+    
+    // make sure AmpVecs has been loaded with data
+    assert( a.m_pdData );
+    
+    // restructure kinematics in memory such that the same quantity
+    // for multiple events sits in a block to expedite parallel reads
+    // on the GPU
+    
+    // for cpu calculations, the m_pdData array is in this order:
+    //    e(p1,ev1), px(p1,ev1), py(p1,ev1), pz(p1,ev1),
+    //    e(p2,ev1), px(p2,ev1), ...,
+    //    e(p1,ev2), px(p1,ev2), ...
+    //
+    // for gpu calculations, want to fill the pdfDevData array like this:
+    //     e(p1,ev1),  e(p1,ev2),  e(p1,ev3), ...,
+    //    px(p1,ev1), px(p1,ev2), ...,
+    //     e(p2,ev1),  e(p2,ev2). ...
+    //
+    // where pn is particle n and evn is event
+    
+    GDouble* tmpStorage = new GDouble[4*m_iNParticles*m_iEventArrSize];
+    
+    for( int iEvt = 0; iEvt < m_iNEvents; ++iEvt ){
+      for( int iPart = 0; iPart < m_iNParticles; ++iPart ){
+        for( int iVar = 0; iVar < 4; ++iVar ){
+          
+          int cpuIndex = 4*iEvt*m_iNParticles+4*iPart+iVar;
+          int gpuIndex = 4*m_iNEvents*iPart+iVar*m_iNEvents+iEvt;
+          
+          tmpStorage[gpuIndex] = a.m_pdData[cpuIndex];
+        }
+      }
+    }
+    
+    // copy the data into the device
+    gpuErrChk( cudaMemcpy( m_pfDevData, tmpStorage,
+                          4 * m_iNParticles * m_iEventArrSize,
+                          cudaMemcpyHostToDevice ) );
+
+    delete tmpStorage;
+  }
 }
+
+void
+GPUManager::copyUserVarsToGPU( const AmpVecs& a )
+{
+  
+#ifdef VTRACE
+  VT_TRACER( "GPUManager::copyUserVarsToGPU" );
+#endif
+  
+  // make sure AmpVecs has been loaded with data
+  assert( a.m_pdUserVars );
+
+  // copy the data into the device
+  gpuErrChk( cudaMemcpy( m_pfDevUserVars, a.m_pdUserVars,
+                        m_iNUserVars * m_iEventArrSize,
+                        cudaMemcpyHostToDevice ) );
+}
+
 
 void
 GPUManager::copyAmpsFromGPU( AmpVecs& a )
@@ -261,7 +324,8 @@ GPUManager::copyAmpsFromGPU( AmpVecs& a )
 
 void 
 GPUManager::calcAmplitudeAll( const Amplitude* amp, unsigned long long offset,
-                              const vector< vector< int > >* pvPermutations )
+                              const vector< vector< int > >* pvPermutations,
+                              unsigned long long iUserVarsOffset )
 {
  
 #ifdef VTRACE
@@ -278,6 +342,7 @@ GPUManager::calcAmplitudeAll( const Amplitude* amp, unsigned long long offset,
   // if this is not true, AmplitudeManager hasn't been setup properly
   assert( permItr->size() == m_iNParticles );
   
+  unsigned long long udLocalOffset = 0;
   unsigned long long permOffset = 0;
   for( ; permItr != pvPermutations->end(); ++permItr ){
     
@@ -290,7 +355,8 @@ GPUManager::calcAmplitudeAll( const Amplitude* amp, unsigned long long offset,
     // casting amp array to WCUComplex for 8 or 16 bit write 
     // operation of both real and complex parts at once
     
-    amp->calcAmplitudeGPU( dimGrid, dimBlock, m_pfDevData, 
+    amp->calcAmplitudeGPU( dimGrid, dimBlock, m_pfDevData,
+                           &m_pfDevUserVars[iUserVarsOffset+udLocalOffset],
                           (WCUComplex*)&m_pcDevCalcAmp[offset+permOffset],
                            m_piDevPerm, m_iNParticles, m_iNEvents,
                            *permItr );
@@ -307,6 +373,7 @@ GPUManager::calcAmplitudeAll( const Amplitude* amp, unsigned long long offset,
     // increment the offset so that we place the computation for the
     // next permutation after the previous in pcResAmp
     permOffset += 2 * m_iNEvents;
+    udLocalOffset += amp->numUserVars() * m_iNEvents;
   }    
 }
 
@@ -516,7 +583,7 @@ void GPUManager::clearAll()
   if(m_pfDevData)
     cudaFree(m_pfDevData);
   m_pfDevData=0;
-  
+
   if(m_pcDevCalcAmp)
     cudaFree(m_pcDevCalcAmp);
   m_pcDevCalcAmp=0;

@@ -27,7 +27,7 @@ class Kinematics;
 class BreitWigner : public UserAmplitude< BreitWigner >{
 
 public:
-
+  
   BreitWigner() : UserAmplitude< BreitWigner >() { }
 
   BreitWigner( const vector< string >& args );
@@ -36,8 +36,28 @@ public:
 
   string name() const { return "BreitWigner"; }
 
-  complex< GDouble > calcAmplitude( GDouble** pKin ) const;
-
+  complex< GDouble > calcAmplitude( GDouble** pKin, GDouble* userVars ) const;
+  
+  // **********************
+  // The following lines are optional and can be used to precalcualte
+  // user-defined data that the amplitudes depend on.
+  
+  // Use this for indexing a user-defined data array and notifying
+  // the framework of the number of user-defined variables.
+  enum UserVars { kMass2 = 0, kNumUserVars };
+  unsigned int numUserVars() const { return kNumUserVars; }
+  
+  // This function needs to be defined -- see comments and discussion
+  // in the .cc file.
+  void calcUserVars( GDouble** pKin, GDouble* userVars ) const;
+  
+  // This is an optional addition if the calcAmplitude routine
+  // can run with only the user-defined data and not the original
+  // four-vectors.  It is used to optimize memory usage in GPU
+  // based fits.
+  bool needsUserVarsOnly() const { return true; }
+  // **  end of optional lines **
+  
 #ifdef GPU_ACCELERATION
 
   void launchGPUKernel( dim3 dimGrid, dim3 dimBlock, GPU_AMP_PROTO ) const;

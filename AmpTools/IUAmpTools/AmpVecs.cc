@@ -54,12 +54,14 @@ AmpVecs::AmpVecs(){
   m_iNParticles     = 0 ;
   m_iNTerms         = 0 ;
   m_maxFactPerEvent = 0 ;
+  m_userVarsPerEvent = 0;
   
   m_pdData      = 0 ;
   m_pdWeights   = 0 ;
   
   m_pdAmps       = 0 ;
-  m_pdAmpFactors = 0 ; 
+  m_pdAmpFactors = 0 ;
+  m_pdUserVars   = 0 ;
   
   m_pdIntensity      = 0 ;
   m_pdIntegralMatrix = 0 ;
@@ -79,6 +81,7 @@ AmpVecs::deallocAmpVecs()
   m_iNParticles     = 0 ;
   m_iNTerms         = 0 ;
   m_maxFactPerEvent = 0 ;
+  m_userVarsPerEvent = 0;
   
   m_termsValid    = false ;
   m_integralValid = false ;
@@ -98,6 +101,10 @@ AmpVecs::deallocAmpVecs()
   if(m_pdIntegralMatrix)
     delete[] m_pdIntegralMatrix;
   m_pdIntegralMatrix=0;
+
+  if(m_pdUserVars)
+    delete[] m_pdUserVars;
+  m_pdUserVars=0;
   
 #ifndef GPU_ACCELERATION
   
@@ -108,7 +115,7 @@ AmpVecs::deallocAmpVecs()
   if(m_pdAmpFactors)
     delete[] m_pdAmpFactors;
   m_pdAmpFactors=0;
-  
+
 #else
   //Deallocate "pinned memory"
   if(m_pdAmps)
@@ -122,6 +129,14 @@ AmpVecs::deallocAmpVecs()
   m_gpuMan.clearAll();
   
 #endif // GPU_ACCELERATION
+}
+
+void
+AmpVecs::clearFourVecs(){
+  
+  if(m_pdData)
+    delete[] m_pdData;
+  m_pdData=0;
 }
 
 void
@@ -163,7 +178,7 @@ AmpVecs::loadEvent( const Kinematics* pKinematics, unsigned long long iEvent,
   //
   // where pn is particle n and evn is event n  
   
-#ifndef GPU_ACCELERATION
+  //#ifndef GPU_ACCELERATION
   
   for (int iParticle = 0; iParticle < m_iNParticles; iParticle++){
     m_pdData[4*iEvent*m_iNParticles+4*iParticle+0]=pKinematics->particle(iParticle).E();
@@ -171,6 +186,7 @@ AmpVecs::loadEvent( const Kinematics* pKinematics, unsigned long long iEvent,
     m_pdData[4*iEvent*m_iNParticles+4*iParticle+2]=pKinematics->particle(iParticle).Py();
     m_pdData[4*iEvent*m_iNParticles+4*iParticle+3]=pKinematics->particle(iParticle).Pz();
   }
+  /*
 #else
   for (int iParticle = 0; iParticle < m_iNParticles; iParticle++){
     m_pdData[(4*iParticle+0)*m_iNEvents+iEvent] = pKinematics->particle(iParticle).E();
@@ -179,7 +195,7 @@ AmpVecs::loadEvent( const Kinematics* pKinematics, unsigned long long iEvent,
     m_pdData[(4*iParticle+3)*m_iNEvents+iEvent] = pKinematics->particle(iParticle).Pz();
   }
 #endif
-
+*/
   m_pdWeights[iEvent] = ( bForceNegativeWeight ?
                          -fabsf( pKinematics->weight() ) :
                          pKinematics->weight() );
@@ -234,10 +250,11 @@ AmpVecs::loadData( DataReader* pDataReader, bool bForceNegativeWeight ){
 void
 AmpVecs::allocateTerms( const IntensityManager& intenMan, bool bAllocIntensity ){
 
-  m_iNTerms         = intenMan.getTermNames().size();
-  m_maxFactPerEvent = intenMan.maxFactorStoragePerEvent();
+  m_iNTerms           = intenMan.getTermNames().size();
+  m_maxFactPerEvent   = intenMan.maxFactorStoragePerEvent();
+  m_userVarsPerEvent  = intenMan.userVarsPerEvent();
   
-  if( m_pdAmps!=0 || m_pdAmpFactors!=0 || m_pdIntensity!=0 )
+  if( m_pdAmps!=0 || m_pdAmpFactors!=0 || m_pdUserVars!=0 || m_pdIntensity!=0 )
   {
     cout << "ERROR:  trying to reallocate terms in AmpVecs after\n" << flush;
     cout << "        they have already been allocated.  Please\n" << flush;
@@ -259,6 +276,15 @@ AmpVecs::allocateTerms( const IntensityManager& intenMan, bool bAllocIntensity )
     m_pdIntensity = new GDouble[m_iNEvents];
   }
   
+  if( m_userVarsPerEvent > 0 ){
+    
+    // if there is no user data, we need pdUserVars to be NULL
+    // in order to ensure backwards compatibility with older
+    // amplitude definitions
+    
+    m_pdUserVars = new GDouble[m_iNEvents * m_userVarsPerEvent];
+  }
+  
 #ifndef GPU_ACCELERATION
   
   m_pdAmps = new GDouble[m_iNEvents * intenMan.termStoragePerEvent()];
@@ -266,8 +292,8 @@ AmpVecs::allocateTerms( const IntensityManager& intenMan, bool bAllocIntensity )
   
 #else
   
-  m_gpuMan.init( *this );
-  m_gpuMan.copyDataToGPU( *this );
+  m_gpuMan.init( *this, !intenMan.needsUserVarsOnly() );
+  m_gpuMan.copyDataToGPU( *this, !intenMan.needsUserVarsOnly() );
 
 #endif // GPU_ACCELERATION
   

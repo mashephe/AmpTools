@@ -81,14 +81,16 @@ public:
   void clearAmpCalc();
   void clearLikeCalc();
   
-  void init( const AmpVecs& a );
+  void init( const AmpVecs& a, bool use4Vectors = true );
   
   // Interface Utils
   // First Amplitude calculation interface
-  void copyDataToGPU( const AmpVecs& a );
+  void copyDataToGPU( const AmpVecs& a, bool use4Vectors = true  );
+  void copyUserVarsToGPU( const AmpVecs& a );
   
   void calcAmplitudeAll( const Amplitude* amp, unsigned long long offset,
-                         const vector< vector< int > >* pvPermutations );
+                         const vector< vector< int > >* pvPermutations,
+			 unsigned long long userVarsOffset );
   
   void assembleTerms( int iAmpInd, int nFact, int nPerm );
   
@@ -118,6 +120,7 @@ private:
   unsigned long long m_iNEvents;
   unsigned long long m_iNTrueEvents;
   unsigned int m_iNAmps;
+  unsigned int m_iNUserVars;
   
   // array sizes
   unsigned long long m_iEventArrSize;
@@ -133,6 +136,7 @@ private:
   
   //Device Arrays 
   GDouble* m_pfDevData;
+  GDouble* m_pfDevUserVars;
   GDouble* m_pfDevWeights;
   GDouble* m_pcDevCalcAmp;
   int*     m_piDevPerm;
