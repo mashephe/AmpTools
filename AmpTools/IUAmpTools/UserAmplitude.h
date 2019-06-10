@@ -82,29 +82,28 @@ public:
   
   /**
    * This method can create a new amplitude (of the derived type).
+   * First check to see if an existing instance will function in exactly
+   * the same way (has the same arguments).  If it will, use that,
+   * otherwise make a new one and save it.
    */
   Amplitude* newAmplitude( const vector< string >& args ) const{
-    return new T( args );
+    
+    if( m_ampInstances.find( identifier() ) == m_ampInstances.end() ){
+      
+      m_ampInstances[identifier()] = new T( args );
+    }
+    
+    return m_ampInstances[identifier()];
   }
   
   
   /**
    * This method can create a clone of an amplitude (of the derived type).
-   * First check to see if an existing instance will function in exactly
-   * the same way (has the same arguments).  If it will, use that,
-   * otherwise make a new one and save it.
    */
   Amplitude* clone() const {
     
-    if( isDefault() ) return new T();
-    
-    if( m_ampInstances.find( identifier() ) == m_ampInstances.end() ){
-      
-      m_ampInstances[identifier()] = new T( arguments() );
-    }
-    
-    return m_ampInstances[identifier()];
-  }
+    return ( isDefault() ? new T() : new T( arguments() ) );
+   }
   
 private:
   
