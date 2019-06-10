@@ -23,6 +23,11 @@ in bins of K K invariant mass.
 
 RELEASE NOTES:
 
+v0.10 (10-Jun-19):
+
+Add ability to precalculate user variables to BreitWigner amplitude inside
+of the Dalitz tutorial.
+
 v0.8 (17-Jun-15):
 
 Fix a bug that appears on some platforms in newer versions of ROOT where the

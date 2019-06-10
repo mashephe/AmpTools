@@ -70,7 +70,14 @@ RELEASE NOTES:
 
 v0.10.0 (10-Jun-2019):
 
-This update includes the ability for users calculate 
+This update includes the ability for users calculate and cache variables
+from which the amplitude can later be calculated.  In the case that amplitudes
+need to be recalculated in a fit (because they have free parameters) this
+can be used to speed up subsequent recalculations.   Memory consumption can
+be reduces because if all amplitudes can be derived from user-calcuated
+data then the four-vectors can be purged from memory.  See examples in
+the BreitWigner amplitude in the Dalitz tutorial for how to implement
+these functions.
 
 v0.9.4 (13-Jun-2018):
 
