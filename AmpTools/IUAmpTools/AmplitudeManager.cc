@@ -140,20 +140,10 @@ AmplitudeManager::~AmplitudeManager() {
   
   for( map< string, Amplitude* >::iterator mapItr = m_registeredFactors.begin();
       mapItr != m_registeredFactors.end(); ++mapItr ){
-    
+   
+    // this will clean up new amplitudes generated from this amplitude
     delete mapItr->second;
   }
-  
-  for( map< string, vector< const Amplitude* > >::iterator mapItr = m_mapNameToAmps.begin();
-      mapItr != m_mapNameToAmps.end(); ++mapItr ){
-    
-    for( vector< const Amplitude* >::iterator vecItr = mapItr->second.begin();
-        vecItr != mapItr->second.end(); ++vecItr ){
-      
-      delete *vecItr;
-    }
-  }
-  
 }
 
 unsigned int

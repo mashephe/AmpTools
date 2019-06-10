@@ -77,7 +77,14 @@ public:
   /**
    * This is the destructor.
    */
-  virtual ~UserAmplitude< T >() { }
+  virtual ~UserAmplitude< T >() {
+    
+    for( map< string, T* >::iterator amp = m_ampInstances.begin();
+         amp != m_ampInstances.end(); ++amp ){
+      
+       delete amp->second;
+    }
+  }
   
   
   /**
