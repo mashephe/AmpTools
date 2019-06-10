@@ -169,7 +169,7 @@ Amplitude::calcAmplitudeAll( GDouble* pdData, GDouble* pdAmps, int iNEvents,
       
       unsigned int userIndex = iNEvents*iPermutation*numVars + iEvent*numVars;
 
-      if( pdUserData != NULL ){
+      if( numVars != 0 ){
       
         cRes = calcAmplitude( pKin, &(pdUserData[userIndex]) );
       }
