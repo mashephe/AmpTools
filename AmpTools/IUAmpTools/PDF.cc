@@ -48,7 +48,8 @@
 #endif
 
 void
-PDF::calcPDFAll( GDouble* pdData, GDouble* pdAmps, int iNEvents, int iNParticles ) const
+PDF::calcPDFAll( GDouble* pdData, GDouble* pdAmps, int iNEvents, int iNParticles,
+                 GDouble* pdUserVars ) const
 {
   
 #ifdef VTRACE
@@ -56,6 +57,8 @@ PDF::calcPDFAll( GDouble* pdData, GDouble* pdAmps, int iNEvents, int iNParticles
   info += "::calcPDFAll";
   VT_TRACER( info.c_str() );
 #endif
+  
+  unsigned int numVars = numUserVars();
   
   GDouble** pKin = new GDouble*[iNParticles];
   
@@ -66,15 +69,63 @@ PDF::calcPDFAll( GDouble* pdData, GDouble* pdAmps, int iNEvents, int iNParticles
       
       pKin[i] = &(pdData[4*iNParticles*iEvent]);
     }
+
+    unsigned int userIndex = iNEvents*numVars + iEvent*numVars;
     
-    pdAmps[iEvent] = calcPDF( pKin );
+    if( numVars != 0 ){
+
+      pdAmps[iEvent] = calcPDF( pKin, &(pdUserVars[userIndex]) );
+    }
+    else{
+      
+      pdAmps[iEvent] = calcPDF( pKin );
+    }
   }
   
   delete[] pKin;
 }
 
 GDouble
-PDF::calcPDF( const Kinematics* pKin ) const {
+PDF::calcPDF( GDouble** pKin, GDouble* userVars ) const {
+  
+  cout
+  << "***********************************************************\n"
+  << "ERROR in the construction of the class that defines\n"
+  << "the PDF named " << name() << ".\n"
+  << "One of the following two cases result in this error.\n\n"
+  << "(1) The numUserVars() method of the class indicates that\n"
+  << "    at least one user-defined variable will be calculated,\n"
+  << "    but the calcPDF method hasn't been defined such\n"
+  << "    that it can accept a pointer to the user-defined data\n"
+  << "    block.  Please define the function:\n"
+  << "      " << name() << "::\n"
+  << "         calcPDF( GDouble** pKin, GDouble* userVars )\n\n"
+  << "(2) No calcPDF function (with or without user data\n"
+  << "    data pointer is defined in the class.\n"
+  << "***********************************************************\n"
+  << endl;
+  
+  assert( false );
+}
+
+GDouble
+PDF::calcPDF( GDouble** pKin ) const {
+  
+  // It is possible to end up here if the user has
+  // defined calcPDF such that it takes two
+  // arguments and the number of user variables
+  // to calculate is zero. (This is the else clause
+  // in the next method.)  In this case try to call
+  // the user's calcAmplitude function by passing
+  // in a NULL pointer to the user data block.
+  // If that isn't defined either then the error
+  // above will print and the program will exit.
+  
+  return calcPDF( pKin, NULL );
+}
+
+GDouble
+PDF::calcPDF( const Kinematics* pKin, GDouble* userVars ) const {
   
 #ifdef VTRACE
   string info = name();
@@ -93,7 +144,16 @@ PDF::calcPDF( const Kinematics* pKin ) const {
     pData[i][3] = particleList[i].Pz();
   }
   
-  GDouble value = calcPDF(pData);
+  GDouble value;
+  
+  if( userVars != NULL ){
+  
+    value = calcPDF( pData, userVars );
+  }
+  else{
+    
+    value = calcPDF( pData );
+  }
   
   for (int i = 0; i < particleList.size(); i++){
     delete[] pData[i];

@@ -38,6 +38,7 @@
 #include "IUAmpTools/AmpToolsInterface.h"
 #include "MinuitInterface/MinuitMinimizationManager.h"
 #include "IUAmpTools/AmplitudeManager.h"
+#include "IUAmpTools/PDFManager.h"
 #include "IUAmpTools/AmpVecs.h"
 #include "IUAmpTools/Kinematics.h"
 #include "IUAmpTools/NormIntInterface.h"
@@ -50,6 +51,7 @@
 
 
 vector<Amplitude*> AmpToolsInterface::m_userAmplitudes;
+vector<PDF*> AmpToolsInterface::m_userPDFs;
 vector<DataReader*> AmpToolsInterface::m_userDataReaders;
 
 AmpToolsInterface::AmpToolsInterface( FunctionalityFlag flag ) :
@@ -101,8 +103,8 @@ AmpToolsInterface::resetConfigurationInfo(ConfigurationInfo* configurationInfo){
     ReactionInfo* reaction = m_configurationInfo->reactionList()[irct];
     string reactionName(reaction->reactionName());
 
-    // if( reaction->fitType() = IntensityManager::kAmplitude ){
-    if( false ){
+//    if( reaction->fitType() = IntensityManager::kAmplitude ){
+    if( true ){
     
       AmplitudeManager* ampMan = new AmplitudeManager(reaction->particleList(),reactionName);
       for (unsigned int i = 0; i < m_userAmplitudes.size(); i++){
@@ -673,7 +675,7 @@ AmpToolsInterface::printAmplitudes(string reactionName, Kinematics* kin) const {
     cout << "      AMPLITUDE = " << ampNames[iamp] << endl;
     cout << "    ----------------------------------" << endl << endl;
     
-    vector< const Amplitude* > ampFactors = ampMan->getFactors(ampNames[iamp]);
+    vector< const Term* > ampFactors = ampMan->getFactors(ampNames[iamp]);
     vector <vector <int> > permutations = ampMan->getPermutations(ampNames[iamp]);
     
     cout << "      PRODUCT OF FACTORS" << endl

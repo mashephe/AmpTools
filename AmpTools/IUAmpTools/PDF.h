@@ -125,7 +125,19 @@ public:
    * \see calcPDFAll
    * \see PDFManager::addAmpPermutation
    */
-  virtual void calcPDFAll( GDouble* pdData, GDouble* pdAmps, int iNEvents, int iNParticles ) const;
+  virtual void calcPDFAll( GDouble* pdData, GDouble* pdAmps, int iNEvents,
+                           int iNParticles, GDouble* pdUserVars = 0 ) const;
+  
+  /**
+   * This is the user-defined function that computes a single PDF
+   * for a set of four-vectos that describe the event kinematics.  As discussed
+   * above this function should be factorized as much as possible.
+   *
+   * \param[in] pKin a pointer to a single event.  pKin[0][0-3] define E, px,
+   * py, pz for the first particle, pKin[1][0-3] for the second, and so on
+   *
+   */
+  virtual GDouble calcPDF( GDouble** pKin ) const;
   
   
   /**
@@ -133,10 +145,20 @@ public:
    * for a set of four-vectos that describe the event kinematics.
    * The user must override this function in his or her PDF class.
    *
+   * For the user to utilize user-defiend data in the amplitude calculation,
+   * this function must be overridden by the derived class.  Either this function
+   * or the function above must be defined for any Amplitude class.
+   *
    * \param[in] pKin a pointer to a single event.  pKin[0][0-3] define E, px,
    * py, pz for the first particle, pKin[1][0-3] for the second, and so on
+   *
+   * \param[in] userVars is an optional pointer to the user data block associated
+   * with this event.  It can be used to store intermediate portions of
+   * the calculation in the case that calcPDF must be called multiple times
+   * during the course of a fit.  The userVars memory block is filled in
+   * calcUserVars.
    */
-  virtual GDouble calcPDF( GDouble** pKin ) const = 0;
+  virtual GDouble calcPDF( GDouble** pKin,  GDouble* userVars ) const;
   
   /**
    * \overload
@@ -150,7 +172,7 @@ public:
    * \see calcPDF
    */
   
-  GDouble calcPDF( const Kinematics* pKin ) const;
+  GDouble calcPDF( const Kinematics* pKin, GDouble* userVars = 0 ) const;
   
   
 #ifdef GPU_ACCELERATION

@@ -126,6 +126,14 @@ public:
   unsigned int termStoragePerEvent() const;
   
   /**
+   *  For PDF fits, this always returns just one ordering, the default one.
+   */
+  const vector< vector< int > >& getPermutations( const string& name ) const {
+    
+    return m_defaultOrderVec;
+  }
+  
+  /**
    * This function caculates the PDFs for each data event and stores
    * them in the AmpVecs structure.  It returns true if it alters the
    * terms in the structure (helpful to see if an update actually
@@ -209,7 +217,7 @@ public:
    * \see addAmpFactor
    * \see registerPDFFactor
    */
-  const vector< const PDF* >& getFactors( const string& name ) const;
+  vector< const Term* > getFactors( const string& name ) const;
   
   /**
    * This function returns a boolean indicating if any PDF in the
@@ -221,7 +229,17 @@ public:
    * \see setParValue
    */
   bool hasTermWithFreeParam() const;
+
+  /**
+   * This function will return true if every PDF factor can be
+   * calculated from user-defined data variables.  In some instances
+   * this flag is used to optimize memory consumption as it means
+   * that the raw four-vectors are not needed for PDF
+   * computations.
+   */
   
+  bool needsUserVarsOnly() const { return m_needsUserVarsOnly; }
+
   //
   // The functions below modify the state of the PDFManager
   //
@@ -280,7 +298,7 @@ public:
    * that is simply constructed using the default construction.  For example
    * if the user PDF class is called MyAmp, the call
    * \code
-   * ampManager.registerPDFFactor( MyAmp() )
+   * pdfManager.registerPDFFactor( MyPDF() )
    * \endcode
    * is sufficent to register the PDF.
    *
@@ -367,8 +385,13 @@ private:
   // vector to short-cut recomputation of terms with all fixed factors
   vector< bool > m_vbIsPDFFixed;
   
+  // a vector of length one that contains a vector with the default
+  // ordering of particles
+  vector< vector< int > > m_defaultOrderVec;
+  
   // some internal members to optimize PDF recalculation
   bool m_optimizeParIteration;
+  bool m_needsUserVarsOnly;
   mutable map< const PDF*, int > m_pdfIteration;
   mutable map< AmpVecs*, map< const PDF*, int > > m_dataPDFIteration;
 };

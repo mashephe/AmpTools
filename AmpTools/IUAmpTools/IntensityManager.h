@@ -47,6 +47,7 @@
 
 class ConfigurationInfo;
 class NormIntInterface;
+class Term;
 
 using namespace std;
 
@@ -91,18 +92,27 @@ public:
   
   virtual unsigned int termStoragePerEvent() const = 0;
   
+/**
+   * The function returns a list of permutations of identical particles
+   * which is useful in cases where the IntensityManager is an
+   * AmplitudeManager.  The size of this object is needed to do
+   * memory allocations hence it must be accessible in the base class.
+   *
+   * \param[in] name the name of the amplitude to get the permutations for
+   *
+   * \see addAmpPermutation
+   */
+  virtual const vector< vector< int > >& getPermutations( const string& name ) const = 0;
+
+  
   /**
    * This function should return the number of doubles required to
    * store optional user data for all factors and permutations
    * for a single event.
    */
   
-  virtual unsigned int userVarsPerEvent() const = 0;
-
-  /*
-   * These functions perform computations based on the current state
-   * of the IntensityManager and should be defined by the the derived class.
-   */
+  unsigned int userVarsPerEvent() const;
+  
   
   /**
    * This function triggers the calculation of optional user data
@@ -110,7 +120,12 @@ public:
    * calculations of amplitudes and integrals.
    */
   
-  virtual void calcUserVars( AmpVecs& ampVecs ) const = 0;
+  void calcUserVars( AmpVecs& ampVecs ) const;
+
+  /*
+   * These functions perform computations based on the current state
+   * of the IntensityManager and should be defined by the the derived class.
+   */
   
   /**
    * This function caculates the various intensity terms for each data event.
@@ -183,7 +198,7 @@ public:
   
   //
   // The functions below all return information that describes the
-  // state and configuration of the AmplitudeManager.
+  // state and configuration of the IntensityManager.
   //
   
   /**
@@ -195,6 +210,12 @@ public:
    * \see ampIndex
    */
   const vector< string >& getTermNames() const;
+  
+  /**
+   *
+   */
+  
+  virtual vector< const Term* > getFactors( const string& name ) const = 0;
   
   /**
    * The function returns a reference to the parameter that is acting as the

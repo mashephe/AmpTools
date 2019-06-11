@@ -127,27 +127,7 @@ public:
    */
   
   unsigned int termStoragePerEvent() const;
-  
-  /**
-   * This function returns the number of doubles needed to store optional
-   * user data for all factors and permutations.
-   */
-  
-  unsigned int userVarsPerEvent() const;
-  
-  
-  /**
-   * This function triggers the calculation of optional user data that
-   * can be stored with each amplitude to expedite future calculations.
-   *
-   * \param[in,out] ampVecs a reference to the AmpVecs storage structure, four vectors
-   * will be read from this class and caculations will be written to
-   * this class
-   *
-   */
-  
-  void calcUserVars( AmpVecs& ampVecs ) const;
-  
+   
   /**
    * This function caculates the amplitudes for each data event and stores
    * them in the AmpVecs structure.  It returns true if it alters the
@@ -238,7 +218,7 @@ public:
   const vector< vector< int > >& getPermutations( const string& name ) const;
   
   /**
-   * This function returns a vector of const points to the Amplitude classes
+   * This function returns a vector of const pointers to the Amplitude classes
    * that make up the factors that are multipled together to get a single
    * amplitude.
    *
@@ -247,7 +227,7 @@ public:
    * \see addAmpFactor
    * \see registerAmplitudeFactor
    */
-  const vector< const Amplitude* >& getFactors( const string& name ) const;
+  vector< const Term* > getFactors( const string& name ) const;
 
   /**
    * This function returns a boolean indicating if any amplitude in the
@@ -418,17 +398,28 @@ public:
    */
   void updatePar( const string& parName ) const;
   
+  /**
+   * This function can be used to set a flag to optimize subsequent
+   * calls to calcTerms in the case that amplitudes have free parameters.
+   * It uses functionality in the updatePar function to only force a
+   * recalculation of the amplitude for a particular AmpVecs class if
+   * one of the AmpParameters for that amplitude has changed since
+   * the last calculation.  This should signficiantly enhance the speed
+   * for fits with parameters floating in amplitudes, since there will
+   * only be an expensive recomputation when MINUIT changes the parameter.
+   *
+   * \param[in] flag set to true to enable the optimization
+   */
+  void setOptimizeParIteration( bool flag ) { m_optimizeParIteration = flag; }
+
   
 private:
-  
+
   // recursive routine to symmetrize final state
   void generateSymmetricCombos( const vector< pair< int, int > >& prevSwaps,
                                vector< vector< pair< int, int > > > remainingSwaps,
                                const vector< int >& defaultOrder );
   
-  // amplitude name -> vector of amplitude factors
-  map< string, vector< const Amplitude* > > m_mapNameToAmps;
-
   // amplitude name -> vector of particle permutations
   // by default this starts as m_symmCombos for each amp
   map< string, vector< vector< int > > > m_ampPermutations;
@@ -437,9 +428,8 @@ private:
   // state particles
   vector< vector< int > > m_symmCombos;
 
-  // check to see if amplitudes have already been symmetrized so user can
-  // be warned if additional amplitudes are added after symmetrization is done
-  bool m_symmetrizeCalled;
+  // amplitude name -> vector of amplitude factors
+  map< string, vector< const Amplitude* > > m_mapNameToAmps;
 
   // this holds "default" amplitudes for all registered amplitudes
   map< string, Amplitude* > m_registeredFactors;
@@ -455,6 +445,7 @@ private:
     
   // some internal members to optimize amplitude recalculation
   bool m_needsUserVarsOnly;
+  bool m_optimizeParIteration;
   mutable map< const Amplitude*, int > m_ampIteration;
   mutable map< AmpVecs*, map< const Amplitude*, int > > m_dataAmpIteration;
   mutable map< string, unsigned long long > m_staticUserVarsOffset;

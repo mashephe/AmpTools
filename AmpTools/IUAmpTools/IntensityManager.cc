@@ -43,6 +43,7 @@
 #include <vector>
 #include <string>
 #include <map>
+#include <set>
 #include <list>
 #include <complex>
 #include <string.h>
@@ -52,6 +53,7 @@
 #include "IUAmpTools/IntensityManager.h"
 #include "IUAmpTools/NormIntInterface.h"
 #include "IUAmpTools/Kinematics.h"
+#include "IUAmpTools/Term.h"
 
 IntensityManager::IntensityManager( const vector< string >& reaction,
                                    const string& reactionName) :
@@ -163,6 +165,166 @@ IntensityManager::prodFactorArray( double* array ) const {
     array[2*i+1] = imag( value );
   }
 }
+
+unsigned int
+IntensityManager::userVarsPerEvent() const {
+  
+  set< string > countedStaticTerms;
+  set< string > countedUniqueTerms;
+  
+  vector< string > termNames = getTermNames();
+  
+  unsigned int userStorage = 0;
+  
+  for( int i = 0; i < getTermNames().size(); i++ ) {
+    
+    unsigned int iNPermutations = getPermutations( termNames[i] ).size();
+    const vector< const Term* >& factorVec = getFactors( termNames[i] );
+    
+    for( int j = 0; j < factorVec.size(); ++j ){
+      
+      if( factorVec[j]->areUserVarsStatic() ){
+        
+        // for factors that have static data, we only want to
+        // count the allocation once -- if we have counted
+        // it already then skip to the next factor
+        if( countedStaticTerms.find( factorVec[j]->name() ) ==
+           countedStaticTerms.end() )
+          countedStaticTerms.insert( factorVec[j]->name() );
+        else continue;
+      }
+      else{
+        // user data is not static, so
+        // check to see if we have seen an instance of this
+        // same amplitude that would behave in the same way
+        // (i.e., has the same arguments) and if it exists, we
+        // will use user data block from it instead
+        if( countedUniqueTerms.find( factorVec[j]->identifier() ) ==
+           countedUniqueTerms.end() )
+          countedUniqueTerms.insert( factorVec[j]->identifier() );
+        else continue;
+      }
+      
+      userStorage += iNPermutations * factorVec[j]->numUserVars();
+    }
+  }
+  
+  return userStorage;
+}
+
+void
+IntensityManager::calcUserVars( AmpVecs& a ) const
+{
+  
+#ifdef VTRACE
+  VT_TRACER( "IntensityManager::calcUserVars" );
+#endif
+  
+  const vector< string >& termNames = getTermNames();
+  
+  int iNTerms = termNames.size();
+  
+  assert( iNTerms && a.m_iNEvents && a.m_iNTrueEvents && a.m_pdUserVars);
+  
+  int iTermIndex;
+  unsigned long long iUserVarsOffset = 0;
+  for( iTermIndex = 0; iTermIndex < iNTerms; iTermIndex++ )
+  {
+    const vector< vector< int > >& vvPermuations = getPermutations(termNames[iTermIndex]);
+    int iNPerms = vvPermuations.size();
+    
+    const vector< const Term* >& vTerms = getFactors( termNames[iTermIndex] );
+    int iFactor, iNFactors = vTerms.size();
+    
+    const Term* pCurrTerm = 0;
+    for( iFactor=0; iFactor < iNFactors; iFactor++ ){
+      
+      pCurrTerm = vTerms.at( iFactor );
+      
+      if( pCurrTerm->areUserVarsStatic() ){
+        if( !pCurrTerm->staticUserVarsCalculated( a.m_pdData ) ){
+          
+          // if the static user data has not been calculated, record the
+          // location in user data bank where it will end up
+          // note that this offset is valid on both the CPU
+          // and the GPU as GPU ordering only affects user
+          // data variables within a factor
+          a.m_staticUserVarsOffset[pCurrTerm->name()] = iUserVarsOffset;
+        }
+        // if we have static data and it has been calculated
+        // then skip this amplitude factor
+        else continue;
+      }
+      else{
+        
+        // we don't have static user data so check and see
+        // if this instances of this amplitude has calculated
+        // user data for this data set
+        if( !pCurrTerm->userVarsCalculated( a.m_pdData ) ){
+          
+          // likewise record where user data will end up
+          // for all amplitudes that have the same identifier
+          // (arguments) as this one
+          a.m_userVarsOffset[pCurrTerm->identifier()] = iUserVarsOffset;
+        }
+        else continue;
+      }
+      
+      int iNVars = pCurrTerm->numUserVars();
+      int iNData = iNVars * a.m_iNEvents * iNPerms;
+      
+      // calculation of user-defined kinematics data
+      // is something that should only be done once
+      // per fit, so do it on the CPU no matter what
+      
+      pCurrTerm->
+      calcUserVarsAll( a.m_pdData,
+                      a.m_pdUserVars + iUserVarsOffset,
+                      a.m_iNEvents, &vvPermuations );
+      
+#ifdef GPU_ACCELERATION
+      
+      // we want to reorder the userVars if we are working on the
+      // GPU so that the same variable for neighboring events is
+      // next to each other, this will enhance block read and
+      // caching ability
+      
+      GDouble* tmpVarStorage = new GDouble[iNData];
+      
+      for( int iPerm = 0; iPerm < iNPerms; ++iPerm ){
+        for( int iEvt = 0; iEvt < a.m_iNEvents; ++iEvt ){
+          for( int iVar = 0; iVar < iNVars; ++iVar ){
+            
+            unsigned long long cpuIndex =
+            iUserVarsOffset + iPerm*a.m_iNEvents*iNVars + iEvt*iNVars + iVar;
+            unsigned long long gpuIndex =
+            iPerm*a.m_iNEvents*iNVars + iVar*a.m_iNEvents + iEvt;
+            
+            tmpVarStorage[gpuIndex] = a.m_pdUserVars[cpuIndex];
+          }
+        }
+      }
+      
+      memcpy( a.m_pdUserVars + iUserVarsOffset, tmpVarStorage,
+             iNData*sizeof(GDouble) );
+      
+      delete[] tmpVarStorage;
+#endif //GPU_ACCELERATION
+      
+      iUserVarsOffset += iNData;
+    }
+  }
+  
+  // and if we are doing a GPU accelerated fit
+  // copy the entire user data block to the GPU so we have it there
+  
+#ifdef GPU_ACCELERATION
+  a.m_gpuMan.copyUserVarsToGPU( a );
+#endif //GPU_ACCELERATION
+  
+  return;
+}
+
 
 void
 IntensityManager::setDefaultProductionFactor( const string& name,

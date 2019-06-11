@@ -48,6 +48,7 @@
 #include "MinuitInterface/MinuitMinimizationManager.h"
 #include "IUAmpTools/IntensityManager.h"
 #include "IUAmpTools/Amplitude.h"
+#include "IUAmpTools/PDF.h"
 #include "IUAmpTools/AmpVecs.h"
 #include "IUAmpTools/Kinematics.h"
 #include "IUAmpTools/NormIntInterface.h"

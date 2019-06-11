@@ -50,10 +50,27 @@
 PDFManager::PDFManager( const vector< string >& reaction,
                        const string& reactionName) :
 IntensityManager( reaction, reactionName ),
+m_needsUserVarsOnly( true ),
 m_optimizeParIteration( false )
 {
   cout << endl << "## PDF MANAGER INITIALIZATION ##" << endl;
   cout << " Creating PDF manager for reaction:  " << reactionName << endl;
+  
+  
+  // setup the vector of symmetric combinations -- first initialize
+  // it with numberOfCombos copies of the default ordering
+  // then go in and make the swaps
+  vector< int > defaultOrder( reaction.size() );
+  for( unsigned int i = 0; i < reaction.size(); ++i ){
+    
+    defaultOrder[i] = i;
+  }
+
+  // for a sum of PDFs the notion of "symmetrization" doesn't
+  // really make sense -- in this case there is only one
+  // ordering of the particles, the deafult one
+    
+  m_defaultOrderVec.push_back( defaultOrder );
 }
 
 PDFManager::~PDFManager() {
@@ -121,6 +138,14 @@ PDFManager::calcTerms( AmpVecs& a ) const
 #ifdef VTRACE
   VT_TRACER( "PDFManager::calcTerms" );
 #endif
+  
+  // on the first pass through this data set be sure to calculate
+  // the user data first, if needed, before doing term calculations
+  if( !a.m_termsValid && a.m_userVarsPerEvent > 0 ){
+    
+    calcUserVars( a );
+    if( m_needsUserVarsOnly ) a.clearFourVecs();
+  }
   
   bool modifiedTerm = false;
   
@@ -442,8 +467,10 @@ PDFManager::calcIntegrals( AmpVecs& a, int iNGenEvents ) const
   a.m_integralValid = true;
 }
 
-const vector< const PDF* >&
+vector< const Term* >
 PDFManager::getFactors( const string& name ) const {
+  
+  vector< const Term* > vTermPtr;
   
   map< string, vector< const PDF* > >::const_iterator mapItr =
   m_mapNameToPDFs.find( name );
@@ -451,7 +478,11 @@ PDFManager::getFactors( const string& name ) const {
   // check to be sure the PDF is there:
   assert( mapItr != m_mapNameToPDFs.end() );
   
-  return( mapItr->second );
+  for( vector< const PDF* >::const_iterator vecItr = mapItr->second.begin();
+      vecItr != mapItr->second.end(); ++vecItr )
+    vTermPtr.push_back( *vecItr );
+  
+  return vTermPtr;
 }
 
 void
@@ -480,7 +511,9 @@ PDFManager::addPDFFactor( const string& name,
   }
   
   m_mapNameToPDFs[name].push_back( newPDF );
-  
+
+  m_needsUserVarsOnly = m_needsUserVarsOnly && newPDF->needsUserVarsOnly();
+
   //Enable a short-cut if no factors are variable in the PDF
   m_vbIsPDFFixed[termIndex(name)] =
   m_vbIsPDFFixed[termIndex(name)] && !newPDF->containsFreeParameters();
