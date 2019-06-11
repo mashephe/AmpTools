@@ -1,0 +1,7 @@
+1) Be sure local copy of AmpTools is on the branch that needs
+documentation generated for it.
+2) Run doxygen using the GUI front end and write to doc/html
+3) cd doc/html
+4) git add .
+5) git commit -m "updated documenation on mm/dd/yy"
+6) git push origin gh-pages

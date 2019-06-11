@@ -81,7 +81,7 @@ public:
   /**
    * This function should return the number of doubles required to store
    * all terms for an event.  It should be equal to or smaller
-   * than that returned by the termFactorStoragePerEvent.  The
+   * than that returned by the maxFactorStoragePerEvent.  The
    * reason being that each term may be composed of multiple
    * factors (for multiple permutations in the case of an amplitude fit).
    * Once the factors are assembled into a term then, as long
@@ -90,11 +90,27 @@ public:
    */
   
   virtual unsigned int termStoragePerEvent() const = 0;
+  
+  /**
+   * This function should return the number of doubles required to
+   * store optional user data for all factors and permutations
+   * for a single event.
+   */
+  
+  virtual unsigned int userVarsPerEvent() const = 0;
 
   /*
    * These functions perform computations based on the current state
    * of the IntensityManager and should be defined by the the derived class.
    */
+  
+  /**
+   * This function triggers the calculation of optional user data
+   * that can be stored in the AmpVecs class to expedite subsequent
+   * calculations of amplitudes and integrals.
+   */
+  
+  virtual void calcUserVars( AmpVecs& ampVecs ) const = 0;
   
   /**
    * This function caculates the various intensity terms for each data event.
@@ -199,6 +215,16 @@ public:
    * \see setParValue
    */
   virtual bool hasTermWithFreeParam() const = 0;
+  
+  /**
+   * This function will return true if every amplitude factor can be
+   * calculated from user-defined data variables.  In some instances
+   * this flag is used to optimize memory consumption as it means
+   * that the raw four-vectors are not needed for amplitude
+   * computations.
+   */
+  
+  virtual bool needsUserVarsOnly() const = 0;
   
   /**
    * This returns the internal index of a term.  It is useful for users
@@ -463,7 +489,7 @@ private:
   // term index -> production amplitude
   vector< const complex< double >* > m_prodFactorVec;
   
-  // a vector of amplitude names -- keep also a set of amplitude indices
+  // a vector of amplitude names -- keep also a set of term indices
   // these can be useful speeding up intesity calculations by removing
   // slower map element look-ups
   vector< string > m_termNames;

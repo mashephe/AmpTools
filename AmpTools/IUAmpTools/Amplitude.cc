@@ -47,9 +47,86 @@
 #include "vt_user.h"
 #endif
 
+string
+Amplitude::identifier() const {
+  
+  string id = name();
+  
+  for( vector< string >::const_iterator arg = m_args.begin();
+      arg != m_args.end(); ++arg ){
+    
+    id += *arg;
+    id += " ";
+  }
+  
+  return id;
+}
+
+void
+Amplitude::calcUserVarsAll( GDouble* pdData, GDouble* pdUserVars, int iNEvents,
+                            const vector< vector< int > >* pvPermutations ) const
+{
+  
+#ifdef VTRACE
+  string info = name();
+  info += "::calcUserVarsAll";
+  VT_TRACER( info.c_str() );
+#endif
+  
+//  cout << "Caculating user data for " << name() << endl;
+  
+  unsigned int numVars = numUserVars();
+  
+  // exit immediately if there is nothing to compute
+  if( !numVars ) return;
+  
+  int iPermutation, iNPermutations = pvPermutations->size();
+  assert( iNPermutations );
+  
+  int iNParticles = pvPermutations->at(0).size();
+  assert( iNParticles );
+  
+  GDouble** pKin = new GDouble*[iNParticles];
+  
+  int i, iEvent;
+  for( iEvent=0; iEvent<iNEvents; iEvent++ ){
+    
+    for( iPermutation = 0; iPermutation < iNPermutations; iPermutation++ ){
+      
+      m_currentPermutation = (*pvPermutations)[iPermutation];
+
+      // pKin is an array of pointers to the particle four-momentum
+      // that gets reordered for each permutation so the user
+      // doesn't need to deal with permutations in their calcAmplitude
+      // routine
+      
+      for( i = 0; i < iNParticles; i++ ){
+        
+        int j = (*pvPermutations)[iPermutation][i];
+        pKin[i] = &(pdData[4*iNParticles*iEvent+4*j]);
+        
+      }
+      
+      unsigned int userIndex = iNEvents*iPermutation*numVars + iEvent*numVars;
+      calcUserVars( pKin, &(pdUserVars[userIndex]) );
+    }
+  }
+  
+  // if the user variables are static, add a pointer to the data set for
+  // which we just did the calculation;  that we know later
+  // whether it has been calculated
+  if( areUserVarsStatic() ) m_staticUserVarsCalculated.insert( pdData );
+  m_userVarsCalculated.insert( pdData );
+  
+  delete[] pKin;
+}
+
+set< GDouble* > Amplitude::m_staticUserVarsCalculated = set< GDouble* >();
+
 void 
 Amplitude::calcAmplitudeAll( GDouble* pdData, GDouble* pdAmps, int iNEvents,
-                            const vector< vector< int > >* pvPermutations ) const
+                            const vector< vector< int > >* pvPermutations,
+                             GDouble* pdUserVars ) const
 {
   
 #ifdef VTRACE
@@ -60,6 +137,8 @@ Amplitude::calcAmplitudeAll( GDouble* pdData, GDouble* pdAmps, int iNEvents,
 
   complex< GDouble > cRes;
   
+  unsigned int numVars = numUserVars();
+
   int iPermutation, iNPermutations = pvPermutations->size();
   assert( iNPermutations );
   
@@ -68,21 +147,8 @@ Amplitude::calcAmplitudeAll( GDouble* pdData, GDouble* pdAmps, int iNEvents,
   
   GDouble** pKin = new GDouble*[iNParticles];
   
-  /*
-   if( m_registeredParams.size() != 0 ) {
-   
-   cout << "Current values of parameters: " << endl;
-   for( vector< AmpParameter* >::const_iterator parItr = m_registeredParams.begin();
-   parItr != m_registeredParams.end();
-   ++parItr ){
-   
-   cout << "\t" << (**parItr).name() << ":  " << (**parItr) << endl;
-   }
-   }
-   */
-  
   int i, iEvent;
-  for( iEvent=0; iEvent<iNEvents; iEvent++ ){        
+  for( iEvent = 0; iEvent < iNEvents; iEvent++ ){
     
     for( iPermutation = 0; iPermutation < iNPermutations; iPermutation++ ){
       
@@ -100,7 +166,15 @@ Amplitude::calcAmplitudeAll( GDouble* pdData, GDouble* pdAmps, int iNEvents,
       // doesn't need to deal with permutations in their calcAmplitude
       // routine
       
-      cRes = calcAmplitude( pKin );
+      unsigned int userIndex = iNEvents*iPermutation*numVars + iEvent*numVars;
+
+      if( numVars != 0 ){
+      
+        cRes = calcAmplitude( pKin, &(pdUserVars[userIndex]) );
+      }
+      else{
+        cRes = calcAmplitude( pKin );
+      }
       
       pdAmps[2*iNEvents*iPermutation+2*iEvent] = cRes.real();
       pdAmps[2*iNEvents*iPermutation+2*iEvent+1] = cRes.imag();
@@ -112,7 +186,7 @@ Amplitude::calcAmplitudeAll( GDouble* pdData, GDouble* pdAmps, int iNEvents,
 
 
 complex< GDouble >
-Amplitude::calcAmplitude( const Kinematics* pKin ) const {
+Amplitude::calcAmplitude( const Kinematics* pKin, GDouble* userVars ) const {
   
   vector<int> permutation;
   
@@ -122,13 +196,56 @@ Amplitude::calcAmplitude( const Kinematics* pKin ) const {
     permutation.push_back(i);
   }
   
-  return calcAmplitude( pKin, permutation );
+  return calcAmplitude( pKin, permutation, userVars );
   
 }
 
+complex< GDouble >
+Amplitude::calcAmplitude( GDouble** pKin, GDouble* userVars ) const {
+  
+  cout
+  << "***********************************************************\n"
+  << "ERROR in the construction of the class that defines\n"
+  << "the Amplitude named " << name() << ".\n"
+  << "One of the following two cases result in this error.\n\n"
+  << "(1) The numUserVars() method of the class indicates that\n"
+  << "    at least one user-defined variable will be calculated,\n"
+  << "    but the calcAmplitude method hasn't been defined such\n"
+  << "    that it can accept a pointer to the user-defined data\n"
+  << "    block.  Please define the function:\n"
+  << "      " << name() << "::\n"
+  << "         calcAmplitude( GDouble** pKin, GDouble* userVars )\n\n"
+  << "(2) No calcAmplitude function (with or without user data\n"
+  << "    data pointer is defined in the class.\n"
+  << "***********************************************************\n"
+  << endl;
+  
+  assert( false );
+  
+}
 
 complex< GDouble >
-Amplitude::calcAmplitude( const Kinematics* pKin, const vector< int >& permutation) const {
+Amplitude::calcAmplitude( GDouble** pKin ) const {
+
+  // It is possible to end up here if the user has
+  // defined calcAmplitude such that it takes two
+  // arguments and the number of user variables
+  // to calculate is zero. (This is the else clause
+  // in the next method.)  In this case try to call
+  // the user's calcAmplitude function by passing
+  // in a NULL pointer to the user data block.
+  // If that isn't defined either then the error
+  // above will print and the program will exit.
+  
+  return calcAmplitude( pKin, NULL );
+}
+
+
+
+complex< GDouble >
+Amplitude::calcAmplitude( const Kinematics* pKin,
+                          const vector< int >& permutation,
+                          GDouble* userVars ) const {
 
 #ifdef VTRACE
   string info = name();
@@ -150,7 +267,19 @@ Amplitude::calcAmplitude( const Kinematics* pKin, const vector< int >& permutati
     pData[i][3] = particleList[permutation[i]].Pz();
   }
   
-  complex< GDouble > value = calcAmplitude(pData);
+  complex< GDouble > value;
+  
+  if( userVars != NULL ){
+  
+    value = calcAmplitude( pData, userVars );
+  }
+  else{
+
+    // this call should ensure backwards compatibility with
+    // older Amplitude classes that just took one argument
+    
+    value = calcAmplitude( pData );
+  }
   
   for (int i = 0; i < particleList.size(); i++){
     delete[] pData[i];

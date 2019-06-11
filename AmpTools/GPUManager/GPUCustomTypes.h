@@ -51,9 +51,9 @@ using namespace std;
 // a few helpers to make operations on GPU a little more user friendly
 
 // standard arguments to kernel launches
-#define GPU_AMP_PROTO GDouble* pfDevData, WCUComplex* pcDevAmp, \
-                      int* piDevPerm, int iNParticles, int iNEvents
-#define GPU_AMP_ARGS  pfDevData, pcDevAmp, piDevPerm, iNParticles, iNEvents
+#define GPU_AMP_PROTO GDouble* pfDevData, GDouble* pfDevUserVars, \
+                      WCUComplex* pcDevAmp, int* piDevPerm, int iNParticles, int iNEvents
+#define GPU_AMP_ARGS  pfDevData, pfDevUserVars, pcDevAmp, piDevPerm, iNParticles, iNEvents
 
 // how to get the event we are working with:
 #define GPU_THIS_EVENT threadIdx.x + GPU_BLOCK_SIZE_X * threadIdx.y + \
@@ -68,6 +68,8 @@ using namespace std;
 #define GPU_KIN(id,val) pfDevData[ ( piDevPerm[id] * 4 + val ) * iNEvents + iEvent]
 #define GPU_P4(id) { GPU_KIN(id,GPU_E)  , GPU_KIN(id,GPU_PX), \
                      GPU_KIN(id,GPU_PY) , GPU_KIN(id,GPU_PZ)}
+
+#define GPU_UVARS(val) pfDevUserVars[val*iNEvents+iEvent]
 
 #define COPY_P4(a1,a2) GDouble a2[4]; for( int zzz = 0; zzz < 4; ++zzz ) a2[zzz] = a1[zzz];
 

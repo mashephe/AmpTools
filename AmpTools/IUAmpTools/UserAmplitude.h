@@ -78,23 +78,44 @@ public:
   /**
    * This is the destructor.
    */
-  virtual ~UserAmplitude< T >() { }
+   ~UserAmplitude< T >() {
+    
+    for( typename map< string, T* >::iterator amp = m_ampInstances.begin();
+         amp != m_ampInstances.end(); ++amp ){
+      
+       delete amp->second;
+    }
+  }
   
   
   /**
    * This method can create a new amplitude (of the derived type).
+   * First check to see if an existing instance will function in exactly
+   * the same way (has the same arguments).  If it will, use that,
+   * otherwise make a new one and save it.
    */
   Amplitude* newAmplitude( const vector< string >& args ) const{
-    return new T( args );
+    
+    if( m_ampInstances.find( identifier() ) == m_ampInstances.end() ){
+      
+      m_ampInstances[identifier()] = new T( args );
+    }
+    
+    return m_ampInstances[identifier()];
   }
   
   
   /**
    * This method can create a clone of an amplitude (of the derived type).
    */
-  Amplitude* clone() const{
+  Amplitude* clone() const {
+    
     return ( isDefault() ? new T() : new T( arguments() ) );
-  }
+   }
+  
+private:
+  
+  mutable map< string, T* > m_ampInstances;
   
 };
 

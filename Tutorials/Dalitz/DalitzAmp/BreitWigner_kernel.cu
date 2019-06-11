@@ -11,6 +11,13 @@ BreitWigner_kernel( GPU_AMP_PROTO, GDouble mass0, GDouble width0,
 
   int iEvent = GPU_THIS_EVENT;
 
+  /****
+  *  Equivalently one could switch needsUserVarsOnly to false
+  *  and uncomment the following lines to get the same
+  *  result.  The role of user-data is to optimize this function
+  *  call in the instance it is repeated multiple times throughout
+  *  a fit.
+
   GDouble p1[4] = GPU_P4(daught1-1);
   GDouble p2[4] = GPU_P4(daught2-1);
 
@@ -18,8 +25,16 @@ BreitWigner_kernel( GPU_AMP_PROTO, GDouble mass0, GDouble width0,
                                      - SQ(p1[2]+p2[2])
                                      - SQ(p1[3]+p2[3]));
 
- 
   WCUComplex bwBot = { SQ( m ) - SQ( mass0 ), mass0 * width0 };
+  */
+
+
+  // here we need to be careful to index the user-defined
+  // data with the proper integer corresponding to the
+  // enumeration in the C++ header file
+
+  GDouble m2 = GPU_UVARS(0);
+  WCUComplex bwBot = { m2 - SQ( mass0 ), mass0 * width0 };
 
   pcDevAmp[iEvent] = ( 1.0 / bwBot );
 

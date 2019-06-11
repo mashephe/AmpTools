@@ -129,6 +129,26 @@ public:
   unsigned int termStoragePerEvent() const;
   
   /**
+   * This function returns the number of doubles needed to store optional
+   * user data for all factors and permutations.
+   */
+  
+  unsigned int userVarsPerEvent() const;
+  
+  
+  /**
+   * This function triggers the calculation of optional user data that
+   * can be stored with each amplitude to expedite future calculations.
+   *
+   * \param[in,out] ampVecs a reference to the AmpVecs storage structure, four vectors
+   * will be read from this class and caculations will be written to
+   * this class
+   *
+   */
+  
+  void calcUserVars( AmpVecs& ampVecs ) const;
+  
+  /**
    * This function caculates the amplitudes for each data event and stores
    * them in the AmpVecs structure.  It returns true if it alters the
    * terms in the structure (helpful to see if an update actually
@@ -239,6 +259,16 @@ public:
    * \see setParValue
    */
   bool hasTermWithFreeParam() const;
+  
+  /**
+   * This function will return true if every amplitude factor can be
+   * calculated from user-defined data variables.  In some instances
+   * this flag is used to optimize memory consumption as it means
+   * that the raw four-vectors are not needed for amplitude
+   * computations.
+   */
+  
+  bool needsUserVarsOnly() const { return m_needsUserVarsOnly; }
 
   //
   // The functions below modify the state of the AmplitudeManager
@@ -388,20 +418,6 @@ public:
    */
   void updatePar( const string& parName ) const;
   
-  /**
-   * This function can be used to set a flag to optimize subsequent
-   * calls to calcTerms in the case that amplitudes have free parameters.
-   * It uses functionality in the updatePar function to only force a
-   * recalculation of the amplitude for a particular AmpVecs class if
-   * one of the AmpParameters for that amplitude has changed since
-   * the last calculation.  This should signficiantly enhance the speed
-   * for fits with parameters floating in amplitudes, since there will
-   * only be an expensive recomputation when MINUIT changes the parameter.
-   *
-   * \param[in] flag set to true to enable the optimization
-   */
-  void setOptimizeParIteration( bool flag ) { m_optimizeParIteration = flag; }
-
   
 private:
   
@@ -436,11 +452,13 @@ private:
   
   // vector to short-cut recomputation of terms with all fixed factors
   vector< bool > m_vbIsAmpFixed;
-  
+    
   // some internal members to optimize amplitude recalculation
-  bool m_optimizeParIteration;
+  bool m_needsUserVarsOnly;
   mutable map< const Amplitude*, int > m_ampIteration;
   mutable map< AmpVecs*, map< const Amplitude*, int > > m_dataAmpIteration;
+  mutable map< string, unsigned long long > m_staticUserVarsOffset;
+  
 };
 
 #endif
