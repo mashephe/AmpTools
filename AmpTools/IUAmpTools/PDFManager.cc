@@ -211,15 +211,23 @@ PDFManager::calcTerms( AmpVecs& a ) const
         iFactor++, iLocalOffset += a.m_iNEvents ){
       
       pCurrPDF = vPDFs.at( iFactor );
-      
+
+      // if we have static user data, look up the location in the data array
+      // if not, then look up by identifier
+      unsigned long long uOffset =
+      ( pCurrPDF->areUserVarsStatic() ?
+       a.m_staticUserVarsOffset[pCurrPDF->name()] :
+       a.m_userVarsOffset[pCurrPDF->identifier()] );
+
 #ifndef GPU_ACCELERATION
       pCurrPDF->
       calcPDFAll( a.m_pdData,
                  a.m_pdAmpFactors + iLocalOffset,
-                 a.m_iNEvents, a.m_iNParticles  );
+                 a.m_iNEvents, a.m_iNParticles,
+                 a.m_pdUserVars + uOffset);
 #else
       a.m_gpuMan.calcPDFAll( pCurrPDF, iLocalOffset,
-                            &vvPermuations );
+                             uOffset );
 #endif//GPU_ACCELERATION
     }
     
@@ -360,6 +368,15 @@ PDFManager::calcSumLogIntensity( AmpVecs& a ) const
   
   for( int iEvent=0; iEvent < a.m_iNTrueEvents; iEvent++ ){
     
+    if( a.m_pdIntensity[iEvent] / a.m_pdWeights[iEvent] <= 0 ){
+      
+      cout << "WARNING:  intensity for event " << iEvent << " is negative.\n"
+           << "          Skipping this event in likelihood calculation because\n"
+           << "          one cannot take the log of a negative number." << endl;
+
+      continue;
+    }
+    
     // here divide out the weight that was put into the intensity calculation
     // and weight the log -- in practice this just contributes an extra constant
     // term in the likelihood equal to sum -w_i * log( w_i ), but the division
@@ -414,12 +431,6 @@ PDFManager::calcIntegrals( AmpVecs& a, int iNGenEvents ) const
   
   GDouble* integralMatrix = a.m_pdIntegralMatrix;
   
-  // this method could be made more efficient by caching a table of
-  // integrals associated with each AmpVecs object and then, based on the
-  // variables bIsFirstPass and m_vbIsPDFFixed data compute only
-  // those terms that could have changed
-  
-  // pdf -> pdf* -> value
   assert( iNGenEvents );
   bool termChanged = calcTerms( a );
   
@@ -428,13 +439,20 @@ PDFManager::calcIntegrals( AmpVecs& a, int iNGenEvents ) const
   
   int iNPDFs = a.m_iNTerms;
   
-  int i, j, iEvent;
+  // the allocated integralMatrix object is the same size as
+  // that used for Amplitude based fits where it is 2*NAmp^2
+  // numbers to hold each complex-valued integral
+  //
+  // for a PDF fit we only need NAmp doubles, so only fill
+  // the diagnonal elements
+  
+  int i, iEvent;
   for( i = 0; i < iNPDFs;i++ ) {
     
     
     // if the PDF isn't floating and it isn't the first pass
     // through these data, then its integral can't change
-    if( a.m_integralValid && m_vbIsPDFFixed[i] && m_vbIsPDFFixed[j] ){
+    if( a.m_integralValid && m_vbIsPDFFixed[i] ){
       
       // if the PDF isn't floating and it isn't the first pass
       // through these data, then its integral can't change
@@ -444,9 +462,7 @@ PDFManager::calcIntegrals( AmpVecs& a, int iNGenEvents ) const
     else{
       
       // otherwise zero it out and recalculate it
-      
       integralMatrix[2*i*iNPDFs+2*i] = 0;
-      integralMatrix[2*i*iNPDFs+2*j+1] = 0;
     }
     
 #ifndef GPU_ACCELERATION
@@ -505,6 +521,8 @@ PDFManager::addPDFFactor( const string& name,
   
   // check to see if this is a new term and do some setup if it is
   if( !hasTerm( name ) ){
+    
+    addTerm( name, scale );
     
     m_vbIsPDFFixed.push_back( true );
     m_mapNameToPDFs[name] = vector< const PDF* >( 0 );
