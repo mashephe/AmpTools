@@ -267,7 +267,10 @@ AmpVecs::allocateTerms( const IntensityManager& intenMan, bool bAllocIntensity )
     cout << "       AmpVecs before any events have been loaded\n" << flush;
     assert(false);
   }
-  
+
+  // allocate under the assumption that the matrix is square and full of
+  // complex numbers -- this is a general case:  only diagonal (real)
+  // elements will be used for PDF based fits
   m_pdIntegralMatrix = new GDouble[2*m_iNTerms*m_iNTerms];
   
   //Allocate the Intensity only when needed
