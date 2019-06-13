@@ -70,7 +70,7 @@ PDF::calcPDFAll( GDouble* pdData, GDouble* pdAmps, int iNEvents, int iNParticles
       pKin[i] = &(pdData[4*iNParticles*iEvent]);
     }
 
-    unsigned int userIndex = iNEvents*numVars + iEvent*numVars;
+    unsigned int userIndex = iEvent*numVars;
     
     if( numVars != 0 ){
 

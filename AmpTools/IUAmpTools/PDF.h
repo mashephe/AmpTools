@@ -73,6 +73,24 @@ class PDF : public Term
 public:
   
   /**
+   * The default constructor.  The user's derived class should contain a
+   * default constructor that calls this constructor.
+   */
+  PDF() : Term() { }
+  
+  /**
+   * This constructor takes a list of arguments to inititialize an
+   * amplitude and then stores them.  The user's derived class should
+   * contain a similar constructor that calls this one.
+   */
+  PDF( const vector< string >& args ) : Term( args ) { }
+  
+  /**
+   * This is the destructor.
+   */
+  virtual ~PDF(){}
+  
+  /**
    * This must be overriden by the user and indicates how to convert a list
    * of strings (arguments) into a pointer to a new instance of the
    * users defined PDF.
