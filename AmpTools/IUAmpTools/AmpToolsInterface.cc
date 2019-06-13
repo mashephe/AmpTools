@@ -103,8 +103,7 @@ AmpToolsInterface::resetConfigurationInfo(ConfigurationInfo* configurationInfo){
     ReactionInfo* reaction = m_configurationInfo->reactionList()[irct];
     string reactionName(reaction->reactionName());
 
-//    if( reaction->fitType() = IntensityManager::kAmplitude ){
-    if( true ){
+    if( reaction->fitType() = IntensityManager::kAmplitude ){
     
       AmplitudeManager* ampMan = new AmplitudeManager(reaction->particleList(),reactionName);
       for (unsigned int i = 0; i < m_userAmplitudes.size(); i++){
@@ -359,7 +358,6 @@ AmpToolsInterface::likelihoodCalculator (const string& reactionName) const {
 }
 
 
-
 void
 AmpToolsInterface::registerAmplitude( const Amplitude& amplitude){
   
@@ -367,7 +365,12 @@ AmpToolsInterface::registerAmplitude( const Amplitude& amplitude){
   
 }
 
-
+void
+AmpToolsInterface::registerPDF( const PDF& pdf){
+  
+  m_userPDFs.push_back(pdf.clone());
+  
+}
 
 void
 AmpToolsInterface::registerDataReader( const DataReader& dataReader){
@@ -375,8 +378,6 @@ AmpToolsInterface::registerDataReader( const DataReader& dataReader){
   m_userDataReaders.push_back(dataReader.clone());
   
 }
-
-
 
 void
 AmpToolsInterface::clear(){
