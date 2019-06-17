@@ -91,13 +91,23 @@ public:
    * This method can create a new amplitude (of the derived type).
    * First check to see if an existing instance will function in exactly
    * the same way (has the same arguments).  If it will, use that,
-   * otherwise make a new one and save it.
+   * otherwise make a new one and save it.  (Reusing amplitude pointers
+   * allows for memory optimization in the IntensityManager, which
+   * is why this funny-looking roundabout method is here.)
    */
   Amplitude* newAmplitude( const vector< string >& args ) const{
     
-    if( m_ampInstances.find( identifier() ) == m_ampInstances.end() ){
+    // we need the identifier of the new amplitude first:
+    T* newAmp = new T( args );
+    
+    if( m_ampInstances.find( newAmp->identifier() ) == m_ampInstances.end() ){
       
-      m_ampInstances[identifier()] = new T( args );
+      m_ampInstances[identifier()] = newAmp;
+    }
+    else{
+      
+      // alreayd have a functional instance, so delete this one
+      delete newAmp;
     }
     
     return m_ampInstances[identifier()];
