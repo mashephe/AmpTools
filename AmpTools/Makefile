@@ -5,6 +5,7 @@ SRCDIRS := UpRootMinuit MinuitInterface IUAmpTools
 
 CXX := gcc
 CXX_FLAGS := -O3 $(shell root-config --cflags)
+#CXX_FLAGS := $(shell root-config --cflags) -g
 
 #To build in MPI-exentsions type: make MPI=1
 #(this can be used with GPU, e.g.:  make MPI=1 GPU=1)
