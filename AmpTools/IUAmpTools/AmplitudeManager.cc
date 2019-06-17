@@ -52,7 +52,9 @@ using namespace std;
 AmplitudeManager::AmplitudeManager( const vector< string >& reaction,
                                     const string& reactionName) :
 IntensityManager( reaction, reactionName ),
-m_needsUserVarsOnly( true )
+m_needsUserVarsOnly( true ),
+m_optimizeParIteration( false ),
+m_flushFourVecsIfPossible( false )
 {
   cout << endl << "## AMPLITUDE MANAGER INITIALIZATION ##" << endl;
   cout << " Creating amplitude manager for reaction:  " << reactionName << endl;
@@ -373,7 +375,7 @@ AmplitudeManager::calcTerms( AmpVecs& a ) const
   if( !a.m_termsValid && a.m_userVarsPerEvent > 0 ){
     
     calcUserVars( a );
-    if( m_needsUserVarsOnly ) a.clearFourVecs();
+    if( m_needsUserVarsOnly && m_flushFourVecsIfPossible ) a.clearFourVecs();
   }
   
   bool modifiedTerm = false;
@@ -388,7 +390,6 @@ AmplitudeManager::calcTerms( AmpVecs& a ) const
 #endif
   
   int iAmpIndex;
-  unsigned long long iUserVarsOffset = 0;
   for( iAmpIndex = 0; iAmpIndex < iNAmps; iAmpIndex++ )
   {
     
@@ -427,7 +428,7 @@ AmplitudeManager::calcTerms( AmpVecs& a ) const
       // are the same as they were the last time they were evaluated
       // for this particular dataset -- if not, recalculate
 
-      if( !( a.m_termsValid &&
+      if( !( a.m_termsValid && m_optimizeParIteration &&
             m_dataAmpIteration[&a][pCurrAmp] == m_ampIteration[pCurrAmp] ) ){
 
         recalculateFactors = true;
@@ -467,8 +468,6 @@ AmplitudeManager::calcTerms( AmpVecs& a ) const
                                    &vvPermuations,
                                    uOffset );
 #endif//GPU_ACCELERATION
-      
-      iUserVarsOffset += pCurrAmp->numUserVars() * a.m_iNEvents * iNPermutations;
     }
     
     

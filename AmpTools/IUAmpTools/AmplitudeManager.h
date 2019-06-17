@@ -418,7 +418,28 @@ public:
    */
   void updatePar( const string& parName ) const;
   
+  /**
+   * This function can be used to set a flag to optimize subsequent
+   * calls to calcTerms in the case that amplitudes have free parameters.
+   * It uses functionality in the updatePar function to only force a
+   * recalculation of the amplitude for a particular AmpVecs class if
+   * one of the AmpParameters for that amplitude has changed since
+   * the last calculation.  This should signficiantly enhance the speed
+   * for fits with parameters floating in amplitudes, since there will
+   * only be an expensive recomputation when MINUIT changes the parameter.
+   *
+   * \param[in] flag set to true to enable the optimization
+   */
+  void setOptimizeParIteration( bool flag ) { m_optimizeParIteration = flag; }
   
+  /**
+   * This function will allow the AmplitudeManager to clear four vectors
+   * from memory if all amplitudes can be calculated from user variables.
+   *
+   * \param[in] flag set to true to enable the optimization
+   */
+  void setFlushFourVecsIfPossible( bool flag ) { m_flushFourVecsIfPossible = flag; }
+
 private:
   
   // recursive routine to symmetrize final state
@@ -455,10 +476,12 @@ private:
     
   // some internal members to optimize amplitude recalculation
   bool m_needsUserVarsOnly;
+  bool m_optimizeParIteration;
+  bool m_flushFourVecsIfPossible;
+  
   mutable map< const Amplitude*, int > m_ampIteration;
   mutable map< AmpVecs*, map< const Amplitude*, int > > m_dataAmpIteration;
   mutable map< string, unsigned long long > m_staticUserVarsOffset;
-  
 };
 
 #endif
