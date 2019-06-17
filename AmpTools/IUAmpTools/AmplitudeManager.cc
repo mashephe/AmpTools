@@ -54,7 +54,8 @@ AmplitudeManager::AmplitudeManager( const vector< string >& reaction,
 IntensityManager( reaction, reactionName ),
 m_needsUserVarsOnly( true ),
 m_optimizeParIteration( false ),
-m_flushFourVecsIfPossible( false )
+m_flushFourVecsIfPossible( false ),
+m_forceUserVarRecalculation( false )
 {
   cout << endl << "## AMPLITUDE MANAGER INITIALIZATION ##" << endl;
   cout << " Creating amplitude manager for reaction:  " << reactionName << endl;
@@ -278,7 +279,8 @@ AmplitudeManager::calcUserVars( AmpVecs& a ) const
       pCurrAmp = vAmps.at( iFactor );
       
       if( pCurrAmp->areUserVarsStatic() ){
-        if( !pCurrAmp->staticUserVarsCalculated( a.m_pdData ) ){
+        if( !pCurrAmp->staticUserVarsCalculated( a.m_pdData ) ||
+           m_forceUserVarRecalculation ){
           
           // if the static user data has not been calculated, record the
           // location in user data bank where it will end up
@@ -296,7 +298,8 @@ AmplitudeManager::calcUserVars( AmpVecs& a ) const
         // we don't have static user data so check and see
         // if this instances of this amplitude has calculated
         // user data for this data set
-        if( !pCurrAmp->userVarsCalculated( a.m_pdData ) ){
+        if( !pCurrAmp->userVarsCalculated( a.m_pdData ) ||
+            m_forceUserVarRecalculation ){
         
           // likewise record where user data will end up
           // for all amplitudes that have the same identifier

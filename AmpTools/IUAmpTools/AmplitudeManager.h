@@ -439,6 +439,17 @@ public:
    * \param[in] flag set to true to enable the optimization
    */
   void setFlushFourVecsIfPossible( bool flag ) { m_flushFourVecsIfPossible = flag; }
+  
+  /**
+   * If set to true, this flag will force the recalculation of the user
+   * data every time that calcTerms is called.  This is needed in cases
+   * where one reuses a common memory block multiple times with different
+   * kinematics, like what happens in MC generation.
+   *
+   * \param[in] flag set to true to enable the optimization
+   */
+  void setForceUserVarRecalculation( bool flag ) { m_forceUserVarRecalculation = flag; }
+
 
 private:
   
@@ -478,6 +489,7 @@ private:
   bool m_needsUserVarsOnly;
   bool m_optimizeParIteration;
   bool m_flushFourVecsIfPossible;
+  bool m_forceUserVarRecalculation;
   
   mutable map< const Amplitude*, int > m_ampIteration;
   mutable map< AmpVecs*, map< const Amplitude*, int > > m_dataAmpIteration;
