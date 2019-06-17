@@ -272,6 +272,7 @@ AmpVecs::allocateTerms( const IntensityManager& intenMan, bool bAllocIntensity )
   // complex numbers -- this is a general case:  only diagonal (real)
   // elements will be used for PDF based fits
   m_pdIntegralMatrix = new GDouble[2*m_iNTerms*m_iNTerms];
+  memset( m_pdIntegralMatrix, 0, sizeof(GDouble)*2*m_iNTerms*m_iNTerms );
   
   //Allocate the Intensity only when needed
   if( bAllocIntensity )
