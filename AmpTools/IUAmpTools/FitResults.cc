@@ -164,13 +164,18 @@ FitResults::intensity( const vector< string >& amplitudes, bool accCorrected ) c
       << "*   THE INTENSITY SHOULD BE CONSIDERED UNRELIABLE because the *" << endl
       << "*   software is assuming that the derivatives of the normali- *" << endl
       << "*   zation integrals with respect to the parameters are equal *" << endl
-      << "*   to zero.  (Fixing this involves numercially computing the *" << endl
-      << "*   derivatives, which will be implemented in future versions *" << endl
-      << "*   of AmpTools.)  For now it is recommended that you repeat  *" << endl
+      << "*   to zero.                                                  *" << endl
+      << "*                                                             *" << endl
+      << "*   In order to probe the errors you may choose to repeat     *" << endl
       << "*   the fit fixing the free parameter(s) at +- 1 sigma of the *" << endl
-      << "*   parameter uncertainty to systematically probe how the     *" << endl
+      << "*   parameter uncertainty to roughly determine how the        *" << endl
       << "*   uncertainty on the intensity depends on the uncertainty   *" << endl
       << "*   of the parameter.                                         *" << endl
+      << "*                                                             *" << endl
+      << "*   To more rigorously quantify the error we recommend using  *" << endl
+      << "*   the bootstrap technique (which involves fitting multilple *" << endl
+      << "*   data sets drived from the initial data set with random    *" << endl
+      << "*   sampling) to quantify statistical uncertainties.          *" << endl
       << "***************************************************************" << endl
       << endl;
       
