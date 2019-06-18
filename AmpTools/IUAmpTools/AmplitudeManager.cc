@@ -52,7 +52,10 @@ using namespace std;
 AmplitudeManager::AmplitudeManager( const vector< string >& reaction,
                                     const string& reactionName) :
 IntensityManager( reaction, reactionName ),
-m_needsUserVarsOnly( true )
+m_needsUserVarsOnly( true ),
+m_optimizeParIteration( false ),
+m_flushFourVecsIfPossible( false ),
+m_forceUserVarRecalculation( false )
 {
   cout << endl << "## AMPLITUDE MANAGER INITIALIZATION ##" << endl;
   cout << " Creating amplitude manager for reaction:  " << reactionName << endl;
@@ -276,7 +279,8 @@ AmplitudeManager::calcUserVars( AmpVecs& a ) const
       pCurrAmp = vAmps.at( iFactor );
       
       if( pCurrAmp->areUserVarsStatic() ){
-        if( !pCurrAmp->staticUserVarsCalculated( a.m_pdData ) ){
+        if( !pCurrAmp->staticUserVarsCalculated( a.m_pdData ) ||
+           m_forceUserVarRecalculation ){
           
           // if the static user data has not been calculated, record the
           // location in user data bank where it will end up
@@ -294,7 +298,8 @@ AmplitudeManager::calcUserVars( AmpVecs& a ) const
         // we don't have static user data so check and see
         // if this instances of this amplitude has calculated
         // user data for this data set
-        if( !pCurrAmp->userVarsCalculated( a.m_pdData ) ){
+        if( !pCurrAmp->userVarsCalculated( a.m_pdData ) ||
+            m_forceUserVarRecalculation ){
         
           // likewise record where user data will end up
           // for all amplitudes that have the same identifier
@@ -373,7 +378,7 @@ AmplitudeManager::calcTerms( AmpVecs& a ) const
   if( !a.m_termsValid && a.m_userVarsPerEvent > 0 ){
     
     calcUserVars( a );
-    if( m_needsUserVarsOnly ) a.clearFourVecs();
+    if( m_needsUserVarsOnly && m_flushFourVecsIfPossible ) a.clearFourVecs();
   }
   
   bool modifiedTerm = false;
@@ -388,7 +393,6 @@ AmplitudeManager::calcTerms( AmpVecs& a ) const
 #endif
   
   int iAmpIndex;
-  unsigned long long iUserVarsOffset = 0;
   for( iAmpIndex = 0; iAmpIndex < iNAmps; iAmpIndex++ )
   {
     
@@ -427,7 +431,7 @@ AmplitudeManager::calcTerms( AmpVecs& a ) const
       // are the same as they were the last time they were evaluated
       // for this particular dataset -- if not, recalculate
 
-      if( !( a.m_termsValid &&
+      if( !( a.m_termsValid && m_optimizeParIteration &&
             m_dataAmpIteration[&a][pCurrAmp] == m_ampIteration[pCurrAmp] ) ){
 
         recalculateFactors = true;
@@ -467,8 +471,6 @@ AmplitudeManager::calcTerms( AmpVecs& a ) const
                                    &vvPermuations,
                                    uOffset );
 #endif//GPU_ACCELERATION
-      
-      iUserVarsOffset += pCurrAmp->numUserVars() * a.m_iNEvents * iNPermutations;
     }
     
     

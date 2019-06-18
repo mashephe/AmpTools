@@ -106,6 +106,18 @@ AmpToolsInterface::resetConfigurationInfo(ConfigurationInfo* configurationInfo){
       ampMan->registerAmplitudeFactor( *m_userAmplitudes[i] );
     }
     ampMan->setupFromConfigurationInfo( m_configurationInfo );
+    
+    if( m_functionality == kFull ){
+      ampMan->setOptimizeParIteration( true );
+      ampMan->setFlushFourVecsIfPossible( true );
+    }
+    
+    if( m_functionality == kMCGeneration ){
+      ampMan->setOptimizeParIteration( false );
+      ampMan->setFlushFourVecsIfPossible( false );
+      ampMan->setForceUserVarRecalculation( true );
+    }
+    
     m_intensityManagers.push_back(ampMan);
   }
   
