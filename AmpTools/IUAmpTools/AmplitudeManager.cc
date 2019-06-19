@@ -501,7 +501,7 @@ AmplitudeManager::calcTerms( AmpVecs& a ) const
       ( pCurrAmp->areUserVarsStatic() ?
         a.m_userVarsOffset[pCurrAmp->name()] :
         a.m_userVarsOffset[pCurrAmp->identifier()] );
-      
+
 #ifndef GPU_ACCELERATION
       pCurrAmp->
       calcAmplitudeAll( a.m_pdData,
@@ -894,7 +894,7 @@ AmplitudeManager::addAmpFactor( const string& name,
   if( defaultAmp == m_registeredFactors.end() ){
     
     cout << "ERROR: amplitude factor with name " << factorName
-    << " has not been registered." << endl;
+	 << " has not been registered." << endl;
     assert( false );
   }
   
