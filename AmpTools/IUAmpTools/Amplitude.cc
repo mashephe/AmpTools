@@ -48,10 +48,15 @@
 #include "vt_user.h"
 #endif
 
+//set< pair< string, GDouble* > > Amplitude::m_staticUserVarsCalculated = set< pair< string, GDouble* > >();
+
 string
 Amplitude::identifier() const {
   
   string id = name();
+  
+  // make the identifer unique from a likely name in the case of no args
+  id += "%%";
   
   for( vector< string >::const_iterator arg = m_args.begin();
       arg != m_args.end(); ++arg ){
@@ -113,18 +118,20 @@ Amplitude::calcUserVarsAll( GDouble* pdData, GDouble* pdUserVars, int iNEvents,
     }
   }
   
+  /*
   // if the user variables are static, add a pointer to the data set for
   // which we just did the calculation;  that we know later
   // whether it has been calculated
-  if( areUserVarsStatic() ) m_staticUserVarsCalculated.insert( pdData );
-  m_userVarsCalculated.insert( pdData );
+  if( areUserVarsStatic() && !staticUserVarsCalculated( pdData ) )
+    m_staticUserVarsCalculated.insert( pair< string, GDouble* >( name(), pdData ) );
+
+  if( !userVarsCalculated( pdData ) ) m_userVarsCalculated.insert( pdData );
+  */
   
   delete[] pKin;
 }
 
-set< GDouble* > Amplitude::m_staticUserVarsCalculated = set< GDouble* >();
-
-void 
+void
 Amplitude::calcAmplitudeAll( GDouble* pdData, GDouble* pdAmps, int iNEvents,
                             const vector< vector< int > >* pvPermutations,
                              GDouble* pdUserVars ) const
@@ -410,4 +417,25 @@ Amplitude::registerParameter( AmpParameter& par ){
   
   m_registeredParams.push_back( &par );
 }
+/*
+bool
+Amplitude::staticUserVarsCalculated( GDouble* pdData ) const {
+  
+  // we need to determine if an amplitude of the same name has
+  // has been used to calculate this user data block
+  
+  pair< string, GDouble* > thisData( name(), pdData );
+  return( m_staticUserVarsCalculated.find( thisData ) !=
+          m_staticUserVarsCalculated.end() );
+}
 
+bool
+Amplitude::userVarsCalculated( GDouble* pdData ) const {
+  
+  // we need to determine if this instance of this
+  // amplitude has calculated a certain block of user data
+  
+  return( m_userVarsCalculated.find( pdData ) !=
+          m_userVarsCalculated.end() );
+}
+*/
