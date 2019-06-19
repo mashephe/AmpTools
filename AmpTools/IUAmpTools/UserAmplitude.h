@@ -100,17 +100,19 @@ public:
     // we need the identifier of the new amplitude first:
     T* newAmp = new T( args );
     
-    if( m_ampInstances.find( newAmp->identifier() ) == m_ampInstances.end() ){
+    string ident = newAmp->identifier();
+    
+    if( m_ampInstances.find( ident ) == m_ampInstances.end() ){
       
-      m_ampInstances[identifier()] = newAmp;
+      m_ampInstances[ident] = newAmp;
     }
     else{
       
-      // alreayd have a functional instance, so delete this one
+      // already have a functional instance, so delete this one
       delete newAmp;
     }
     
-    return m_ampInstances[identifier()];
+    return m_ampInstances[ident];
   }
   
   
