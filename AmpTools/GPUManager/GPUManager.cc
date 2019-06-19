@@ -334,7 +334,7 @@ GPUManager::calcAmplitudeAll( const Amplitude* amp, unsigned long long offset,
   
   dim3 dimBlock( m_iDimThreadX, m_iDimThreadY );
   dim3 dimGrid( m_iDimGridX, m_iDimGridY );
-  
+
   // do the computation for all events for each permutation in the
   // vector of permunations
   vector< vector< int > >::const_iterator permItr = pvPermutations->begin();
@@ -354,13 +354,13 @@ GPUManager::calcAmplitudeAll( const Amplitude* amp, unsigned long long offset,
     // calculate amplitude factor for all events --
     // casting amp array to WCUComplex for 8 or 16 bit write 
     // operation of both real and complex parts at once
-    
+
     amp->calcAmplitudeGPU( dimGrid, dimBlock, m_pfDevData,
                            &m_pfDevUserVars[iUserVarsOffset+udLocalOffset],
                           (WCUComplex*)&m_pcDevCalcAmp[offset+permOffset],
                            m_piDevPerm, m_iNParticles, m_iNEvents,
                            *permItr );
-    
+			   
     // check to be sure kernel execution was OK
     cudaError_t cerrKernel=cudaGetLastError();
     if( cerrKernel!= cudaSuccess  ){
@@ -430,6 +430,15 @@ GPUManager::calcSumLogIntensity( const vector< complex< double > >& prodCoef,
   dim3 dimGrid( m_iDimGridX, m_iDimGridY );
   GPU_ExecAmpKernel( dimGrid, dimBlock, m_pfDevAmps, m_pfDevVVStar, m_pfDevWeights,
                      m_iNAmps, m_iNEvents, m_pfDevResRe );
+
+  cudaError_t cerrKernel=cudaGetLastError();
+  if( cerrKernel!= cudaSuccess  ){
+      
+    cout << "\nKERNEL LAUNCH ERROR [GPU_ExecAmpKernel]: " 
+	 << cudaGetErrorString( cerrKernel ) << endl;
+    assert( false );
+  }
+
   
   // Now the summation of the results -- do this on the CPU for small
   // numbers of events or cases where double precision GPU is not enabled
@@ -452,6 +461,14 @@ GPUManager::calcSumLogIntensity( const vector< complex< double > >& prodCoef,
     // execute the kernel to sum partial sums from each block on CPU
     reduce<GDouble>(m_iNEvents, m_iNThreads, m_iNBlocks, m_pfDevResRe, m_pfDevREDUCE);
 
+    cerrKernel=cudaGetLastError();
+    if( cerrKernel!= cudaSuccess  ){
+      
+      cout << "\nKERNEL LAUNCH ERROR [reduce<GDouble>]: " 
+	   << cudaGetErrorString( cerrKernel ) << endl;
+      assert( false );
+    }
+  
     // copy result from device to host
     gpuErrChk( cudaMemcpy( m_pfRes, m_pfDevREDUCE, m_iNBlocks*sizeof(GDouble),
                            cudaMemcpyDeviceToHost) );
