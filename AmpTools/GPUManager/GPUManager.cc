@@ -583,6 +583,10 @@ void GPUManager::clearAll()
   if(m_pfDevData)
     cudaFree(m_pfDevData);
   m_pfDevData=0;
+  
+  if(m_pfDevUserVars)
+    cudaFree(m_pfDevUserVars);
+  m_pfDevUserVars=0;
 
   if(m_pcDevCalcAmp)
     cudaFree(m_pcDevCalcAmp);
