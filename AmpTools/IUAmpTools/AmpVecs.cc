@@ -204,6 +204,7 @@ AmpVecs::loadEvent( const Kinematics* pKinematics, unsigned long long iEvent,
   
   m_termsValid = false;
   m_integralValid = false;
+  m_userVarsOffset.clear();
 }
 
 
@@ -246,6 +247,7 @@ AmpVecs::loadData( DataReader* pDataReader, bool bForceNegativeWeight ){
   
   m_termsValid = false;
   m_integralValid = false;
+  m_userVarsOffset.clear();
 }
 
 
