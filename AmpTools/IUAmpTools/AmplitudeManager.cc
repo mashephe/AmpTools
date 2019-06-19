@@ -378,7 +378,7 @@ AmplitudeManager::calcUserVars( AmpVecs& a ) const
           for( int iVar = 0; iVar < iNVars; ++iVar ){
             
             unsigned long long cpuIndex =
-              iUserVarsOffset + iPerm*a.m_iNEvents*iNVars + iEvt*iNVars + iVar;
+              thisOffset + iPerm*a.m_iNEvents*iNVars + iEvt*iNVars + iVar;
             unsigned long long gpuIndex =
               iPerm*a.m_iNEvents*iNVars + iVar*a.m_iNEvents + iEvt;
             
