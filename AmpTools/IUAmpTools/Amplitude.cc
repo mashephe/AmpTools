@@ -48,8 +48,6 @@
 #include "vt_user.h"
 #endif
 
-//set< pair< string, GDouble* > > Amplitude::m_staticUserVarsCalculated = set< pair< string, GDouble* > >();
-
 string
 Amplitude::identifier() const {
   
@@ -117,16 +115,6 @@ Amplitude::calcUserVarsAll( GDouble* pdData, GDouble* pdUserVars, int iNEvents,
       calcUserVars( pKin, &(pdUserVars[userIndex]) );
     }
   }
-  
-  /*
-  // if the user variables are static, add a pointer to the data set for
-  // which we just did the calculation;  that we know later
-  // whether it has been calculated
-  if( areUserVarsStatic() && !staticUserVarsCalculated( pdData ) )
-    m_staticUserVarsCalculated.insert( pair< string, GDouble* >( name(), pdData ) );
-
-  if( !userVarsCalculated( pdData ) ) m_userVarsCalculated.insert( pdData );
-  */
   
   delete[] pKin;
 }
@@ -417,25 +405,3 @@ Amplitude::registerParameter( AmpParameter& par ){
   
   m_registeredParams.push_back( &par );
 }
-/*
-bool
-Amplitude::staticUserVarsCalculated( GDouble* pdData ) const {
-  
-  // we need to determine if an amplitude of the same name has
-  // has been used to calculate this user data block
-  
-  pair< string, GDouble* > thisData( name(), pdData );
-  return( m_staticUserVarsCalculated.find( thisData ) !=
-          m_staticUserVarsCalculated.end() );
-}
-
-bool
-Amplitude::userVarsCalculated( GDouble* pdData ) const {
-  
-  // we need to determine if this instance of this
-  // amplitude has calculated a certain block of user data
-  
-  return( m_userVarsCalculated.find( pdData ) !=
-          m_userVarsCalculated.end() );
-}
-*/
