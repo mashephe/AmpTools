@@ -106,6 +106,8 @@ AmpVecs::deallocAmpVecs()
     delete[] m_pdUserVars;
   m_pdUserVars=0;
   
+  m_userVarsOffset.clear();
+  
 #ifndef GPU_ACCELERATION
   
   if(m_pdAmps)
