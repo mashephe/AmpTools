@@ -268,7 +268,8 @@ public:
    * computations.
    */
   
-  bool needsUserVarsOnly() const { return m_needsUserVarsOnly; }
+  bool needsUserVarsOnly() const { return m_needsUserVarsOnly &&
+    !m_forceUserVarRecalculation; }
 
   //
   // The functions below modify the state of the AmplitudeManager
