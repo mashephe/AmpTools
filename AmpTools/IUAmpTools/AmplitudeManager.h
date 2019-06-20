@@ -269,7 +269,7 @@ public:
    */
   
   bool needsUserVarsOnly() const { return m_needsUserVarsOnly &&
-    && m_flushFourVecsIfPossible && !m_forceUserVarRecalculation; }
+    m_flushFourVecsIfPossible && !m_forceUserVarRecalculation; }
 
   //
   // The functions below modify the state of the AmplitudeManager
