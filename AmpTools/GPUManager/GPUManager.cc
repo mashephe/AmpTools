@@ -77,6 +77,7 @@ GPUManager::GPUManager()
   
   //Device Arrays 
   m_pfDevData=0;
+  m_pfDevUserVars=0;
   m_pcDevCalcAmp=0;
   m_piDevPerm=0;
   m_pfDevAmps=0;
@@ -141,7 +142,8 @@ GPUManager::GPUManager()
     
     // double precision operations need 1.3 hardware or higher
     assert( sizeof( GDouble ) <= 4 );
-  }  
+  }
+
 }
 
 GPUManager::GPUManager( const AmpVecs& a )
@@ -162,7 +164,7 @@ void
 GPUManager::init( const AmpVecs& a, bool use4Vectors )
 {
   clearAll();
-    
+
   // copy over some info from the AmpVecs object for array dimensions
   m_iNTrueEvents = a.m_iNTrueEvents;
   m_iNEvents     = a.m_iNEvents;
@@ -327,7 +329,6 @@ GPUManager::calcAmplitudeAll( const Amplitude* amp, unsigned long long offset,
                               const vector< vector< int > >* pvPermutations,
                               unsigned long long iUserVarsOffset )
 {
- 
 #ifdef VTRACE
   VT_TRACER( "GPUManager::calcAmplitudeAll" );
 #endif
@@ -567,7 +568,6 @@ GPUManager::calcIntegral( GDouble* result, int iAmp, int jAmp, int iNGenEvents )
 
 void GPUManager::clearAll()
 {
-
   m_iNParticles=0;
   m_iNEvents=0;
   m_iNTrueEvents=0;
