@@ -219,8 +219,10 @@ PDFManager::calcTerms( AmpVecs& a ) const
                  a.m_iNEvents, a.m_iNParticles,
                  a.m_pdUserVars + uOffset);
 #else
-      a.m_gpuMan.calcPDFAll( pCurrPDF, iLocalOffset,
-                             uOffset );
+      // no GPU support yet!
+      assert( false );
+//      a.m_gpuMan.calcPDFAll( pCurrPDF, iLocalOffset,
+//                             uOffset );
 #endif//GPU_ACCELERATION
     }
     
@@ -257,7 +259,7 @@ PDFManager::calcTerms( AmpVecs& a ) const
     // on the GPU the terms are assembled and never copied out
     // of GPU memory
     
-    a.m_gpuMan.assembleTerms( iPDFIndex, iNFactors, iNPermutations );
+    a.m_gpuMan.assembleTerms( iPDFIndex, iNFactors, 1 );
 #endif
     
   }
@@ -400,7 +402,11 @@ PDFManager::calcSumLogIntensity( AmpVecs& a ) const
   }
   
 #else
-  
+
+  // no GPU support yet
+  assert( false );
+
+  /*
   // need to compute the production coefficients with all scale factors
   // taken into account
   
@@ -427,7 +433,7 @@ PDFManager::calcSumLogIntensity( AmpVecs& a ) const
   }
   
   dSumLogI = a.m_gpuMan.calcSumLogIntensity( gpuProdPars, m_sumCoherently );
-  
+  */
 #endif
   
   return( dSumLogI );
