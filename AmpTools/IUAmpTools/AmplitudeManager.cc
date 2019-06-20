@@ -299,10 +299,6 @@ AmplitudeManager::calcUserVars( AmpVecs& a ) const
         
         if( offsetItr == a.m_userVarsOffset.end() ){
           
-          // we have not yet caculated user vars for this data set
-          // -- cross check (can probably be removed later):
-//          assert( pCurrAmp->staticUserVarsCalculated( a.m_pdData ) == false );
-          
           // set the offset to where the calculation will end up
           a.m_userVarsOffset[pCurrAmp->name()] = iUserVarsOffset;
           
@@ -330,10 +326,6 @@ AmplitudeManager::calcUserVars( AmpVecs& a ) const
         a.m_userVarsOffset.find( pCurrAmp->identifier() );
         
         if( offsetItr == a.m_userVarsOffset.end() ){
-          
-          // we have not yet caculated user vars for this data set
-          // -- cross check (can probably be removed later):
-//          assert( pCurrAmp->userVarsCalculated( a.m_pdData ) == false );
           
           // set the offset to where the calculation will end up
           a.m_userVarsOffset[pCurrAmp->identifier()] = iUserVarsOffset;
