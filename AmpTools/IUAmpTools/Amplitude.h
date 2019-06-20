@@ -296,12 +296,6 @@ protected:
   
 private:
   
-  bool m_isDefault;
-  
-  vector<string> m_args;
-  
-  vector< AmpParameter* > m_registeredParams;
-  
   mutable vector< int > m_currentPermutation;
 };
 

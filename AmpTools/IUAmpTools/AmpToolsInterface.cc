@@ -126,6 +126,17 @@ AmpToolsInterface::resetConfigurationInfo(ConfigurationInfo* configurationInfo){
   }
   
   if( m_functionality == kFull ){
+    m_intensityManagers.back()->setOptimizeParIteration( true );
+    m_intensityManagers.back()->setFlushFourVecsIfPossible( true );
+  }
+  
+  if( m_functionality == kMCGeneration ){
+    m_intensityManagers.back()->setOptimizeParIteration( false );
+    m_intensityManagers.back()->setFlushFourVecsIfPossible( false );
+    m_intensityManagers.back()->setForceUserVarRecalculation( true );
+  }
+  
+  if( m_functionality == kFull ){
     
     // ************************
     // create a ParameterManager

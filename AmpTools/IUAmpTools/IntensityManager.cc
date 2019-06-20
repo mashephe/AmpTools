@@ -59,7 +59,11 @@ IntensityManager::IntensityManager( const vector< string >& reaction,
                                    const string& reactionName) :
 m_reactionName(reactionName),
 m_renormalizeTerms( false ),
-m_normInt( NULL )
+m_normInt( NULL ),
+m_needsUserVarsOnly( true ),
+m_optimizeParIteration( false ),
+m_flushFourVecsIfPossible( false ),
+m_forceUserVarRecalculation( false )
 {
 
 }
@@ -219,7 +223,7 @@ IntensityManager::calcUserVars( AmpVecs& a ) const
 #ifdef VTRACE
   VT_TRACER( "IntensityManager::calcUserVars" );
 #endif
-  
+ 
   const vector< string >& termNames = getTermNames();
   
   int iNTerms = termNames.size();
@@ -241,37 +245,74 @@ IntensityManager::calcUserVars( AmpVecs& a ) const
       
       pCurrTerm = vTerms.at( iFactor );
       
-      if( pCurrTerm->areUserVarsStatic() ){
-        if( !pCurrTerm->staticUserVarsCalculated( a.m_pdData ) ){
-          
-          // if the static user data has not been calculated, record the
-          // location in user data bank where it will end up
-          // note that this offset is valid on both the CPU
-          // and the GPU as GPU ordering only affects user
-          // data variables within a factor
-          a.m_staticUserVarsOffset[pCurrTerm->name()] = iUserVarsOffset;
-        }
-        // if we have static data and it has been calculated
-        // then skip this amplitude factor
-        else continue;
-      }
-      else{
-        
-        // we don't have static user data so check and see
-        // if this instances of this amplitude has calculated
-        // user data for this data set
-        if( !pCurrTerm->userVarsCalculated( a.m_pdData ) ){
-          
-          // likewise record where user data will end up
-          // for all amplitudes that have the same identifier
-          // (arguments) as this one
-          a.m_userVarsOffset[pCurrTerm->identifier()] = iUserVarsOffset;
-        }
-        else continue;
-      }
+      if( pCurrTerm->numUserVars() == 0 ) continue;
       
+      // this is the number of variables for the data set
       int iNVars = pCurrTerm->numUserVars();
       int iNData = iNVars * a.m_iNEvents * iNPerms;
+      
+      // we will set this based on the algorithm below
+      unsigned long long thisOffset = 0;
+      
+      if( pCurrTerm->areUserVarsStatic() ){
+        
+        // the user variables are static, so let's look at the
+        // list of data pointers stored in the relevant AmpVecs
+        // object and see if there is one associated with this
+        // amplitude name
+        
+        map< string, unsigned long long >::const_iterator offsetItr =
+        a.m_userVarsOffset.find( pCurrTerm->name() );
+        
+        if( offsetItr == a.m_userVarsOffset.end() ){
+          
+          // set the offset to where the calculation will end up
+          a.m_userVarsOffset[pCurrTerm->name()] = iUserVarsOffset;
+          
+          // record it to use in the lines below
+          thisOffset = iUserVarsOffset;
+          
+          // increment
+          iUserVarsOffset += iNData;
+        }
+        else // we have done the calculation already
+          if( m_forceUserVarRecalculation ){ // but should redo it
+            
+            thisOffset = offsetItr->second;
+          }
+          else{ // and don't want to repeat it
+            
+            continue;
+          }
+      }
+      else{
+        // the variables are not static, repeat the algorithm
+        // above but search based on identifier of the amplitude
+        
+        map< string, unsigned long long >::const_iterator offsetItr =
+        a.m_userVarsOffset.find( pCurrTerm->identifier() );
+        
+        if( offsetItr == a.m_userVarsOffset.end() ){
+          
+          // set the offset to where the calculation will end up
+          a.m_userVarsOffset[pCurrTerm->identifier()] = iUserVarsOffset;
+          
+          // record it to use in the lines below
+          thisOffset = iUserVarsOffset;
+          
+          // increment -- can only happen at most once either above or here
+          iUserVarsOffset += iNData;
+        }
+        else // we have done the calculation already
+          if( m_forceUserVarRecalculation ){ // but should redo it
+            
+            thisOffset = offsetItr->second;
+          }
+          else{ // and don't want to repeat it
+            
+            continue;
+          }
+      }
       
       // calculation of user-defined kinematics data
       // is something that should only be done once
@@ -279,7 +320,7 @@ IntensityManager::calcUserVars( AmpVecs& a ) const
       
       pCurrTerm->
       calcUserVarsAll( a.m_pdData,
-                      a.m_pdUserVars + iUserVarsOffset,
+                      a.m_pdUserVars + thisOffset,
                       a.m_iNEvents, &vvPermuations );
       
 #ifdef GPU_ACCELERATION
@@ -296,7 +337,7 @@ IntensityManager::calcUserVars( AmpVecs& a ) const
           for( int iVar = 0; iVar < iNVars; ++iVar ){
             
             unsigned long long cpuIndex =
-            iUserVarsOffset + iPerm*a.m_iNEvents*iNVars + iEvt*iNVars + iVar;
+            thisOffset + iPerm*a.m_iNEvents*iNVars + iEvt*iNVars + iVar;
             unsigned long long gpuIndex =
             iPerm*a.m_iNEvents*iNVars + iVar*a.m_iNEvents + iEvt;
             
@@ -305,13 +346,12 @@ IntensityManager::calcUserVars( AmpVecs& a ) const
         }
       }
       
-      memcpy( a.m_pdUserVars + iUserVarsOffset, tmpVarStorage,
+      memcpy( a.m_pdUserVars + thisOffset, tmpVarStorage,
              iNData*sizeof(GDouble) );
       
       delete[] tmpVarStorage;
 #endif //GPU_ACCELERATION
       
-      iUserVarsOffset += iNData;
     }
   }
   
@@ -321,6 +361,8 @@ IntensityManager::calcUserVars( AmpVecs& a ) const
 #ifdef GPU_ACCELERATION
   a.m_gpuMan.copyUserVarsToGPU( a );
 #endif //GPU_ACCELERATION
+  
+  if( needsUserVarsOnly() && m_flushFourVecsIfPossible ) a.clearFourVecs();
   
   return;
 }

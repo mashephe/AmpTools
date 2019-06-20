@@ -150,6 +150,9 @@ Term::identifier() const {
   
   string id = name();
   
+  // make the identifer unique from a likely name in the case of no args
+  id += "%%";
+
   for( vector< string >::const_iterator arg = m_args.begin();
       arg != m_args.end(); ++arg ){
     

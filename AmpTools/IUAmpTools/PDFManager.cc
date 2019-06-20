@@ -49,9 +49,7 @@
 
 PDFManager::PDFManager( const vector< string >& reaction,
                        const string& reactionName) :
-IntensityManager( reaction, reactionName ),
-m_needsUserVarsOnly( true ),
-m_optimizeParIteration( false )
+IntensityManager( reaction, reactionName )
 {
   cout << endl << "## PDF MANAGER INITIALIZATION ##" << endl;
   cout << " Creating PDF manager for reaction:  " << reactionName << endl;
@@ -141,11 +139,7 @@ PDFManager::calcTerms( AmpVecs& a ) const
   
   // on the first pass through this data set be sure to calculate
   // the user data first, if needed, before doing term calculations
-  if( !a.m_termsValid && a.m_userVarsPerEvent > 0 ){
-    
-    calcUserVars( a );
-    if( m_needsUserVarsOnly ) a.clearFourVecs();
-  }
+  if( !a.m_termsValid && a.m_userVarsPerEvent > 0 ) calcUserVars( a );
   
   bool modifiedTerm = false;
   
@@ -189,11 +183,10 @@ PDFManager::calcTerms( AmpVecs& a ) const
       // are the same as they were the last time they were evaluated
       // for this particular dataset -- if not, recalculate
       
-      if( !( a.m_termsValid && m_optimizeParIteration &&
+      if( !( a.m_termsValid && optimizeParIteration() &&
             m_dataPDFIteration[&a][pCurrPDF] == m_pdfIteration[pCurrPDF] ) ){
         
         recalculateFactors = true;
-        m_dataPDFIteration[&a][pCurrPDF] = m_pdfIteration[pCurrPDF];
       }
     }
     
@@ -206,7 +199,7 @@ PDFManager::calcTerms( AmpVecs& a ) const
     
     // calculate all the factors that make up an PDF for
     // for all events serially on CPU or in parallel on GPU
-    int iLocalOffset = 0;
+    unsigned long long iLocalOffset = 0;
     for( iFactor=0; iFactor < iNFactors;
         iFactor++, iLocalOffset += a.m_iNEvents ){
       
@@ -216,7 +209,7 @@ PDFManager::calcTerms( AmpVecs& a ) const
       // if not, then look up by identifier
       unsigned long long uOffset =
       ( pCurrPDF->areUserVarsStatic() ?
-       a.m_staticUserVarsOffset[pCurrPDF->name()] :
+       a.m_userVarsOffset[pCurrPDF->name()] :
        a.m_userVarsOffset[pCurrPDF->identifier()] );
 
 #ifndef GPU_ACCELERATION
@@ -269,8 +262,28 @@ PDFManager::calcTerms( AmpVecs& a ) const
     
   }
   
-  a.m_termsValid = true;
   
+  a.m_termsValid = true;
+  // finally make a loop and record the iteration of parameters
+  // that was used to make this calculation -- this cannot
+  // be done above because some Amplitude instances may
+  // be reused for a number of amplitudes and it is important
+  // to recalculate all terms that depend on a changed
+  // parameter
+  for( iPDFIndex = 0; iPDFIndex < iNPDFs; iPDFIndex++ )
+  {
+    vector< const PDF* > vPDFs =
+    m_mapNameToPDFs.find(pdfNames.at(iPDFIndex))->second;
+    
+    int iFactor, iNFactors = vPDFs.size();
+
+    for( iFactor=0; iFactor < iNFactors; iFactor++ ){
+      
+      const PDF* pCurrPDF = vPDFs.at( iFactor );
+      m_dataPDFIteration[&a][pCurrPDF] = m_pdfIteration[pCurrPDF];
+    }
+  }
+
   return modifiedTerm;
 }
 
@@ -530,7 +543,7 @@ PDFManager::addPDFFactor( const string& name,
   
   m_mapNameToPDFs[name].push_back( newPDF );
 
-  m_needsUserVarsOnly = m_needsUserVarsOnly && newPDF->needsUserVarsOnly();
+  setNeedsUserVarsOnly( needsUserVarsOnly() && newPDF->needsUserVarsOnly() );
 
   //Enable a short-cut if no factors are variable in the PDF
   m_vbIsPDFFixed[termIndex(name)] =
