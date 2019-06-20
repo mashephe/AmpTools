@@ -166,15 +166,17 @@ PDF::calcPDF( const Kinematics* pKin, GDouble* userVars ) const {
 
 #ifdef GPU_ACCELERATION
 void
-PDF::calcPDFGPU( dim3 dimGrid, dim3 dimBlock, GPU_PDF_PROTO ) const {
+PDF::calcPDFGPU( dim3 dimGrid, dim3 dimBlock, GPU_AMP_PROTO ) const {
 
+  assert( false );
+  
 #ifdef VTRACE
   string info = name();
   info += "::calcPDFGPU";
   VT_TRACER( info.c_str() );
 #endif
   
-  launchGPUKernel( dimGrid, dimBlock, GPU_PDF_ARGS );
+  launchGPUKernel( dimGrid, dimBlock, GPU_AMP_ARGS );
 }
 #endif
 
