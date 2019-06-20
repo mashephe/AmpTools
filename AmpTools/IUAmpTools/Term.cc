@@ -35,6 +35,7 @@
 //******************************************************************************
 
 #include <vector>
+#include <cassert>
 
 #include "IUAmpTools/Term.h"
 #include "IUAmpTools/AmpParameter.h"
