@@ -106,6 +106,8 @@ AmpVecs::deallocAmpVecs()
     delete[] m_pdUserVars;
   m_pdUserVars=0;
   
+  m_userVarsOffset.clear();
+  
 #ifndef GPU_ACCELERATION
   
   if(m_pdAmps)
@@ -202,6 +204,7 @@ AmpVecs::loadEvent( const Kinematics* pKinematics, unsigned long long iEvent,
   
   m_termsValid = false;
   m_integralValid = false;
+  m_userVarsOffset.clear();
 }
 
 
@@ -244,6 +247,7 @@ AmpVecs::loadData( DataReader* pDataReader, bool bForceNegativeWeight ){
   
   m_termsValid = false;
   m_integralValid = false;
+  m_userVarsOffset.clear();
 }
 
 

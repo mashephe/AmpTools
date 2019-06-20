@@ -425,24 +425,6 @@ public:
    */
   virtual bool areUserVarsStatic() const { return false; }
   
-  /**
-   * In the case of static user data, the framework needs to know
-   * if the user data have been calculated yet for a corresponding
-   * set of kinematics.
-   */
-  bool staticUserVarsCalculated( GDouble* pdData ) const {
-    return( m_staticUserVarsCalculated.find( pdData ) !=
-            m_staticUserVarsCalculated.end() ); }
-
-  /**
-   * In the case of user data, the framework needs to know
-   * if the user data have been calculated yet for a corresponding
-   * set of kinematics by this instance of the Amplitude class.
-   */
-  bool userVarsCalculated( GDouble* pdData ) const {
-    return( m_userVarsCalculated.find( pdData ) !=
-            m_userVarsCalculated.end() ); }
-
 #ifdef GPU_ACCELERATION 
   
   /**
@@ -495,9 +477,6 @@ protected:
 private:
   
   bool m_isDefault;
-  
-  static set< GDouble* > m_staticUserVarsCalculated;
-  mutable set< GDouble* > m_userVarsCalculated;
   
   vector<string> m_args;
   

@@ -77,6 +77,7 @@ GPUManager::GPUManager()
   
   //Device Arrays 
   m_pfDevData=0;
+  m_pfDevUserVars=0;
   m_pcDevCalcAmp=0;
   m_piDevPerm=0;
   m_pfDevAmps=0;
@@ -141,7 +142,8 @@ GPUManager::GPUManager()
     
     // double precision operations need 1.3 hardware or higher
     assert( sizeof( GDouble ) <= 4 );
-  }  
+  }
+
 }
 
 GPUManager::GPUManager( const AmpVecs& a )
@@ -162,7 +164,7 @@ void
 GPUManager::init( const AmpVecs& a, bool use4Vectors )
 {
   clearAll();
-    
+
   // copy over some info from the AmpVecs object for array dimensions
   m_iNTrueEvents = a.m_iNTrueEvents;
   m_iNEvents     = a.m_iNEvents;
@@ -327,14 +329,13 @@ GPUManager::calcAmplitudeAll( const Amplitude* amp, unsigned long long offset,
                               const vector< vector< int > >* pvPermutations,
                               unsigned long long iUserVarsOffset )
 {
- 
 #ifdef VTRACE
   VT_TRACER( "GPUManager::calcAmplitudeAll" );
 #endif
   
   dim3 dimBlock( m_iDimThreadX, m_iDimThreadY );
   dim3 dimGrid( m_iDimGridX, m_iDimGridY );
-  
+
   // do the computation for all events for each permutation in the
   // vector of permunations
   vector< vector< int > >::const_iterator permItr = pvPermutations->begin();
@@ -354,13 +355,13 @@ GPUManager::calcAmplitudeAll( const Amplitude* amp, unsigned long long offset,
     // calculate amplitude factor for all events --
     // casting amp array to WCUComplex for 8 or 16 bit write 
     // operation of both real and complex parts at once
-    
+
     amp->calcAmplitudeGPU( dimGrid, dimBlock, m_pfDevData,
                            &m_pfDevUserVars[iUserVarsOffset+udLocalOffset],
                           (WCUComplex*)&m_pcDevCalcAmp[offset+permOffset],
                            m_piDevPerm, m_iNParticles, m_iNEvents,
                            *permItr );
-    
+			   
     // check to be sure kernel execution was OK
     cudaError_t cerrKernel=cudaGetLastError();
     if( cerrKernel!= cudaSuccess  ){
@@ -430,6 +431,15 @@ GPUManager::calcSumLogIntensity( const vector< complex< double > >& prodCoef,
   dim3 dimGrid( m_iDimGridX, m_iDimGridY );
   GPU_ExecAmpKernel( dimGrid, dimBlock, m_pfDevAmps, m_pfDevVVStar, m_pfDevWeights,
                      m_iNAmps, m_iNEvents, m_pfDevResRe );
+
+  cudaError_t cerrKernel=cudaGetLastError();
+  if( cerrKernel!= cudaSuccess  ){
+      
+    cout << "\nKERNEL LAUNCH ERROR [GPU_ExecAmpKernel]: " 
+	 << cudaGetErrorString( cerrKernel ) << endl;
+    assert( false );
+  }
+
   
   // Now the summation of the results -- do this on the CPU for small
   // numbers of events or cases where double precision GPU is not enabled
@@ -452,6 +462,14 @@ GPUManager::calcSumLogIntensity( const vector< complex< double > >& prodCoef,
     // execute the kernel to sum partial sums from each block on CPU
     reduce<GDouble>(m_iNEvents, m_iNThreads, m_iNBlocks, m_pfDevResRe, m_pfDevREDUCE);
 
+    cerrKernel=cudaGetLastError();
+    if( cerrKernel!= cudaSuccess  ){
+      
+      cout << "\nKERNEL LAUNCH ERROR [reduce<GDouble>]: " 
+	   << cudaGetErrorString( cerrKernel ) << endl;
+      assert( false );
+    }
+  
     // copy result from device to host
     gpuErrChk( cudaMemcpy( m_pfRes, m_pfDevREDUCE, m_iNBlocks*sizeof(GDouble),
                            cudaMemcpyDeviceToHost) );
@@ -550,7 +568,6 @@ GPUManager::calcIntegral( GDouble* result, int iAmp, int jAmp, int iNGenEvents )
 
 void GPUManager::clearAll()
 {
-
   m_iNParticles=0;
   m_iNEvents=0;
   m_iNTrueEvents=0;
@@ -583,6 +600,10 @@ void GPUManager::clearAll()
   if(m_pfDevData)
     cudaFree(m_pfDevData);
   m_pfDevData=0;
+  
+  if(m_pfDevUserVars)
+    cudaFree(m_pfDevUserVars);
+  m_pfDevUserVars=0;
 
   if(m_pcDevCalcAmp)
     cudaFree(m_pcDevCalcAmp);

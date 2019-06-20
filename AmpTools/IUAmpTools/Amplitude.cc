@@ -53,6 +53,9 @@ Amplitude::identifier() const {
   
   string id = name();
   
+  // make the identifer unique from a likely name in the case of no args
+  id += "%%";
+  
   for( vector< string >::const_iterator arg = m_args.begin();
       arg != m_args.end(); ++arg ){
     
@@ -113,18 +116,10 @@ Amplitude::calcUserVarsAll( GDouble* pdData, GDouble* pdUserVars, int iNEvents,
     }
   }
   
-  // if the user variables are static, add a pointer to the data set for
-  // which we just did the calculation;  that we know later
-  // whether it has been calculated
-  if( areUserVarsStatic() ) m_staticUserVarsCalculated.insert( pdData );
-  m_userVarsCalculated.insert( pdData );
-  
   delete[] pKin;
 }
 
-set< GDouble* > Amplitude::m_staticUserVarsCalculated = set< GDouble* >();
-
-void 
+void
 Amplitude::calcAmplitudeAll( GDouble* pdData, GDouble* pdAmps, int iNEvents,
                             const vector< vector< int > >* pvPermutations,
                              GDouble* pdUserVars ) const
@@ -410,4 +405,3 @@ Amplitude::registerParameter( AmpParameter& par ){
   
   m_registeredParams.push_back( &par );
 }
-

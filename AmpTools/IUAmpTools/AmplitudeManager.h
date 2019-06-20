@@ -268,7 +268,8 @@ public:
    * computations.
    */
   
-  bool needsUserVarsOnly() const { return m_needsUserVarsOnly; }
+  bool needsUserVarsOnly() const { return m_needsUserVarsOnly &&
+    m_flushFourVecsIfPossible && !m_forceUserVarRecalculation; }
 
   //
   // The functions below modify the state of the AmplitudeManager
@@ -448,7 +449,10 @@ public:
    *
    * \param[in] flag set to true to enable the optimization
    */
-  void setForceUserVarRecalculation( bool flag ) { m_forceUserVarRecalculation = flag; }
+  void setForceUserVarRecalculation( bool flag ) {
+    m_forceUserVarRecalculation = flag;
+    m_flushFourVecsIfPossible = false;
+  }
 
 
 private:

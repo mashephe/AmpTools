@@ -171,14 +171,6 @@ struct AmpVecs
   bool m_integralValid;
   
   /**
-   * This is a map from amplitude name to the location in memory
-   * where static user data for that amplitude exists.  It is
-   * utilized by the AmplitudeManager, but the values are tied
-   * to the data set so it resides in the AmpVecs struct.
-   */
-  map< string, unsigned long long > m_staticUserVarsOffset;
-
-  /**
    * This is a map from amplitude identifer to the location in memory
    * where user data for that amplitude exists.  It is
    * utilized by the AmplitudeManager, but the values are tied

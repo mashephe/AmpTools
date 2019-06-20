@@ -47,6 +47,12 @@ AmpToolsInterfaceMPI::AmpToolsInterfaceMPI(ConfigurationInfo* configurationInfo)
       ampMan->registerAmplitudeFactor( *m_userAmplitudes[i] );
     }
     ampMan->setupFromConfigurationInfo( m_configurationInfo );
+    
+    if( m_functionality == kFull ){
+      ampMan->setOptimizeParIteration( true );
+      ampMan->setFlushFourVecsIfPossible( true );
+    }
+    
     m_intensityManagers.push_back(ampMan);
 
   }
