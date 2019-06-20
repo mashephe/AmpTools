@@ -248,7 +248,8 @@ public:
    * computations.
    */
   
-  bool needsUserVarsOnly() const { return m_needsUserVarsOnly; }
+  bool needsUserVarsOnly() const { return m_needsUserVarsOnly &&
+    m_flushFourVecsIfPossible && !m_forceUserVarRecalculation; }
 
   //
   // The functions below modify the state of the AmplitudeManager
@@ -411,8 +412,29 @@ public:
    * \param[in] flag set to true to enable the optimization
    */
   void setOptimizeParIteration( bool flag ) { m_optimizeParIteration = flag; }
-
   
+  /**
+   * This function will allow the AmplitudeManager to clear four vectors
+   * from memory if all amplitudes can be calculated from user variables.
+   *
+   * \param[in] flag set to true to enable the optimization
+   */
+  void setFlushFourVecsIfPossible( bool flag ) { m_flushFourVecsIfPossible = flag; }
+  
+  /**
+   * If set to true, this flag will force the recalculation of the user
+   * data every time that calcTerms is called.  This is needed in cases
+   * where one reuses a common memory block multiple times with different
+   * kinematics, like what happens in MC generation.
+   *
+   * \param[in] flag set to true to enable the optimization
+   */
+  void setForceUserVarRecalculation( bool flag ) {
+    m_forceUserVarRecalculation = flag;
+    m_flushFourVecsIfPossible = false;
+  }
+
+
 private:
 
   // recursive routine to symmetrize final state
@@ -446,10 +468,12 @@ private:
   // some internal members to optimize amplitude recalculation
   bool m_needsUserVarsOnly;
   bool m_optimizeParIteration;
+  bool m_flushFourVecsIfPossible;
+  bool m_forceUserVarRecalculation;
+  
   mutable map< const Amplitude*, int > m_ampIteration;
   mutable map< AmpVecs*, map< const Amplitude*, int > > m_dataAmpIteration;
   mutable map< string, unsigned long long > m_staticUserVarsOffset;
-  
 };
 
 #endif
