@@ -200,13 +200,13 @@ public:
    * the current permutation and then calls the user-defined routine
    * to launch the GPU kernel.  It is the GPU analog of calcPDFAll.
    */
-  virtual void calcPDFGPU( dim3 dimGrid, dim3 dimBlock, GPU_PDF_PROTO ) const;
+  virtual void calcPDFGPU( dim3 dimGrid, dim3 dimBlock, GPU_AMP_PROTO ) const;
   
   /**
    * The user override this route and use it pass any parameters to a global
    * C function that actually launches the GPU kernel
    */
-  virtual void launchGPUKernel( dim3 dimGrid, dim3 dimBlock, GPU_PDF_PROTO ) const {
+  virtual void launchGPUKernel( dim3 dimGrid, dim3 dimBlock, GPU_AMP_PROTO ) const {
     
     cout << "\nNo GPU function for calculating " << name() << " is defined." << endl;
     assert( false );
