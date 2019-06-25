@@ -52,7 +52,7 @@ using namespace std;
  * is unique.
  *
  * Note that this class is where one of the few external dependencies in
- * AmpTools resides:  it utilizes the TLorentzVector class from CLHEP,
+ * AmpTools resides:  it utilizes the TLorentzVector class from ROOT,
  * which is a convenient mechanism for manipulating four-vectors.
  *
  * \ingroup IUAmpTools
@@ -77,7 +77,7 @@ public:
    * The constructor.
    *
    * This constructor generates a kinematics object from a vector
-   * of TLorentzVector, which is a data type provided by the CLHEP
+   * of TLorentzVector, which is a data type provided by the ROOT
    * package.  A weight can be provided as an optional argument.
    *
    * \param[in] particleList a vector of TLorentzVector containing

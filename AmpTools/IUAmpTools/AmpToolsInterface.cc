@@ -700,6 +700,7 @@ AmpToolsInterface::printAmplitudes(string reactionName, Kinematics* kin) const {
         for (unsigned int ifact = 0; ifact < nFact; ifact++){
           
           cout << "          AMPLITUDE FACTOR = " << ampFactors[ifact]->name() << endl;
+          cout << "          IDENTIFIER = " << ampFactors[ifact]->identifier() << endl;
           cout << "          RESULT = ( "
                << aVecs.m_pdAmpFactors[ifact*nPerm*2+iperm*2] << ", "
                << aVecs.m_pdAmpFactors[ifact*nPerm*2+iperm*2+1] << " )"
