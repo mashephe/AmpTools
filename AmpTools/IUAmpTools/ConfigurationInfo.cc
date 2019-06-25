@@ -406,9 +406,9 @@ ConfigurationInfo::constraintMap() const {
     
     cMap[(**aItr).fullName()] = vector< string >( 0 );
     
-    vector< AmplitudeInfo* > constraints = (**aItr).constraints();
+    vector< TermInfo* > constraints = (**aItr).constraints();
     
-    for( vector< AmplitudeInfo* >::const_iterator bItr = constraints.begin();
+    for( vector< TermInfo* >::const_iterator bItr = constraints.begin();
         bItr != constraints.end();
         ++bItr ){
       
@@ -520,7 +520,7 @@ ConfigurationInfo::write( ostream& ff ) const {
   
   for (unsigned int i = 0; i < As.size(); i++){
     AmplitudeInfo* A = As[i];
-    vector<AmplitudeInfo*> constr = A->constraints();
+    vector<TermInfo*> constr = A->constraints();
     for (unsigned int j = 0; j < constr.size(); j++){
       ff << "constrain " << A->fullName() << " " << constr[j]->fullName() << endl;}}
   
@@ -749,6 +749,86 @@ CoherentSumInfo::display(string fileName, bool append){
 }
 
 
+
+
+void 
+TermInfo::addConstraint (TermInfo* constraint){
+    // don't constrain an amplitude to itself
+  if ((this->fullName() == constraint->fullName())) return;
+    // add "constraint" as a constraint
+  if (!hasConstraint(constraint)) m_constraints.push_back(constraint);
+    // also add all of "constraint"'s constraints as constraints
+  vector<TermInfo*> constraints = constraint->constraints();
+  for (unsigned int i = 0; i < constraints.size(); i++){
+    if (!hasConstraint(constraints[i])) addConstraint(constraints[i]);
+  }
+    // also reciprocate
+  if (!(constraint->hasConstraint(this))) constraint->addConstraint(this);
+}
+
+
+bool 
+TermInfo::hasConstraint(TermInfo* constraint) const{
+  bool foundConstraint = false;
+  for (unsigned int i = 0; i < m_constraints.size(); i++){
+    if ((m_constraints[i]->fullName() == constraint->fullName())) foundConstraint = true;
+  }
+  return foundConstraint;
+}
+
+
+void
+TermInfo::removeConstraint(TermInfo* constraint){
+    // remove "constraint" as a constraint
+  if (hasConstraint(constraint)){
+    for (unsigned int i = 0; i < m_constraints.size(); i++){
+      if ((m_constraints[i]->fullName() == constraint->fullName())){
+        m_constraints.erase(m_constraints.begin()+i,m_constraints.begin()+i+1);
+        i = m_constraints.size();
+      }
+    }
+  }
+    // remove "constraint"'s constraints as constraints 
+  vector<TermInfo*> constraints = constraint->constraints();
+  for (unsigned int i = 0; i < constraints.size(); i++){
+    if (hasConstraint(constraints[i])) removeConstraint(constraints[i]);
+  }
+    // reciprocate
+  if (constraint->hasConstraint(this)) constraint->removeConstraint(this);
+}
+
+
+void 
+TermInfo::addParameter (ParameterInfo* parameter){
+  bool foundParameter = false;
+  for (unsigned int i = 0; i < m_parameters.size(); i++){
+    if (m_parameters[i]->parName() == parameter->parName()) foundParameter = true;
+  }
+  if (!foundParameter) m_parameters.push_back(parameter);
+}
+
+void
+TermInfo::removeParameter (ParameterInfo* parameter){
+  for (unsigned int i = 0; i < m_parameters.size(); i++){
+    if (m_parameters[i]->parName() == parameter->parName()){
+      m_parameters.erase(m_parameters.begin()+i,m_parameters.begin()+i+1);
+      i = m_parameters.size();
+    }
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 void
 AmplitudeInfo::display(string fileName, bool append){
 
@@ -764,15 +844,19 @@ AmplitudeInfo::display(string fileName, bool append){
     cout.rdbuf(outfile.rdbuf());
   }
 
+  vector< vector<string> > n_factors = factors();
+  vector< TermInfo* >      n_constraints = constraints();
+  vector< ParameterInfo* > n_parameters = parameters();
+
   cout << "++++++++++++++++++++++++++++++++++++++++++++" << endl;
   cout << "+++++++++++++  AMPLITUDE INFO  +++++++++++++" << endl;
   cout << "++++++++++++++++++++++++++++++++++++++++++++" << endl;
   cout << "      REACTION NAME:  " << m_reactionName << endl;
   cout << "  COHERENT SUM NAME:  " << m_sumName << endl;
   cout << "     AMPLITUDE NAME:  " << m_ampName << endl;
-  cout << "            FACTORS:  " << m_factors.size() << endl;
-  for (unsigned int i = 0; i < m_factors.size(); i++){
-    vector<string> factor = m_factors[i];
+  cout << "            FACTORS:  " << n_factors.size() << endl;
+  for (unsigned int i = 0; i < n_factors.size(); i++){
+    vector<string> factor = n_factors[i];
     cout << "\t\t" << i+1 << ".  ";
     for (unsigned int j = 0; j < factor.size(); j++){
       cout << " " << factor[j];
@@ -788,15 +872,13 @@ AmplitudeInfo::display(string fileName, bool append){
     }
     cout << endl;
   }
-  cout << "        CONSTRAINTS:  " << m_constraints.size() << endl;
-  for (unsigned int i = 0; i < m_constraints.size(); i++){
-    cout << "\t\t" << i+1 << ".  " << m_constraints[i]->reactionName() 
-                          << "  "  << m_constraints[i]->sumName()
-                          << "  "  << m_constraints[i]->ampName() << endl;
+  cout << "        CONSTRAINTS:  " << n_constraints.size() << endl;
+  for (unsigned int i = 0; i < n_constraints.size(); i++){
+    cout << "\t\t" << i+1 << ".  " << n_constraints[i]->fullName() << endl;
   }
-  cout << "         PARAMETERS:  " << m_parameters.size() << endl;
-  for (unsigned int i = 0; i < m_parameters.size(); i++){
-    cout << "\t\t" << i+1 << ".  " << m_parameters[i]->parName() << endl;
+  cout << "         PARAMETERS:  " << n_parameters.size() << endl;
+  for (unsigned int i = 0; i < n_parameters.size(); i++){
+    cout << "\t\t" << i+1 << ".  " << n_parameters[i]->parName() << endl;
   }
   cout << "      INITIAL VALUE:  " << m_value << endl;
   cout << "               REAL?  " << m_real << endl;
@@ -809,6 +891,61 @@ AmplitudeInfo::display(string fileName, bool append){
   }
 
 }
+
+
+
+void
+PDFInfo::display(string fileName, bool append){
+
+  ofstream outfile;
+  streambuf* cout_sbuf = cout.rdbuf();
+  if (fileName != ""){
+    if (append){
+      outfile.open(fileName.c_str(), ios::out | ios::app);
+    }
+    else{
+      outfile.open(fileName.c_str());
+    }
+    cout.rdbuf(outfile.rdbuf());
+  }
+
+  vector< vector<string> > n_factors = factors();
+  vector< TermInfo* >      n_constraints = constraints();
+  vector< ParameterInfo* > n_parameters = parameters();
+
+  cout << "++++++++++++++++++++++++++++++++++++++" << endl;
+  cout << "+++++++++++++  PDF INFO  +++++++++++++" << endl;
+  cout << "++++++++++++++++++++++++++++++++++++++" << endl;
+  cout << "      REACTION NAME:  " << m_reactionName << endl;
+  cout << "           PDF NAME:  " << m_pdfName << endl;
+  cout << "            FACTORS:  " << n_factors.size() << endl;
+  for (unsigned int i = 0; i < n_factors.size(); i++){
+    vector<string> factor = n_factors[i];
+    cout << "\t\t" << i+1 << ".  ";
+    for (unsigned int j = 0; j < factor.size(); j++){
+      cout << " " << factor[j];
+    }
+    cout << endl;
+  }
+  cout << "        CONSTRAINTS:  " << n_constraints.size() << endl;
+  for (unsigned int i = 0; i < n_constraints.size(); i++){
+    cout << "\t\t" << i+1 << ".  " << n_constraints[i]->fullName() << endl;
+  }
+  cout << "         PARAMETERS:  " << n_parameters.size() << endl;
+  for (unsigned int i = 0; i < n_parameters.size(); i++){
+    cout << "\t\t" << i+1 << ".  " << n_parameters[i]->parName() << endl;
+  }
+  cout << "      INITIAL VALUE:  " << m_value << endl;
+  cout << "              FIXED?  " << m_fixed << endl;
+  cout << "              SCALE:  " << m_scale << endl;
+
+  if (fileName != ""){
+    outfile.close();
+    cout.rdbuf(cout_sbuf);
+  }
+
+}
+
 
 
 void
@@ -847,77 +984,9 @@ ParameterInfo::display(string fileName, bool append){
 }
 
 
-void 
-AmplitudeInfo::addConstraint (AmplitudeInfo* constraint){
-    // don't constrain an amplitude to itself
-  if ((this->reactionName() == constraint->reactionName()) &&
-      (this->sumName()      == constraint->sumName()) &&
-      (this->ampName()      == constraint->ampName())) return;
-    // add "constraint" as a constraint
-  if (!hasConstraint(constraint)) m_constraints.push_back(constraint);
-    // also add all of "constraint"'s constraints as constraints
-  vector<AmplitudeInfo*> constraints = constraint->constraints();
-  for (unsigned int i = 0; i < constraints.size(); i++){
-    if (!hasConstraint(constraints[i])) addConstraint(constraints[i]);
-  }
-    // also reciprocate
-  if (!(constraint->hasConstraint(this))) constraint->addConstraint(this);
-}
 
 
-bool 
-AmplitudeInfo::hasConstraint(AmplitudeInfo* constraint) const{
-  bool foundConstraint = false;
-  for (unsigned int i = 0; i < m_constraints.size(); i++){
-    if ((m_constraints[i]->reactionName() == constraint->reactionName()) &&
-        (m_constraints[i]->sumName()      == constraint->sumName()) &&
-        (m_constraints[i]->ampName()      == constraint->ampName())) foundConstraint = true;
-  }
-  return foundConstraint;
-}
 
-
-void
-AmplitudeInfo::removeConstraint(AmplitudeInfo* constraint){
-    // remove "constraint" as a constraint
-  if (hasConstraint(constraint)){
-    for (unsigned int i = 0; i < m_constraints.size(); i++){
-      if ((m_constraints[i]->reactionName() == constraint->reactionName()) &&
-          (m_constraints[i]->sumName()      == constraint->sumName()) &&
-          (m_constraints[i]->ampName()      == constraint->ampName())){
-        m_constraints.erase(m_constraints.begin()+i,m_constraints.begin()+i+1);
-        i = m_constraints.size();
-      }
-    }
-  }
-    // remove "constraint"'s constraints as constraints 
-  vector<AmplitudeInfo*> constraints = constraint->constraints();
-  for (unsigned int i = 0; i < constraints.size(); i++){
-    if (hasConstraint(constraints[i])) removeConstraint(constraints[i]);
-  }
-    // reciprocate
-  if (constraint->hasConstraint(this)) constraint->removeConstraint(this);
-}
-
-
-void 
-AmplitudeInfo::addParameter (ParameterInfo* parameter){
-  bool foundParameter = false;
-  for (unsigned int i = 0; i < m_parameters.size(); i++){
-    if (m_parameters[i]->parName() == parameter->parName()) foundParameter = true;
-  }
-  if (!foundParameter) m_parameters.push_back(parameter);
-}
-
-void
-AmplitudeInfo::removeParameter (ParameterInfo* parameter){
-  for (unsigned int i = 0; i < m_parameters.size(); i++){
-    if (m_parameters[i]->parName() == parameter->parName()){
-      m_parameters.erase(m_parameters.begin()+i,m_parameters.begin()+i+1);
-      i = m_parameters.size();
-    }
-  }
-}
 
 
 void
@@ -932,16 +1001,30 @@ ReactionInfo::clear(){
 }
 
 void
-AmplitudeInfo::clear(){
+TermInfo::termClear(){
   m_factors.clear();
-  m_permutations.clear();
   m_constraints.clear();
+  m_parameters.clear();
+}
+
+void
+AmplitudeInfo::clear(){
+  termClear();
   m_value = complex<double>(0.0,0.0);
   m_real = false;
   m_fixed = false;
   m_scale = "1.0";
-  m_parameters.clear();
+  m_permutations.clear();
 }
+
+void
+PDFInfo::clear(){
+  termClear();
+  m_value = 0.0;
+  m_fixed = false;
+  m_scale = "1.0";
+}
+
 
 void
 ParameterInfo::clear(){

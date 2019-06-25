@@ -51,6 +51,7 @@ using namespace std;
 class ConfigurationInfo;
 class ReactionInfo;
 class CoherentSumInfo;
+class TermInfo;
 class AmplitudeInfo;
 class ParameterInfo;
 
@@ -762,7 +763,181 @@ private:
  * \ingroup IUAmpTools
  */
 
-class AmplitudeInfo
+class TermInfo
+{
+public:
+  
+  /**
+   * The constructor:  each amplitude is uniquely defined by a reaction,
+   * a coherent sum, and an amplitude name.
+   *
+   * \param[in] reactionName the name of the reaction
+   * \param[in] sumName the name of the coherent sum the amplitude belongs to
+   * \param[in] ampName the name of the amplitude itself
+   */
+  
+  TermInfo() { termClear(); };
+  
+  
+  //  Every amplitude is identified by a reaction, a sum, and an ampName
+  
+  /**
+   * This returns the name of the reaction for this amplitude.
+   */
+  virtual string             reactionName() const = 0;
+  
+  /**
+   * This returns the "full name" of the reaction.  It is obtained by concatenating
+   * togther the reaction name, sum name, and amplitude name with a double colon,
+   * e.g. reactionName::sumName::ampName
+   */
+  virtual string             fullName() const = 0;   
+
+  virtual bool               isPDF() const = 0;
+  virtual bool               isAmplitude() const = 0;
+
+  
+  //  Return the amplitude factors for this reaction.
+  //    Each factor has the form: <amplitude class name> (arg1) (arg2) ...
+  
+  /**
+   * This returns information about all of the user-defined factors that make
+   * up the amplitude.  It is a list of vectors -- each item in the initial
+   * vector is a vector of strings.  The first string in the vector specifies
+   * the name of the user-defined amplitude class that tells how to compute
+   * the amplitude factor.  The remaining items in the vector of strings are
+   * string arguments that can be passed into the newAmplitude routine to
+   * create a new instance of the users amplitude.  The length of the returned
+   * vector is the number of factors in the amplitude.
+   *
+   * \see Amplitude::newAmplitude
+   * \see AmplitudeManager::addAmpFactor
+   */
+  const vector< vector<string> >&   factors()        const {return m_factors;}
+  
+  
+  
+  //  Return a list of amplitudes that are constrained to have the same
+  //    production parameters as this amplitude.
+  
+  /**
+   * This returns a vector that contains TermInfo pointers for every other
+   * amplitude that is constrained to have the same production parameter
+   * as the current amplitude.
+   */
+  const vector< TermInfo* >&   constraints()    const {return m_constraints;}
+
+
+  /**
+   * Check to see if this amplitude is constrained to another amplitude.
+   *
+   * \param[in] constraint pointer to an TermInfo object
+   */
+  bool hasConstraint(TermInfo* constraint) const;
+  
+  
+
+  //  Return a list of parameters (other than the production parameter)
+  //    associated with this amplitude.
+ 
+  /**
+   * This returns a vector of pointers to all of the ParameterInfo objects
+   * that are associated with this amplitude.  
+   */
+  const vector < ParameterInfo* >&  parameters()     const {return m_parameters;}
+
+
+  /**
+   * This clears out all the internal data for this particular TermInfo
+   * object.
+   */
+  void                       termClear();
+  
+  
+  //  Use these methods to set up this ampltiude
+  
+  /**
+   * This adds a new factor, i.e. a user-defined amplitude computing
+   * routine, to the amplitude.
+   *
+   * \param[in] factor a vector of strings describing the factor.  The first
+   * element of the vector is the name of the user's amplitude routine.  The
+   * remaining elements are optional string arguments that are passed to
+   * the newAmplitude routine of the user-defined Amplitude
+   *
+   * \see Amplitude::newAmplitude
+   */
+  void addFactor         (const vector<string>& factor)    {m_factors.push_back(factor);}
+  
+  /**
+   * This adds the constraint that the production parameter of the current
+   * amplitude must be the same as the production parameter for the amplitude
+   * whose TermInfo is passed in.  If the argument's list of constraints
+   * is not empty it creates constraints between those amplitudes and the
+   * current amplitude also.
+   *
+   * \param[in] constraint a pointer to the TermInfo to which to constrain
+   * the current amplitude's production parameter
+   */
+  void addConstraint     (TermInfo* constraint);
+
+
+
+  /**
+   * This associates some amplitude parameter described by the ParameterInfo
+   * objects with the current amplitude.
+   *
+   * \param[in] parameter pointer the ParameterInfo object for the parameter
+   */
+  void addParameter      (ParameterInfo* parameter);
+  
+  
+  //  Use these methods to remove information associated with this amplitude
+  
+  /**
+   * This removes a particular TermInfo from the list of constraints.
+   * It also removes itself from the list of constraints of each of the
+   * constrained Amplitudes.
+   *
+   * \param[in] constraint a pointer to the TermInfo to be removed from
+   * the list of constraints
+   */
+  void removeConstraint (TermInfo* constraint);
+
+  /**
+   * This removes an associated ParameterInfo pointer from the list of 
+   * ParameterInfo objects associated with this amplitude.
+   *
+   * \param[in] parameter a pointer to the ParameterInfo object to removed
+   */
+  void removeParameter  (ParameterInfo* parameter);
+  
+private:
+  
+  vector< vector<string> >     m_factors;
+  vector< TermInfo* >          m_constraints;
+  vector< ParameterInfo* >     m_parameters;
+  
+};
+
+
+
+
+/**
+ * This class holds all information related to a single amplitude.  In the
+ * construction of the intensity 
+ * \f$ \sum_\beta \left| \sum_i V_{i,\beta} A_{i,\beta} \right|^2 \f$, where
+ * \f$ \beta \f$ indexes the coherent sums and i indexes the amplitudes, this
+ * class defines the \f$ A_{i,\beta} \f$.  The class is typically composed
+ * of a list of user-defined factors that are multiplied together to
+ * create the amplitude.
+ *
+ * \ingroup IUAmpTools
+ */
+
+//class AmplitudeInfo
+class AmplitudeInfo : public TermInfo
+
 {
 public:
   
@@ -809,24 +984,8 @@ public:
                                                              m_sumName + "::" +
                                                              m_ampName);}
   
-  //  Return the amplitude factors for this reaction.
-  //    Each factor has the form: <amplitude class name> (arg1) (arg2) ...
-  
-  /**
-   * This returns information about all of the user-defined factors that make
-   * up the amplitude.  It is a list of vectors -- each item in the initial
-   * vector is a vector of strings.  The first string in the vector specifies
-   * the name of the user-defined amplitude class that tells how to compute
-   * the amplitude factor.  The remaining items in the vector of strings are
-   * string arguments that can be passed into the newAmplitude routine to
-   * create a new instance of the users amplitude.  The length of the returned
-   * vector is the number of factors in the amplitude.
-   *
-   * \see Amplitude::newAmplitude
-   * \see AmplitudeManager::addAmpFactor
-   */
-  const vector< vector<string> >&   factors()        const {return m_factors;}
-  
+  bool                       isAmplitude()    const {return true;}
+  bool                       isPDF()          const {return false;}
   
   //  Return a list of different particle permuations.
   //    (For example, if there are 5 particles in this reaction, specifying
@@ -843,25 +1002,7 @@ public:
   
   const vector< vector<int> >&      permutations()   const {return m_permutations;}
   
-  
-  //  Return a list of amplitudes that are constrained to have the same
-  //    production parameters as this amplitude.
-  
-  /**
-   * This returns a vector that contains AmplitudeInfo pointers for every other
-   * amplitude that is constrained to have the same production parameter
-   * as the current amplitude.
-   */
-  const vector< AmplitudeInfo* >&   constraints()    const {return m_constraints;}
 
-
-  /**
-   * Check to see if this amplitude is constrained to another amplitude.
-   *
-   * \param[in] constraint pointer to an AmplitudeInfo object
-   */
-  bool hasConstraint(AmplitudeInfo* constraint) const;
-  
   
   //  Return information about the production parameter for this amplitude.
   
@@ -875,15 +1016,6 @@ public:
   
   string                     scale()          const {return m_scale;} 
 
-
-  //  Return a list of parameters (other than the production parameter)
-  //    associated with this amplitude.
- 
-  /**
-   * This returns a vector of pointers to all of the ParameterInfo objects
-   * that are associated with this amplitude.  
-   */
-  const vector < ParameterInfo* >&  parameters()     const {return m_parameters;}
 
 
   //  Display or clear information for this amplitude
@@ -905,21 +1037,6 @@ public:
   void                       clear();
   
   
-  //  Use these methods to set up this ampltiude
-  
-  /**
-   * This adds a new factor, i.e. a user-defined amplitude computing
-   * routine, to the amplitude.
-   *
-   * \param[in] factor a vector of strings describing the factor.  The first
-   * element of the vector is the name of the user's amplitude routine.  The
-   * remaining elements are optional string arguments that are passed to
-   * the newAmplitude routine of the user-defined Amplitude
-   *
-   * \see Amplitude::newAmplitude
-   */
-  void addFactor         (const vector<string>& factor)    {m_factors.push_back(factor);}
-  
   /**
    * This adds a new permutation to the amplitude.  See documentation in the
    * AmplitudeManager below for info about permutations.
@@ -928,17 +1045,6 @@ public:
    */
   void addPermutation    (const vector<int>& permutation)  {m_permutations.push_back(permutation);}
   
-  /**
-   * This adds the constraint that the production parameter of the current
-   * amplitude must be the same as the production parameter for the amplitude
-   * whose AmplitudeInfo is passed in.  If the argument's list of constraints
-   * is not empty it creates constraints between those amplitudes and the
-   * current amplitude also.
-   *
-   * \param[in] constraint a pointer to the AmplitudeInfo to which to constrain
-   * the current amplitude's production parameter
-   */
-  void addConstraint     (AmplitudeInfo* constraint);
 
   /**
    * This sets the initial value of the production parameter for a particular
@@ -953,52 +1059,133 @@ public:
   
   void setScale          (string scale)            {m_scale = scale;}
 
-
-  /**
-   * This associates some amplitude parameter described by the ParameterInfo
-   * objects with the current amplitude.
-   *
-   * \param[in] parameter pointer the ParameterInfo object for the parameter
-   */
-  void addParameter      (ParameterInfo* parameter);
-  
-  
-  //  Use these methods to remove information associated with this amplitude
-  
-  /**
-   * This removes a particular AmplitudeInfo from the list of constraints.
-   * It also removes itself from the list of constraints of each of the
-   * constrained Amplitudes.
-   *
-   * \param[in] constraint a pointer to the AmplitudeInfo to be removed from
-   * the list of constraints
-   */
-  void removeConstraint (AmplitudeInfo* constraint);
-
-  /**
-   * This removes an associated ParameterInfo pointer from the list of 
-   * ParameterInfo objects associated with this amplitude.
-   *
-   * \param[in] parameter a pointer to the ParameterInfo object to removed
-   */
-  void removeParameter  (ParameterInfo* parameter);
   
 private:
   
   string                       m_reactionName;
   string                       m_sumName;
   string                       m_ampName;
-  vector< vector<string> >     m_factors;
-  vector< vector<int> >        m_permutations;
-  vector< AmplitudeInfo* >     m_constraints;
   complex< double >            m_value;
   bool                         m_real;
   bool                         m_fixed;
   string                       m_scale;
-  vector< ParameterInfo* >     m_parameters;
+  vector< vector<int> >        m_permutations;
   
 };
 
+
+
+/**
+ * This class holds all information related to a single amplitude.  In the
+ * construction of the intensity 
+ * \f$ \sum_\beta \left| \sum_i V_{i,\beta} A_{i,\beta} \right|^2 \f$, where
+ * \f$ \beta \f$ indexes the coherent sums and i indexes the amplitudes, this
+ * class defines the \f$ A_{i,\beta} \f$.  The class is typically composed
+ * of a list of user-defined factors that are multiplied together to
+ * create the amplitude.
+ *
+ * \ingroup IUAmpTools
+ */
+
+
+class PDFInfo : public TermInfo
+
+{
+public:
+  
+  /**
+   * The constructor:  each amplitude is uniquely defined by a reaction,
+   * a coherent sum, and an amplitude name.
+   *
+   * \param[in] reactionName the name of the reaction
+   * \param[in] sumName the name of the coherent sum the amplitude belongs to
+   * \param[in] ampName the name of the amplitude itself
+   */
+  
+  PDFInfo(const string& reactionName,
+          const string& pdfName):
+  m_reactionName(reactionName),
+  m_pdfName(pdfName)  {clear();};
+  
+  
+  //  Every amplitude is identified by a reaction, a sum, and an ampName
+  
+  /**
+   * This returns the name of the reaction for this amplitude.
+   */
+  string                     reactionName()   const {return m_reactionName;}
+  
+  /**
+   * This returns the name of the amplitude.
+   */
+  string                     pdfName()        const {return m_pdfName;}
+  
+  /**
+   * This returns the "full name" of the reaction.  It is obtained by concatenating
+   * togther the reaction name, sum name, and amplitude name with a double colon,
+   * e.g. reactionName::sumName::ampName
+   */
+  string                     fullName()       const {return (m_reactionName + "::" +
+                                                             m_pdfName);}
+  
+  bool                       isAmplitude()    const {return false;}
+  bool                       isPDF()          const {return true;}
+  
+  
+  //  Return information about the production parameter for this amplitude.
+  
+  /**
+   * This returns the current value of the production parameter.
+   */
+  double                     value()          const {return m_value;}
+
+  bool                       fixed()          const {return m_fixed;}
+  
+  string                     scale()          const {return m_scale;} 
+
+
+
+  //  Display or clear information for this amplitude
+
+  /**
+   * Displays information about this amplitude to the screen or writes it to
+   * file if a file name is passed in.
+   * 
+   * \param[in] fileName (optional) name of file to write amplitude info to
+   * \param[in] append (optional) if true (default) information will be 
+   * appended to the file, if false is passed in the file will be overwritten
+   */  
+  void                       display(string fileName = "", bool append = true);
+
+  /**
+   * This clears out all the internal data for this particular AmplitudeInfo
+   * object.
+   */
+  void                       clear();
+  
+
+  /**
+   * This sets the initial value of the production parameter for a particular
+   * parameter.
+   *
+   * \param[in] value the desired initial value
+   */
+  void setValue          (double value)            {m_value = value;}
+  
+  void setFixed          (bool fixed)              {m_fixed = fixed;}
+  
+  void setScale          (string scale)            {m_scale = scale;}
+
+  
+private:
+  
+  string                       m_reactionName;
+  string                       m_pdfName;
+  double                       m_value;
+  bool                         m_fixed;
+  string                       m_scale;
+  
+};
 
 
 
