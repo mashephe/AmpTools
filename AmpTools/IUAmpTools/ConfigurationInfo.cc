@@ -899,6 +899,7 @@ ReactionInfo::display(string fileName, bool append){
   cout << "  NORMALIZATION INTEGRAL FILE: " << endl;
   if (m_normIntFile != "")  cout << "\t\t    " << m_normIntFile << endl;
   if (m_normIntFileInput)   cout << "\t\t       (use as input)" << endl;
+  cout << "      GPU DEVICE NUMBER:  " << m_gpuDeviceNumber << endl;
 
   if (fileName != ""){
     outfile.close();
@@ -1177,6 +1178,7 @@ ReactionInfo::clear(){
   m_accMC = pair<string, vector<string> >("",empty);
   m_normIntFile = "";
   m_normIntFileInput = false;
+  setGPUDeviceNumber();
 }
 
 void

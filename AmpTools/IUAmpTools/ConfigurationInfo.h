@@ -678,8 +678,15 @@ public:
    * \see setNormIntFile
    */
   bool       normIntFileInput()     const {return m_normIntFileInput;}
-  
-  
+
+ 
+  /**
+   * Returns the GPU devide number for this reaction.
+   *
+   * \see setGPUDeviceNumber
+   */
+  int     gpuDeviceNumber()  const {return m_gpuDeviceNumber;}
+
   // Display or clear information for this reaction
   
   /**
@@ -768,7 +775,17 @@ public:
   void  setNormIntFile  (const string& normIntFile, bool input = false) 
                            { m_normIntFile = normIntFile;
                              m_normIntFileInput = input; }
-  
+
+  /**
+   * Sets the GPU device number for this reaction.
+   *
+   * \param[in] gpuDeviceNumber the GPU device number
+   *
+   * \see gpuDeviceNumber
+   */
+  void  setGPUDeviceNumber  (int gpuDeviceNumber = -1) 
+                           { m_gpuDeviceNumber = gpuDeviceNumber; }
+
   
 private:
   
@@ -780,6 +797,7 @@ private:
   pair< string, vector<string> > m_accMC;
   string                         m_normIntFile;
   bool                           m_normIntFileInput;
+  int                            m_gpuDeviceNumber;
   
 };
 

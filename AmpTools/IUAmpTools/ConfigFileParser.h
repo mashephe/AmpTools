@@ -80,6 +80,7 @@
  * ##  pdfconstrain <reaction1> <pdf1> <reaction2> <pdf2> ...
  * ##  parameter    <par> <value> ("fixed"/"bounded"/"gaussian") 
  * ##       (lower/central) (upper/error)
+ * ##  gpudevice    <reaction> <device number>
  * ##    DEPRECATED:
  * ##  datafile      <reaction> <file> (file2) (file3) ...
  * ##  genmcfile     <reaction> <file> (file2) (file3) ...
@@ -233,6 +234,7 @@ class ConfigFileParser
     void doPDFInitialize (const ConfigFileLine& line);
     void doPDFConstrain  (const ConfigFileLine& line);
     void doPDFScale      (const ConfigFileLine& line);
+    void doGPUDevice     (const ConfigFileLine& line);
 
 
       // Member data

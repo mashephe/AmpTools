@@ -317,6 +317,8 @@ ConfigFileParser::setupConfigurationInfo(){
 
     if ((*lineItr).keyword() == "sum") doSum(*lineItr);
 
+    if ((*lineItr).keyword() == "gpudevice") doGPUDevice(*lineItr);
+
   }
 
     if (m_verboseParsing)
@@ -396,6 +398,7 @@ ConfigFileParser::checkSyntax() const{
   keywordParameters["pdfconstrain"]  = pair<int,int>(4,100);
   keywordParameters["pdfscale"]      = pair<int,int>(3,3);
   keywordParameters["parameter"]     = pair<int,int>(2,5);
+  keywordParameters["gpudevice"]     = pair<int,int>(2,2);
     // these are deprecated, but print out an error message later
   keywordParameters["datafile"]      = pair<int,int>(2,100);
   keywordParameters["genmcfile"]     = pair<int,int>(2,100);
@@ -485,6 +488,21 @@ ConfigFileParser::doData(const ConfigFileLine& line){
   if (line.keyword() == "bkgnd")   rct->setBkgnd(classname, dataargs);
   if (line.keyword() == "genmc")   rct->setGenMC(classname, dataargs);
   if (line.keyword() == "accmc")   rct->setAccMC(classname, dataargs);
+}
+
+
+void
+ConfigFileParser::doGPUDevice(const ConfigFileLine& line){
+  vector<string> arguments = line.arguments();
+  string reaction  = arguments[0];
+  int deviceNumber = atoi((arguments[1]).c_str());
+  ReactionInfo* rct = m_configurationInfo->reaction(reaction);
+  if (!rct){
+    cout << "ConfigFileParser ERROR:  Can't associate gpudevice with a reaction:  " << endl;
+    line.printLine();
+    exit(1);
+  }
+  rct->setGPUDeviceNumber(deviceNumber);
 }
 
 
