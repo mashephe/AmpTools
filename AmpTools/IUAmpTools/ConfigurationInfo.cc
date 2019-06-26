@@ -676,7 +676,7 @@ ConfigurationInfo::write( ostream& ff ) const {
     ff << "scale " << A->fullName() << " " << A->scale() << endl;}
   for (unsigned int i = 0; i < PDFs.size(); i++){
     PDFInfo* PDF = PDFs[i];
-    ff << "scale " << PDF->fullName() << " " << PDF->scale() << endl;}
+    ff << "pdfscale " << PDF->fullName() << " " << PDF->scale() << endl;}
   
   
   // constrain
@@ -690,7 +690,7 @@ ConfigurationInfo::write( ostream& ff ) const {
     PDFInfo* PDF = PDFs[i];
     vector<TermInfo*> constr = PDF->constraints();
     for (unsigned int j = 0; j < constr.size(); j++){
-      ff << "constrain " << PDF->fullName() << " " << constr[j]->fullName() << endl;}}
+      ff << "pdfconstrain " << PDF->fullName() << " " << constr[j]->fullName() << endl;}}
   
   
   // initialize
@@ -706,7 +706,7 @@ ConfigurationInfo::write( ostream& ff ) const {
     ff << endl;}
   for (unsigned int i = 0; i < PDFs.size(); i++){
     PDFInfo* PDF = PDFs[i];
-    ff << "initialize " << PDF->fullName() << " "
+    ff << "pdfinitialize " << PDF->fullName() << " "
     << PDF->value();
     if (PDF->fixed()) {ff << " fixed";}
     ff << endl;}

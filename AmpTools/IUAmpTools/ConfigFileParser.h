@@ -74,6 +74,10 @@
  * ##  scale        <reaction> <sum> <amp> <value or [parameter]>
  * ##  constrain    <reaction1> <sum1> <amp1> <reaction2> <sum2> <amp2> ...
  * ##  permute      <reaction> <sum> <amp> <index1> <index2> ...
+ * ##  pdf          <reaction> <pdf> <class> (arg1) (arg2) ([par]) ... 
+ * ##  pdfinitialize <reaction> <pdf> <value> ("fixed")
+ * ##  pdfscale     <reaction> <pdf> <value or [parameter]>
+ * ##  pdfconstrain <reaction1> <pdf1> <reaction2> <pdf2> ...
  * ##  parameter    <par> <value> ("fixed"/"bounded"/"gaussian") 
  * ##       (lower/central) (upper/error)
  * ##    DEPRECATED:
@@ -225,6 +229,10 @@ class ConfigFileParser
     void doPermute       (const ConfigFileLine& line);
     void doConstrain     (const ConfigFileLine& line);
     void doScale         (const ConfigFileLine& line);
+    void doPDF           (const ConfigFileLine& line);
+    void doPDFInitialize (const ConfigFileLine& line);
+    void doPDFConstrain  (const ConfigFileLine& line);
+    void doPDFScale      (const ConfigFileLine& line);
 
 
       // Member data

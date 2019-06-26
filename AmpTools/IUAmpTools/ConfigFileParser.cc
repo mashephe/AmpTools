@@ -239,6 +239,17 @@ void
 ConfigFileParser::setupConfigurationInfo(){
 
 
+      // Do some quick syntax checks
+
+    if (m_verboseParsing)
+    cout << "ConfigFileParser INFO:  Begin Syntax Checking " << endl;
+
+  checkSyntax();
+
+    if (m_verboseParsing)
+    cout << "ConfigFileParser INFO:  Finished Syntax Checking " << endl;
+
+
       // ZEROTH PASS ("fit")
   
     if (m_verboseParsing)
@@ -264,7 +275,6 @@ ConfigFileParser::setupConfigurationInfo(){
     cout << "ConfigFileParser WARNING:  use the keyword \"fit\" to define a fit name" << endl;
 
   m_configurationInfo = new ConfigurationInfo(m_fitName);
-
 
 
       // FIRST PASS ("reaction")
@@ -323,6 +333,7 @@ ConfigFileParser::setupConfigurationInfo(){
        lineItr != m_configFileLines.end(); ++lineItr){
 
     if ((*lineItr).keyword() == "amplitude") doAmplitude(*lineItr);
+    if ((*lineItr).keyword() == "pdf")       doPDF(*lineItr);
 
   }
 
@@ -340,12 +351,13 @@ ConfigFileParser::setupConfigurationInfo(){
        lineItr != m_configFileLines.end(); ++lineItr){
 
     if ((*lineItr).keyword() == "constrain") doConstrain(*lineItr);
-
     if ((*lineItr).keyword() == "permute") doPermute(*lineItr);
-
     if ((*lineItr).keyword() == "initialize") doInitialize(*lineItr);
-
     if ((*lineItr).keyword() == "scale") doScale(*lineItr);
+
+    if ((*lineItr).keyword() == "pdfconstrain") doPDFConstrain(*lineItr);
+    if ((*lineItr).keyword() == "pdfinitialize") doPDFInitialize(*lineItr);
+    if ((*lineItr).keyword() == "pdfscale") doPDFScale(*lineItr);
 
   }
 
@@ -353,20 +365,7 @@ ConfigFileParser::setupConfigurationInfo(){
     cout << "ConfigFileParser INFO:  Finished FOURTH PASS" << endl;
 
 
-      // Do some quick syntax checks
-
-    if (m_verboseParsing)
-    cout << "ConfigFileParser INFO:  Begin Syntax Checking " << endl;
-
-  checkSyntax();
-
-    if (m_verboseParsing)
-    cout << "ConfigFileParser INFO:  Finished Syntax Checking " << endl;
-
 }
-
-
-
 
 
 
@@ -391,8 +390,12 @@ ConfigFileParser::checkSyntax() const{
   keywordParameters["initialize"]    = pair<int,int>(6,8);
   keywordParameters["constrain"]     = pair<int,int>(6,100);
   keywordParameters["permute"]       = pair<int,int>(5,100);
-  keywordParameters["parameter"]     = pair<int,int>(2,5);
   keywordParameters["scale"]         = pair<int,int>(4,4);
+  keywordParameters["pdf"]           = pair<int,int>(3,100);
+  keywordParameters["pdfinitialize"] = pair<int,int>(3,4);
+  keywordParameters["pdfconstrain"]  = pair<int,int>(4,100);
+  keywordParameters["pdfscale"]      = pair<int,int>(3,3);
+  keywordParameters["parameter"]     = pair<int,int>(2,5);
     // these are deprecated, but print out an error message later
   keywordParameters["datafile"]      = pair<int,int>(2,100);
   keywordParameters["genmcfile"]     = pair<int,int>(2,100);
@@ -587,6 +590,34 @@ ConfigFileParser::doAmplitude(const ConfigFileLine& line){
 
 
 void
+ConfigFileParser::doPDF(const ConfigFileLine& line){
+  vector<string> arguments = line.arguments();
+  string reaction  = arguments[0];
+  string pdfname   = arguments[1];
+  vector<string> pdfargs (arguments.begin()+2, arguments.end());
+  PDFInfo* pdfinfo = m_configurationInfo->pdf(reaction,pdfname);
+  if (!pdfinfo) pdfinfo = m_configurationInfo->createPDF(reaction,pdfname);
+  pdfinfo->addFactor(pdfargs);
+  for (unsigned int i = 1; i < pdfargs.size(); i++){
+    unsigned int j = pdfargs[i].size()-1;
+    if ((pdfargs[i][0] == '[') && (pdfargs[i][j] == ']')){
+      string parname("");
+      for (unsigned int k = 1; k < j; k++){
+        parname += pdfargs[i][k];
+      }
+      ParameterInfo* parinfo = m_configurationInfo->parameter(parname);
+      if (!parinfo){
+        cout << "ConfigFileParser ERROR:  can't find parameter " << parname << endl;
+        line.printLine();
+        exit(1);
+      }
+      pdfinfo->addParameter(parinfo);
+    }
+  }
+}
+
+
+void
 ConfigFileParser::doConstrain(const ConfigFileLine& line){
   vector<string> arguments = line.arguments();
   if (arguments.size()%3 != 0){
@@ -612,6 +643,29 @@ ConfigFileParser::doConstrain(const ConfigFileLine& line){
   }
 }
 
+void
+ConfigFileParser::doPDFConstrain(const ConfigFileLine& line){
+  vector<string> arguments = line.arguments();
+  if (arguments.size()%2 != 0){
+    cout << "ConfigFileParser ERROR:  wrong number of arguments for pdfconstrain keyword " << endl;
+    line.printLine();
+    exit(1);
+  }
+  string reaction1  = arguments[0];
+  string pdfname1   = arguments[1];
+  for (unsigned int i = 1; i < arguments.size()/2; i++){
+    string reaction2 = arguments[i*2];
+    string pdfname2  = arguments[i*2+1];
+    PDFInfo* pdf1 = m_configurationInfo->pdf(reaction1,pdfname1);
+    PDFInfo* pdf2 = m_configurationInfo->pdf(reaction2,pdfname2);
+    if ((!pdf1) || (!pdf2)){
+      cout << "ConfigFileParser ERROR:  trying to constrain nonexistent pdf " << endl;
+      line.printLine();
+      exit(1);
+    }
+    pdf1->addConstraint(pdf2);
+  }
+}
 
 
 void
@@ -755,6 +809,32 @@ ConfigFileParser::doInitialize(const ConfigFileLine& line){
 }
 
 
+
+void
+ConfigFileParser::doPDFInitialize(const ConfigFileLine& line){
+  vector<string> arguments = line.arguments();
+  string reaction = arguments[0];
+  string pdfname  = arguments[1];
+  double value    = atof(arguments[2].c_str());  
+  string fixtype("floating");
+  if (arguments.size() >= 4) fixtype = arguments[3];
+  PDFInfo* pdf = m_configurationInfo->pdf(reaction,pdfname);
+  if (!pdf){
+    cout << "ConfigFileParser ERROR:  trying to initialize nonexistent pdf " << endl;
+    line.printLine();
+    exit(1);
+  }
+  pdf->setValue(value);
+       if (fixtype == "floating"){ pdf->setFixed(false); }
+  else if (fixtype == "fixed")   { pdf->setFixed(true); }
+  else{
+    cout << "ConfigFileParser ERROR:  pdfinitialize must use floating or fixed  " << endl;
+    line.printLine();
+    exit(1);
+  }
+}
+
+
 void
 ConfigFileParser::doScale(const ConfigFileLine& line){
   vector<string> arguments = line.arguments();
@@ -784,6 +864,34 @@ ConfigFileParser::doScale(const ConfigFileLine& line){
   amplitude->setScale(value);
 }
 
+
+void
+ConfigFileParser::doPDFScale(const ConfigFileLine& line){
+  vector<string> arguments = line.arguments();
+  string reaction = arguments[0];
+  string pdfname  = arguments[1];
+  string value    = arguments[2];
+  PDFInfo* pdf = m_configurationInfo->pdf(reaction,pdfname);
+  if (!pdf){
+    cout << "ConfigFileParser ERROR:  trying to scale nonexistent pdf " << endl;
+    line.printLine();
+    exit(1);
+  }
+  if ((value.size() > 0) && (value[0] == '[') and (value[value.size()-1] == ']')){
+    string parname("");
+    for (unsigned int k = 1; k < value.size()-1; k++){
+      parname += value[k];
+    }
+    ParameterInfo* parinfo = m_configurationInfo->parameter(parname);
+    if (!parinfo){
+      cout << "ConfigFileParser ERROR:  can't find parameter " << parname << endl;
+      line.printLine();
+      exit(1);
+    }
+    pdf->addParameter(parinfo);
+  }
+  pdf->setScale(value);
+}
 
 
 void
