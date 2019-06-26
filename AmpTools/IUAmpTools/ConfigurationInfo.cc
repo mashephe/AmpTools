@@ -346,6 +346,11 @@ AmplitudeInfo*
 ConfigurationInfo::createAmplitude  (const string& reactionName, 
                                      const string& sumName, 
                                      const string& ampName){
+  if (pdfList(reactionName).size() != 0){
+    cout << "ConfigurationInfo:  problem with reaction named " << reactionName << ":" << endl;
+    cout << "   mixing amplitudes and pdfs is not currently supported" << endl;
+    exit(0);
+  }
   AmplitudeInfo* amp = amplitude(reactionName,sumName,ampName);
   if (amp == NULL){
     ReactionInfo* rctn = reaction(reactionName);
@@ -373,6 +378,11 @@ ConfigurationInfo::createAmplitude  (const string& reactionName,
 PDFInfo*
 ConfigurationInfo::createPDF  (const string& reactionName, 
                                const string& pdfName){
+  if (amplitudeList(reactionName).size() != 0){
+    cout << "ConfigurationInfo:  problem with reaction named " << reactionName << ":" << endl;
+    cout << "   mixing amplitudes and pdfs is not currently supported" << endl;
+    exit(0);
+  }
   PDFInfo* addpdf = pdf(reactionName,pdfName);
   if (addpdf == NULL){
     ReactionInfo* rctn = reaction(reactionName);
