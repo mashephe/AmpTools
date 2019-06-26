@@ -46,8 +46,11 @@
 
 
 ConfigurationInfo::~ConfigurationInfo(){
-  removeReaction();
   removeParameter();
+  removePDF();
+  removeAmplitude();
+  removeCoherentSum();
+  removeReaction();
 }
 
 
@@ -116,20 +119,46 @@ ConfigurationInfo::amplitudeList  (const string& reactionName,
   return amplitudes;
 }
 
+vector<PDFInfo*>
+ConfigurationInfo::pdfList  (const string& reactionName,
+                             const string& pdfName) const {
+  vector<PDFInfo*> pdfs;
+  for (unsigned int i = 0; i < m_pdfs.size(); i++){
+    if (((reactionName == "") || (m_pdfs[i]->reactionName() == reactionName)) &&
+        ((pdfName      == "") || (m_pdfs[i]->pdfName()      == pdfName))){
+      pdfs.push_back(m_pdfs[i]);
+    }
+  }
+  return pdfs;
+}
+
+vector<TermInfo*>
+ConfigurationInfo::termList  (const string& reactionName,
+                              const string& sumName,
+                              const string& termName) const {
+  vector<TermInfo*> terms;
+  vector<AmplitudeInfo*> amplitudes = amplitudeList(reactionName,sumName,termName);
+  vector<PDFInfo*> pdfs = pdfList(reactionName,termName);
+  for (unsigned int i = 0; i < amplitudes.size(); i++){ terms.push_back(amplitudes[i]); }
+  for (unsigned int i = 0; i < pdfs.size();       i++){ terms.push_back(pdfs[i]); }
+  return terms;
+}
+
+
 vector<ParameterInfo*>
 ConfigurationInfo::parameterList  (const string& reactionName,
                                    const string& sumName,
-                                   const string& ampName,
+                                   const string& termName,
                                    const string& parName) const {
   if ((reactionName == "") &&
       (sumName      == "") &&
-      (ampName      == "") &&
+      (termName     == "") &&
       (parName      == "")) return m_parameters;
   vector<ParameterInfo*> parameters;
   for (unsigned int i = 0; i < m_amplitudes.size(); i++){
     if (((reactionName == "") || (m_amplitudes[i]->reactionName() == reactionName)) &&
         ((sumName      == "") || (m_amplitudes[i]->sumName()      == sumName)) &&
-        ((ampName      == "") || (m_amplitudes[i]->ampName()      == ampName))){
+        ((termName     == "") || (m_amplitudes[i]->ampName()      == termName))){
       vector<ParameterInfo*> ampParameters = m_amplitudes[i]->parameters();
       for (unsigned int j = 0; j < ampParameters.size(); j++){
         bool foundParameter = false;
@@ -139,6 +168,23 @@ ConfigurationInfo::parameterList  (const string& reactionName,
         if (!foundParameter){
           if ((parName == "") || (ampParameters[j]->parName() == parName)){
             parameters.push_back(ampParameters[j]);
+          }
+        }
+      }
+    }
+  }
+  for (unsigned int i = 0; i < m_pdfs.size(); i++){
+    if (((reactionName == "") || (m_pdfs[i]->reactionName() == reactionName)) &&
+        ((termName     == "") || (m_pdfs[i]->pdfName()      == termName))){
+      vector<ParameterInfo*> pdfParameters = m_pdfs[i]->parameters();
+      for (unsigned int j = 0; j < pdfParameters.size(); j++){
+        bool foundParameter = false;
+        for (unsigned int k = 0; k < parameters.size(); k++){
+          if (parameters[k]->parName() == pdfParameters[j]->parName()) foundParameter = true;
+        }
+        if (!foundParameter){
+          if ((parName == "") || (pdfParameters[j]->parName() == parName)){
+            parameters.push_back(pdfParameters[j]);
           }
         }
       }
@@ -188,6 +234,51 @@ ConfigurationInfo::amplitude  (const string& reactionName,
   }
   AmplitudeInfo* amplitude = NULL;
   return amplitude;
+}
+
+
+AmplitudeInfo*
+ConfigurationInfo::amplitude  (const string& fullName) const {
+  for (unsigned int i = 0; i < m_amplitudes.size(); i++){
+    if (m_amplitudes[i]->fullName() == fullName){
+      return m_amplitudes[i];
+    }
+  }
+  AmplitudeInfo* amplitude = NULL;
+  return amplitude;
+}
+
+
+PDFInfo*
+ConfigurationInfo::pdf  (const string& reactionName,
+                         const string& pdfName) const {
+  for (unsigned int i = 0; i < m_pdfs.size(); i++){
+    if ((m_pdfs[i]->reactionName() == reactionName) && 
+        (m_pdfs[i]->pdfName()      == pdfName)){
+      return m_pdfs[i];
+    }
+  }
+  PDFInfo* lpdf = NULL;
+  return lpdf;
+}
+
+PDFInfo*
+ConfigurationInfo::pdf  (const string& fullName) const {
+  for (unsigned int i = 0; i < m_pdfs.size(); i++){
+    if (m_pdfs[i]->fullName() == fullName){
+      return m_pdfs[i];
+    }
+  }
+  PDFInfo* lpdf = NULL;
+  return lpdf;
+}
+
+TermInfo*
+ConfigurationInfo::term (const string& fullName) const {
+  AmplitudeInfo* amp = amplitude(fullName);  if (amp) return amp;
+  PDFInfo* lpdf = pdf(fullName);  if (lpdf) return lpdf;
+  TermInfo* term = NULL;
+  return term;
 }
 
 
@@ -279,6 +370,26 @@ ConfigurationInfo::createAmplitude  (const string& reactionName,
 }
 
 
+PDFInfo*
+ConfigurationInfo::createPDF  (const string& reactionName, 
+                               const string& pdfName){
+  PDFInfo* addpdf = pdf(reactionName,pdfName);
+  if (addpdf == NULL){
+    ReactionInfo* rctn = reaction(reactionName);
+    if (rctn == NULL){
+      cout << "ConfigurationInfo:  Trying to create pdf for unknown reaction" << endl;
+      cout << "\tcreatePDF(" << reactionName << "," << pdfName << ")" << endl;
+      exit(0);
+    }
+    addpdf = new PDFInfo(reactionName,pdfName);
+    m_pdfs.push_back(addpdf);
+  }
+  else{
+    addpdf->clear();
+  }
+  return addpdf;
+}
+
 
 ParameterInfo*
 ConfigurationInfo::createParameter  (const string&  parName,
@@ -368,6 +479,30 @@ ConfigurationInfo::removeAmplitude   (const string& reactionName,
 
 
 void
+ConfigurationInfo::removePDF   (const string& reactionName,
+                               const string& pdfName){
+  vector<PDFInfo*> removeList = pdfList(reactionName, pdfName);
+  unsigned int removeListSize = removeList.size();
+  for (unsigned int i = 0; i < removeListSize; i++){
+    for (unsigned int j = 0; j < m_pdfs.size(); j++){
+      m_pdfs[j]->removeConstraint(removeList[i]);
+    }
+  }
+  for (unsigned int i = 0; i < removeListSize; i++){
+    for (unsigned int j = 0; j < m_pdfs.size(); j++){
+      if ((removeList[i]->reactionName() == m_pdfs[j]->reactionName()) &&
+          (removeList[i]->pdfName()      == m_pdfs[j]->pdfName())){
+        m_pdfs[j]->clear();
+        delete m_pdfs[j];
+        m_pdfs.erase(m_pdfs.begin()+j,m_pdfs.begin()+j+1);
+        j = m_pdfs.size();
+      }
+    }
+  }
+}
+
+
+void
 ConfigurationInfo::removeParameter   (const string& parName){
   vector<ParameterInfo*> removeList;
   if (parName == ""){
@@ -381,6 +516,9 @@ ConfigurationInfo::removeParameter   (const string& parName){
   for (unsigned int i = 0; i < removeListSize; i++){
     for (unsigned int j = 0; j < m_amplitudes.size(); j++){
       m_amplitudes[j]->removeParameter(removeList[i]);
+    }
+    for (unsigned int j = 0; j < m_pdfs.size(); j++){
+      m_pdfs[j]->removeParameter(removeList[i]);
     }
   }
   for (unsigned int i = 0; i < removeListSize; i++){
@@ -403,15 +541,23 @@ ConfigurationInfo::constraintMap() const {
   for( vector< AmplitudeInfo* >::const_iterator aItr = m_amplitudes.begin();
       aItr != m_amplitudes.end();
       ++aItr ){
-    
     cMap[(**aItr).fullName()] = vector< string >( 0 );
-    
     vector< TermInfo* > constraints = (**aItr).constraints();
-    
     for( vector< TermInfo* >::const_iterator bItr = constraints.begin();
         bItr != constraints.end();
         ++bItr ){
-      
+      cMap[(**aItr).fullName()].push_back( (**bItr).fullName() );
+    }
+  }
+
+  for( vector< PDFInfo* >::const_iterator aItr = m_pdfs.begin();
+      aItr != m_pdfs.end();
+      ++aItr ){
+    cMap[(**aItr).fullName()] = vector< string >( 0 );
+    vector< TermInfo* > constraints = (**aItr).constraints();
+    for( vector< TermInfo* >::const_iterator bItr = constraints.begin();
+        bItr != constraints.end();
+        ++bItr ){
       cMap[(**aItr).fullName()].push_back( (**bItr).fullName() );
     }
   }
@@ -431,10 +577,11 @@ ConfigurationInfo::write( const string& fileName ) const {
 ostream&
 ConfigurationInfo::write( ostream& ff ) const {
   
-  vector<ReactionInfo*>    Rs = reactionList();
-  vector<CoherentSumInfo*> Ss = coherentSumList();
-  vector<AmplitudeInfo*>   As = amplitudeList();
-  vector<ParameterInfo*>   Ps = parameterList();
+  vector<ReactionInfo*>    Rs   = reactionList();
+  vector<CoherentSumInfo*> Ss   = coherentSumList();
+  vector<AmplitudeInfo*>   As   = amplitudeList();
+  vector<PDFInfo*>         PDFs = pdfList();
+  vector<ParameterInfo*>   Ps   = parameterList();
   
   ff << "### FIT CONFIGURATION ###" << endl;
   
@@ -495,6 +642,19 @@ ConfigurationInfo::write( ostream& ff ) const {
         ff << " " << args[k];}
       ff << endl;}}
   
+
+  // pdf
+  
+  for (unsigned int i = 0; i < PDFs.size(); i++){
+    PDFInfo* PDF = PDFs[i];
+    vector< vector<string> > Fs = PDF->factors();
+    for (unsigned int j = 0; j < Fs.size(); j++){
+      ff << "pdf " << PDF->fullName();
+      vector<string> args = Fs[j];
+      for (unsigned int k = 0; k < args.size(); k++){
+        ff << " " << args[k];}
+      ff << endl;}}
+
   
   // parameter
   
@@ -514,6 +674,9 @@ ConfigurationInfo::write( ostream& ff ) const {
   for (unsigned int i = 0; i < As.size(); i++){
     AmplitudeInfo* A = As[i];
     ff << "scale " << A->fullName() << " " << A->scale() << endl;}
+  for (unsigned int i = 0; i < PDFs.size(); i++){
+    PDFInfo* PDF = PDFs[i];
+    ff << "scale " << PDF->fullName() << " " << PDF->scale() << endl;}
   
   
   // constrain
@@ -523,6 +686,11 @@ ConfigurationInfo::write( ostream& ff ) const {
     vector<TermInfo*> constr = A->constraints();
     for (unsigned int j = 0; j < constr.size(); j++){
       ff << "constrain " << A->fullName() << " " << constr[j]->fullName() << endl;}}
+  for (unsigned int i = 0; i < PDFs.size(); i++){
+    PDFInfo* PDF = PDFs[i];
+    vector<TermInfo*> constr = PDF->constraints();
+    for (unsigned int j = 0; j < constr.size(); j++){
+      ff << "constrain " << PDF->fullName() << " " << constr[j]->fullName() << endl;}}
   
   
   // initialize
@@ -535,6 +703,12 @@ ConfigurationInfo::write( ostream& ff ) const {
     if      (!A->real() &&  A->fixed()) {ff << " fixed";}
     else if ( A->real() && !A->fixed()) {ff << " real";}
     else if ( A->real() &&  A->fixed()) {ff << " fixed real";}
+    ff << endl;}
+  for (unsigned int i = 0; i < PDFs.size(); i++){
+    PDFInfo* PDF = PDFs[i];
+    ff << "initialize " << PDF->fullName() << " "
+    << PDF->value();
+    if (PDF->fixed()) {ff << " fixed";}
     ff << endl;}
   
   
@@ -658,6 +832,10 @@ ConfigurationInfo::display(string fileName, bool append){
       for (unsigned int k = 0; k < amps.size(); k++){
         amps[k]->display(fileName,true);
       }
+    }
+    vector<PDFInfo*> pdfs = pdfList(m_reactions[i]->reactionName());
+    for (unsigned int k = 0; k < pdfs.size(); k++){
+      pdfs[k]->display(fileName,true);
     }
   }
   for (unsigned int l = 0; l < m_parameters.size(); l++){
@@ -816,15 +994,6 @@ TermInfo::removeParameter (ParameterInfo* parameter){
     }
   }
 }
-
-
-
-
-
-
-
-
-
 
 
 
