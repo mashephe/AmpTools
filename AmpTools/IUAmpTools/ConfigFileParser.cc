@@ -218,6 +218,83 @@ ConfigFileParser::expandConfigFileLines(vector<ConfigFileLine> configFileLines) 
   }
 
 
+    // save the "loop" lines
+
+  map<string, vector<string> > mapLoops;
+  vector<string> vectorLoops;
+  for (vector<ConfigFileLine>::iterator lineItr = configFileLines.begin();
+       lineItr != configFileLines.end(); ++lineItr){
+
+    if (lineItr->keyword() == "loop"){
+
+      if (lineItr->arguments().size() < 3){
+        cout << "ConfigFileParser ERROR:  Wrong number of arguments for the loop statement:" << endl;
+        lineItr->printLine();
+        exit(1);
+      }
+
+      vector<string> arguments = lineItr->arguments();
+      string         key       = arguments[0];
+      vector<string> value     (arguments.begin()+1,arguments.end()); 
+
+      vectorLoops.push_back(key);
+      mapLoops[key] = value;
+
+    }
+  }
+
+
+    // expand the "loop" definitions
+
+  for (vector<ConfigFileLine>::iterator lineItr = configFileLines.begin();
+       lineItr != configFileLines.end(); ++lineItr){
+
+    if (lineItr->keyword() == "loop") continue;
+    if (lineItr->comment()) continue;
+    vector<string> arguments = lineItr->arguments();
+    if (arguments.size() < 2) continue;
+
+    vector<string> foundLoops;
+    for (unsigned int i = 0; i < arguments.size(); i++){
+      for (unsigned int j = 0; j < vectorLoops.size(); j++){
+        if (arguments[i] == vectorLoops[j]) foundLoops.push_back(vectorLoops[j]);
+      }
+    }
+
+    if (foundLoops.size() == 0) continue;
+    if (foundLoops.size() >= 2){
+      for (unsigned int i = 0; i < foundLoops.size()-1; i++){
+        for (unsigned int j = i+1; j < foundLoops.size(); j++){
+          if (mapLoops[foundLoops[i]].size() != mapLoops[foundLoops[j]].size()){
+            cout << "ConfigFileParser ERROR:  Mismatch in loop size:" << endl;
+            lineItr->printLine();
+            exit(1);
+          }
+        }
+      }
+    }
+
+    vector<ConfigFileLine> newLines;
+    for (unsigned int i = 0; i < mapLoops[foundLoops[0]].size(); i++){
+      newLines.push_back(*lineItr);
+    }
+
+    for (unsigned int i = 0; i < newLines.size(); i++){
+      for (unsigned int j = 0; j < foundLoops.size(); j++){
+        vector<string> value;  value.push_back(mapLoops[foundLoops[j]][i]);
+        newLines[i].flushDefinition(foundLoops[j],value);
+      }
+    }
+
+    vector<ConfigFileLine>::iterator inputBegin = newLines.begin();
+    vector<ConfigFileLine>::iterator inputEnd   = newLines.end();
+    *lineItr = ConfigFileLine("",0,"##########  INSERTING A LOOP  ########");
+    configFileLines.insert(++lineItr, inputBegin, inputEnd);
+    lineItr = configFileLines.begin();       
+
+  }
+
+
     if (m_verboseParsing)
     cout << "ConfigFileParser INFO:  Finished expanding config file lines..." << endl;
 
@@ -379,6 +456,7 @@ ConfigFileParser::checkSyntax() const{
 
   map<string, pair<int,int> > keywordParameters;
   keywordParameters["define"]        = pair<int,int>(1,100);
+  keywordParameters["loop"]          = pair<int,int>(3,100);
   keywordParameters["keyword"]       = pair<int,int>(3,3);
   keywordParameters["fit"]           = pair<int,int>(1,1);
   keywordParameters["reaction"]      = pair<int,int>(3,100);
@@ -980,6 +1058,7 @@ ConfigFileLine::ConfigFileLine(const string& fileName, int lineNumber, const str
 
 void
 ConfigFileLine::flushDefinition(const string& word, const vector<string>& definition){
+  if (comment()) return;
   bool hasWord = false;
   for (unsigned int i = 0; i < m_arguments.size(); i++){ 
     if (m_arguments[i] == word) hasWord = true;
