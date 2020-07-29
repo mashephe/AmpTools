@@ -18,25 +18,25 @@ DalitzDataWriter::DalitzDataWriter( const string& outFile ){
   m_outFile = new TFile( outFile.c_str(), "recreate" );
   m_outTree = new TTree( "nt", "nt" );
 
-  m_outTree->Branch( "EnP1", &m_EnP1, "EnP1/F" );
-  m_outTree->Branch( "PxP1", &m_PxP1, "PxP1/F" );
-  m_outTree->Branch( "PyP1", &m_PyP1, "PyP1/F" );
-  m_outTree->Branch( "PzP1", &m_PzP1, "PzP1/F" );
+  m_outTree->Branch( "EnP1", &m_EnP1, "EnP1/D" );
+  m_outTree->Branch( "PxP1", &m_PxP1, "PxP1/D" );
+  m_outTree->Branch( "PyP1", &m_PyP1, "PyP1/D" );
+  m_outTree->Branch( "PzP1", &m_PzP1, "PzP1/D" );
 
-  m_outTree->Branch( "EnP2", &m_EnP2, "EnP2/F" );
-  m_outTree->Branch( "PxP2", &m_PxP2, "PxP2/F" );
-  m_outTree->Branch( "PyP2", &m_PyP2, "PyP2/F" );
-  m_outTree->Branch( "PzP2", &m_PzP2, "PzP2/F" );
+  m_outTree->Branch( "EnP2", &m_EnP2, "EnP2/D" );
+  m_outTree->Branch( "PxP2", &m_PxP2, "PxP2/D" );
+  m_outTree->Branch( "PyP2", &m_PyP2, "PyP2/D" );
+  m_outTree->Branch( "PzP2", &m_PzP2, "PzP2/D" );
 
-  m_outTree->Branch( "EnP3", &m_EnP3, "EnP3/F" );
-  m_outTree->Branch( "PxP3", &m_PxP3, "PxP3/F" );
-  m_outTree->Branch( "PyP3", &m_PyP3, "PyP3/F" );
-  m_outTree->Branch( "PzP3", &m_PzP3, "PzP3/F" );
+  m_outTree->Branch( "EnP3", &m_EnP3, "EnP3/D" );
+  m_outTree->Branch( "PxP3", &m_PxP3, "PxP3/D" );
+  m_outTree->Branch( "PyP3", &m_PyP3, "PyP3/D" );
+  m_outTree->Branch( "PzP3", &m_PzP3, "PzP3/D" );
   
-  m_outTree->Branch( "s12", &m_s12, "s12/F" );
-  m_outTree->Branch( "s23", &m_s23, "s23/F" );
+  m_outTree->Branch( "s12", &m_s12, "s12/D" );
+  m_outTree->Branch( "s23", &m_s23, "s23/D" );
 
-  m_outTree->Branch( "weight", &m_weight, "weight/F" );
+  m_outTree->Branch( "weight", &m_weight, "weight/D" );
 
   m_eventCounter = 0;
 
