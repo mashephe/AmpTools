@@ -67,6 +67,7 @@ m_firstDataCalc( true ),
 m_firstNormIntCalc( true ),
 m_sumBkgWeights( 0 ),
 m_numBkgEvents( 0 ),
+m_sumDataWeights( 0 ),
 m_numDataEvents( 0 )
 {
   
@@ -215,6 +216,7 @@ LikelihoodCalculator::dataTerm(){
     m_ampVecsSignal.loadData( m_dataReaderSignal );
     m_ampVecsSignal.allocateTerms( m_intenManager, true );
 
+    m_sumDataWeights = m_ampVecsSignal.m_dSumWeights;
     m_numDataEvents = m_ampVecsSignal.m_iNTrueEvents;
     
     if( m_hasBackground ){
@@ -222,7 +224,7 @@ LikelihoodCalculator::dataTerm(){
       m_ampVecsBkgnd.loadData( m_dataReaderBkgnd, true );
       m_ampVecsBkgnd.allocateTerms( m_intenManager, true );
 
-      m_sumBkgWeights = m_ampVecsBkgnd.m_dAbsSumWeights;
+      m_sumBkgWeights = m_ampVecsBkgnd.m_dSumWeights;
       m_numBkgEvents = m_ampVecsBkgnd.m_iNTrueEvents;
     }
     

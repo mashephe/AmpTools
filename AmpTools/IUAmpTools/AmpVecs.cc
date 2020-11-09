@@ -50,7 +50,7 @@ AmpVecs::AmpVecs(){
   
   m_iNEvents        = 0 ;
   m_iNTrueEvents    = 0 ;
-  m_dAbsSumWeights  = 0 ;
+  m_dSumWeights     = 0 ;
   m_iNParticles     = 0 ;
   m_iNTerms         = 0 ;
   m_maxFactPerEvent = 0 ;
@@ -77,7 +77,7 @@ AmpVecs::deallocAmpVecs()
   
   m_iNEvents        = 0 ;
   m_iNTrueEvents    = 0 ;
-  m_dAbsSumWeights     = 0 ;
+  m_dSumWeights     = 0 ;
   m_iNParticles     = 0 ;
   m_iNTerms         = 0 ;
   m_maxFactPerEvent = 0 ;
@@ -234,7 +234,7 @@ AmpVecs::loadData( DataReader* pDataReader, bool bForceNegativeWeight ){
   for(int iEvent = 0; iEvent < m_iNTrueEvents; iEvent++){ 
     pKinematics = pDataReader->getEvent();
     loadEvent(pKinematics, iEvent, m_iNTrueEvents, bForceNegativeWeight );
-    m_dAbsSumWeights += fabsf( pKinematics->weight() );
+    m_dSumWeights += pKinematics->weight();
     if (iEvent < (m_iNTrueEvents - 1)) delete pKinematics;
   }
   

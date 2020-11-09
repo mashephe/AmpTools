@@ -85,7 +85,7 @@ struct AmpVecs
    * events.)
    */
   
-  double m_dAbsSumWeights;
+  double m_dSumWeights;
   
   /**
    * An integer that stores the number of particles in the final state.
