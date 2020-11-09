@@ -199,7 +199,7 @@ AmpVecs::loadEvent( const Kinematics* pKinematics, unsigned long long iEvent,
 #endif
 */
   m_pdWeights[iEvent] = ( bForceNegativeWeight ?
-                         -fabsf( pKinematics->weight() ) :
+                         -1.*( pKinematics->weight() ) :
                          pKinematics->weight() );
   
   m_termsValid = false;
