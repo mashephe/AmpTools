@@ -431,11 +431,8 @@ ConfigFileParser::setupConfigurationInfo(){
 
     if ((*lineItr).keyword() == "constrain") doConstrain(*lineItr);
     if ((*lineItr).keyword() == "permute") doPermute(*lineItr);
-
     if ((*lineItr).keyword() == "scale") doScale(*lineItr);
-
     if ((*lineItr).keyword() == "pdfconstrain") doPDFConstrain(*lineItr);
-    if ((*lineItr).keyword() == "pdfinitialize") doPDFInitialize(*lineItr);
     if ((*lineItr).keyword() == "pdfscale") doPDFScale(*lineItr);
 
   }
@@ -453,6 +450,7 @@ ConfigFileParser::setupConfigurationInfo(){
        lineItr != m_configFileLines.end(); ++lineItr){
 
     if ((*lineItr).keyword() == "initialize") doInitialize(*lineItr);
+    if ((*lineItr).keyword() == "pdfinitialize") doPDFInitialize(*lineItr);
 
   }
 
@@ -854,9 +852,9 @@ ConfigFileParser::doInitialize(const ConfigFileLine& line){
   if (arguments.size() == 8) fixtype2 = arguments[7];
   AmplitudeInfo* amplitude = m_configurationInfo->amplitude(reaction,sumname,ampname);
   initializeAmplitude(amplitude,line,type,value1,value2,fixtype1,fixtype2);
-  vector< AmplitudeInfo* > constraints = amplitude->constraints();
+  vector< TermInfo* > constraints = amplitude->constraints();
   for (unsigned int i = 0; i < constraints.size(); i++){
-    initializeAmplitude(constraints[i],line,type,value1,value2,fixtype1,fixtype2);
+    initializeAmplitude((AmplitudeInfo*)constraints[i],line,type,value1,value2,fixtype1,fixtype2);
   }
 }
 
@@ -953,6 +951,16 @@ ConfigFileParser::doPDFInitialize(const ConfigFileLine& line){
   string fixtype("floating");
   if (arguments.size() >= 4) fixtype = arguments[3];
   PDFInfo* pdf = m_configurationInfo->pdf(reaction,pdfname);
+  initializePDF(pdf,line,value,fixtype);
+  vector< TermInfo* > constraints = pdf->constraints();
+  for (unsigned int i = 0; i < constraints.size(); i++){
+    initializePDF((PDFInfo*)constraints[i],line,value,fixtype);
+  }
+}
+
+void
+ConfigFileParser::initializePDF(PDFInfo* pdf, const ConfigFileLine& line,
+                                 double value, string fixtype){
   if (!pdf){
     cout << "ConfigFileParser ERROR:  trying to initialize nonexistent pdf " << endl;
     line.printLine();

@@ -238,11 +238,13 @@ class ConfigFileParser
     void doGPUDevice     (const ConfigFileLine& line);
 
 
-      // Initialize an amplitude
+      // Initialize an amplitude or PDF
 
     void initializeAmplitude(AmplitudeInfo* amplitude, const ConfigFileLine& line,
                              string type, double value1, double value2,
                              string fixtype1, string fixtype2);
+    void initializePDF(PDFInfo* pdf, const ConfigFileLine& line,
+                             double value, string fixtype);
 
 
       // Member data
