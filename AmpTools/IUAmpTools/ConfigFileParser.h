@@ -227,6 +227,13 @@ class ConfigFileParser
     void doScale         (const ConfigFileLine& line);
 
 
+      // Initialize an amplitude
+
+    void initializeAmplitude(AmplitudeInfo* amplitude, const ConfigFileLine& line,
+                             string type, double value1, double value2,
+                             string fixtype1, string fixtype2);
+
+
       // Member data
 
     string                  m_fitName;
