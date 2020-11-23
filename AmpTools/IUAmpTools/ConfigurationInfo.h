@@ -1173,10 +1173,10 @@ public:
    *
    * \param[in] value the desired initial value
    */
-  void setValue          (complex<double> value)   {m_value = value;}
+  void setValue          (complex<double> value, bool propagateToConstraints = true);
   
-  void setReal           (bool real)               {m_real = real;}
-  void setFixed          (bool fixed)              {m_fixed = fixed;}
+  void setReal           (bool real,  bool propagateToConstraints = true);
+  void setFixed          (bool fixed, bool propagateToConstraints = true);
   
   void setScale          (string scale)            {m_scale = scale;}
 
@@ -1285,9 +1285,9 @@ public:
    *
    * \param[in] value the desired initial value
    */
-  void setValue          (double value)            {m_value = value;}
+  void setValue          (double value, bool propagateToConstraints = true);
   
-  void setFixed          (bool fixed)              {m_fixed = fixed;}
+  void setFixed          (bool fixed, bool propagateToConstraints = true);
   
   void setScale          (string scale)            {m_scale = scale;}
 

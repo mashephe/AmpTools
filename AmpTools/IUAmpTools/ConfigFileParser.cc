@@ -851,18 +851,6 @@ ConfigFileParser::doInitialize(const ConfigFileLine& line){
   if (arguments.size() >= 7) fixtype1 = arguments[6];
   if (arguments.size() == 8) fixtype2 = arguments[7];
   AmplitudeInfo* amplitude = m_configurationInfo->amplitude(reaction,sumname,ampname);
-  initializeAmplitude(amplitude,line,type,value1,value2,fixtype1,fixtype2);
-  vector< TermInfo* > constraints = amplitude->constraints();
-  for (unsigned int i = 0; i < constraints.size(); i++){
-    initializeAmplitude((AmplitudeInfo*)constraints[i],line,type,value1,value2,fixtype1,fixtype2);
-  }
-}
-
-
-void
-ConfigFileParser::initializeAmplitude(AmplitudeInfo* amplitude, const ConfigFileLine& line,
-                                      string type, double value1, double value2,
-                                      string fixtype1, string fixtype2){
   if (!amplitude){
     cout << "ConfigFileParser ERROR:  trying to initialize nonexistent amplitude " << endl;
     line.printLine();
@@ -951,16 +939,6 @@ ConfigFileParser::doPDFInitialize(const ConfigFileLine& line){
   string fixtype("floating");
   if (arguments.size() >= 4) fixtype = arguments[3];
   PDFInfo* pdf = m_configurationInfo->pdf(reaction,pdfname);
-  initializePDF(pdf,line,value,fixtype);
-  vector< TermInfo* > constraints = pdf->constraints();
-  for (unsigned int i = 0; i < constraints.size(); i++){
-    initializePDF((PDFInfo*)constraints[i],line,value,fixtype);
-  }
-}
-
-void
-ConfigFileParser::initializePDF(PDFInfo* pdf, const ConfigFileLine& line,
-                                 double value, string fixtype){
   if (!pdf){
     cout << "ConfigFileParser ERROR:  trying to initialize nonexistent pdf " << endl;
     line.printLine();

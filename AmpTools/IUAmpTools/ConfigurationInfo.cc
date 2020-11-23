@@ -956,6 +956,62 @@ TermInfo::addConstraint (TermInfo* constraint){
 }
 
 
+void
+AmplitudeInfo::setValue (complex<double> value, bool propagateToConstraints){
+  m_value = value;
+  if (!propagateToConstraints) return;
+  vector<TermInfo*> vConstraints = constraints();
+  for (unsigned int i = 0; i < vConstraints.size(); i++){
+    AmplitudeInfo* constraint = (AmplitudeInfo*) vConstraints[i];
+    constraint->setValue(value,false);
+  }
+}
+
+void
+AmplitudeInfo::setReal (bool real, bool propagateToConstraints){
+  m_real = real;
+  if (!propagateToConstraints) return;
+  vector<TermInfo*> vConstraints = constraints();
+  for (unsigned int i = 0; i < vConstraints.size(); i++){
+    AmplitudeInfo* constraint = (AmplitudeInfo*) vConstraints[i];
+    constraint->setReal(real,false);
+  }
+}
+
+void
+AmplitudeInfo::setFixed (bool fixed, bool propagateToConstraints){
+  m_fixed = fixed;
+  if (!propagateToConstraints) return;
+  vector<TermInfo*> vConstraints = constraints();
+  for (unsigned int i = 0; i < vConstraints.size(); i++){
+    AmplitudeInfo* constraint = (AmplitudeInfo*) vConstraints[i];
+    constraint->setFixed(fixed,false);
+  }
+}
+
+void
+PDFInfo::setValue (double value, bool propagateToConstraints){
+  m_value = value;
+  if (!propagateToConstraints) return;
+  vector<TermInfo*> vConstraints = constraints();
+  for (unsigned int i = 0; i < vConstraints.size(); i++){
+    PDFInfo* constraint = (PDFInfo*) vConstraints[i];
+    constraint->setValue(value,false);
+  }
+}
+
+void
+PDFInfo::setFixed (bool fixed, bool propagateToConstraints){
+  m_fixed = fixed;
+  if (!propagateToConstraints) return;
+  vector<TermInfo*> vConstraints = constraints();
+  for (unsigned int i = 0; i < vConstraints.size(); i++){
+    PDFInfo* constraint = (PDFInfo*) vConstraints[i];
+    constraint->setFixed(fixed,false);
+  }
+}
+
+
 bool 
 TermInfo::hasConstraint(TermInfo* constraint) const{
   bool foundConstraint = false;
@@ -1162,11 +1218,6 @@ ParameterInfo::display(string fileName, bool append){
   }
 
 }
-
-
-
-
-
 
 
 void
