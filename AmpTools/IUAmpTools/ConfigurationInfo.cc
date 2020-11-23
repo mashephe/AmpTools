@@ -864,6 +864,33 @@ AmplitudeInfo::addConstraint (AmplitudeInfo* constraint){
   if (!(constraint->hasConstraint(this))) constraint->addConstraint(this);
 }
 
+void
+AmplitudeInfo::setValue (complex<double> value, bool propagateToConstraints){
+  m_value = value;
+  if (!propagateToConstraints) return;
+  for (unsigned int i = 0; i < m_constraints.size(); i++){
+    m_constraints[i]->setValue(value,false);
+  }
+}
+
+void
+AmplitudeInfo::setReal (bool real, bool propagateToConstraints){
+  m_real = real;
+  if (!propagateToConstraints) return;
+  for (unsigned int i = 0; i < m_constraints.size(); i++){
+    m_constraints[i]->setReal(real,false);
+  }
+}
+
+void
+AmplitudeInfo::setFixed (bool fixed, bool propagateToConstraints){
+  m_fixed = fixed;
+  if (!propagateToConstraints) return;
+  for (unsigned int i = 0; i < m_constraints.size(); i++){
+    m_constraints[i]->setFixed(fixed,false);
+  }
+}
+
 
 bool 
 AmplitudeInfo::hasConstraint(AmplitudeInfo* constraint) const{
