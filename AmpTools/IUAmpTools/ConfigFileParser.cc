@@ -331,10 +331,10 @@ ConfigFileParser::setupConfigurationInfo(){
 
 
 
-      // FOURTH PASS (operations on amplitudes)
+      // FOURTH PASS (operations on amplitudes -- constrain, permute, scale)
   
     if (m_verboseParsing)
-    cout << "ConfigFileParser INFO:  Starting FOURTH PASS (filling amplitudes)" << endl;
+    cout << "ConfigFileParser INFO:  Starting FOURTH PASS (filling amplitudes 1/2)" << endl;
 
   for (vector<ConfigFileLine>::iterator lineItr = m_configFileLines.begin();
        lineItr != m_configFileLines.end(); ++lineItr){
@@ -343,14 +343,28 @@ ConfigFileParser::setupConfigurationInfo(){
 
     if ((*lineItr).keyword() == "permute") doPermute(*lineItr);
 
-    if ((*lineItr).keyword() == "initialize") doInitialize(*lineItr);
-
     if ((*lineItr).keyword() == "scale") doScale(*lineItr);
 
   }
 
     if (m_verboseParsing)
     cout << "ConfigFileParser INFO:  Finished FOURTH PASS" << endl;
+
+
+      // FIFTH PASS (operations on amplitudes -- initialize)
+  
+    if (m_verboseParsing)
+    cout << "ConfigFileParser INFO:  Starting FIFTH PASS (filling amplitudes 2/2)" << endl;
+
+  for (vector<ConfigFileLine>::iterator lineItr = m_configFileLines.begin();
+       lineItr != m_configFileLines.end(); ++lineItr){
+
+    if ((*lineItr).keyword() == "initialize") doInitialize(*lineItr);
+
+  }
+
+    if (m_verboseParsing)
+    cout << "ConfigFileParser INFO:  Finished FIFTH PASS" << endl;
 
 
       // Do some quick syntax checks
@@ -677,6 +691,18 @@ ConfigFileParser::doInitialize(const ConfigFileLine& line){
   if (arguments.size() >= 7) fixtype1 = arguments[6];
   if (arguments.size() == 8) fixtype2 = arguments[7];
   AmplitudeInfo* amplitude = m_configurationInfo->amplitude(reaction,sumname,ampname);
+  initializeAmplitude(amplitude,line,type,value1,value2,fixtype1,fixtype2);
+  vector< AmplitudeInfo* > constraints = amplitude->constraints();
+  for (unsigned int i = 0; i < constraints.size(); i++){
+    initializeAmplitude(constraints[i],line,type,value1,value2,fixtype1,fixtype2);
+  }
+}
+
+
+void
+ConfigFileParser::initializeAmplitude(AmplitudeInfo* amplitude, const ConfigFileLine& line,
+                                      string type, double value1, double value2,
+                                      string fixtype1, string fixtype2){
   if (!amplitude){
     cout << "ConfigFileParser ERROR:  trying to initialize nonexistent amplitude " << endl;
     line.printLine();
