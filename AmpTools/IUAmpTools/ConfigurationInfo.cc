@@ -941,18 +941,35 @@ CoherentSumInfo::display(string fileName, bool append){
 
 
 void 
-TermInfo::addConstraint (TermInfo* constraint){
+TermInfo::addConstraint (TermInfo* constraint, bool initializeConstraint){
     // don't constrain an amplitude to itself
   if ((this->fullName() == constraint->fullName())) return;
     // add "constraint" as a constraint
-  if (!hasConstraint(constraint)) m_constraints.push_back(constraint);
+  if (!hasConstraint(constraint)){
+    if (initializeConstraint){
+      if (isAmplitude()){
+        AmplitudeInfo* amp1 = (AmplitudeInfo*) this;
+        AmplitudeInfo* amp2 = (AmplitudeInfo*) constraint;
+        amp2->setValue(amp1->value(),false);
+        amp2->setReal(amp1->real(),false);
+        amp2->setFixed(amp1->fixed(),false);
+      }
+      if (isPDF()){
+        PDFInfo* pdf1 = (PDFInfo*) this;
+        PDFInfo* pdf2 = (PDFInfo*) constraint;
+        pdf2->setValue(pdf1->value(),false);
+        pdf2->setFixed(pdf1->fixed(),false);
+      }
+    }
+    m_constraints.push_back(constraint);
+  }
     // also add all of "constraint"'s constraints as constraints
   vector<TermInfo*> constraints = constraint->constraints();
   for (unsigned int i = 0; i < constraints.size(); i++){
-    if (!hasConstraint(constraints[i])) addConstraint(constraints[i]);
+    if (!hasConstraint(constraints[i])) addConstraint(constraints[i],initializeConstraint);
   }
     // also reciprocate
-  if (!(constraint->hasConstraint(this))) constraint->addConstraint(this);
+  if (!(constraint->hasConstraint(this))) constraint->addConstraint(this,false);
 }
 
 
