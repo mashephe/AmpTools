@@ -848,20 +848,27 @@ ParameterInfo::display(string fileName, bool append){
 
 
 void 
-AmplitudeInfo::addConstraint (AmplitudeInfo* constraint){
+AmplitudeInfo::addConstraint (AmplitudeInfo* constraint, bool initializeConstraint){
     // don't constrain an amplitude to itself
   if ((this->reactionName() == constraint->reactionName()) &&
       (this->sumName()      == constraint->sumName()) &&
       (this->ampName()      == constraint->ampName())) return;
     // add "constraint" as a constraint
-  if (!hasConstraint(constraint)) m_constraints.push_back(constraint);
+  if (!hasConstraint(constraint)){
+    if (initializeConstraint){
+      constraint->setValue(this->value(),false);
+      constraint->setReal(this->real(),false);
+      constraint->setFixed(this->fixed(),false);
+    }
+    m_constraints.push_back(constraint);
+  }
     // also add all of "constraint"'s constraints as constraints
   vector<AmplitudeInfo*> constraints = constraint->constraints();
   for (unsigned int i = 0; i < constraints.size(); i++){
-    if (!hasConstraint(constraints[i])) addConstraint(constraints[i]);
+    if (!hasConstraint(constraints[i])) addConstraint(constraints[i],initializeConstraint);
   }
     // also reciprocate
-  if (!(constraint->hasConstraint(this))) constraint->addConstraint(this);
+  if (!(constraint->hasConstraint(this))) constraint->addConstraint(this,false);
 }
 
 void

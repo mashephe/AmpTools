@@ -937,14 +937,19 @@ public:
    *
    * \param[in] constraint a pointer to the AmplitudeInfo to which to constrain
    * the current amplitude's production parameter
+   * \param[in] initializeConstraint (optional) if true (default) the constraint
+   * is given the same initialization as the original  [i.e., for 
+   * amp1->addConstraint(amp2,true), amp2 is given the same values as amp1] 
    */
-  void addConstraint     (AmplitudeInfo* constraint);
+  void addConstraint     (AmplitudeInfo* constraint, bool initializeConstraint = true);
 
   /**
    * This sets the initial value of the production parameter for a particular
    * parameter.
    *
    * \param[in] value the desired initial value
+   * \param[in] propagateToConstraints (optional) if true (default) 
+   * the value is also passed to the constrained amplitudes
    */
   void setValue          (complex<double> value, bool propagateToConstraints = true);
   
