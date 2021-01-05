@@ -220,7 +220,7 @@ FitResults::intensity( const vector< string >& amplitudes, bool accCorrected ) c
       
       vector<string> conjAmpNameParts = stringSplit( *conjAmp, "::" );
       assert( conjAmpNameParts.size() == 3 );
-      string conjReaction = ampNameParts[0];
+      string conjReaction = conjAmpNameParts[0];
 
       int jRe = 3 * ( conjAmp - amplitudes.begin() );
       int jIm = jRe + 1;
