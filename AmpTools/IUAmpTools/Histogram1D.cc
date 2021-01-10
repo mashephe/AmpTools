@@ -35,6 +35,7 @@
 //******************************************************************************
 
 #include <iostream>
+#include <sstream>
 #include <math.h>
 #include <assert.h>
 
@@ -113,6 +114,17 @@ TH1* Histogram1D::toRoot( void ) const {
     plot->SetBinError( i+1, sqrt( m_sumWeightSq[i] ) );
   }
   
+  ostringstream yLabel;
+  yLabel << "Candidates / ";
+  yLabel.precision( 2 );
+  float binSize = ( m_xHigh - m_xLow ) / m_nBins;
+  yLabel << binSize;
+  
+  plot->GetYaxis()->SetTitle( yLabel.str().c_str() );
+  plot->GetXaxis()->SetTitle( title().c_str() );
+  plot->GetXaxis()->SetDecimals();
+  plot->GetXaxis()->SetTitleOffset(1.2);
+
   return (TH1*)plot;
 }
 

@@ -68,8 +68,10 @@ public:
 
   virtual ~PlotGenerator();
   
-  // get intensity for all amplitudes that are turned on
-  pair< double, double > intensity( bool accCorrected = true ) const;
+  // get intensity for all amplitudes that are turned on for
+  // a specific reaction
+  pair< double, double > intensity( const string& reactName,
+                                    bool accCorrected = true ) const;
   
   bool haveAmp( const string& amp ) const;
   
@@ -119,9 +121,17 @@ protected:
  
 private:
  
-  // this function should be overridden by the derived class
-  // that is written by the user
-  virtual void projectEvent( Kinematics* kin ) = 0;
+  // this function can be overridden by the derived class
+  // that is written by the user; if the projections are
+  // reaction dependent, then the user should override the
+  // function below this one
+  virtual void projectEvent( Kinematics* kin ){}
+  
+  // provide this function for the user to override in case the
+  // projection is reaction dependent; by default this function
+  // will just call the function above, but by overriding it
+  // the user may customize the behavior
+  virtual void projectEvent( Kinematics* kin, const string& reaction );
   
   void clearHistograms();
   void fillProjections( const string& reactName, unsigned int type );
