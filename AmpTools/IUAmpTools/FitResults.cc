@@ -160,17 +160,12 @@ FitResults::intensity( const vector< string >& amplitudes, bool accCorrected ) c
       << "***************************************************************" << endl
       << "* WARNING!:  You are calculating an intensity that depends on *" << endl
       << "*   parameters that were floating in the fit.  Unless the par-*" << endl
-      << "*   ameters are amplitude scale factors only, THE ERROR ON    *" << endl
-      << "*   THE INTENSITY SHOULD BE CONSIDERED UNRELIABLE because the *" << endl
-      << "*   software is assuming that the derivatives of the normali- *" << endl
-      << "*   zation integrals with respect to the parameters are equal *" << endl
-      << "*   to zero.  (Fixing this involves numercially computing the *" << endl
-      << "*   derivatives, which will be implemented in future versions *" << endl
-      << "*   of AmpTools.)  For now it is recommended that you repeat  *" << endl
-      << "*   the fit fixing the free parameter(s) at +- 1 sigma of the *" << endl
-      << "*   parameter uncertainty to systematically probe how the     *" << endl
-      << "*   uncertainty on the intensity depends on the uncertainty   *" << endl
-      << "*   of the parameter.                                         *" << endl
+      << "*   ameters are amplitude scale factors only, THE UNCERTAINTY *" << endl
+      << "*   ON THE INTENSITY SHOULD BE CONSIDERED UNRELIABLE because  *" << endl
+      << "*   the calculation assumes that the derivatives of the norm- *" << endl
+      << "*   alization integrals with respect to the parameters are    *" << endl
+      << "*   equal to zero.  Consider using a technique like bootstrap *" << endl
+      << "*   to make a robust estimation of statistical uncertainties. *" << endl
       << "***************************************************************" << endl
       << endl;
       
