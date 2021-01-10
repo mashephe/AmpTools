@@ -68,8 +68,10 @@ public:
 
   virtual ~PlotGenerator();
   
-  // get intensity for all amplitudes that are turned on
-  pair< double, double > intensity( bool accCorrected = true ) const;
+  // get intensity for all amplitudes that are turned on for
+  // a specific reaction
+  pair< double, double > intensity( const string& reactName,
+                                    bool accCorrected = true ) const;
   
   bool haveAmp( const string& amp ) const;
   

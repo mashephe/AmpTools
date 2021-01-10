@@ -133,8 +133,6 @@ m_histTitles( 0 )
           mapItr != m_ampParameters.end();
           ++mapItr ){
         
-        cout << "setting parameter " << mapItr->first << " to " << mapItr->second << endl;
-        
         m_intenManagerMap[reactName]->setParValue( *ampName, mapItr->first, mapItr->second );
       }
     }
@@ -206,7 +204,7 @@ PlotGenerator::~PlotGenerator(){
 }
 
 pair< double, double >
-PlotGenerator::intensity( bool accCorrected ) const {
+PlotGenerator::intensity( const string& reactName, bool accCorrected ) const {
   
   vector< string > enabledAmps;
   
@@ -217,8 +215,9 @@ PlotGenerator::intensity( bool accCorrected ) const {
     
     vector< string > parts = stringSplit( *amp, "::" );
     
-    // be sure the reaction, sum, and amplitude are enabled
-    if( !m_reactEnabled.find( parts[0] )->second ) continue;
+    // be sure the sum and amplitude are enabled for the reaction
+    // that we care about
+    if( reactName != parts[0]  ) continue;
     if( !m_sumEnabled.find( parts[1] )->second ) continue;
     if( !m_ampEnabled.find( parts[2] )->second ) continue;
     
@@ -290,7 +289,8 @@ Histogram* PlotGenerator::projection( unsigned int projectionIndex, string react
     }
     (*cachePtr)[config][reactName] = m_histVect_clone;
     
-    // renormalize MC
+    // renormalize MC - the cache contains one set of plots for each
+    // reaction, so we need to compute intensities for only that reaction
     if( type != kData ){
       
       vector< Histogram* >* histVect = &((*cachePtr)[config][reactName]);
@@ -300,10 +300,10 @@ Histogram* PlotGenerator::projection( unsigned int projectionIndex, string react
         
         switch( type ){
             
-          case kAccMC: (*hist)->normalize( intensity( false ).first );
+          case kAccMC: (*hist)->normalize( intensity( reactName, false ).first );
             break;
             
-          case kGenMC: (*hist)->normalize( intensity( true ).first );
+          case kGenMC: (*hist)->normalize( intensity( reactName, true ).first );
             break;
             
           default:
