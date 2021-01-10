@@ -68,6 +68,10 @@ AmpVecs::AmpVecs(){
   
   m_termsValid    = false ;
   m_integralValid = false ;
+    
+  m_hasNonUnityWeights = false;
+  m_hasMixedSignWeights = false;
+  m_lastWeightSign = 0;
 }
 
 
@@ -85,6 +89,10 @@ AmpVecs::deallocAmpVecs()
   
   m_termsValid    = false ;
   m_integralValid = false ;
+
+  m_hasNonUnityWeights = false;
+  m_hasMixedSignWeights = false;
+  m_lastWeightSign = 0;
  
   if(m_pdData)
     delete[] m_pdData;
@@ -143,7 +151,7 @@ AmpVecs::clearFourVecs(){
 
 void
 AmpVecs::loadEvent( const Kinematics* pKinematics, unsigned long long iEvent,
-                    unsigned long long iNTrueEvents, bool bForceNegativeWeight ){
+                    unsigned long long iNTrueEvents ){
   
   // allocate memory and set variables
   //  if this is the first call to this method
@@ -198,9 +206,7 @@ AmpVecs::loadEvent( const Kinematics* pKinematics, unsigned long long iEvent,
   }
 #endif
 */
-  m_pdWeights[iEvent] = ( bForceNegativeWeight ?
-                         -1.*( pKinematics->weight() ) :
-                         pKinematics->weight() );
+  m_pdWeights[iEvent] = pKinematics->weight();
   
   m_termsValid = false;
   m_integralValid = false;
@@ -209,7 +215,7 @@ AmpVecs::loadEvent( const Kinematics* pKinematics, unsigned long long iEvent,
 
 
 void
-AmpVecs::loadData( DataReader* pDataReader, bool bForceNegativeWeight ){
+AmpVecs::loadData( DataReader* pDataReader ){
   
   //  Make sure no data is already loaded
   
@@ -233,7 +239,18 @@ AmpVecs::loadData( DataReader* pDataReader, bool bForceNegativeWeight ){
   Kinematics* pKinematics;
   for(int iEvent = 0; iEvent < m_iNTrueEvents; iEvent++){ 
     pKinematics = pDataReader->getEvent();
-    loadEvent(pKinematics, iEvent, m_iNTrueEvents, bForceNegativeWeight );
+    loadEvent(pKinematics, iEvent, m_iNTrueEvents );
+
+    float weight = pKinematics->weight();
+    
+    // fill some booleans that contain collective information about the weights
+    if( weight != 1 ) m_hasNonUnityWeights = true;
+    if( m_lastWeightSign == 0 ) m_lastWeightSign = weight;
+    int thisWeightSign = ( weight > 0 ? 1 : 0 );
+    thisWeightSign = ( weight < 0 ? -1 : thisWeightSign );
+    if( thisWeightSign * m_lastWeightSign < 0 ) m_hasMixedSignWeights = true;
+    m_lastWeightSign = thisWeightSign;
+
     m_dSumWeights += pKinematics->weight();
     if (iEvent < (m_iNTrueEvents - 1)) delete pKinematics;
   }
@@ -241,7 +258,7 @@ AmpVecs::loadData( DataReader* pDataReader, bool bForceNegativeWeight ){
   // Fill any remaining space in the data array with the last event's kinematics
   
   for (unsigned long long int iEvent = m_iNTrueEvents; iEvent < m_iNEvents; iEvent++){
-    loadEvent(pKinematics, iEvent, m_iNTrueEvents, bForceNegativeWeight );
+    loadEvent(pKinematics, iEvent, m_iNTrueEvents );
   }
   delete pKinematics;
   
