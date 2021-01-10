@@ -220,15 +220,15 @@ LikelihoodCalculator::dataTerm(){
     if( m_ampVecsSignal.m_hasNonUnityWeights && m_hasBackground ){
     
       cout
-      << "***************************************************************\n"
-      << "* WARNING!: Events in the signal data sample have weights     *\n"
-      << "* that differ from 1 and a background data sample has been    *\n"
-      << "* provided.  This will produce incorrect results.  The        *\n"
-      << "* recommended solution is to set all signal weights to unity  *\n"
-      << "* and put all background events in the background file with   *\n"
-      << "* weights such that the weighted sum mimics the background    *\n"
-      << "* contribution to the likelihood.                             *\n"
-      << "***************************************************************\n" << endl;
+      << "****************************************************************\n"
+      << "* WARNING: Events in the signal data sample have weights       *\n"
+      << "*   that differ from 1 and a background data sample has been   *\n"
+      << "*   provided.  This will produce incorrect results.  The       *\n"
+      << "*   recommended solution is to set all signal weights to unity *\n"
+      << "*   and put all background events in the background file with  *\n"
+      << "*   weights such that the weighted sum mimics the background   *\n"
+      << "*   contribution to the likelihood.                            *\n"
+      << "****************************************************************\n" << endl;
     }
     
     if( m_hasBackground ){
@@ -250,14 +250,14 @@ LikelihoodCalculator::dataTerm(){
       m_sumBkgWeights = m_ampVecsBkgnd.m_dSumWeights;
       
       if( m_sumBkgWeights < 0 ){
-        cout
-        << "***************************************************************\n"
-        << "* ERROR: The sum of all background weights is negative.  This *\n"
-        << "* implies a negative background in the signal region, which   *\n"
-        << "* unphysical.  The weighted sum of the background events      *\n"
-        << "* should represent the background contribution to the signal  *\n"
-        << "* region.                                                     *\n"
-        << "***************************************************************\n" << endl;
+        cerr
+        << "****************************************************************\n"
+        << "* ERROR: The sum of all background weights is negative.  This  *\n"
+        << "*   implies a negative background in the signal region, which  *\n"
+        << "*   unphysical.  The weighted sum of the background events     *\n"
+        << "*   should represent the background contribution to the signal *\n"
+        << "*   region.                                                    *\n"
+        << "****************************************************************\n" << endl;
         assert( false );
       }
       
