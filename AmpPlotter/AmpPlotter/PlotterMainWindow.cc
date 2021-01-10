@@ -84,6 +84,7 @@ m_generator( factory.generator() )
                                  ( reaction - reactions.begin() ) | kReaction ) );
 		
     m_reactionButtons.back()->Associate( this );
+    m_reactionButtons.back()->SetState( kButtonDown );
     m_reactionFrame->AddFrame( m_reactionButtons.back(), &reactionLayoutHints );
   }
 	
