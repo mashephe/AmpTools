@@ -389,7 +389,7 @@ PlotGenerator::fillProjections( const string& reactName, unsigned int type ){
        
     // the user defines this function in the derived class and it
     // calls the fillHistogram method immediately below
-    projectEvent( kin );
+    projectEvent( kin, reactName );
     
     // cleanup allocated memory
     delete kin;
@@ -667,5 +667,15 @@ PlotGenerator::stringSplit(const string& str, const string& delimiters ) const
   }
   
   return tokens;
+}
+
+void
+PlotGenerator::projectEvent( Kinematics* kin, const string& reaction ){
+  
+  // by default this function calls projectEvent without the reaction name
+  // in some instances (plotting of multiple reactions simultaneously) one
+  // may wish to override this function and do reaction-dependent plotting
+  
+  projectEvent( kin );
 }
 
