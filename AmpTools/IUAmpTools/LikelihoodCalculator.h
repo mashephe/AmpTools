@@ -95,13 +95,13 @@ protected:
   // few sums that must be maintained across all processes to properly
   // compute the normalization integral terms of the likelihood
   
-  double sumBkgWeights() const { return m_sumBkgWeights; }
-  double numBkgEvents()  const { return m_numBkgEvents;  }
-  double numDataEvents() const { return m_numDataEvents; }
+  double sumBkgWeights()  const { return m_sumBkgWeights; }
+  double numBkgEvents()   const { return m_numBkgEvents;  }
+  double numDataEvents()  const { return m_numDataEvents; }
   
-  void setSumBkgWeights( double sum ) { m_sumBkgWeights = sum; }
-  void setNumBkgEvents ( double num ) { m_numBkgEvents  = num; }
-  void setNumDataEvents( double num ) { m_numDataEvents = num; }
+  void setSumBkgWeights(  double sum ) { m_sumBkgWeights  = sum; }
+  void setNumBkgEvents (  double num ) { m_numBkgEvents   = num; }
+  void setNumDataEvents(  double num ) { m_numDataEvents  = num; }
   
 private:
   
