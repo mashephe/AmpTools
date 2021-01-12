@@ -1043,9 +1043,12 @@ FitResults::rotateResults()
         // if the amplitude is not constrained to be real, check if
         // it is constrained to be the same as any real amplitudes
         if( foundRealAmp == false ){
-          const vector< AmplitudeInfo* > constraints = (**ampInfoItr).constraints();
-          for( vector< AmplitudeInfo* >::const_iterator conInfoItr = constraints.begin(); conInfoItr != constraints.end(); ++conInfoItr ){
-            if( (**conInfoItr).real() == true && foundRealAmp == false ){
+          const vector< TermInfo* > constraints = (**ampInfoItr).constraints();
+          for( vector< TermInfo* >::const_iterator conInfoItr = constraints.begin(); conInfoItr != constraints.end(); ++conInfoItr ){
+            const TermInfo* term = *conInfoItr;
+            if (!term->isAmplitude()) continue;
+            const AmplitudeInfo* amp = dynamic_cast<const AmplitudeInfo*>(term);
+            if( amp->real() == true && foundRealAmp == false ){
               foundRealAmp = true;
               if( m_parValues[reIndex] * scale < 0 )
                 rotate = true;

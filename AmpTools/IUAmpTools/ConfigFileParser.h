@@ -60,6 +60,7 @@
  * ##
  * ##  include     <file>
  * ##  define      <word> (defn1) (defn2) (defn3) ...
+ * ##  loop        <word> <value1> <value2> (value3) ...
  * ##  fit         <fitname>
  * ##  keyword     <keyword> <min arguments> <max arguments>
  * ##  reaction     <reaction> <particle1> <particle2> (particle3) ...
@@ -74,8 +75,13 @@
  * ##  scale        <reaction> <sum> <amp> <value or [parameter]>
  * ##  constrain    <reaction1> <sum1> <amp1> <reaction2> <sum2> <amp2> ...
  * ##  permute      <reaction> <sum> <amp> <index1> <index2> ...
+ * ##  pdf          <reaction> <pdf> <class> (arg1) (arg2) ([par]) ... 
+ * ##  pdfinitialize <reaction> <pdf> <value> ("fixed")
+ * ##  pdfscale     <reaction> <pdf> <value or [parameter]>
+ * ##  pdfconstrain <reaction1> <pdf1> <reaction2> <pdf2> ...
  * ##  parameter    <par> <value> ("fixed"/"bounded"/"gaussian") 
  * ##       (lower/central) (upper/error)
+ * ##  gpudevice    <reaction> <device number>
  * ##    DEPRECATED:
  * ##  datafile      <reaction> <file> (file2) (file3) ...
  * ##  genmcfile     <reaction> <file> (file2) (file3) ...
@@ -225,13 +231,11 @@ class ConfigFileParser
     void doPermute       (const ConfigFileLine& line);
     void doConstrain     (const ConfigFileLine& line);
     void doScale         (const ConfigFileLine& line);
-
-
-      // Initialize an amplitude
-
-    void initializeAmplitude(AmplitudeInfo* amplitude, const ConfigFileLine& line,
-                             string type, double value1, double value2,
-                             string fixtype1, string fixtype2);
+    void doPDF           (const ConfigFileLine& line);
+    void doPDFInitialize (const ConfigFileLine& line);
+    void doPDFConstrain  (const ConfigFileLine& line);
+    void doPDFScale      (const ConfigFileLine& line);
+    void doGPUDevice     (const ConfigFileLine& line);
 
 
       // Member data

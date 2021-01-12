@@ -218,6 +218,83 @@ ConfigFileParser::expandConfigFileLines(vector<ConfigFileLine> configFileLines) 
   }
 
 
+    // save the "loop" lines
+
+  map<string, vector<string> > mapLoops;
+  vector<string> vectorLoops;
+  for (vector<ConfigFileLine>::iterator lineItr = configFileLines.begin();
+       lineItr != configFileLines.end(); ++lineItr){
+
+    if (lineItr->keyword() == "loop"){
+
+      if (lineItr->arguments().size() < 3){
+        cout << "ConfigFileParser ERROR:  Wrong number of arguments for the loop statement:" << endl;
+        lineItr->printLine();
+        exit(1);
+      }
+
+      vector<string> arguments = lineItr->arguments();
+      string         key       = arguments[0];
+      vector<string> value     (arguments.begin()+1,arguments.end()); 
+
+      vectorLoops.push_back(key);
+      mapLoops[key] = value;
+
+    }
+  }
+
+
+    // expand the "loop" definitions
+
+  for (vector<ConfigFileLine>::iterator lineItr = configFileLines.begin();
+       lineItr != configFileLines.end(); ++lineItr){
+
+    if (lineItr->keyword() == "loop") continue;
+    if (lineItr->comment()) continue;
+    vector<string> arguments = lineItr->arguments();
+    if (arguments.size() < 2) continue;
+
+    vector<string> foundLoops;
+    for (unsigned int i = 0; i < arguments.size(); i++){
+      for (unsigned int j = 0; j < vectorLoops.size(); j++){
+        if (arguments[i] == vectorLoops[j]) foundLoops.push_back(vectorLoops[j]);
+      }
+    }
+
+    if (foundLoops.size() == 0) continue;
+    if (foundLoops.size() >= 2){
+      for (unsigned int i = 0; i < foundLoops.size()-1; i++){
+        for (unsigned int j = i+1; j < foundLoops.size(); j++){
+          if (mapLoops[foundLoops[i]].size() != mapLoops[foundLoops[j]].size()){
+            cout << "ConfigFileParser ERROR:  Mismatch in loop size:" << endl;
+            lineItr->printLine();
+            exit(1);
+          }
+        }
+      }
+    }
+
+    vector<ConfigFileLine> newLines;
+    for (unsigned int i = 0; i < mapLoops[foundLoops[0]].size(); i++){
+      newLines.push_back(*lineItr);
+    }
+
+    for (unsigned int i = 0; i < newLines.size(); i++){
+      for (unsigned int j = 0; j < foundLoops.size(); j++){
+        vector<string> value;  value.push_back(mapLoops[foundLoops[j]][i]);
+        newLines[i].flushDefinition(foundLoops[j],value);
+      }
+    }
+
+    vector<ConfigFileLine>::iterator inputBegin = newLines.begin();
+    vector<ConfigFileLine>::iterator inputEnd   = newLines.end();
+    *lineItr = ConfigFileLine("",0,"##########  INSERTING A LOOP  ########");
+    configFileLines.insert(++lineItr, inputBegin, inputEnd);
+    lineItr = configFileLines.begin();       
+
+  }
+
+
     if (m_verboseParsing)
     cout << "ConfigFileParser INFO:  Finished expanding config file lines..." << endl;
 
@@ -237,6 +314,17 @@ ConfigFileParser::expandConfigFileLines(vector<ConfigFileLine> configFileLines) 
 
 void
 ConfigFileParser::setupConfigurationInfo(){
+
+
+      // Do some quick syntax checks
+
+    if (m_verboseParsing)
+    cout << "ConfigFileParser INFO:  Begin Syntax Checking " << endl;
+
+  checkSyntax();
+
+    if (m_verboseParsing)
+    cout << "ConfigFileParser INFO:  Finished Syntax Checking " << endl;
 
 
       // ZEROTH PASS ("fit")
@@ -264,7 +352,6 @@ ConfigFileParser::setupConfigurationInfo(){
     cout << "ConfigFileParser WARNING:  use the keyword \"fit\" to define a fit name" << endl;
 
   m_configurationInfo = new ConfigurationInfo(m_fitName);
-
 
 
       // FIRST PASS ("reaction")
@@ -307,6 +394,8 @@ ConfigFileParser::setupConfigurationInfo(){
 
     if ((*lineItr).keyword() == "sum") doSum(*lineItr);
 
+    if ((*lineItr).keyword() == "gpudevice") doGPUDevice(*lineItr);
+
   }
 
     if (m_verboseParsing)
@@ -323,6 +412,7 @@ ConfigFileParser::setupConfigurationInfo(){
        lineItr != m_configFileLines.end(); ++lineItr){
 
     if ((*lineItr).keyword() == "amplitude") doAmplitude(*lineItr);
+    if ((*lineItr).keyword() == "pdf")       doPDF(*lineItr);
 
   }
 
@@ -340,10 +430,10 @@ ConfigFileParser::setupConfigurationInfo(){
        lineItr != m_configFileLines.end(); ++lineItr){
 
     if ((*lineItr).keyword() == "constrain") doConstrain(*lineItr);
-
     if ((*lineItr).keyword() == "permute") doPermute(*lineItr);
-
     if ((*lineItr).keyword() == "scale") doScale(*lineItr);
+    if ((*lineItr).keyword() == "pdfconstrain") doPDFConstrain(*lineItr);
+    if ((*lineItr).keyword() == "pdfscale") doPDFScale(*lineItr);
 
   }
 
@@ -360,6 +450,7 @@ ConfigFileParser::setupConfigurationInfo(){
        lineItr != m_configFileLines.end(); ++lineItr){
 
     if ((*lineItr).keyword() == "initialize") doInitialize(*lineItr);
+    if ((*lineItr).keyword() == "pdfinitialize") doPDFInitialize(*lineItr);
 
   }
 
@@ -384,14 +475,12 @@ ConfigFileParser::setupConfigurationInfo(){
 
 
 
-
-
-
 void
 ConfigFileParser::checkSyntax() const{
 
   map<string, pair<int,int> > keywordParameters;
   keywordParameters["define"]        = pair<int,int>(1,100);
+  keywordParameters["loop"]          = pair<int,int>(3,100);
   keywordParameters["keyword"]       = pair<int,int>(3,3);
   keywordParameters["fit"]           = pair<int,int>(1,1);
   keywordParameters["reaction"]      = pair<int,int>(3,100);
@@ -405,8 +494,13 @@ ConfigFileParser::checkSyntax() const{
   keywordParameters["initialize"]    = pair<int,int>(6,8);
   keywordParameters["constrain"]     = pair<int,int>(6,100);
   keywordParameters["permute"]       = pair<int,int>(5,100);
-  keywordParameters["parameter"]     = pair<int,int>(2,5);
   keywordParameters["scale"]         = pair<int,int>(4,4);
+  keywordParameters["pdf"]           = pair<int,int>(3,100);
+  keywordParameters["pdfinitialize"] = pair<int,int>(3,4);
+  keywordParameters["pdfconstrain"]  = pair<int,int>(4,100);
+  keywordParameters["pdfscale"]      = pair<int,int>(3,3);
+  keywordParameters["parameter"]     = pair<int,int>(2,5);
+  keywordParameters["gpudevice"]     = pair<int,int>(2,2);
     // these are deprecated, but print out an error message later
   keywordParameters["datafile"]      = pair<int,int>(2,100);
   keywordParameters["genmcfile"]     = pair<int,int>(2,100);
@@ -496,6 +590,21 @@ ConfigFileParser::doData(const ConfigFileLine& line){
   if (line.keyword() == "bkgnd")   rct->setBkgnd(classname, dataargs);
   if (line.keyword() == "genmc")   rct->setGenMC(classname, dataargs);
   if (line.keyword() == "accmc")   rct->setAccMC(classname, dataargs);
+}
+
+
+void
+ConfigFileParser::doGPUDevice(const ConfigFileLine& line){
+  vector<string> arguments = line.arguments();
+  string reaction  = arguments[0];
+  int deviceNumber = atoi((arguments[1]).c_str());
+  ReactionInfo* rct = m_configurationInfo->reaction(reaction);
+  if (!rct){
+    cout << "ConfigFileParser ERROR:  Can't associate gpudevice with a reaction:  " << endl;
+    line.printLine();
+    exit(1);
+  }
+  rct->setGPUDeviceNumber(deviceNumber);
 }
 
 
@@ -601,6 +710,34 @@ ConfigFileParser::doAmplitude(const ConfigFileLine& line){
 
 
 void
+ConfigFileParser::doPDF(const ConfigFileLine& line){
+  vector<string> arguments = line.arguments();
+  string reaction  = arguments[0];
+  string pdfname   = arguments[1];
+  vector<string> pdfargs (arguments.begin()+2, arguments.end());
+  PDFInfo* pdfinfo = m_configurationInfo->pdf(reaction,pdfname);
+  if (!pdfinfo) pdfinfo = m_configurationInfo->createPDF(reaction,pdfname);
+  pdfinfo->addFactor(pdfargs);
+  for (unsigned int i = 1; i < pdfargs.size(); i++){
+    unsigned int j = pdfargs[i].size()-1;
+    if ((pdfargs[i][0] == '[') && (pdfargs[i][j] == ']')){
+      string parname("");
+      for (unsigned int k = 1; k < j; k++){
+        parname += pdfargs[i][k];
+      }
+      ParameterInfo* parinfo = m_configurationInfo->parameter(parname);
+      if (!parinfo){
+        cout << "ConfigFileParser ERROR:  can't find parameter " << parname << endl;
+        line.printLine();
+        exit(1);
+      }
+      pdfinfo->addParameter(parinfo);
+    }
+  }
+}
+
+
+void
 ConfigFileParser::doConstrain(const ConfigFileLine& line){
   vector<string> arguments = line.arguments();
   if (arguments.size()%3 != 0){
@@ -626,6 +763,29 @@ ConfigFileParser::doConstrain(const ConfigFileLine& line){
   }
 }
 
+void
+ConfigFileParser::doPDFConstrain(const ConfigFileLine& line){
+  vector<string> arguments = line.arguments();
+  if (arguments.size()%2 != 0){
+    cout << "ConfigFileParser ERROR:  wrong number of arguments for pdfconstrain keyword " << endl;
+    line.printLine();
+    exit(1);
+  }
+  string reaction1  = arguments[0];
+  string pdfname1   = arguments[1];
+  for (unsigned int i = 1; i < arguments.size()/2; i++){
+    string reaction2 = arguments[i*2];
+    string pdfname2  = arguments[i*2+1];
+    PDFInfo* pdf1 = m_configurationInfo->pdf(reaction1,pdfname1);
+    PDFInfo* pdf2 = m_configurationInfo->pdf(reaction2,pdfname2);
+    if ((!pdf1) || (!pdf2)){
+      cout << "ConfigFileParser ERROR:  trying to constrain nonexistent pdf " << endl;
+      line.printLine();
+      exit(1);
+    }
+    pdf1->addConstraint(pdf2);
+  }
+}
 
 
 void
@@ -691,18 +851,6 @@ ConfigFileParser::doInitialize(const ConfigFileLine& line){
   if (arguments.size() >= 7) fixtype1 = arguments[6];
   if (arguments.size() == 8) fixtype2 = arguments[7];
   AmplitudeInfo* amplitude = m_configurationInfo->amplitude(reaction,sumname,ampname);
-  initializeAmplitude(amplitude,line,type,value1,value2,fixtype1,fixtype2);
-  vector< AmplitudeInfo* > constraints = amplitude->constraints();
-  for (unsigned int i = 0; i < constraints.size(); i++){
-    initializeAmplitude(constraints[i],line,type,value1,value2,fixtype1,fixtype2);
-  }
-}
-
-
-void
-ConfigFileParser::initializeAmplitude(AmplitudeInfo* amplitude, const ConfigFileLine& line,
-                                      string type, double value1, double value2,
-                                      string fixtype1, string fixtype2){
   if (!amplitude){
     cout << "ConfigFileParser ERROR:  trying to initialize nonexistent amplitude " << endl;
     line.printLine();
@@ -781,6 +929,32 @@ ConfigFileParser::initializeAmplitude(AmplitudeInfo* amplitude, const ConfigFile
 }
 
 
+
+void
+ConfigFileParser::doPDFInitialize(const ConfigFileLine& line){
+  vector<string> arguments = line.arguments();
+  string reaction = arguments[0];
+  string pdfname  = arguments[1];
+  double value    = atof(arguments[2].c_str());  
+  string fixtype("floating");
+  if (arguments.size() >= 4) fixtype = arguments[3];
+  PDFInfo* pdf = m_configurationInfo->pdf(reaction,pdfname);
+  if (!pdf){
+    cout << "ConfigFileParser ERROR:  trying to initialize nonexistent pdf " << endl;
+    line.printLine();
+    exit(1);
+  }
+  pdf->setValue(value);
+       if (fixtype == "floating"){ pdf->setFixed(false); }
+  else if (fixtype == "fixed")   { pdf->setFixed(true); }
+  else{
+    cout << "ConfigFileParser ERROR:  pdfinitialize must use floating or fixed  " << endl;
+    line.printLine();
+    exit(1);
+  }
+}
+
+
 void
 ConfigFileParser::doScale(const ConfigFileLine& line){
   vector<string> arguments = line.arguments();
@@ -810,6 +984,34 @@ ConfigFileParser::doScale(const ConfigFileLine& line){
   amplitude->setScale(value);
 }
 
+
+void
+ConfigFileParser::doPDFScale(const ConfigFileLine& line){
+  vector<string> arguments = line.arguments();
+  string reaction = arguments[0];
+  string pdfname  = arguments[1];
+  string value    = arguments[2];
+  PDFInfo* pdf = m_configurationInfo->pdf(reaction,pdfname);
+  if (!pdf){
+    cout << "ConfigFileParser ERROR:  trying to scale nonexistent pdf " << endl;
+    line.printLine();
+    exit(1);
+  }
+  if ((value.size() > 0) && (value[0] == '[') and (value[value.size()-1] == ']')){
+    string parname("");
+    for (unsigned int k = 1; k < value.size()-1; k++){
+      parname += value[k];
+    }
+    ParameterInfo* parinfo = m_configurationInfo->parameter(parname);
+    if (!parinfo){
+      cout << "ConfigFileParser ERROR:  can't find parameter " << parname << endl;
+      line.printLine();
+      exit(1);
+    }
+    pdf->addParameter(parinfo);
+  }
+  pdf->setScale(value);
+}
 
 
 void
@@ -880,6 +1082,7 @@ ConfigFileLine::ConfigFileLine(const string& fileName, int lineNumber, const str
 
 void
 ConfigFileLine::flushDefinition(const string& word, const vector<string>& definition){
+  if (comment()) return;
   bool hasWord = false;
   for (unsigned int i = 0; i < m_arguments.size(); i++){ 
     if (m_arguments[i] == word) hasWord = true;
