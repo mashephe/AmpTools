@@ -62,8 +62,9 @@ class PlotGenerator
 public:
   
   enum { kData = 0, kBkgnd, kGenMC, kAccMC, kNumTypes };
+  enum Option { kDefault = 0, kNoGenMC };
   
-  PlotGenerator( const FitResults& fitResults );
+  PlotGenerator( const FitResults& fitResults, Option opt = kDefault );
   PlotGenerator( ); // empty constructor
 
   virtual ~PlotGenerator();
@@ -104,7 +105,10 @@ public:
   bool isReactionEnabled( const string& reactName ) const;
   bool isAmpEnabled( unsigned int uniqueAmpIndex ) const;
   bool isSumEnabled( unsigned int uniqueSumIndex ) const;
-   
+  
+  bool isGenMCEnabled() const { return m_option != kNoGenMC; }
+  bool hasBackground() const { return m_hasBackground; }
+  
   Histogram* getHistogram( int index );
 
 protected:
@@ -145,7 +149,9 @@ private:
   const FitResults& m_fitResults;
   AmpToolsInterface m_ati;
   const ConfigurationInfo* m_cfgInfo;
-  
+  Option m_option;
+  bool m_hasBackground;
+
   map< string, NormIntInterface* > m_normIntMap;
   map< string, IntensityManager* > m_intenManagerMap;
   

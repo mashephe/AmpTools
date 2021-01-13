@@ -48,7 +48,7 @@
 #include "IUAmpTools/AmpToolsInterface.h"
 #include "IUAmpTools/FitResults.h"
 
-PlotGenerator::PlotGenerator( const FitResults& results ) :
+PlotGenerator::PlotGenerator( const FitResults& results, Option opt ) :
 m_fitResults( results ),
 // in the context of this class we are not going to modify the
 // configuration info, but the AmpToolsInterface requires a
@@ -58,6 +58,8 @@ m_fitResults( results ),
 m_ati( const_cast< ConfigurationInfo* >( results.configInfo() ),
        AmpToolsInterface::kPlotGeneration ),
 m_cfgInfo( results.configInfo() ),
+m_option( opt ),
+m_hasBackground( false ),
 m_fullAmplitudes( 0 ),
 m_uniqueAmplitudes( 0 ),
 m_histVect( 0 ),
@@ -140,12 +142,15 @@ m_histTitles( 0 )
     // now load up the data and MC for that reaction
     m_ati.loadEvents( m_ati.dataReader( reactName ), i * kNumTypes + kData );
     m_ati.loadEvents( m_ati.bkgndReader( reactName ), i * kNumTypes + kBkgnd );
+    // keep track of any of the reactions have a background file events in it
+    m_hasBackground = ( m_hasBackground || ( m_ati.numEvents( i * kNumTypes + kBkgnd ) != 0 ));
+
     m_ati.loadEvents( m_ati.accMCReader( reactName ), i * kNumTypes + kAccMC );
-    m_ati.loadEvents( m_ati.genMCReader( reactName ), i * kNumTypes + kGenMC );
+    if( m_option != kNoGenMC ) m_ati.loadEvents( m_ati.genMCReader( reactName ), i * kNumTypes + kGenMC );
     
     // calculate the amplitudes and intensities for the accepted and generated MC
     m_ati.processEvents( reactName, i * kNumTypes + kAccMC );
-    m_ati.processEvents( reactName, i * kNumTypes + kGenMC );
+    if( m_option != kNoGenMC ) m_ati.processEvents( reactName, i * kNumTypes + kGenMC );
   }
   
   // buildUniqueAmplitudes will also create an initalize the maps that store
@@ -229,10 +234,14 @@ PlotGenerator::intensity( const string& reactName, bool accCorrected ) const {
 
 
 Histogram* PlotGenerator::projection( unsigned int projectionIndex, string reactName,
-                                     unsigned int type ) {
+                                      unsigned int type ) {
   
-  // return an empty histogram if final state is not enabled
+  // return a NULL histogram if final state is not enabled
   if( !m_reactEnabled[reactName] ) return NULL;
+  
+  // return a NULL histogram if someone asks for generated
+  // MC and it is not enabled
+  if( ( type == kGenMC ) && ( m_option == kNoGenMC ) ) return NULL;
   
   // use same ampConfig for data since data histograms are
   // independent of which projections are turned on
