@@ -92,6 +92,7 @@ m_generator( factory.generator() )
   m_typeButtons.resize( 3 );
   
   m_typeButtons[kGenMC] = new TGCheckButton( m_typeFrame, "Generated Monte Carlo", kGenMC | kType );
+  if( !m_generator.isGenMCEnabled() ) m_typeButtons[kGenMC]->SetDisabledAndSelected( kFALSE );
   m_typeButtons[kGenMC]->Associate( this );
   m_typeFrame->AddFrame( m_typeButtons[kGenMC], &reactionLayoutHints );
   
@@ -99,7 +100,8 @@ m_generator( factory.generator() )
   m_typeButtons[kAccMC]->Associate( this );
   m_typeFrame->AddFrame( m_typeButtons[kAccMC], &reactionLayoutHints );
 
-  m_typeButtons[kBkgnd] = new TGCheckButton( m_typeFrame, "Background (if used)", kBkgnd | kType );
+  m_typeButtons[kBkgnd] = new TGCheckButton( m_typeFrame, "Background", kBkgnd | kType );
+  if( !m_generator.hasBackground() ) m_typeButtons[kBkgnd]->SetDisabledAndSelected( kFALSE );
   m_typeButtons[kBkgnd]->Associate( this );
   m_typeFrame->AddFrame( m_typeButtons[kBkgnd], &reactionLayoutHints );
   
