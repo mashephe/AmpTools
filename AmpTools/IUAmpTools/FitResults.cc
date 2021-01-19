@@ -1160,10 +1160,10 @@ FitResults::writeFitResults( const string& outFile ){
   output << m_numAmps[0]/4. << "\t0" << endl;
 
   for( unsigned int i = 0; i < m_parNames.size()-1; i++ ){
-    const char* reactName = m_parNames[i].substr( 8, 4 ).c_str(); 
-    if( strcmp( reactName, "amp1" ) != 0 ) continue;
-    const char* lastChars = m_parNames[i].substr( m_parNames[i].size() - 2, 2 ).c_str();    
-    if( strcmp( lastChars, "im" ) == 0 ){
+    string reactName = m_parNames[i].substr( 8, 4 );
+    if( strcmp( reactName.c_str(), "amp1" ) != 0 ) continue;
+    string lastChars = m_parNames[i].substr( m_parNames[i].size() - 2, 2 );
+    if( strcmp( lastChars.c_str(), "im" ) == 0 ){
       output << m_parNames[i].substr( 0, m_parNames[i].size() - 3 ); 
       if( m_parValues[i] == 0 && m_covMatrix[i][i] == 0 ) output << "+";
       output << "\t(" << m_parValues[i-1] << "," << m_parValues[i] << ")" << endl;
@@ -1171,15 +1171,15 @@ FitResults::writeFitResults( const string& outFile ){
   }
 
   for( unsigned int i = 0; i < m_parNames.size()-1; i++ ){
-    const char* reactNamei = m_parNames[i].substr( 8, 4 ).c_str(); 
-    if( strcmp( reactNamei, "amp1" ) != 0 ) continue;
-    const char* lastCharsi = m_parNames[i].substr( m_parNames[i].size() - 2, 2 ).c_str();
-    if( strcmp( lastCharsi, "im" ) == 0 && m_parValues[i] == 0 && m_covMatrix[i][i] == 0 ) continue;
+    string reactNamei = m_parNames[i].substr( 8, 4 );
+    if( strcmp( reactNamei.c_str(), "amp1" ) != 0 ) continue;
+    string lastCharsi = m_parNames[i].substr( m_parNames[i].size() - 2, 2 );
+    if( strcmp( lastCharsi.c_str(), "im" ) == 0 && m_parValues[i] == 0 && m_covMatrix[i][i] == 0 ) continue;
     for( unsigned int j = 0; j < m_parNames.size()-1; j++ ){
-      const char* reactNamej = m_parNames[j].substr( 8, 4 ).c_str(); 
-      if( strcmp( reactNamej, "amp1" ) == 0 ){
-        const char* lastCharsj = m_parNames[j].substr( m_parNames[j].size() - 2, 2 ).c_str();
-        if( strcmp( lastCharsj, "im" ) == 0 && m_parValues[j] == 0 && m_covMatrix[j][j] == 0 ) continue;
+      string reactNamej = m_parNames[j].substr( 8, 4 );
+      if( strcmp( reactNamej.c_str(), "amp1" ) == 0 ){
+        string lastCharsj = m_parNames[j].substr( m_parNames[j].size() - 2, 2 );
+        if( strcmp( lastCharsj.c_str(), "im" ) == 0 && m_parValues[j] == 0 && m_covMatrix[j][j] == 0 ) continue;
         output << m_covMatrix[i][j] << "\t";
       }
     }
