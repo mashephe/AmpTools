@@ -35,9 +35,10 @@ The GPU hardware versions also need to be hard coded in Makefiles.
 (1) Error propagation in some cases is unreliable.  Fit parameters and
 covariance matrices are correct, but computation of fit fractions that 
 are printed in some examples do not properly account for numerator/denominator
-correlations.  IF RELIABLE ERRORS ARE NEEDED, IT IS ADVISED TO DO YOUR OWN 
-ERROR PROPAGATION USING THE FIT PARAMETERS AND COVARIANCE MATRIX, 
-rather than rely on the examples.
+correlations.  If reliable errors are needed, e.g., in the final stages
+of preparing a result for publication, the boostrap procedure is advised.
+It is also recommended to check the validity of errors by studying distribution
+of fit results using ensembles of toy data.
 
 (2) While it is possible to fit for a parameter that is embedded inside of
 the calculation of the amplitude, there is no easy to to compute the
@@ -45,8 +46,9 @@ derivative of the intensity with respect to that parameter since the parameter
 may appear in any arbitrary form.  This means that propagation of the
 statistical error on the floating parameter to the uncertainty in the 
 intensity is currently not possible.  The code will warn of this if such
-a case arises.  In the future, the necessary derivatives will need to be
-computed numerically.  NOTE: if the free parameter is only a scale parameter
+a case arises.  In general this is similar to comment (1) above and
+the same solution, bootstrap, provides a robust result if needed.
+NOTE: if the free parameter is only a scale parameter
 *that is set by the "scale" command in the config file* then the error
 propagation will be handled correctly in the computation of the intensity.
 
@@ -62,11 +64,34 @@ do not have free parameters, users can experiment with this feature by
 uncommenting the renormalizeAmps method in the AmplitudeManager.
 Do not use for fits with free parameters in amplitudes until a fix is made.
 
-(4) Support for moment fits: a future version will include the capability
+(4) Support for moment/pdf fits: a future version will include the capability
 to fit data to a sum of moments.  Currently the only supported scheme
-is fitting to multiple coherent sums of amplitudes.
+is fitting to multiple coherent sums of amplitudes.  It is possible to obtain
+some equivalent behavior of by fitting using a signle sum and single amplitude
+with parameters of interest emedded in the amplitude.  The amplitude returns
+the square root of the intensity computed from the parameters and the kinematics.
 
 RELEASE NOTES:
+
+v0.11.0 (19-Jan-2021):
+
+This update changes the treatement of weigths in a background file provided
+to the likelihood fit.  This allows mixed sign weights to be used but behavior
+may be different in this version than previous versions.  Extensive notices
+are printed to the screen -- also see included documenation in PDF file.
+
+Numerous issues concerning plotting of multiple reactions are resolved.  In
+this version the user PlotGenerator class can be sensitive to reaction
+name when projecting kinematics.
+
+Updates are made to the configuration file parser to allow loops, have
+more consistent initializaiton of parameters (useful for generating
+MC from amplitudes that contain parameters or constraints) and new
+commands are introduced for future development of pdf-based fitting.
+
+The Makefile system has ben revised to reduce the verbosity of information
+that gets printed to the screen during builds.  The option VERBOSE=1 can
+be specifed to recover verbose output.
 
 v0.10.0 (10-Jun-2019):
 
