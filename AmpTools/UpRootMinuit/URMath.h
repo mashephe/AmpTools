@@ -144,7 +144,6 @@ public:
    static Double_urt Log10(Double_urt x);
    static Int_urt    Nint(Float_urt x);
    static Int_urt    Nint(Double_urt x);
-   static Int_urt    Finite(Double_urt x);
    static Int_urt    IsNaN(Double_urt x);
 
    // Some integer math
@@ -411,13 +410,7 @@ inline Double_urt URMath::Range(Double_urt lb, Double_urt ub, Double_urt x)
     defined(R__HPUX11) || defined(R__GLIBC)
 // math functions are defined inline so we have to include them here
 #   include <math.h>
-#   ifdef R__SOLARIS_CC50
-       extern "C" { int finite(double); }
-#   endif
 #   if defined(R__GLIBC) && defined(__STRICT_ANSI__)
-#      ifndef finite
-#         define finite __finite
-#      endif
 #      ifndef isnan
 #         define isnan  __isnan
 #      endif
@@ -441,9 +434,6 @@ extern "C" {
    extern double log(double);
    extern double log10(double);
 #ifndef R__WIN32
-#   if !defined(finite)
-       extern int finite(double);
-#   endif
 #   if !defined(isnan)
        extern int isnan(double);
 #   endif
@@ -495,13 +485,6 @@ inline Double_urt URMath::Log(Double_urt x)
 
 inline Double_urt URMath::Log10(Double_urt x)
    { return log10(x); }
-
-inline Int_urt URMath::Finite(Double_urt x)
-#ifdef NO_ISFINITE
-   { return finite(x); }
-#else
-   { return isfinite(x); }
-#endif
 
 inline Int_urt URMath::IsNaN(Double_urt x)
    { return isnan(x); }
