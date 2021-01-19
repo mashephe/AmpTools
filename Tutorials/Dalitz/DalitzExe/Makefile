@@ -42,7 +42,7 @@ endif
 ifdef GPU
 
 INC_DIR += -I$(CUDA_INSTALL_PATH)/include
-LIB_DIR += -L$(CUDA_INSTALL_PATH)/lib
+LIB_DIR += -L$(CUDA_INSTALL_PATH)/lib64
 
 LIBS :=  -lDalitz_GPU -lAmpPlotter -lAmpTools_GPU $(ROOTLIBS) -lcudart -lstdc++
 CXX_FLAGS += -DGPU_ACCELERATION
