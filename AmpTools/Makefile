@@ -2,6 +2,7 @@
 INC_DIR :=  -I.. -I$(shell root-config --incdir)
 
 SRCDIRS := UpRootMinuit MinuitInterface IUAmpTools
+ALLDIRS := $(SRCDIRS) IUAmpToolsMPI GPUManager
 
 CXX := gcc
 CXX_FLAGS := -O3 $(shell root-config --cflags)
@@ -91,7 +92,7 @@ lib%.a:
 	$(Q)cp $(subst lib,, $(subst .a,, $@))/$@ lib/
 
 
-clean: $(addprefix clean_, $(SRCDIRS))
+clean: $(addprefix clean_, $(ALLDIRS))
 	$(Q)-rm -f lib/*.a
 
 clean_%:
