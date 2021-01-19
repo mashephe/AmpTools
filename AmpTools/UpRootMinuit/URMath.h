@@ -497,10 +497,10 @@ inline Double_urt URMath::Log10(Double_urt x)
    { return log10(x); }
 
 inline Int_urt URMath::Finite(Double_urt x)
-#ifdef R__HPUX11
-   { return isfinite(x); }
-#else
+#ifdef NO_ISFINITE
    { return finite(x); }
+#else
+   { return isfinite(x); }
 #endif
 
 inline Int_urt URMath::IsNaN(Double_urt x)
