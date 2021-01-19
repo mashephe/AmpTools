@@ -11,13 +11,13 @@
 
 
 AmpTools is library to facilitate performing unbinned maximum likelihood
-fits of experimental data to a coherent sum of amplitudes.  Additional
-information can be found here:
-
-https://github.com/mashephe/AmpTools/wiki
+fits of experimental data to a coherent sum of amplitudes.  For
+additional documentation refer to the AmpTools_User_Guide.pdf file
+distributed with this code.
 
 Three modules are included with the distribution and individual README files,
-are contained within each module.
+are contained within each module.  These README files should be
+referenced for details about various releases.
 
 AmpTools:  This is the main AmpTools library.  Once compiled it includes
 no executable code, but provides functionality and an interface that the
