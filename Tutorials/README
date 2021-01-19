@@ -12,16 +12,16 @@ Author:  Ryan Mitchell (remitche@indiana.edu)
 A simple example of a Dalitz plot analysis.  It illustrates generating MC and a toy
 data set for fitting.  This example can also be compiled to use MPI and GPU acceleration.
 
-gammaKK
--------
-
-Author:  Kei Moriya (kmoriya@indiana.edu)
-
-An example of vector meson radiative decays to gamma K K.  This example performs a fit
-in bins of K K invariant mass.
-
 
 RELEASE NOTES:
+
+v0.11 (19-Jan-21):
+
+Removed gammaKK tutorial because it has not been maintained
+and checked for functionality.
+
+Include copyDalitz.py script to copy the Dalitz tutorial to create
+a template that can be edited for a new analysis.
 
 v0.10 (10-Jun-19):
 
