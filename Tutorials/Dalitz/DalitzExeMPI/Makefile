@@ -7,7 +7,7 @@ ROOTLIBS := $(shell root-config --glibs)
 
 CXX := gcc
 #CXX_FLAGS := -O3 -m32
-CXX_FLAGS := -O3
+CXX_FLAGS := -O3 $(shell root-config --cflags)
 
 # for more detailed info, use VERBOSE=1
 ifdef VERBOSE
