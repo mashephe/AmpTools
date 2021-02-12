@@ -9,7 +9,7 @@ default: $(LIB)
 	$(Q)ar -rsc $@ $^
 
 %.o : %.cc
-	$(vecho) "-> Compiling $@"
+	$(vecho) "-> Compiling $<"
 	$(Q)$(CXX) $(CXX_FLAGS) -M -o $*.d $< $(INC_DIR) ; \
 	cp $*.d $*.dep; \
 	sed -e 's/#.*//' -e 's/^[^:]*: *//' -e 's/ *\\$$//' \

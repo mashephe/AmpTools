@@ -384,11 +384,16 @@ AmpToolsInterface::clear(){
       string reactionName(reaction->reactionName());
       
       if (likelihoodCalculator(reactionName)) delete m_likCalcMap[reactionName];
-      if (intensityManager(reactionName)) delete intensityManager(reactionName);
       if (dataReader(reactionName)) delete dataReader(reactionName);
       if (accMCReader(reactionName)) delete accMCReader(reactionName);
       if (genMCReader(reactionName)) delete genMCReader(reactionName);
       if (normIntInterface(reactionName)) delete normIntInterface(reactionName);
+    }
+
+    // logic above won't work for these since the lookup function for each reaction
+    // depends on the reaction itself
+    for (unsigned int i = 0; i < m_intensityManagers.size(); i++){
+      delete m_intensityManagers[i];
     }
   }
   
