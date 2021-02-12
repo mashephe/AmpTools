@@ -22,6 +22,7 @@ DEFAULT := libAmpPlotter.a
 export
 
 .PHONY: default clean
+.PRECIOUS: %.o
 
 default: lib $(DEFAULT)
 
