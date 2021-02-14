@@ -151,6 +151,13 @@ ParameterManager::setupFromConfigurationInfo( ConfigurationInfo* cfgInfo ){
   }
 }
 
+void
+ParameterManager::setProductionParameter( const string& termName,
+                                          complex< double > prodPar ){
+  
+  findParameter(termName)->setValue(prodPar);
+}
+
 
 void
 ParameterManager::addAmplitudeParameter( const string& termName, const ParameterInfo* parInfo ){
@@ -163,9 +170,7 @@ ParameterManager::addAmplitudeParameter( const string& termName, const Parameter
   MinuitParameter* parPtr;
   
   if( mapItr == m_ampParams.end() ){
-    
-//    cout << "Creating new amplitude parameter:  " << parInfo->parName() << endl;
-    
+        
     parPtr = new MinuitParameter( parName, m_minuitManager->parameterManager(),
                                  parInfo->value());
     
