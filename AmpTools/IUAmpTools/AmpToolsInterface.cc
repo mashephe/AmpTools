@@ -103,8 +103,8 @@ AmpToolsInterface::resetConfigurationInfo(ConfigurationInfo* configurationInfo){
     ReactionInfo* reaction = m_configurationInfo->reactionList()[irct];
     string reactionName(reaction->reactionName());
 
-//    if( reaction->fitType() = IntensityManager::kAmplitude ){
-    if( false ){
+    if( reaction->fitType() = IntensityManager::kAmplitude ){
+
       AmplitudeManager* ampMan = new AmplitudeManager(reaction->particleList(),reactionName);
       for (unsigned int i = 0; i < m_userAmplitudes.size(); i++){
         ampMan->registerAmplitudeFactor( *m_userAmplitudes[i] );
