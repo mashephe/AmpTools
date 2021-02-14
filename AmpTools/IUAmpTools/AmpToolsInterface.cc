@@ -51,6 +51,7 @@
 
 vector<Amplitude*> AmpToolsInterface::m_userAmplitudes;
 vector<DataReader*> AmpToolsInterface::m_userDataReaders;
+unsigned int AmpToolsInterface::m_randomSeed = 0;
 
 AmpToolsInterface::AmpToolsInterface( FunctionalityFlag flag ) :
 m_functionality( flag ),
@@ -59,7 +60,7 @@ m_minuitMinimizationManager(NULL),
 m_parameterManager(NULL),
 m_fitResults(NULL)
 {
-  
+  srand( m_randomSeed );
 }
 
 
@@ -71,7 +72,7 @@ m_parameterManager(NULL),
 m_fitResults(NULL){
   
   resetConfigurationInfo(configurationInfo);
-  
+  srand( m_randomSeed );
 }
 
 
@@ -264,19 +265,56 @@ AmpToolsInterface::likelihood () const {
   return L;
 }
 
+void
+AmpToolsInterface::randomizeProductionPars( float maxFitFraction ){
+  
+  // shouldn't be callin' unless you're fittin'
+  if( m_functionality != kFull ) return;
+  
+  vector< AmplitudeInfo* > amps = m_configurationInfo->amplitudeList();
+    
+  for( vector< AmplitudeInfo* >::iterator ampItr = amps.begin();
+      ampItr != amps.end();
+      ++ampItr ){
+   
+    if( (**ampItr).fixed() ) continue;
+    
+    string ampName = (**ampItr).fullName();
+    string reac = (**ampItr).reactionName();
+  
+    double numSignalEvents = likelihoodCalculator(reac)->numSignalEvents();
+    double normInt = normIntInterface(reac)->normInt(ampName,ampName).real();
+    double ampScale = intensityManager(reac)->getScale(ampName);
+    
+    // fit fraction = ( scale^2 * prodPar^2 * normInt ) / numSignalEvents
+    
+    double fitFraction = random( maxFitFraction );
+    double prodParMag = sqrt( ( numSignalEvents * fitFraction ) /
+                              ( ampScale * ampScale * normInt ) );
+    double prodParPhase = ( (**ampItr).real() ? 0 : random( 2*PI ) );
+    
+    complex< double > prodPar( prodParMag*cos( prodParPhase ),
+                              prodParMag*sin( prodParPhase ) );
+    
+    m_parameterManager->setProductionParameter( ampName, prodPar );
+  }
+}
 
 void
-AmpToolsInterface::finalizeFit(){
+AmpToolsInterface::finalizeFit( const string& tag ){
   
   // ************************
   // save fit parameters
   // ************************
   
-  string outputFile(m_configurationInfo->fitOutputFileName());
+  string fitName = m_configurationInfo->fitName();
+  string ext( ".fit" );
+  if( tag.size() != 0 ) fitName += string( "_" ) + tag;
+  string outputFile = fitName + ext;
+  
   ofstream outFile(outputFile.c_str());
   m_fitResults->saveResults();
   m_fitResults->writeResults( outputFile );
-  
   
   // ************************
   // save normalization integrals
@@ -296,7 +334,6 @@ AmpToolsInterface::finalizeFit(){
     }
   }
 }
-
 
 IntensityManager*
 AmpToolsInterface::intensityManager(const string& reactionName) const {
@@ -741,4 +778,10 @@ AmpToolsInterface::printEventDetails(string reactionName, Kinematics* kin) const
   printAmplitudes(reactionName,kin);
   printIntensity(reactionName,kin);
   
+}
+
+float
+AmpToolsInterface::random( float randMax ){
+  
+  return ( (float) rand() / RAND_MAX ) * randMax;
 }
