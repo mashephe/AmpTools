@@ -183,7 +183,7 @@ public:
   
   /**
    * This is the user-defined function that computes a single complex amplitude
-   * for a set of four-vectos that describe the event kinematics.  As discussed
+   * for a set of four-vectors that describe the event kinematics.  As discussed
    * above this function should be factorized as much as possible and not
    * include permutations of particles.  The user must override this function
    * in his or her amplitude class.
