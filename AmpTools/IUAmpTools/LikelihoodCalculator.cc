@@ -99,7 +99,7 @@ LikelihoodCalculator::operator()(){
 double
 LikelihoodCalculator::numSignalEvents(){
 
-  if( !m_firstDataCalc ) dataTerm();
+  if( m_firstDataCalc ) dataTerm();
   return numDataEvents() - sumBkgWeights();
 }
 
