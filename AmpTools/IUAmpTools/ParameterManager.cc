@@ -158,6 +158,23 @@ ParameterManager::setProductionParameter( const string& termName,
   findParameter(termName)->setValue(prodPar);
 }
 
+void
+ParameterManager::setAmpParameter( const string& parName,
+                                   double value ){
+
+  map< string, MinuitParameter* > m_ampParams;
+
+  auto ampParItr = m_ampParams.find( parName );
+  
+  if( ampParItr == m_ampParams.end() ){
+    
+    cout << "ERROR:  request to set value of unkown parameter named "
+         << parName << " -- ignoring request." << endl;
+    return;
+  }
+  
+  ampParItr->second->setValue( value );
+}
 
 void
 ParameterManager::addAmplitudeParameter( const string& termName, const ParameterInfo* parInfo ){
