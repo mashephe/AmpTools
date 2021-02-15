@@ -234,6 +234,15 @@ class AmpToolsInterface{
 
   void randomizeProductionPars( float maxFitFraction = 1 );
   
+  /** This function will fill the value of a parameter named parName with
+   * a randon number between min (0 default) and max (1 default).  The parName
+   * should be the name of a parameter declared in the config file using
+   * the parameter keyword.  This function is not able to modify parameters
+   * that are production coefficients of amplitudes.
+   */
+  
+  void randomizeParameter( const string& parName, float min = 0, float max = 1 );
+
   /** Print final fit results to a file.  The tag can be used to
    *  generate a unique name in the case that multiple results are
    *  written for a singele fit job.

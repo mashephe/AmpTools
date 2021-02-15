@@ -301,6 +301,34 @@ AmpToolsInterface::randomizeProductionPars( float maxFitFraction ){
 }
 
 void
+AmpToolsInterface::randomizeParameter( const string& parName, float min, float max ){
+
+  vector<ParameterInfo*> parInfoVec = m_configurationInfo->parameterList();
+
+  auto parItr = parInfoVec.begin();
+  for( ; parItr != parInfoVec.end(); ++parItr ){
+    
+    if( (**parItr).parName() == parName ) break;
+  }
+  
+  if( parItr == parInfoVec.end() ){
+    
+    cout << "ERROR:  request to randomize nonexistent parameter:  " << parName << endl;
+    return;
+  }
+  
+  if( (**parItr).fixed() ){
+    
+    cout << "ERROR:  request to randomize a parameter named " << parName
+         << " that is fixed.  Ignoring." << endl;
+    return;
+  }
+  
+  double value = min + random( max - min );
+  m_parameterManager->setAmpParameter( parName, value );
+}
+
+void
 AmpToolsInterface::finalizeFit( const string& tag ){
   
   // ************************
