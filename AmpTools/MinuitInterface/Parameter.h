@@ -50,12 +50,12 @@ public:
   
   const std::string& name() const;
   
-  void setValue( double newValue );
+  void setValue( double newValue, bool doNotify = true );
   double value() const {return m_value;}
   const double* constValuePtr() const { return &m_value; }
   double* valuePtr() { return &m_value; }
   
-  virtual void setError( double newError, bool notify = false );
+  virtual void setError( double newError, bool doNotify = true );
   virtual double error() const {return m_error;}
   
   void setValueError( double newValue, double newError );

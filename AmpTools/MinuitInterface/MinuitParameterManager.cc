@@ -103,7 +103,7 @@ MinuitParameterManager::updateErrors()
       parameter->validateErrors();
       // hmm design problem?  Must have validateErrors set before we can do
       // the updateError with a notify...
-      parameter->setError( parabolicError, true );
+      parameter->setError( parabolicError );
    }
 }
 
