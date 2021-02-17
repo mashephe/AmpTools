@@ -162,8 +162,6 @@ void
 ParameterManager::setAmpParameter( const string& parName,
                                    double value ){
 
-  map< string, MinuitParameter* > m_ampParams;
-
   auto ampParItr = m_ampParams.find( parName );
   
   if( ampParItr == m_ampParams.end() ){
@@ -173,7 +171,11 @@ ParameterManager::setAmpParameter( const string& parName,
     return;
   }
   
-  ampParItr->second->setValue( value );
+  // the "false" here disables notifications that
+  // parameters have changed -- this avoids undesirable
+  // behavior when trying to setup a fit, which is what
+  // this member function is used for
+  ampParItr->second->setValue( value, false );
 }
 
 void
