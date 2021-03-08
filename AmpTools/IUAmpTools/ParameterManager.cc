@@ -151,6 +151,32 @@ ParameterManager::setupFromConfigurationInfo( ConfigurationInfo* cfgInfo ){
   }
 }
 
+void
+ParameterManager::setProductionParameter( const string& termName,
+                                          complex< double > prodPar ){
+  
+  findParameter(termName)->setValue(prodPar);
+}
+
+void
+ParameterManager::setAmpParameter( const string& parName,
+                                   double value ){
+
+  auto ampParItr = m_ampParams.find( parName );
+  
+  if( ampParItr == m_ampParams.end() ){
+    
+    cout << "ERROR:  request to set value of unkown parameter named "
+         << parName << " -- ignoring request." << endl;
+    return;
+  }
+  
+  // the "false" here disables notifications that
+  // parameters have changed -- this avoids undesirable
+  // behavior when trying to setup a fit, which is what
+  // this member function is used for
+  ampParItr->second->setValue( value, false );
+}
 
 void
 ParameterManager::addAmplitudeParameter( const string& termName, const ParameterInfo* parInfo ){
@@ -163,9 +189,7 @@ ParameterManager::addAmplitudeParameter( const string& termName, const Parameter
   MinuitParameter* parPtr;
   
   if( mapItr == m_ampParams.end() ){
-    
-//    cout << "Creating new amplitude parameter:  " << parInfo->parName() << endl;
-    
+        
     parPtr = new MinuitParameter( parName, m_minuitManager->parameterManager(),
                                  parInfo->value());
     

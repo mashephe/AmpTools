@@ -2,3 +2,5 @@ doc/html
 *.a
 *.dep
 *.o
+Tutorials/EEFIT
+Tutorials/phiPP

@@ -62,14 +62,17 @@ class PlotGenerator
 public:
   
   enum { kData = 0, kBkgnd, kGenMC, kAccMC, kNumTypes };
+  enum Option { kDefault = 0, kNoGenMC };
   
-  PlotGenerator( const FitResults& fitResults );
+  PlotGenerator( const FitResults& fitResults, Option opt = kDefault );
   PlotGenerator( ); // empty constructor
 
   virtual ~PlotGenerator();
   
-  // get intensity for all amplitudes that are turned on
-  pair< double, double > intensity( bool accCorrected = true ) const;
+  // get intensity for all amplitudes that are turned on for
+  // a specific reaction
+  pair< double, double > intensity( const string& reactName,
+                                    bool accCorrected = true ) const;
   
   bool haveAmp( const string& amp ) const;
   
@@ -102,7 +105,10 @@ public:
   bool isReactionEnabled( const string& reactName ) const;
   bool isAmpEnabled( unsigned int uniqueAmpIndex ) const;
   bool isSumEnabled( unsigned int uniqueSumIndex ) const;
-   
+  
+  bool isGenMCEnabled() const { return m_option != kNoGenMC; }
+  bool hasBackground() const { return m_hasBackground; }
+  
   Histogram* getHistogram( int index );
 
 protected:
@@ -115,13 +121,23 @@ protected:
   void fillHistogram( int index, double valueX,double valueY );
   void fillHistogram( int index, vector <double> &data, double weight = 1);
   
+  double getEventWeight() const { return m_currentEventWeight; }
+  
   unsigned int getAmpIndex( const string& ampName ) const;
  
 private:
  
-  // this function should be overridden by the derived class
-  // that is written by the user
-  virtual void projectEvent( Kinematics* kin ) = 0;
+  // this function can be overridden by the derived class
+  // that is written by the user; if the projections are
+  // reaction dependent, then the user should override the
+  // function below this one
+  virtual void projectEvent( Kinematics* kin ){}
+  
+  // provide this function for the user to override in case the
+  // projection is reaction dependent; by default this function
+  // will just call the function above, but by overriding it
+  // the user may customize the behavior
+  virtual void projectEvent( Kinematics* kin, const string& reaction );
   
   void clearHistograms();
   void fillProjections( const string& reactName, unsigned int type );
@@ -135,7 +151,9 @@ private:
   const FitResults& m_fitResults;
   AmpToolsInterface m_ati;
   const ConfigurationInfo* m_cfgInfo;
-  
+  Option m_option;
+  bool m_hasBackground;
+
   map< string, NormIntInterface* > m_normIntMap;
   map< string, IntensityManager* > m_intenManagerMap;
   

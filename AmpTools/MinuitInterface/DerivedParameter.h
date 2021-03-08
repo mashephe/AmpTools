@@ -75,7 +75,7 @@ protected:
    // DerivedParameter only updates via changes in any of the base parameters
    // upon which it depends
       void setValue( double newValue ) { Parameter::setValue( newValue ); }
-   void setError( double newError, bool notify = false ) { Parameter::setError( newError, notify ); }
+   void setError( double newError, bool notify = true ) { Parameter::setError( newError, notify ); }
    void setValueError( double newValue, double newError ) { Parameter::setValueError( newValue, newError ); }
    
 private:
