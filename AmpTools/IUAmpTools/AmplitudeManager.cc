@@ -254,8 +254,10 @@ AmplitudeManager::calcUserVars( AmpVecs& a ) const
   const vector< string >& ampNames = getTermNames();
   
   int iNAmps = ampNames.size();
-  
+
+  #ifndef USE_MPI
   assert( iNAmps && a.m_iNEvents && a.m_iNTrueEvents && a.m_pdUserVars);
+  #endif
 
   int iAmpIndex;
   unsigned long long iUserVarsOffset = 0;
@@ -420,8 +422,10 @@ AmplitudeManager::calcTerms( AmpVecs& a ) const
   const vector< string >& ampNames = getTermNames();
   
   int iNAmps = ampNames.size();
-  
+  #ifndef USE_MPI
   assert( iNAmps && a.m_iNEvents && a.m_iNTrueEvents );
+  #endif
+
 #ifndef GPU_ACCELERATION
   assert( a.m_pdAmps && a.m_pdAmpFactors);
 #endif

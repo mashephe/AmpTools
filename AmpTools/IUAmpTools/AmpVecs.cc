@@ -231,7 +231,9 @@ AmpVecs::loadData( DataReader* pDataReader ){
   
   if( m_iNTrueEvents < 1 ){
     cout << "The data source is empty." << endl;
+	 #ifndef USE_MPI
     assert(false);
+	 #endif
   }
   
   // Loop over events and load each one individually
@@ -257,10 +259,13 @@ AmpVecs::loadData( DataReader* pDataReader ){
   
   // Fill any remaining space in the data array with the last event's kinematics
   
+// this ends in a segmentation violation
   for (unsigned long long int iEvent = m_iNTrueEvents; iEvent < m_iNEvents; iEvent++){
     loadEvent(pKinematics, iEvent, m_iNTrueEvents );
   }
-  delete pKinematics;
+
+  if( m_iNTrueEvents )
+  	delete pKinematics;
   
   m_termsValid = false;
   m_integralValid = false;
@@ -286,7 +291,9 @@ AmpVecs::allocateTerms( const IntensityManager& intenMan, bool bAllocIntensity )
   if (m_iNEvents == 0){
     cout << "ERROR: trying to allocate space for terms in\n" << flush;
     cout << "       AmpVecs before any events have been loaded\n" << flush;
+	 #ifndef USE_MPI
     assert(false);
+	 #endif
   }
   
   m_pdIntegralMatrix = new GDouble[2*m_iNTerms*m_iNTerms];
