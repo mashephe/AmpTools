@@ -54,6 +54,7 @@ class CoherentSumInfo;
 class TermInfo;
 class AmplitudeInfo;
 class PDFInfo;
+class ExtraInfo;
 class ParameterInfo;
 
 
@@ -87,10 +88,13 @@ class ParameterInfo;
  *            - In every pdf factor (vector<string>), the first element
  *                 is the pdf class name, the other elements are passed into
  *                 the pdf class as arguments.
+ *      -#  EXTRAS (ExtraInfo class)
+ *            - EXTRAS (extra contributions to the likelihood) are uniquely 
+ *                 specified by a name.
  *      -#  PARAMETERS (ParameterInfo class)
  *            - Parameters are uniquely specified by the parameter name.
- *            - Associate parameters with amplitudes/pdfs using the 
- *                 AmplitudeInfo/PDFInfo class (addParameter)
+ *            - Associate parameters with amplitudes/pdfs/extras using the 
+ *                 AmplitudeInfo/PDFInfo/ExtraInfo class (addParameter)
  *            - These parameters are in addition to production amplitude
  *                 parameters (which are implied for every amplitude/pdf)
  *
@@ -112,6 +116,7 @@ class ParameterInfo;
  * \see coherentSumList
  * \see amplitudeList
  * \see pdfList
+ * \see extraList
  * \see parameterList
  *
  * \ingroup IUAmpTools
@@ -240,6 +245,18 @@ public:
                                   const string& sumName="",
                                   const string& termName="") const;
 
+  /**
+   * This returns a vector of extraInfo objects.  Optionally 
+   * the user can restrict the list to one with a particular 
+   * name.  Passing in an empty string implies the search will not filter 
+   * on that argument.
+   *
+   * \param[in] extraName (optional) the name of the extraInfo object
+   *
+   * \see extra
+   */
+  vector<ExtraInfo*>   extraList  (const string& extraName="") const;
+
   
   /**
    * This returns a vector of all parameters.  The user can optionally
@@ -338,6 +355,20 @@ public:
 
   TermInfo*  term  (const string& fullName) const;
 
+
+  /**
+   * Similar to extraList above but returns a pointer to a specific
+   * extra likelihood contribution.  Note that the pointer is not const.  
+   * This routine can be used to modify an ExtraInfo object in the 
+   * configuration.
+   *
+   * \param[in] extraName the name of the extra contribution
+   *
+   * \see extraList
+   */
+
+  ExtraInfo*  extra  (const string& extraName) const;
+
   
   /**
    * Similar to parameterList above but returns a pointer to a specific
@@ -418,6 +449,21 @@ public:
    */
   PDFInfo*   createPDF   (const string& reactionName, 
                           const string& pdfName);
+
+
+  /**
+   * A routine to create a new extra likelihood contribution.  
+   * This returns a pointer to the extraInfo object
+   * that has been created so it can be further modified.
+   * If the extraInfo already exists, it will be overwritten with a new
+   * extraInfo.
+   *
+   * \param[in] extraName the name of the extraInfo to be created
+   *
+   * \see removeExtra
+   */
+  ExtraInfo*   createExtra   (const string& extraName);
+
   
   /**
    * This creates a new parameter and returns a pointer to the ParameterInfo
@@ -496,6 +542,17 @@ public:
   void removePDF   (const string& reactionName="",
                     const string& pdfName="");
 
+  /**
+   * This removes extraInfo objects that are matched to the arguments.
+   * Passing in a null string to a particular argument will match all
+   * instances of that argument (like a wildcard).  The null string is
+   * the default argument for all parameters.
+   *
+   * \param[in] extraName the name of the extraInfo object
+   *
+   * \see createExtra
+   */
+  void removeExtra   (const string& extraName="");
   
   /**
    * This removes a parameter or parameters matched to the arguments.
@@ -576,6 +633,7 @@ private:
   vector<CoherentSumInfo*> m_sums;
   vector<AmplitudeInfo*>   m_amplitudes;
   vector<PDFInfo*>         m_pdfs;
+  vector<ExtraInfo*>       m_extras;
   vector<ParameterInfo*>   m_parameters;
   map<string, vector< vector<string> > > m_userKeywordMap;
     
@@ -1306,6 +1364,104 @@ private:
   double                       m_value;
   bool                         m_fixed;
   string                       m_scale;
+  
+};
+
+
+
+
+class ExtraInfo
+
+{
+public:
+  
+  /**
+   * The constructor:  each extraInfo object is uniquely defined by its name.
+   *
+   * \param[in] extraName the name of the extra contribution itself
+   */
+  
+  ExtraInfo(const string& extraName):
+  m_extraName(extraName)  {clear();};
+  
+  
+  //  Every extra contribution is identified by an extraName
+    
+  /**
+   * This returns the name of the extra contribution.
+   */
+  string                     extraName()        const {return m_extraName;}
+  
+
+  /**
+   * This adds a set of arguments.
+   *
+   * \param[in] The first element of the vector is the name of the user's extra class.
+   * The remaining elements are optional string arguments to that class.
+   *
+   * \see Extra::newExtra
+   */
+  void setArguments (const vector<string>& arguments)  {m_arguments = arguments;}
+
+  /**
+   * This returns a list of arguments to the user-defined extra likelihood contribution
+   * class.  The first string in the vector specifies the name of the user-defined extra 
+   * contribution class.  The remaining items in the vector of strings are
+   * string arguments that can be passed into the newExtra routine to
+   * create a new instance of the users extra contribution.  
+   *
+   * \see Extra::newExtra
+   * \see ExtraManager::addExtra
+   */
+  const vector<string>&   arguments()        const {return m_arguments;}
+
+
+  /**
+   * This returns a vector of pointers to all of the ParameterInfo objects
+   * that are associated with this extra contribution.  
+   */
+  const vector < ParameterInfo* >&  parameters()     const {return m_parameters;}
+
+  /**
+   * This associates a parameter described by the ParameterInfo
+   * objects with the current extraInfoObject.
+   *
+   * \param[in] parameter pointer the ParameterInfo object for the parameter
+   */
+  void addParameter      (ParameterInfo* parameter);
+  
+
+  /**
+   * This removes an associated ParameterInfo pointer from the list of 
+   * ParameterInfo objects associated with this extraInfo object.
+   *
+   * \param[in] parameter a pointer to the ParameterInfo object to removed
+   */
+  void removeParameter  (ParameterInfo* parameter);
+
+
+  /**
+   * Displays information about this extra contribution to the screen or writes it to a
+   * file if a file name is passed in.
+   * 
+   * \param[in] fileName (optional) name of file to write extra info to
+   * \param[in] append (optional) if true (default) information will be 
+   * appended to the file, if false is passed in the file will be overwritten
+   */  
+  void                       display(string fileName = "", bool append = true);
+
+  /**
+   * This clears out all the internal data for this particular ExtraInfo
+   * object.
+   */
+  void                       clear();
+  
+  
+private:
+  
+  string                       m_extraName;
+  vector<string>               m_arguments;
+  vector< ParameterInfo* >     m_parameters;
   
 };
 

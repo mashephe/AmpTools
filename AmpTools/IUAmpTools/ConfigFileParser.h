@@ -84,6 +84,8 @@
  * ##  pdfscale     <reaction> <pdf> <value or [parameter]>
  * ##  pdfconstrain <reaction1> <pdf1> <reaction2> <pdf2> ...
  * ##  gpudevice    <reaction> <device number>
+ * ##    FUTURE - NOT YET SUPPORTED:
+ * ##  extra         <extra> <class> (arg1) (arg2) ([par]) ...
  * ##    DEPRECATED:
  * ##  datafile      <reaction> <file> (file2) (file3) ...
  * ##  genmcfile     <reaction> <file> (file2) (file3) ...
@@ -238,6 +240,7 @@ class ConfigFileParser
     void doPDFConstrain  (const ConfigFileLine& line);
     void doPDFScale      (const ConfigFileLine& line);
     void doGPUDevice     (const ConfigFileLine& line);
+    void doExtra         (const ConfigFileLine& line);
 
 
       // Member data

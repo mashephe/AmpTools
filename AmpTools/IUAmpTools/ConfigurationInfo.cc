@@ -49,6 +49,7 @@ ConfigurationInfo::~ConfigurationInfo(){
   removeParameter();
   removePDF();
   removeAmplitude();
+  removeExtra();
   removeCoherentSum();
   removeReaction();
 }
@@ -142,6 +143,17 @@ ConfigurationInfo::termList  (const string& reactionName,
   for (unsigned int i = 0; i < amplitudes.size(); i++){ terms.push_back(amplitudes[i]); }
   for (unsigned int i = 0; i < pdfs.size();       i++){ terms.push_back(pdfs[i]); }
   return terms;
+}
+
+vector<ExtraInfo*>
+ConfigurationInfo::extraList  (const string& extraName) const {
+  vector<ExtraInfo*> extras;
+  for (unsigned int i = 0; i < m_extras.size(); i++){
+    if ((extraName      == "") || (m_extras[i]->extraName()      == extraName)){
+      extras.push_back(m_extras[i]);
+    }
+  }
+  return extras;
 }
 
 
@@ -282,6 +294,18 @@ ConfigurationInfo::term (const string& fullName) const {
 }
 
 
+ExtraInfo*
+ConfigurationInfo::extra  (const string& extraName) const {
+  for (unsigned int i = 0; i < m_extras.size(); i++){
+    if (m_extras[i]->extraName()      == extraName){
+      return m_extras[i];
+    }
+  }
+  ExtraInfo* lextra = NULL;
+  return lextra;
+}
+
+
 ParameterInfo*
 ConfigurationInfo::parameter  (const string& parName) const {
   for (unsigned int i = 0; i < m_parameters.size(); i++){
@@ -401,6 +425,20 @@ ConfigurationInfo::createPDF  (const string& reactionName,
 }
 
 
+ExtraInfo*
+ConfigurationInfo::createExtra  (const string& extraName){
+  ExtraInfo* addextra = extra(extraName);
+  if (addextra == NULL){
+    addextra = new ExtraInfo(extraName);
+    m_extras.push_back(addextra);
+  }
+  else{
+    addextra->clear();
+  }
+  return addextra;
+}
+
+
 ParameterInfo*
 ConfigurationInfo::createParameter  (const string&  parName,
                                      double         value){
@@ -513,6 +551,23 @@ ConfigurationInfo::removePDF   (const string& reactionName,
 
 
 void
+ConfigurationInfo::removeExtra   (const string& extraName){
+  vector<ExtraInfo*> removeList = extraList(extraName);
+  unsigned int removeListSize = removeList.size();
+  for (unsigned int i = 0; i < removeListSize; i++){
+    for (unsigned int j = 0; j < m_extras.size(); j++){
+      if (removeList[i]->extraName()      == m_extras[j]->extraName()){
+        m_extras[j]->clear();
+        delete m_extras[j];
+        m_extras.erase(m_extras.begin()+j,m_extras.begin()+j+1);
+        j = m_extras.size();
+      }
+    }
+  }
+}
+
+
+void
 ConfigurationInfo::removeParameter   (const string& parName){
   vector<ParameterInfo*> removeList;
   if (parName == ""){
@@ -529,6 +584,9 @@ ConfigurationInfo::removeParameter   (const string& parName){
     }
     for (unsigned int j = 0; j < m_pdfs.size(); j++){
       m_pdfs[j]->removeParameter(removeList[i]);
+    }
+    for (unsigned int j = 0; j < m_extras.size(); j++){
+      m_extras[j]->removeParameter(removeList[i]);
     }
   }
   for (unsigned int i = 0; i < removeListSize; i++){
@@ -591,6 +649,7 @@ ConfigurationInfo::write( ostream& ff ) const {
   vector<CoherentSumInfo*> Ss   = coherentSumList();
   vector<AmplitudeInfo*>   As   = amplitudeList();
   vector<PDFInfo*>         PDFs = pdfList();
+  vector<ExtraInfo*>       Es = extraList();
   vector<ParameterInfo*>   Ps   = parameterList();
   
   ff << "### FIT CONFIGURATION ###" << endl;
@@ -664,6 +723,17 @@ ConfigurationInfo::write( ostream& ff ) const {
       for (unsigned int k = 0; k < args.size(); k++){
         ff << " " << args[k];}
       ff << endl;}}
+
+
+  // extra
+  
+  for (unsigned int i = 0; i < Es.size(); i++){
+    ExtraInfo* E = Es[i];
+    ff << "extra " << E->extraName();
+    vector<string> args = E->arguments();
+    for (unsigned int k = 0; k < args.size(); k++){
+      ff << " " << args[k];}
+    ff << endl;}
 
   
   // parameter
@@ -847,6 +917,9 @@ ConfigurationInfo::display(string fileName, bool append){
     for (unsigned int k = 0; k < pdfs.size(); k++){
       pdfs[k]->display(fileName,true);
     }
+  }
+  for (unsigned int l = 0; l < m_extras.size(); l++){
+    m_extras[l]->display(fileName,true);
   }
   for (unsigned int l = 0; l < m_parameters.size(); l++){
     m_parameters[l]->display(fileName,true);
@@ -1079,6 +1152,24 @@ TermInfo::removeParameter (ParameterInfo* parameter){
   }
 }
 
+void 
+ExtraInfo::addParameter (ParameterInfo* parameter){
+  bool foundParameter = false;
+  for (unsigned int i = 0; i < m_parameters.size(); i++){
+    if (m_parameters[i]->parName() == parameter->parName()) foundParameter = true;
+  }
+  if (!foundParameter) m_parameters.push_back(parameter);
+}
+
+void
+ExtraInfo::removeParameter (ParameterInfo* parameter){
+  for (unsigned int i = 0; i < m_parameters.size(); i++){
+    if (m_parameters[i]->parName() == parameter->parName()){
+      m_parameters.erase(m_parameters.begin()+i,m_parameters.begin()+i+1);
+      i = m_parameters.size();
+    }
+  }
+}
 
 
 
@@ -1200,6 +1291,46 @@ PDFInfo::display(string fileName, bool append){
 }
 
 
+void
+ExtraInfo::display(string fileName, bool append){
+
+  ofstream outfile;
+  streambuf* cout_sbuf = cout.rdbuf();
+  if (fileName != ""){
+    if (append){
+      outfile.open(fileName.c_str(), ios::out | ios::app);
+    }
+    else{
+      outfile.open(fileName.c_str());
+    }
+    cout.rdbuf(outfile.rdbuf());
+  }
+
+  vector<string>           n_arguments = arguments();
+  vector< ParameterInfo* > n_parameters = parameters();
+
+  cout << "++++++++++++++++++++++++++++++++++++++++" << endl;
+  cout << "+++++++++++++  EXTRA INFO  +++++++++++++" << endl;
+  cout << "++++++++++++++++++++++++++++++++++++++++" << endl;
+  cout << "         EXTRA NAME:  " << m_extraName << endl;
+  cout << "          ARGUMENTS:  " << n_arguments.size() << endl;
+  cout << "\t\t" << "   ";
+  for (unsigned int j = 0; j < n_arguments.size(); j++){
+    cout << " " << n_arguments[j];
+  }
+  cout << endl;
+  cout << "         PARAMETERS:  " << n_parameters.size() << endl;
+  for (unsigned int i = 0; i < n_parameters.size(); i++){
+    cout << "\t\t" << i+1 << ".  " << n_parameters[i]->parName() << endl;
+  }
+
+  if (fileName != ""){
+    outfile.close();
+    cout.rdbuf(cout_sbuf);
+  }
+
+}
+
 
 void
 ParameterInfo::display(string fileName, bool append){
@@ -1272,6 +1403,12 @@ PDFInfo::clear(){
   m_value = 0.0;
   m_fixed = false;
   m_scale = "1.0";
+}
+
+void
+ExtraInfo::clear(){
+  m_arguments.clear();
+  m_parameters.clear();
 }
 
 

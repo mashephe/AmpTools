@@ -327,7 +327,7 @@ ConfigFileParser::setupConfigurationInfo(){
     cout << "ConfigFileParser INFO:  Finished Syntax Checking " << endl;
 
 
-      // ZEROTH PASS ("fit")
+      // ZEROTH PASS ("fit", "keyword")
   
     if (m_verboseParsing)
     cout << "ConfigFileParser INFO:  Starting ZEROTH PASS (finding the fit name)" << endl;
@@ -354,7 +354,7 @@ ConfigFileParser::setupConfigurationInfo(){
   m_configurationInfo = new ConfigurationInfo(m_fitName);
 
 
-      // FIRST PASS ("reaction")
+      // FIRST PASS ("reaction", "parameter")
   
     if (m_verboseParsing)
     cout << "ConfigFileParser INFO:  Starting FIRST PASS (creating reactions and parameters)" << endl;
@@ -374,7 +374,7 @@ ConfigFileParser::setupConfigurationInfo(){
 
 
 
-      // SECOND PASS ("sum" and reaction info)
+      // SECOND PASS ("sum" and reaction info, etc.)
   
     if (m_verboseParsing)
     cout << "ConfigFileParser INFO:  Starting SECOND PASS (creating sums and filling reactions)" << endl;
@@ -403,7 +403,7 @@ ConfigFileParser::setupConfigurationInfo(){
 
 
 
-      // THIRD PASS ("amplitude")
+      // THIRD PASS ("amplitude", "pdf", "extra")
   
     if (m_verboseParsing)
     cout << "ConfigFileParser INFO:  Starting THIRD PASS (creating amplitudes)" << endl;
@@ -413,6 +413,7 @@ ConfigFileParser::setupConfigurationInfo(){
 
     if ((*lineItr).keyword() == "amplitude") doAmplitude(*lineItr);
     if ((*lineItr).keyword() == "pdf")       doPDF(*lineItr);
+    if ((*lineItr).keyword() == "extra")     doExtra(*lineItr);
 
   }
 
@@ -501,6 +502,7 @@ ConfigFileParser::checkSyntax() const{
   keywordParameters["pdfscale"]      = pair<int,int>(3,3);
   keywordParameters["parameter"]     = pair<int,int>(2,5);
   keywordParameters["gpudevice"]     = pair<int,int>(2,2);
+  keywordParameters["extra"]         = pair<int,int>(2,100);
     // these are deprecated, but print out an error message later
   keywordParameters["datafile"]      = pair<int,int>(2,100);
   keywordParameters["genmcfile"]     = pair<int,int>(2,100);
@@ -732,6 +734,33 @@ ConfigFileParser::doPDF(const ConfigFileLine& line){
         exit(1);
       }
       pdfinfo->addParameter(parinfo);
+    }
+  }
+}
+
+
+void
+ConfigFileParser::doExtra(const ConfigFileLine& line){
+  vector<string> arguments = line.arguments();
+  string extraname = arguments[0];
+  vector<string> extraargs (arguments.begin()+1, arguments.end());
+  ExtraInfo* extrainfo = m_configurationInfo->extra(extraname);
+  if (!extrainfo) extrainfo = m_configurationInfo->createExtra(extraname);
+  extrainfo->setArguments(extraargs);
+  for (unsigned int i = 1; i < extraargs.size(); i++){
+    unsigned int j = extraargs[i].size()-1;
+    if ((extraargs[i][0] == '[') && (extraargs[i][j] == ']')){
+      string parname("");
+      for (unsigned int k = 1; k < j; k++){
+        parname += extraargs[i][k];
+      }
+      ParameterInfo* parinfo = m_configurationInfo->parameter(parname);
+      if (!parinfo){
+        cout << "ConfigFileParser ERROR:  can't find parameter " << parname << endl;
+        line.printLine();
+        exit(1);
+      }
+      extrainfo->addParameter(parinfo);
     }
   }
 }
