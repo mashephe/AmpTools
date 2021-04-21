@@ -50,6 +50,7 @@
 
 
 vector<Amplitude*> AmpToolsInterface::m_userAmplitudes;
+vector<LHContribution*> AmpToolsInterface::m_userLHContributions;
 vector<DataReader*> AmpToolsInterface::m_userDataReaders;
 unsigned int AmpToolsInterface::m_randomSeed = 0;
 
@@ -206,6 +207,10 @@ AmpToolsInterface::resetConfigurationInfo(ConfigurationInfo* configurationInfo){
       }
       
       if( m_functionality == kFull ){
+
+        LHContributionManager *LHContMan = NULL;
+        LHContMan = new LHContributionManager();
+        LHContMan->setupFromConfigurationInfo( m_configurationInfo );
         
         // ************************
         // create a LikelihoodCalculator
@@ -428,6 +433,12 @@ AmpToolsInterface::registerAmplitude( const Amplitude& amplitude){
   
 }
 
+void
+AmpToolsInterface::registerLHContribution( const LHContribution& lhcont){
+  
+  m_userLHContributions.push_back(lhcont.clone());
+  
+}
 
 
 void

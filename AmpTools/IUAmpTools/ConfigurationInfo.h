@@ -53,6 +53,7 @@ class ReactionInfo;
 class CoherentSumInfo;
 class TermInfo;
 class AmplitudeInfo;
+class LHContributionInfo;
 class PDFInfo;
 class ParameterInfo;
 
@@ -208,6 +209,19 @@ public:
                                             const string& sumName="",
                                             const string& ampName="") const;
 
+
+  /**
+   * This returns a vector of all likelihood contributions.  Optionally the user can
+   * restrict the list to those associated with a particular name.  
+   * Passing in an empty string 
+   * to any argument implies the search will not filter on that argument.
+   *
+   * \param[in] lhcontName (optional) the name of the amplitude
+   *
+   * \see LHContribution
+   */
+  vector<LHContributionInfo*>   LHContributionList   (const string& lhcontName="") const;
+
   /**
    * This returns a vector of all pdfs.  Optionally the user can
    * restrict the list to those associated with a particular reaction
@@ -324,6 +338,17 @@ public:
 
   PDFInfo*   pdf   (const string& fullName) const;
 
+  /**
+   * Similar to LHContributionList above but returns a pointer to a specific
+   * LHContribution.  Note that the pointer is not const.  This routine can
+   * be used to modify a LHContributionInfo object in the configuration.
+   *
+   * \param[in] lhcontName the full name of the LHContribution
+   *
+   * \see LHContributionList
+   */
+  LHContributionInfo*   LHContribution   (const string& lhcontName) const;
+
 
   /**
    * Similar to termList above but returns a pointer to a specific
@@ -418,6 +443,18 @@ public:
    */
   PDFInfo*   createPDF   (const string& reactionName, 
                           const string& pdfName);
+
+  /**
+   * A routine to create a new LHContribution.  This returns a pointer to the
+   * LHContribution that has been created so it can be further modified.
+   * If the pdf already exists, it will be overwritten with a new
+   * LHContribution.
+   *
+   * \param[in] lhcontName the name of LHContribution to be created
+   *
+   * \see removeLHContribution
+   */
+  LHContributionInfo* createLHContribution  (const string& lhcontName);
   
   /**
    * This creates a new parameter and returns a pointer to the ParameterInfo
@@ -496,7 +533,18 @@ public:
   void removePDF   (const string& reactionName="",
                     const string& pdfName="");
 
-  
+    /**
+   * This removes a LHContribution or LHContributions that are matched to the arguments.
+   * Passing in a null string to a particular argument will match all
+   * instances of that argument (like a wildcard).  The null string is
+   * the default argument for all parameters.
+   *
+   * \param[in] lhcontName the name of the LHContribution
+   *
+   * \see createLHContribution
+   */
+  void removeLHContribution   (const string& lhcontName="");
+
   /**
    * This removes a parameter or parameters matched to the arguments.
    * Passing in a null string to a particular argument will match all
@@ -576,6 +624,7 @@ private:
   vector<CoherentSumInfo*> m_sums;
   vector<AmplitudeInfo*>   m_amplitudes;
   vector<PDFInfo*>         m_pdfs;
+  vector<LHContributionInfo*>         m_lhContributions;
   vector<ParameterInfo*>   m_parameters;
   map<string, vector< vector<string> > > m_userKeywordMap;
     
@@ -1199,6 +1248,42 @@ private:
   
 };
 
+/**
+ * This class holds all information related to a single likelihood contribution.  
+ *
+ * \ingroup IUAmpTools
+ */
+
+class LHContributionInfo : public TermInfo
+
+{
+public:
+  LHContributionInfo(const string& lhcontName):
+  m_lhcontName(lhcontName)  {clear();};
+
+  /**
+   * This returns the name of the likelihood contribution.
+   */
+  string LHContributionName() const {return m_lhcontName;}
+  string reactionName() const {return "";}
+  string fullName() const {return m_lhcontName;}
+  void                       display(string fileName = "", bool append = true);
+
+  /**
+   * Flags marking this class as neither an amplitude nor a pdf.
+   */  
+  bool                       isAmplitude()    const {return false;}
+  bool                       isPDF()          const {return false;}
+
+  /**
+   * This clears out all the internal data for this particular PDFInfo
+   * object.
+   */
+  void                       clear();
+
+private:
+  string m_lhcontName;
+};
 
 
 /**
