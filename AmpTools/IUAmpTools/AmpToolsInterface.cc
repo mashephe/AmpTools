@@ -273,7 +273,8 @@ AmpToolsInterface::likelihood () const {
     L += likelihood(reaction->reactionName());
   }
   for(unsigned int ilh = 0; ilh < m_userLHContributions.size(); ilh++){
-    L += (*m_userLHContributions[ilh])();
+    if(m_userLHContributions[ilh])
+      L += (*m_userLHContributions[ilh])();
   }
   return L;
 }

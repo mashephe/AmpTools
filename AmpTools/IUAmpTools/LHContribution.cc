@@ -12,6 +12,7 @@
 
 MinuitMinimizationManager* LHContribution::m_minManager;
 BinnedData LHContribution::m_data; 
+AmpParameter LHContribution::parameters[100];
 
 double LHContribution::operator()(){
   cout << "CALLING THE OPERATOR() in " << __FILE__ << " " << __LINE__ << endl;
