@@ -108,6 +108,16 @@ AmpToolsInterface::resetConfigurationInfo(ConfigurationInfo* configurationInfo){
       ampMan->registerAmplitudeFactor( *m_userAmplitudes[i] );
     }
     ampMan->setupFromConfigurationInfo( m_configurationInfo );
+
+
+    LHContributionManager* lhcontMan = new LHContributionManager();
+    cout << __FILE__ << " " << __LINE__ << endl;
+    for (unsigned int i = 0; i < m_userLHContributions.size(); i++){
+      lhcontMan->registerLHContribution( *m_userLHContributions[i] );
+    }
+    cout << __FILE__ << " " << __LINE__ << endl;
+    lhcontMan->setupFromConfigurationInfo( m_configurationInfo );
+    lhcontMan->setMinimizationManager(m_minuitMinimizationManager);
     
     if( m_functionality == kFull ){
       ampMan->setOptimizeParIteration( true );
@@ -207,10 +217,6 @@ AmpToolsInterface::resetConfigurationInfo(ConfigurationInfo* configurationInfo){
       }
       
       if( m_functionality == kFull ){
-
-        LHContributionManager *LHContMan = NULL;
-        LHContMan = new LHContributionManager();
-        LHContMan->setupFromConfigurationInfo( m_configurationInfo );
         
         // ************************
         // create a LikelihoodCalculator
@@ -259,13 +265,15 @@ AmpToolsInterface::likelihood (const string& reactionName) const {
   return 0.0;
 }
 
-
 double
 AmpToolsInterface::likelihood () const {
   double L = 0.0;
   for (unsigned int irct = 0; irct < m_configurationInfo->reactionList().size(); irct++){
     ReactionInfo* reaction = m_configurationInfo->reactionList()[irct];
     L += likelihood(reaction->reactionName());
+  }
+  for(unsigned int ilh = 0; ilh < m_userLHContributions.size(); ilh++){
+    L += (*m_userLHContributions[ilh])();
   }
   return L;
 }

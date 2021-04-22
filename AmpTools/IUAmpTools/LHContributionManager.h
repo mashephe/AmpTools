@@ -29,6 +29,13 @@ public:
    */
   void setupFromConfigurationInfo( const ConfigurationInfo* configInfo );
 
+
+  void addLHContribution(const string& lhcontName,
+                     const vector< string >& args);
+
+
+  void registerLHContribution( const LHContribution& defaultLHContribution );
+
     /**
    * This tells an amplitude to use an external pointer to resolve the value
    * of some parameter inside of an amplitude.  The parameter is not a
@@ -73,8 +80,15 @@ public:
    * \see setAmpParValue
    * \see Amplitude::setParValue
    */
-  void setParValue( const string& termName, const string& parName,
-                    double ampParValue );
+  void setParValue( const string& name, const string& parName,
+                               double val );
+
+  void setMinimizationManager(MinuitMinimizationManager *minManager){
+    for(auto &p : m_mapNameToLHContributions){
+      p.second->setMinimizationManager(minManager);
+    }
+  };
+                    
 
    /**
    * This function will be called whenever a parameter is updated.
@@ -82,6 +96,11 @@ public:
    * \see Amplitude::updatePar
    */
   void updatePar( const string& parName ) const;
+
+  private:
+
+  map< string, LHContribution* > m_registeredLHContributions;
+  map< string, LHContribution* > m_mapNameToLHContributions;
 };
 
 #endif

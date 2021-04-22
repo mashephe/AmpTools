@@ -1281,10 +1281,27 @@ void LHContributionInfo::display(string fileName, bool append){
     }
     cout.rdbuf(outfile.rdbuf());
   }
+
+  vector< vector<string> > n_factors = factors();
+  vector< ParameterInfo* > n_parameters = parameters();
+
   cout << "--------------------------------------------" << endl;
   cout << "-----------  LHCONTRIBUTION INFO  ----------" << endl;
   cout << "--------------------------------------------" << endl;
   cout << "   LHCONTRIBUTION NAME:  " << m_lhcontName << endl;
+  cout << "         PARAMETERS:  " << n_parameters.size() << endl;
+  cout << "            FACTORS:  " << n_factors.size() << endl;
+  for (unsigned int i = 0; i < n_factors.size(); i++){
+    vector<string> factor = n_factors[i];
+    cout << "\t\t" << i+1 << ".  ";
+    for (unsigned int j = 0; j < factor.size(); j++){
+      cout << " " << factor[j];
+    }
+    cout << endl;
+  }
+  for (unsigned int i = 0; i < n_parameters.size(); i++){
+    cout << "\t\t" << i+1 << ".  " << n_parameters[i]->parName() << endl;
+  }
 
 
   if (fileName != ""){

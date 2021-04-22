@@ -11,8 +11,10 @@
 #endif
 
 MinuitMinimizationManager* LHContribution::m_minManager;
+BinnedData LHContribution::m_data; 
 
 double LHContribution::operator()(){
+  cout << "CALLING THE OPERATOR() in " << __FILE__ << " " << __LINE__ << endl;
   return neg2LnLikelihood();
 }
 

@@ -191,6 +191,11 @@ public:
    *
    */
   virtual double calcLHContribution( double x ) const ;
+
+
+  void setMinimizationManager(MinuitMinimizationManager *minManager){
+    m_minManager = minManager;
+  }
   
 #ifdef GPU_ACCELERATION 
   
@@ -211,9 +216,6 @@ public:
     assert( false );
   }
 
-  static void setMinimizationManager(MinuitMinimizationManager *minManager){
-    m_minManager = minManager;
-  }
   
 #endif //GPU_ACCELERATION
   
@@ -228,6 +230,8 @@ protected:
    * \param[in] par a reference to the AmpParmeter object
    */
   void registerParameter( AmpParameter& par );
+
+  static BinnedData m_data; 
   
 private:
   
