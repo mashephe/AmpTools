@@ -88,6 +88,10 @@ public:
       p.second->setMinimizationManager(minManager);
     }
   };
+
+  bool hasTerm(const string& name){
+    return m_mapNameToLHContributions.count(name);
+  };
                     
 
    /**

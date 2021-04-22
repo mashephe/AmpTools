@@ -42,11 +42,11 @@
 #include <string>
 
 #include "IUAmpTools/ComplexParameter.h"
+#include "IUAmpTools/IntensityManager.h"
 #include "MinuitInterface/MinuitMinimizationManager.h"
 #include "MinuitInterface/GaussianBound.h"
 #include "MinuitInterface/MIObserver.h"
 #include "MinuitInterface/MISubject.h"
-#include "IUAmpTools/IntensityManager.h"
 
 class ConfigurationInfo;
 class ParameterInfo;
@@ -65,7 +65,7 @@ public:
   
   ParameterManager( MinuitMinimizationManager* minuitManager,
                    const vector<IntensityManager*>& intenManagers );
-  
+
   ~ParameterManager();
   
   MinuitMinimizationManager* fitManager() const { return m_minuitManager; }
