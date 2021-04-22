@@ -306,36 +306,27 @@ ParameterManager::addAmplitudeParameter( const string& termName, const Parameter
 void ParameterManager::addLHContributionParameter( const string& lhcontName, const ParameterInfo* parInfo ){
   const string& parName = parInfo->parName();
   
-      cout << __FILE__ << " " << __LINE__ << endl;
   // see if this is a parameter that we already know about
   
   map< string, MinuitParameter* >::iterator mapItr = m_ampParams.find( parName );
   MinuitParameter* parPtr;
-      cout << __FILE__ << " " << __LINE__ << endl;
   
   if( mapItr == m_ampParams.end() ){
-      cout << __FILE__ << " " << __LINE__ << endl;
         
     parPtr = new MinuitParameter( parName, m_minuitManager->parameterManager(),
                                  parInfo->value());
     
     // attach to allow the parameter to call back this class when it is updated
     parPtr->attach( this );
-      cout << __FILE__ << " " << __LINE__ << endl;
     
     if( parInfo->fixed() ){
-      
-      cout << __FILE__ << " " << __LINE__ << endl;
       parPtr->fix();
     }
     
     if( parInfo->bounded() ){
-      
-      cout << __FILE__ << " " << __LINE__ << endl;
       parPtr->bound( parInfo->lowerBound(), parInfo->upperBound() );
     }
     
-      cout << __FILE__ << " " << __LINE__ << endl;
     if( parInfo->gaussianBounded() ){
       
       GaussianBound* boundPtr = 
@@ -350,14 +341,11 @@ void ParameterManager::addLHContributionParameter( const string& lhcontName, con
     m_ampParams[parName] = parPtr;
   }
   else{
-    
-      cout << __FILE__ << " " << __LINE__ << endl;
     parPtr = mapItr->second;
   }
 
   // find the LHContribution Manager that has the relevant LHContribution
 
-      cout << __FILE__ << " " << __LINE__ << endl;
     
   if( parInfo->fixed() ){
       
@@ -369,13 +357,8 @@ void ParameterManager::addLHContributionParameter( const string& lhcontName, con
   }
   else{
       
-      cout << __FILE__ << " " << __LINE__ << endl;
-      cout << m_lhcontManagers->hasTerm("test") << endl;
-      cout << __FILE__ << " " << __LINE__ << endl;
     m_lhcontManagers->setParPtr( lhcontName, parName, parPtr->constValuePtr() );
   }
-      cout << __FILE__ << " " << __LINE__ << endl;
-  
   
 }
 
