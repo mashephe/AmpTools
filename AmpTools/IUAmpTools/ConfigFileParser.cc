@@ -741,7 +741,7 @@ ConfigFileParser::doPDF(const ConfigFileLine& line){
 void ConfigFileParser::doLHContribution(const ConfigFileLine& line){
   vector<string> arguments = line.arguments();
   string lhContName  = arguments[0];
-  vector<string> lhContargs (arguments.begin()+1, arguments.end());
+  vector<string> lhContargs (arguments.begin(), arguments.end());
   LHContributionInfo* lhContinfo = m_configurationInfo->LHContribution(lhContName);
   if (!lhContinfo)
     lhContinfo = m_configurationInfo->createLHContribution(lhContName);

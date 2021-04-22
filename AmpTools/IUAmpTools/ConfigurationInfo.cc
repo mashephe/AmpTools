@@ -1289,7 +1289,6 @@ void LHContributionInfo::display(string fileName, bool append){
   cout << "-----------  LHCONTRIBUTION INFO  ----------" << endl;
   cout << "--------------------------------------------" << endl;
   cout << "   LHCONTRIBUTION NAME:  " << m_lhcontName << endl;
-  cout << "         PARAMETERS:  " << n_parameters.size() << endl;
   cout << "            FACTORS:  " << n_factors.size() << endl;
   for (unsigned int i = 0; i < n_factors.size(); i++){
     vector<string> factor = n_factors[i];
@@ -1299,6 +1298,7 @@ void LHContributionInfo::display(string fileName, bool append){
     }
     cout << endl;
   }
+  cout << "         PARAMETERS:  " << n_parameters.size() << endl;
   for (unsigned int i = 0; i < n_parameters.size(); i++){
     cout << "\t\t" << i+1 << ".  " << n_parameters[i]->parName() << endl;
   }
