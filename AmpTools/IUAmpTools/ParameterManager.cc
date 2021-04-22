@@ -70,6 +70,33 @@ m_intenManagers( intenManagers )
 //  cout << "Parameter manager initialized." << endl;
 }
 
+ParameterManager::ParameterManager( MinuitMinimizationManager* minuitManager,
+                                    IntensityManager* intenManager,
+                                    LHContributionManager *lhcontManager ) :
+MIObserver(),
+m_minuitManager( minuitManager ),
+m_intenManagers( 0 ),
+m_lhcontManagers( lhcontManager )
+{ 
+  m_minuitManager->attach( this );
+  m_intenManagers.push_back(intenManager);
+//  cout << "Parameter manager initialized." << endl;
+}
+
+
+ParameterManager::
+ParameterManager( MinuitMinimizationManager* minuitManager,
+                 const vector<IntensityManager*>& intenManagers,
+                 LHContributionManager *lhcontManager ) :
+MIObserver(),
+m_minuitManager( minuitManager ),
+m_intenManagers( intenManagers ),
+m_lhcontManagers( lhcontManager )
+{ 
+  m_minuitManager->attach( this );
+//  cout << "Parameter manager initialized." << endl;
+}
+
 // protected constructors: these are used in MPI implementations where
 // the ParameterManager is created on a worker node that does not have
 // a MinuitMinimizationManager.  The reference must be initialized, so
@@ -166,8 +193,7 @@ ParameterManager::setupFromConfigurationInfo( ConfigurationInfo* cfgInfo ){
     for( vector< ParameterInfo* >::const_iterator parItr = pars.begin();
         parItr != pars.end();
         ++parItr ){
-      
-      addAmplitudeParameter( (**lhcontsItr).fullName(), *parItr );
+      addLHContributionParameter( (**lhcontsItr).fullName(), *parItr );
     }
   }
 
@@ -276,33 +302,40 @@ ParameterManager::addAmplitudeParameter( const string& termName, const Parameter
   }
 }
 
-/*
+
 void ParameterManager::addLHContributionParameter( const string& lhcontName, const ParameterInfo* parInfo ){
   const string& parName = parInfo->parName();
   
+      cout << __FILE__ << " " << __LINE__ << endl;
   // see if this is a parameter that we already know about
   
   map< string, MinuitParameter* >::iterator mapItr = m_ampParams.find( parName );
   MinuitParameter* parPtr;
+      cout << __FILE__ << " " << __LINE__ << endl;
   
   if( mapItr == m_ampParams.end() ){
+      cout << __FILE__ << " " << __LINE__ << endl;
         
     parPtr = new MinuitParameter( parName, m_minuitManager->parameterManager(),
                                  parInfo->value());
     
     // attach to allow the parameter to call back this class when it is updated
     parPtr->attach( this );
+      cout << __FILE__ << " " << __LINE__ << endl;
     
     if( parInfo->fixed() ){
       
+      cout << __FILE__ << " " << __LINE__ << endl;
       parPtr->fix();
     }
     
     if( parInfo->bounded() ){
       
+      cout << __FILE__ << " " << __LINE__ << endl;
       parPtr->bound( parInfo->lowerBound(), parInfo->upperBound() );
     }
     
+      cout << __FILE__ << " " << __LINE__ << endl;
     if( parInfo->gaussianBounded() ){
       
       GaussianBound* boundPtr = 
@@ -318,38 +351,33 @@ void ParameterManager::addLHContributionParameter( const string& lhcontName, con
   }
   else{
     
+      cout << __FILE__ << " " << __LINE__ << endl;
     parPtr = mapItr->second;
   }
 
   // find the LHContribution Manager that has the relevant LHContribution
-  bool foundOne = false;
-  vector< LHContributionManager* >::iterator lhcontManPtr = m_lhcontManagers.begin();
-  for( ; lhcontManPtr != m_lhcontManagers.end(); ++lhcontManPtr ){
+
+      cout << __FILE__ << " " << __LINE__ << endl;
     
-    if( !(*lhcontManPtr)->hasTerm( lhcontName ) ) continue;
-    
-    foundOne = true;
-    
-    if( parInfo->fixed() ){
+  if( parInfo->fixed() ){
       
       // if it is fixed just go ahead and set the parameter by value
       // this prevents Amplitude class from thinking that is has
       // a free parameter
       
-      (**lhcontManPtr).setParValue( lhcontName, parName, parInfo->value() );
-    }
-    else{
-      
-      (**lhcontManPtr).setParPtr( lhcontName, parName, parPtr->constValuePtr() );
-    }
+    m_lhcontManagers->setParValue( lhcontName, parName, parInfo->value() );
   }
+  else{
+      
+      cout << __FILE__ << " " << __LINE__ << endl;
+      cout << m_lhcontManagers->hasTerm("test") << endl;
+      cout << __FILE__ << " " << __LINE__ << endl;
+    m_lhcontManagers->setParPtr( lhcontName, parName, parPtr->constValuePtr() );
+  }
+      cout << __FILE__ << " " << __LINE__ << endl;
   
-  if( !foundOne ){
-    
-    cout << "WARNING:  could not find LHContribution named " << lhcontName 
-         << " while trying to set parameter " << parName << endl;
-  }  
-}*/
+  
+}
 
 void 
 ParameterManager::addProductionParameter( const string& termName, bool real, bool fixed )

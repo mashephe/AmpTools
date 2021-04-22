@@ -55,6 +55,7 @@ LHContributionManager::setParValue( const string& name, const string& parName,
   m_mapNameToLHContributions[name]->setParValue( parName, val );
 }
 
+
 void LHContributionManager::setupFromConfigurationInfo( const ConfigurationInfo* configInfo ){
 
 

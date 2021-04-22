@@ -12,7 +12,6 @@
 #include "GPUManager/GPUCustomTypes.h"
 #include "IUAmpTools/BinnedData.h"
 #include "MinuitInterface/MIFunctionContribution.h"
-#include "IUAmpTools/ParameterManager.h"
 
 #ifdef GPU_ACCELERATION 
 #include "cuda_runtime.h"
@@ -24,7 +23,6 @@ using std::complex;
 using namespace std;
 
 class AmpParameter;
-class ParameterManager;
 class MinuitMinimizationManager;
 class MinuitParameter;
 
@@ -216,6 +214,7 @@ public:
     assert( false );
   }
 
+
   
 #endif //GPU_ACCELERATION
   
@@ -243,6 +242,7 @@ private:
   vector< AmpParameter* > m_registeredParams;
 
   static MinuitMinimizationManager *m_minManager;
+
   
 };
 

@@ -43,6 +43,7 @@
 
 #include "IUAmpTools/ComplexParameter.h"
 #include "IUAmpTools/IntensityManager.h"
+#include "IUAmpTools/LHContributionManager.h"
 #include "MinuitInterface/MinuitMinimizationManager.h"
 #include "MinuitInterface/GaussianBound.h"
 #include "MinuitInterface/MIObserver.h"
@@ -66,6 +67,15 @@ public:
   ParameterManager( MinuitMinimizationManager* minuitManager,
                    const vector<IntensityManager*>& intenManagers );
 
+
+  ParameterManager( MinuitMinimizationManager* minuitManager,
+                    IntensityManager* intenManager,
+                    LHContributionManager* lhcontManager );
+  
+  ParameterManager( MinuitMinimizationManager* minuitManager,
+                   const vector<IntensityManager*>& intenManagers,
+                   LHContributionManager* lhcontManager );
+
   ~ParameterManager();
   
   MinuitMinimizationManager* fitManager() const { return m_minuitManager; }
@@ -75,6 +85,10 @@ public:
   void setProductionParameter( const string& termName,
                                complex< double > prodPar );
   void setAmpParameter( const string& parName, double value );
+
+  void setLHContributionManager(LHContributionManager* lhcontManagers){
+    m_lhcontManagers = lhcontManagers;
+  };
   
   // these functions provide a list of all known parameters, including those that are
   // constrained to other parameters in addition to a covariance matrix that
@@ -109,6 +123,8 @@ protected:
   
   virtual void addProductionParameter( const string& ampName, bool real = false, bool fixed = false );
   virtual void addAmplitudeParameter( const string& ampName, const ParameterInfo* parInfo );
+
+  virtual void addLHContributionParameter( const string& lhcontName, const ParameterInfo* parInfo );
   
   // useful for MPI implementations of ParameterManager
   complex< double >* getProdParPtr( const string& ampName );
@@ -128,6 +144,7 @@ protected:
   MinuitMinimizationManager* m_minuitManager;
   
   vector< IntensityManager* > m_intenManagers;
+  LHContributionManager* m_lhcontManagers;
   
   vector< double > m_parValues;
   vector< string > m_parList;

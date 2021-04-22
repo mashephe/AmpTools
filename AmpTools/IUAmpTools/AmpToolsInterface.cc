@@ -110,14 +110,7 @@ AmpToolsInterface::resetConfigurationInfo(ConfigurationInfo* configurationInfo){
     ampMan->setupFromConfigurationInfo( m_configurationInfo );
 
 
-    LHContributionManager* lhcontMan = new LHContributionManager();
-    cout << __FILE__ << " " << __LINE__ << endl;
-    for (unsigned int i = 0; i < m_userLHContributions.size(); i++){
-      lhcontMan->registerLHContribution( *m_userLHContributions[i] );
-    }
-    cout << __FILE__ << " " << __LINE__ << endl;
-    lhcontMan->setupFromConfigurationInfo( m_configurationInfo );
-    lhcontMan->setMinimizationManager(m_minuitMinimizationManager);
+
     
     if( m_functionality == kFull ){
       ampMan->setOptimizeParIteration( true );
@@ -132,6 +125,13 @@ AmpToolsInterface::resetConfigurationInfo(ConfigurationInfo* configurationInfo){
     
     m_intensityManagers.push_back(ampMan);
   }
+  LHContributionManager* lhcontMan = new LHContributionManager();
+  for (unsigned int i = 0; i < m_userLHContributions.size(); i++){
+    lhcontMan->registerLHContribution( *m_userLHContributions[i] );
+  }
+  lhcontMan->setupFromConfigurationInfo( m_configurationInfo );
+  //lhcontMan->setMinimizationManager(m_minuitMinimizationManager);
+  
   
   if( m_functionality == kFull ){
     
@@ -139,9 +139,9 @@ AmpToolsInterface::resetConfigurationInfo(ConfigurationInfo* configurationInfo){
     // create a ParameterManager
     // ************************
     
-    m_parameterManager = new ParameterManager ( m_minuitMinimizationManager, m_intensityManagers );
+    m_parameterManager = new ParameterManager ( m_minuitMinimizationManager, m_intensityManagers, lhcontMan );
     m_parameterManager->setupFromConfigurationInfo( m_configurationInfo );
-    
+    m_parameterManager->setLHContributionManager(lhcontMan);
   }
   
   // ************************
