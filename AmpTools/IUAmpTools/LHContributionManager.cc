@@ -42,6 +42,13 @@ void LHContributionManager::addLHContribution(const string& lhcontName,
 }
 
 void
+LHContributionManager::setParPtr( const string& name, const string& parName,
+                            const double* ampParPtr ){
+
+  m_mapNameToLHContributions[name]->setParPtr( parName, ampParPtr );
+}
+
+void
 LHContributionManager::setParValue( const string& name, const string& parName,
                                double val ){
    
@@ -68,22 +75,8 @@ void LHContributionManager::setupFromConfigurationInfo( const ConfigurationInfo*
       setParValue( lhcontName, (**parItr).parName(), (**parItr).value() );
     }
 
-/*
     // finally initialize the LHContributions
-    vector< const Amplitude* > ampVec = m_mapNameToAmps[ampName];
-    for( vector< const Amplitude* >::iterator amp = ampVec.begin();
-        amp != ampVec.end();
-        ++amp ) {
-      
-      // init needs to be non-const or else the user has to deal with
-      // mutable data -- in reality we really want some aspects of the
-      // amplitude like the name, arguments, etc. to never change and
-      // other aspects to be mutable, but this seems to put an extra
-      // burden on the user
-      
-      const_cast< Amplitude* >(*amp)->init();
-    }
-  */
+    const_cast<LHContribution*>(m_mapNameToLHContributions[lhcontName])->init();
   }
 }
 
