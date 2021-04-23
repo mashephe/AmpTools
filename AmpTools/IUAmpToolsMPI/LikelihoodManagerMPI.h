@@ -52,6 +52,7 @@ class LikelihoodManagerMPI
                     kComputeIntegrals,
                     kUpdateParameters,
                     kUpdateAmpParameter,
+                    kFinalizeFit,
                     kExit };
 
   LikelihoodManagerMPI(){};
@@ -62,15 +63,18 @@ class LikelihoodManagerMPI
   
   static void broadcastToFirst( FitCommand command );
   
+  static FitCommand lastCommand() const { return m_lastCommand; }
+  
  private:
 
   static void setupMPI();
 
   static bool m_mpiSetup;
-  static bool m_isMaster;
+  static bool m_isLeader;
   static int m_numProc;
 
   static map< int, LikelihoodCalculatorMPI* > m_calcMap;
+  static FitCommand m_lastCommand;
 };
 
 #endif

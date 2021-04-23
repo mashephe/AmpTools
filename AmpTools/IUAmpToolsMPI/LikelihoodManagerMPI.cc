@@ -55,9 +55,9 @@ LikelihoodManagerMPI::deliverLikelihood()
 {
   if( !m_mpiSetup ) setupMPI();
   
-  if( m_isMaster ){
+  if( m_isLeader ){
     
-    cerr << "ERROR:  deliverLikelihood() should not run on master node" 
+    cerr << "ERROR:  deliverLikelihood() should not run on leader node"
     << endl;
     assert( false );
   }
@@ -73,7 +73,8 @@ LikelihoodManagerMPI::deliverLikelihood()
   
   MPI_Recv( cmnd, 2, MPI_INT, 0, MPITag::kIntSend, MPI_COMM_WORLD, &status );
   
-  while( *fitFlag != kExit ){
+  
+  while( ( *fitFlag != kExit ) && ( *fitFlag != kFinalizeFit ) ){
     
     mapItr = m_calcMap.find( *id );
     // we must have a matching likelihood calculator to proceed
@@ -95,7 +96,7 @@ LikelihoodManagerMPI::deliverLikelihood()
       case kComputeIntegrals:
         
         // this actually has a return value, but serves the purpose
-        // of triggering a NI recalculation, if necessary, on the workers
+        // of triggering a NI recalculation, if necessary, on the followers
         likCalc->normIntTerm();
         break;
         
@@ -113,8 +114,10 @@ LikelihoodManagerMPI::deliverLikelihood()
     MPI_Recv( &cmnd, 2, MPI_INT, 0, MPITag::kIntSend, 
              MPI_COMM_WORLD, &status );
   }
-  
-  assert( *fitFlag == kExit );
+
+  m_lastCommand = *fitFlag;
+
+  assert( m_lastCommand == kExit || m_lastCommand == kFinalizeFit );
 }
 
 void
@@ -122,13 +125,15 @@ LikelihoodManagerMPI::broadcastToFirst( FitCommand command ){
   
   if( !m_mpiSetup ) setupMPI();
   
-  // this broadcasts a particular command to the first registered
+  // This broadcasts a particular command to the first registered
   // calculator -- note that there can be multiple likelihood
   // calculators per node as there is one likelihood calculator
-  // for every reaction
+  // for every reaction.  For some commands, like updating the
+  // ParameterManager, one only needs to broadcast to the first
+  // instance on a node since there is only one ParameterManager
   
-  // should only be called on the master:
-  assert( m_isMaster );
+  // should only be called on the leader:
+  assert( m_isLeader );
 
   int cmnd[2];
   cmnd[1] = command;
@@ -152,12 +157,15 @@ LikelihoodManagerMPI::setupMPI()
 {
   int rank;
   MPI_Comm_rank( MPI_COMM_WORLD, &rank );
-  m_isMaster = ( rank == 0 );
+  m_isLeader = ( rank == 0 );
   MPI_Comm_size( MPI_COMM_WORLD, &m_numProc );
   m_mpiSetup = true;
 }
 
 bool LikelihoodManagerMPI::m_mpiSetup = false;
-bool LikelihoodManagerMPI::m_isMaster = false;
+bool LikelihoodManagerMPI::m_isLeader = false;
 int LikelihoodManagerMPI::m_numProc = 0;
 map< int, LikelihoodCalculatorMPI* > LikelihoodManagerMPI::m_calcMap;
+
+// it is OK to intialize this to anything but kExit
+FitCommand LikelihoodManagerMPI::m_lastCommand = kComputeLikelihood;
