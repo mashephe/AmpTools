@@ -129,6 +129,7 @@ AmpToolsInterface::resetConfigurationInfo(ConfigurationInfo* configurationInfo){
   for (unsigned int i = 0; i < m_userLHContributions.size(); i++){
     lhcontMan->registerLHContribution( *m_userLHContributions[i] );
   }
+    lhcontMan->setMinimizationManager(m_minuitMinimizationManager);
   lhcontMan->setupFromConfigurationInfo( m_configurationInfo );
   //lhcontMan->setMinimizationManager(m_minuitMinimizationManager);
   
@@ -142,7 +143,6 @@ AmpToolsInterface::resetConfigurationInfo(ConfigurationInfo* configurationInfo){
     m_parameterManager = new ParameterManager ( m_minuitMinimizationManager, m_intensityManagers, lhcontMan );
     m_parameterManager->setupFromConfigurationInfo( m_configurationInfo );
     m_parameterManager->setLHContributionManager(lhcontMan);
-    lhcontMan->setMinimizationManager(m_minuitMinimizationManager);
   }
   
   // ************************
@@ -274,8 +274,9 @@ AmpToolsInterface::likelihood () const {
     L += likelihood(reaction->reactionName());
   }
   for(unsigned int ilh = 0; ilh < m_userLHContributions.size(); ilh++){
-    if(m_userLHContributions[ilh])
+    if(m_userLHContributions[ilh]){
       L += (*m_userLHContributions[ilh])();
+    }
   }
   return L;
 }

@@ -87,10 +87,11 @@ MinuitMinimizationManager::evaluateFunction() {
       // not an MIFunctionContribution then don't ask for 
       // its contribution
      
-      if( contributor != NULL )
+      if( contributor != NULL ){
         totalContribution += contributor->contribution();
-      cout << __FILE__ << " " << (contributor != NULL) << " " << count << " "  << totalContribution << endl;
+      cout << __FILE__ << " " << (contributor != NULL) << " " << count << " "  << contributor->contribution() << endl;
       count++;
+      }
    }
   
   ++m_functionCallCounter;

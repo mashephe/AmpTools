@@ -227,6 +227,26 @@ ParameterManager::setAmpParameter( const string& parName,
 }
 
 void
+ParameterManager::setLHContributionParameter( const string& parName,
+                                   double value ){
+
+  auto ampParItr = m_ampParams.find( parName );
+  
+  if( ampParItr == m_ampParams.end() ){
+    
+    cout << "ERROR:  request to set value of unkown parameter named "
+         << parName << " -- ignoring request." << endl;
+    return;
+  }
+  
+  // the "false" here disables notifications that
+  // parameters have changed -- this avoids undesirable
+  // behavior when trying to setup a fit, which is what
+  // this member function is used for
+  ampParItr->second->setValue( value, false );
+}
+
+void
 ParameterManager::addAmplitudeParameter( const string& termName, const ParameterInfo* parInfo ){
   
   const string& parName = parInfo->parName();
@@ -237,7 +257,7 @@ ParameterManager::addAmplitudeParameter( const string& termName, const Parameter
   MinuitParameter* parPtr;
   
   if( mapItr == m_ampParams.end() ){
-        
+
     parPtr = new MinuitParameter( parName, m_minuitManager->parameterManager(),
                                  parInfo->value());
     
@@ -352,14 +372,11 @@ void ParameterManager::addLHContributionParameter( const string& lhcontName, con
       // if it is fixed just go ahead and set the parameter by value
       // this prevents Amplitude class from thinking that is has
       // a free parameter
-      
     m_lhcontManagers->setParValue( lhcontName, parName, parInfo->value() );
   }
   else{
-      
     m_lhcontManagers->setParPtr( lhcontName, parName, parPtr->constValuePtr() );
   }
-  
 }
 
 void 
@@ -426,6 +443,18 @@ ParameterManager::getProdParPtr( const string& termName ){
 
 double* 
 ParameterManager::getAmpParPtr( const string& parName ){
+  
+  map< string, MinuitParameter* >::iterator mapItr = m_ampParams.find( parName );
+  
+  // make sure we found one
+  assert( mapItr != m_ampParams.end() );
+  
+  return mapItr->second->valuePtr();
+}
+
+
+double* 
+ParameterManager::getLHContributionParPtr( const string& parName ){
   
   map< string, MinuitParameter* >::iterator mapItr = m_ampParams.find( parName );
   

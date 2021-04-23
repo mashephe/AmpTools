@@ -54,7 +54,27 @@ LHContributionManager::setParValue( const string& name, const string& parName,
    
   m_mapNameToLHContributions[name]->setParValue( parName, val );
 }
+/*
+void
+LHContributionManager::updatePar( const string& parName ) const {
+  
+  for( map< string, LHContribution* >::const_iterator mapItr = m_mapNameToLHContributions.begin();
+      mapItr != m_mapNameToLHContributions.end();
+      ++mapItr ){
+    
 
+      
+      // if we find an amplitude with the parameter update the iteration
+      // counter; this may result in multiple increments over one fuction
+      // call but that is OK -- iteration numbers just need to be unique
+      if( (*mapItr).second->updatePar( parName ) ){
+        
+       // ++m_ampIteration[*ampItr];
+      
+    }
+  }
+}
+*/
 
 void LHContributionManager::setupFromConfigurationInfo( const ConfigurationInfo* configInfo ){
 

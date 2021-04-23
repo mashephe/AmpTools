@@ -84,8 +84,7 @@ public:
                                double val );
 
   void setMinimizationManager(MinuitMinimizationManager *minManager){
-    cout << __FILE__ << " " << minManager << endl;
-    for(auto &p : m_mapNameToLHContributions){
+    for(auto &p : m_registeredLHContributions){
       p.second->setMinimizationManager(minManager);
     }
   };

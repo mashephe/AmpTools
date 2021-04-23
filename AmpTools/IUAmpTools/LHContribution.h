@@ -230,7 +230,6 @@ protected:
    */
   void registerParameter( AmpParameter& par );
 
-  static BinnedData m_data; 
   static AmpParameter parameters[100];
   
 private:

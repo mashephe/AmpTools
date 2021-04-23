@@ -85,6 +85,8 @@ public:
   void setProductionParameter( const string& termName,
                                complex< double > prodPar );
   void setAmpParameter( const string& parName, double value );
+  void setLHContributionParameter( const string& parName,
+                                   double value );
 
   void setLHContributionManager(LHContributionManager* lhcontManagers){
     m_lhcontManagers = lhcontManagers;
@@ -129,6 +131,7 @@ protected:
   // useful for MPI implementations of ParameterManager
   complex< double >* getProdParPtr( const string& ampName );
   double* getAmpParPtr( const string& parName );
+  double* getLHContributionParPtr( const string& parName );
   
   virtual void update( const string& parName );
 
