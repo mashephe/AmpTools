@@ -1,65 +1,6 @@
       echo
       echo --------------------------------
       echo
-      echo COMPILE AMPTOOLS
-      echo
-      echo --------------------------------
-      echo
-      sleep 3
-
-cd $AMPTOOLS
-make clean
-make
-
-
-      echo
-      echo --------------------------------
-      echo
-      echo COMPILE AMPPLOTTER
-      echo
-      echo --------------------------------
-      echo
-      sleep 3
-
-cd $AMPPLOTTER
-make clean
-make
-
-
-      sleep 1
-      echo
-      echo --------------------------------
-      echo
-      echo COMPILE DALITZ
-      echo
-      echo --------------------------------
-      echo
-      sleep 3
-
-cd $DALITZ
-make clean
-make
-
-
-      sleep 1
-      echo
-      echo --------------------------------
-      echo
-      echo COMPILE DALITZEXE
-      echo
-      echo --------------------------------
-      echo
-      sleep 3
-
-cd $DALITZ/DalitzExe
-make clean
-make
-
-
-      sleep 1
-      echo
-      echo --------------------------------
-      echo
       echo GENERATE PHASE SPACE
       echo
       echo --------------------------------

@@ -19,8 +19,6 @@ UserAmplitude< BreitWigner >(args)
   m_daughter1 = atoi(args[2].c_str());
   m_daughter2 = atoi(args[3].c_str());
   
-  cout << m_mass << " " << m_width << " " << m_daughter1 << " " << m_daughter2 << endl;
-  
   // need to register any free parameters so the framework knows about them
   registerParameter( m_mass );
   registerParameter( m_width );
@@ -83,8 +81,6 @@ BreitWigner::calcAmplitude( GDouble** pKin, GDouble* userVars ) const {
                       pKin[m_daughter2-1][3], pKin[m_daughter2-1][0]);
 
   GDouble mass2 = (P1+P2).M2();
-
-  cout << m_mass << " " << m_width << " " << m_daughter1 << " " << m_daughter2 << endl;
     
   return  complex<GDouble>(1.0,0.0) /
           complex<GDouble>( mass2 - m_mass*m_mass, m_mass*m_width);

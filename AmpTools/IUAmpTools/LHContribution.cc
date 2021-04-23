@@ -15,7 +15,6 @@ AmpParameter LHContribution::parameters[100];
 
 
 double LHContribution::operator()(){
-  cout << "CALLING THE OPERATOR() in " << __FILE__ << " " << __LINE__ << endl;
   return neg2LnLikelihood();
 }
 
@@ -141,6 +140,5 @@ LHContribution::updatePar( const string& name ) const {
 
 void
 LHContribution::registerParameter( AmpParameter& par ){
-  cout << "registering parameter in " << __FILE__ << " " << __LINE__ << endl;
   m_registeredParams.push_back( &par );
 }

@@ -76,7 +76,6 @@ MinuitMinimizationManager::evaluateFunction() {
    notify();
 
   double totalContribution = 0;
-  int count = 0;
    MISubject::ObserverList& contributors = observerList();
    for ( MISubject::ObserverList::iterator iter = contributors.begin();
          iter != contributors.end();
@@ -89,8 +88,6 @@ MinuitMinimizationManager::evaluateFunction() {
      
       if( contributor != NULL ){
         totalContribution += contributor->contribution();
-      cout << __FILE__ << " " << (contributor != NULL) << " " << count << " "  << contributor->contribution() << endl;
-      count++;
       }
    }
   

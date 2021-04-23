@@ -496,7 +496,13 @@ AmpToolsInterface::clear(){
     m_ampVecs[i].deallocAmpVecs();
     m_ampVecsReactionName[i] = "";
   }
-  
+  /*
+  for (unsigned int i = 0; i < m_userLHContributions.size(); i++){
+    delete m_userLHContributions[i];
+  }
+
+  m_userLHContributions.clear();
+  */
   if (minuitMinimizationManager()) delete minuitMinimizationManager();
   if (parameterManager()) delete parameterManager();
   

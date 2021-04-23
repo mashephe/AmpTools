@@ -28,7 +28,6 @@ void LHContributionManager::addLHContribution(const string& lhcontName,
      m_registeredLHContributions.find( lhcontName );
 
 
-  cout << lhcontName << " " << m_registeredLHContributions.count( lhcontName ) << " " << __FILE__ << " " << __LINE__ << endl;
   if( defaultLHContribution == m_registeredLHContributions.end() ){
     
     cout << "ERROR: LHContribution with name " << lhcontName
