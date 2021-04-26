@@ -762,7 +762,6 @@ AmplitudeManager::calcSumLogIntensity( AmpVecs& a ) const
   return( dSumLogI );
 }
 
-
 void
 AmplitudeManager::calcIntegrals( AmpVecs& a, int iNGenEvents ) const
 {
@@ -846,6 +845,115 @@ AmplitudeManager::calcIntegrals( AmpVecs& a, int iNGenEvents ) const
     }
   }
   
+  a.m_integralValid = true;
+}
+
+void
+AmplitudeManager::calcIntegrals( DataReader *genDataReader, AmpVecs& a, int iNGenEvents ) const
+{
+  unsigned int iNTrueEvents = genDataReader->numEvents();
+
+  if( iNTrueEvents < 1 ){
+    cout << "The data source is empty." << endl;
+    assert(false);
+  }
+
+#ifdef VTRACE
+  VT_TRACER( "AmplitudeManager::calcIntegrals" );
+#endif
+
+  // allocate integral matrix before computing individual batches
+  int iNAmps = getTermNames().size();
+  GDouble* integralMatrix = new GDouble[2*iNAmps*iNAmps];
+
+  // amp -> amp* -> value
+  assert( iNGenEvents );
+ 
+  // default uses single batch if all fits in memory
+  int batchsize = std::numeric_limits<int>::max();
+  int num_batches = 1;
+
+  // determine optimal size of event batch for accessible memory (from GPUManager)
+  GDouble totalMemory = 0;
+  unsigned int iNParticles = 7; // need function to return number of particles!
+  unsigned long long int iEventArrSize = genDataReader->numEvents() * sizeof(GDouble);
+  totalMemory += 4 * iEventArrSize;
+  totalMemory += userVarsPerEvent() * iEventArrSize;
+  totalMemory += 4 * iNParticles * iEventArrSize;
+  totalMemory += maxFactorStoragePerEvent() * iEventArrSize;
+  totalMemory += 2 * iEventArrSize * iNAmps;
+  totalMemory /= (1024*1024);
+
+  double maxMemory = 12000; // 12 GB limit
+  if(totalMemory > maxMemory) {
+    num_batches = (int)(totalMemory/maxMemory) + 1;
+    batchsize = iNTrueEvents/num_batches;
+    cout<<"Memory required = "<<totalMemory<<" MB exceeds maximum of "<<maxMemory<<" MB"<<endl;
+    cout<<"Splitting integral into "<<num_batches<<" batches of "<<batchsize<<" events each"<<endl;
+  }
+
+  // loop over batches of generated Monte Carlo compute integral
+  AmpVecs batchVecs;
+  for(int ibatch=0; ibatch<num_batches; ibatch++) {
+
+    batchVecs.deallocAmpVecs();
+
+    batchVecs.loadData( genDataReader, ibatch*batchsize, (ibatch+1)*batchsize );
+    batchVecs.allocateTerms( *this );
+    calcTerms(batchVecs);
+  
+    int i, j, iEvent;
+    for( i = 0; i < iNAmps;i++ ) {
+      for( j = 0; j <= i; j++ ) {
+
+	// zero out matrix elements
+	integralMatrix[2*i*iNAmps+2*j] = 0;
+        integralMatrix[2*i*iNAmps+2*j+1] = 0;
+	      
+        // if two amps don't interfere the relevant integral is zero
+        if( m_sumCoherently[i][j] ){
+
+#ifndef GPU_ACCELERATION	  
+	  for( iEvent = 0; iEvent < batchVecs.m_iNTrueEvents; iEvent++ ) {
+
+	    //AiAj*
+	    integralMatrix[2*i*iNAmps+2*j] += batchVecs.m_pdWeights[iEvent] *
+	      ( batchVecs.m_pdAmps[2*batchVecs.m_iNEvents*i+2*iEvent] *
+	        batchVecs.m_pdAmps[2*batchVecs.m_iNEvents*j+2*iEvent] +
+		batchVecs.m_pdAmps[2*batchVecs.m_iNEvents*i+2*iEvent+1] *
+                batchVecs.m_pdAmps[2*batchVecs.m_iNEvents*j+2*iEvent+1] );
+
+	    integralMatrix[2*i*iNAmps+2*j+1] += batchVecs.m_pdWeights[iEvent] *
+              ( -batchVecs.m_pdAmps[2*batchVecs.m_iNEvents*i+2*iEvent] *
+                batchVecs.m_pdAmps[2*batchVecs.m_iNEvents*j+2*iEvent+1] +
+                batchVecs.m_pdAmps[2*batchVecs.m_iNEvents*i+2*iEvent+1] *
+                batchVecs.m_pdAmps[2*batchVecs.m_iNEvents*j+2*iEvent] );
+	  }
+
+	  // normalize
+	  integralMatrix[2*i*iNAmps+2*j] /= static_cast< GDouble >( iNGenEvents );
+	  integralMatrix[2*i*iNAmps+2*j+1] /= static_cast< GDouble >( iNGenEvents );	
+#else
+	  batchVecs.m_gpuMan.calcIntegral( &(integralMatrix[2*i*iNAmps+2*j]), i, j, iNGenEvents );
+#endif
+	}
+      }
+    }
+  }
+
+  // complex conjugate
+  for( int i = 0; i < iNAmps;i++ ) {
+    for( int j = 0; j <= i; j++ ) {
+      if( i != j ) {
+	integralMatrix[2*j*iNAmps+2*i] = integralMatrix[2*i*iNAmps+2*j];
+	integralMatrix[2*j*iNAmps+2*i+1] = -integralMatrix[2*i*iNAmps+2*j+1];
+      }
+    }
+  }
+
+  a.m_pdIntegralMatrix = integralMatrix;
+  batchVecs.deallocAmpVecs();
+
   a.m_integralValid = true;
 }
 

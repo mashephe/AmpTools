@@ -213,9 +213,14 @@ AmpVecs::loadEvent( const Kinematics* pKinematics, unsigned long long iEvent,
   m_userVarsOffset.clear();
 }
 
+void
+AmpVecs::loadData( DataReader* pDataReader )
+{
+  loadData(pDataReader, 0, std::numeric_limits<int>::max());
+}
 
 void
-AmpVecs::loadData( DataReader* pDataReader ){
+AmpVecs::loadData( DataReader* pDataReader, unsigned long long int minEvent, unsigned long long int maxEvent ){
   
   //  Make sure no data is already loaded
   
@@ -228,6 +233,11 @@ AmpVecs::loadData( DataReader* pDataReader ){
   
   pDataReader->resetSource();
   m_iNTrueEvents = pDataReader->numEvents();
+  unsigned int batchsize = maxEvent - minEvent;
+  if(batchsize < std::numeric_limits<int>::max()) {
+	  m_iNTrueEvents = batchsize;
+	  cout<<"batch: minEve = "<<minEvent<<" maxEve="<<maxEvent<<" of totalEve="<<pDataReader->numEvents()<<endl;
+  }
   
   if( m_iNTrueEvents < 1 ){
     cout << "The data source is empty." << endl;
@@ -235,11 +245,14 @@ AmpVecs::loadData( DataReader* pDataReader ){
   }
   
   // Loop over events and load each one individually
-  
+ 
   Kinematics* pKinematics;
-  for(int iEvent = 0; iEvent < m_iNTrueEvents; iEvent++){ 
+  for(int iEvent = 0; iEvent < pDataReader->numEvents(); iEvent++){ 
     pKinematics = pDataReader->getEvent();
-    loadEvent(pKinematics, iEvent, m_iNTrueEvents );
+    if(iEvent < minEvent) continue;
+    if(iEvent > maxEvent) break; 
+
+    loadEvent(pKinematics, iEvent-minEvent, m_iNTrueEvents );
 
     float weight = pKinematics->weight();
     

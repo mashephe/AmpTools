@@ -250,6 +250,7 @@ struct AmpVecs
    * \see DataReader::getEvent
    */
   void loadData( DataReader* pDataReader );
+  void loadData( DataReader* pDataReader, unsigned long long int minEvent, unsigned long long int maxEvent );
   
   /**
    * This routine fills the arrays of data and weights event by event

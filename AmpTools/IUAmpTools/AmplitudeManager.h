@@ -221,6 +221,7 @@ public:
    * \see calcIntensities
    */
   void calcIntegrals( AmpVecs& ampVecs, int iNGenEvents ) const;
+  void calcIntegrals( DataReader *genDataReader, AmpVecs& ampVecs, int iNGenEvents ) const;  
 
   /**
    * The function returns a list of permutations that will be performed on

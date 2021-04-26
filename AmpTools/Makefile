@@ -38,7 +38,7 @@ SRCDIRS += GPUManager
 TARGET_LIBS_GPU :=  $(addsuffix _GPU.a, $(addprefix lib, $(SRCDIRS)))
 
 NVCC :=	nvcc
-CUDA_FLAGS := -m64 -arch=sm_20
+CUDA_FLAGS := -m64 -arch=sm_75
 INC_DIR += -I$(CUDA_INSTALL_PATH)/include 
 
 CXX_FLAGS += -DGPU_ACCELERATION

@@ -347,7 +347,13 @@ NormIntInterface::forceCacheUpdate( bool normIntOnly ) const
   
     // flush this if anything is loaded
     m_mcVecs.deallocAmpVecs();
-  
+
+    cout << "Calculating integrals from generated Monte Carlo..." << endl;
+    m_pIntenManager->calcIntegrals( m_genMCReader, m_mcVecs, m_nGenEvents );
+    setAmpIntMatrix( m_mcVecs.m_pdIntegralMatrix );
+    cout << "\tDone." << endl;
+
+/*
     cout << "Loading generated Monte Carlo..." << endl;
     m_mcVecs.loadData( m_genMCReader );
     m_mcVecs.allocateTerms( *m_pIntenManager );
@@ -357,7 +363,8 @@ NormIntInterface::forceCacheUpdate( bool normIntOnly ) const
     m_pIntenManager->calcIntegrals( m_mcVecs, m_nGenEvents );
     setAmpIntMatrix( m_mcVecs.m_pdIntegralMatrix );
     cout << "\tDone." << endl;
-  
+*/
+
     m_emptyAmpIntCache = false;
   }
   

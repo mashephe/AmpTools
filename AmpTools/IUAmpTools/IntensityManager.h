@@ -170,6 +170,7 @@ public:
    * \see calcIntensities
    */
   virtual void calcIntegrals( AmpVecs& ampVecs, int iNGenEvents ) const = 0;
+  virtual void calcIntegrals( DataReader *genDataReader, AmpVecs& ampVecs, int iNGenEvents ) const = 0;
  
   /**
    * This function calculates the intensity for one event using a Kinematics
