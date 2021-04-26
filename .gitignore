@@ -20,6 +20,9 @@ Tutorials/Dalitz/DalitzExe/toyAcceptance
 Tutorials/Dalitz/run/*.fit
 Tutorials/Dalitz/run/*.ni
 Tutorials/Dalitz/run/*.root
+Tutorials/Dalitz/run/*.d
+Tutorials/Dalitz/run/*.so
+Tutorials/Dalitz/run/*.pcm
 Tutorials/Dalitz/run/test.cfg
 Tutorials/gammaKK/doc/*.aux
 Tutorials/gammaKK/doc/*.log
