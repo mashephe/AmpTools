@@ -1,0 +1,3 @@
+
+cd $DALITZ/run
+$DALITZ/DalitzExe/fitAmplitudes dalitzCONSTRAINT.cfg

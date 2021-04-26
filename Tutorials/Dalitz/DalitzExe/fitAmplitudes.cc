@@ -10,6 +10,7 @@
 #include "IUAmpTools/AmpToolsInterface.h"
 #include "DalitzDataIO/DalitzDataReader.h"
 #include "DalitzAmp/BreitWigner.h"
+#include "DalitzAmp/constraint.h"
 
 
 using std::complex;
@@ -54,6 +55,7 @@ int main( int argc, char* argv[] ){
     // ************************
 
   AmpToolsInterface::registerAmplitude(BreitWigner());
+  AmpToolsInterface::registerLHContribution(constraint());
   AmpToolsInterface::registerDataReader(DalitzDataReader());
 
   AmpToolsInterface ATI(cfgInfo);
