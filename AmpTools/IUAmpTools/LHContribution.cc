@@ -11,11 +11,11 @@
 #endif
 
 MinuitMinimizationManager* LHContribution::m_minManager;
-AmpParameter LHContribution::parameters[100];
 
 
 double LHContribution::operator()(){
-  return neg2LnLikelihood();
+  double val = neg2LnLikelihood();
+  return val;
 }
 
 double LHContribution::neg2LnLikelihood(){

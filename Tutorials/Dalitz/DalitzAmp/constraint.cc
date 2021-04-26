@@ -38,6 +38,12 @@ constraint::calcLHContribution( double x ) const {
   return norm(amp);
 }
 
+double constraint::drawThis(double *x, double *par){
+  double s = pow(x[0],2);
+  complex<double> amp = complex<double>(par[0],0.0) / complex<double>(s-par[1]*par[1],par[1]*par[2]);
+  return norm(amp);
+}
+
 double
 constraint::neg2LnLikelihood(){
   double chi2=0;

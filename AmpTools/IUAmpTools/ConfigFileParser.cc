@@ -413,7 +413,7 @@ ConfigFileParser::setupConfigurationInfo(){
 
     if ((*lineItr).keyword() == "amplitude") doAmplitude(*lineItr);
     if ((*lineItr).keyword() == "pdf")       doPDF(*lineItr);
-    if ((*lineItr).keyword() == "LHContribution")       doLHContribution(*lineItr);
+    if ((*lineItr).keyword() == "LHContribution" || (*lineItr).keyword() == "lhContribution")       doLHContribution(*lineItr);
 
   }
 
@@ -501,6 +501,7 @@ ConfigFileParser::checkSyntax() const{
   keywordParameters["pdfconstrain"]  = pair<int,int>(4,100);
   keywordParameters["pdfscale"]      = pair<int,int>(3,3);
   keywordParameters["LHContribution"] = pair<int,int>(1,100);
+  keywordParameters["lhContribution"] = pair<int,int>(1,100);
   keywordParameters["parameter"]     = pair<int,int>(2,5);
   keywordParameters["gpudevice"]     = pair<int,int>(2,2);
     // these are deprecated, but print out an error message later

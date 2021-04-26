@@ -11,6 +11,10 @@
 #include "DalitzDataIO/DalitzDataReader.h"
 #include "DalitzAmp/BreitWigner.h"
 #include "DalitzAmp/constraint.h"
+#include "IUAmpTools/FitResults.h"
+#include "TF1.h"
+#include "TCanvas.h"
+#include "TGraphErrors.h"
 
 
 using std::complex;
@@ -74,7 +78,33 @@ int main( int argc, char* argv[] ){
 
   cout << "LIKELIHOOD AFTER MINIMIZATION:  " << ATI.likelihood() << endl;
 
+
+  ifstream data("extradata.dat");
+  string line;
+  TGraphErrors *gr = new TGraphErrors();
+  gr->SetMarkerStyle(23);
+  gr->SetMarkerSize(2);
+  int c=0;
+  while(data.is_open() && getline(data,line)){
+    stringstream ss(line);
+    string s1, s2, s3;
+    ss >> s1 >> s2 >> s3;
+    gr->SetPoint(c,atof(s1.c_str()),atof(s2.c_str()));
+    gr->SetPointError(c,0,atof(s3.c_str()));
+    c++;
+  }
   ATI.finalizeFit();
+
+  FitResults results("dalitz1.fit");
+
+  TF1 *f = new TF1("f",constraint::drawThis,0,2,3);
+  f->SetParameters(results.parValue("am"),results.parValue("m1"),results.parValue("g1"));
+
+  TCanvas *can = new TCanvas();
+  gr->Draw("ap");
+  f->Draw("same");
+  can->SaveAs("test.pdf");
+
 
   return 0;
 

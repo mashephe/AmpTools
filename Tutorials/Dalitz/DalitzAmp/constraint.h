@@ -32,6 +32,8 @@ public:
 
   double neg2LnLikelihood();
 
+  static double drawThis(double *x, double *par);
+
   //AmpParameter par;
 
   

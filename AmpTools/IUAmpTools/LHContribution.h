@@ -230,7 +230,6 @@ protected:
    */
   void registerParameter( AmpParameter& par );
 
-  static AmpParameter parameters[100];
   
 private:
   
