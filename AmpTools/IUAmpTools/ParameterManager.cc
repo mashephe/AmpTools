@@ -370,7 +370,7 @@ void ParameterManager::addLHContributionParameter( const string& lhcontName, con
   if( parInfo->fixed() ){
       
       // if it is fixed just go ahead and set the parameter by value
-      // this prevents Amplitude class from thinking that is has
+      // this prevents Amplitude class from thinking that it has
       // a free parameter
     m_lhcontManagers->setParValue( lhcontName, parName, parInfo->value() );
   }

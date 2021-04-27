@@ -63,6 +63,13 @@ public:
                       IntensityManager* intenManager );
   ParameterManagerMPI( MinuitMinimizationManager* minuitManager,
                       const vector< IntensityManager* >& intenManagers );
+
+  ParameterManagerMPI( MinuitMinimizationManager* minuitManager,
+                      IntensityManager* intenManager,
+                      LHContributionManager* lhcontManager );
+  ParameterManagerMPI( MinuitMinimizationManager* minuitManager,
+                      const vector< IntensityManager* >& intenManagers,
+                      LHContributionManager* lhcontManager );
   
   // this constructor should be called on the worker nodes
   ParameterManagerMPI( IntensityManager* intenManager );
@@ -74,13 +81,14 @@ public:
   // on whether this instance is on the head or worker node
   void addProductionParameter( const string& termName, bool real = false, bool fixed = false );
   void addAmplitudeParameter( const string& termName, const ParameterInfo* parInfo );
+  void addLHContributionParameter( const string& lhcontName, const ParameterInfo* parInfo );
   
   // the likelihood calculator will need to call this routine in order
   // to update the parameters in advance of the likelihood calculation
   void updateParameters();
   
   // the likelihood calculator on the worker nodes will call this routine
-  // in order to update a changed ampitude parameter -- the update routine
+  // in order to update a changed amplitude parameter -- the update routine
   // on the master (function below) will call this directly with the
   // parameter name
   void updateAmpParameter( const string& parName = "" );
