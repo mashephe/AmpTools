@@ -28,4 +28,6 @@ Tutorials/gammaKK/doc/*.aux
 Tutorials/gammaKK/doc/*.log
 Tutorials/gammaKK/doc/*.pdf
 toGit.sh
+*~
+*.o.tmp
 
