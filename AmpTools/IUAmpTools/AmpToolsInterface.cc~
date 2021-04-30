@@ -50,7 +50,6 @@
 
 
 vector<Amplitude*> AmpToolsInterface::m_userAmplitudes;
-vector<LHContribution*> AmpToolsInterface::m_userLHContributions;
 vector<DataReader*> AmpToolsInterface::m_userDataReaders;
 unsigned int AmpToolsInterface::m_randomSeed = 0;
 
@@ -108,9 +107,6 @@ AmpToolsInterface::resetConfigurationInfo(ConfigurationInfo* configurationInfo){
       ampMan->registerAmplitudeFactor( *m_userAmplitudes[i] );
     }
     ampMan->setupFromConfigurationInfo( m_configurationInfo );
-
-
-
     
     if( m_functionality == kFull ){
       ampMan->setOptimizeParIteration( true );
@@ -125,15 +121,6 @@ AmpToolsInterface::resetConfigurationInfo(ConfigurationInfo* configurationInfo){
     
     m_intensityManagers.push_back(ampMan);
   }
-
-  LHContributionManager* lhcontMan = new LHContributionManager();
-  if( m_functionality == kFull ){
-  for (unsigned int i = 0; i < m_userLHContributions.size(); i++){
-    lhcontMan->registerLHContribution( *m_userLHContributions[i] );
-  }
-    lhcontMan->setMinimizationManager(m_minuitMinimizationManager);
-  lhcontMan->setupFromConfigurationInfo( m_configurationInfo );
-  }
   
   if( m_functionality == kFull ){
     
@@ -141,9 +128,9 @@ AmpToolsInterface::resetConfigurationInfo(ConfigurationInfo* configurationInfo){
     // create a ParameterManager
     // ************************
     
-    m_parameterManager = new ParameterManager ( m_minuitMinimizationManager, m_intensityManagers, lhcontMan );
+    m_parameterManager = new ParameterManager ( m_minuitMinimizationManager, m_intensityManagers );
     m_parameterManager->setupFromConfigurationInfo( m_configurationInfo );
-    m_parameterManager->setLHContributionManager(lhcontMan);
+    
   }
   
   // ************************
@@ -267,17 +254,13 @@ AmpToolsInterface::likelihood (const string& reactionName) const {
   return 0.0;
 }
 
+
 double
 AmpToolsInterface::likelihood () const {
   double L = 0.0;
   for (unsigned int irct = 0; irct < m_configurationInfo->reactionList().size(); irct++){
     ReactionInfo* reaction = m_configurationInfo->reactionList()[irct];
     L += likelihood(reaction->reactionName());
-  }
-  for(unsigned int ilh = 0; ilh < m_userLHContributions.size(); ilh++){
-    if(m_userLHContributions[ilh]){
-      L += (*m_userLHContributions[ilh])();
-    }
   }
   return L;
 }
@@ -312,7 +295,7 @@ AmpToolsInterface::randomizeProductionPars( float maxFitFraction ){
     
     complex< double > prodPar( prodParMag*cos( prodParPhase ),
                               prodParMag*sin( prodParPhase ) );
-                              
+    
     m_parameterManager->setProductionParameter( ampName, prodPar );
   }
 }
@@ -340,7 +323,6 @@ AmpToolsInterface::randomizeParameter( const string& parName, float min, float m
          << " that is fixed.  Ignoring." << endl;
     return;
   }
-  
   
   double value = min + random( max - min );
   m_parameterManager->setAmpParameter( parName, value );
@@ -445,12 +427,6 @@ AmpToolsInterface::registerAmplitude( const Amplitude& amplitude){
   
 }
 
-void
-AmpToolsInterface::registerLHContribution( const LHContribution& lhcont){
-  
-  m_userLHContributions.push_back(lhcont.clone());
-  
-}
 
 
 void
@@ -466,23 +442,26 @@ void
 AmpToolsInterface::clear(){
   
   if( m_configurationInfo != NULL ){
-
+    
     for (unsigned int irct = 0; irct < m_configurationInfo->reactionList().size(); irct++){
+      
       ReactionInfo* reaction = m_configurationInfo->reactionList()[irct];
       string reactionName(reaction->reactionName());
+      
       if (likelihoodCalculator(reactionName)) delete m_likCalcMap[reactionName];
       if (dataReader(reactionName)) delete dataReader(reactionName);
       if (accMCReader(reactionName)) delete accMCReader(reactionName);
       if (genMCReader(reactionName)) delete genMCReader(reactionName);
       if (normIntInterface(reactionName)) delete normIntInterface(reactionName);
     }
+
     // logic above won't work for these since the lookup function for each reaction
     // depends on the reaction itself
     for (unsigned int i = 0; i < m_intensityManagers.size(); i++){
       delete m_intensityManagers[i];
     }
   }
-
+  
   m_intensityManagers.clear();
   m_dataReaderMap.clear();
   m_genMCReaderMap.clear();
@@ -494,17 +473,10 @@ AmpToolsInterface::clear(){
     m_ampVecs[i].deallocAmpVecs();
     m_ampVecsReactionName[i] = "";
   }
-
-  /*
-  for (unsigned int i = 0; i < m_userLHContributions.size(); i++){
-    delete m_userLHContributions[i];
-  }
-
-  m_userLHContributions.clear();
-  */
-
+  
   if (minuitMinimizationManager()) delete minuitMinimizationManager();
   if (parameterManager()) delete parameterManager();
+  
 }
 
 
@@ -538,7 +510,9 @@ AmpToolsInterface::loadEvents(DataReader* dataReader,
   // object in a state where it contains no data, which is consistent
   // with no data reader available (some DataReaders, like those for
   // background) are optional
+          cout << __FILE__ << " " << __LINE__ << endl;
   if( dataReader != NULL ) m_ampVecs[iDataSet].loadData(dataReader);
+          cout << __FILE__ << " " << __LINE__ << endl;
 }
 
 
@@ -587,18 +561,6 @@ AmpToolsInterface::numEvents(unsigned int iDataSet) const {
   }
   
   return m_ampVecs[iDataSet].m_iNTrueEvents;
-  
-}
-
-double
-AmpToolsInterface::sumWeights(unsigned int iDataSet) const {
-  
-  if (iDataSet >= MAXAMPVECS){
-    cout << "AmpToolsInterface:  ERROR data set index out of range" << endl;
-    exit(1);
-  }
-  
-  return m_ampVecs[iDataSet].m_dSumWeights;
   
 }
 

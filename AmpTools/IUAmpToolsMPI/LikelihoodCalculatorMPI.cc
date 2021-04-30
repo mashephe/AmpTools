@@ -105,7 +105,7 @@ double
 LikelihoodCalculatorMPI::operator()()
 {
   assert( m_isMaster );
-  
+
   MPI_Status status;
   
   // a two element array to hold commands that go to the workers
@@ -123,14 +123,12 @@ LikelihoodCalculatorMPI::operator()()
     
     MPI_Send( cmnd, 2, MPI_INT, i, MPITag::kIntSend, MPI_COMM_WORLD );
   }
-  
   // tell the master to do parameter update
   m_parManager.updateParameters();
-  
+
   // tell all of the workers to send the partial sums 
   cmnd[1] = LikelihoodManagerMPI::kComputeLikelihood;
   for( int i = 1; i < m_numProc; ++i ){
-    
     MPI_Send( cmnd, 2, MPI_INT, i, MPITag::kIntSend, MPI_COMM_WORLD );
   }
   
@@ -139,23 +137,19 @@ LikelihoodCalculatorMPI::operator()()
   double numBkgEvents  = 0;
   double numDataEvents = 0;
   double data[4];
-  
   // collect the sums
   for( int i = 1; i < m_numProc; ++i ){
-    
     MPI_Recv( &data, 4, MPI_DOUBLE, i, MPITag::kDoubleSend,
              MPI_COMM_WORLD, &status );
-    
     lnL           += data[0];
     sumBkgWeights += data[1];
     numBkgEvents  += data[2];
     numDataEvents += data[3];
   }
-  
   setSumBkgWeights( sumBkgWeights );
   setNumBkgEvents ( numBkgEvents  );
   setNumDataEvents( numDataEvents );
-  
+
   // if we have an amplitude with a free parameter, the call to normIntTerm()
   // will trigger recomputation of NI's -- we need to put the workers in the
   // loop to send the recomputed NI's back to the master
@@ -167,7 +161,7 @@ LikelihoodCalculatorMPI::operator()()
       MPI_Send( cmnd, 2, MPI_INT, i, MPITag::kIntSend, MPI_COMM_WORLD );
     }
   }
-  
+
   // this call will utilize the NormIntInterface on the master which
   // ultimately gets handled by the instance of NormIntInterfaceMPI
   // that is passed into the constructor of this class

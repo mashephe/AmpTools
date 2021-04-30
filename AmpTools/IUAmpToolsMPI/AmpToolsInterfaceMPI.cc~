@@ -29,8 +29,9 @@ AmpToolsInterfaceMPI::AmpToolsInterfaceMPI(ConfigurationInfo* configurationInfo)
     // create a MinuitMinimizationManager
     // ************************
 
-  m_minuitMinimizationManager = new MinuitMinimizationManager(500);
+  m_minuitMinimizationManager = new MinuitMinimizationManager(100);
   m_minuitMinimizationManager->setPrecision( 1E-13 );
+
 
     // ************************
     // create an AmplitudeManager for each reaction
@@ -51,16 +52,9 @@ AmpToolsInterfaceMPI::AmpToolsInterfaceMPI(ConfigurationInfo* configurationInfo)
       ampMan->setOptimizeParIteration( true );
       ampMan->setFlushFourVecsIfPossible( true );
     }
+    
     m_intensityManagers.push_back(ampMan);
-  }
 
-  LHContributionManager* lhcontMan = new LHContributionManager();
-  if(m_rank == 0){
-    for (unsigned int i = 0; i < m_userLHContributions.size(); i++){
-      lhcontMan->registerLHContribution( *m_userLHContributions[i] );
-    }
-    lhcontMan->setMinimizationManager(m_minuitMinimizationManager);
-    lhcontMan->setupFromConfigurationInfo( m_configurationInfo );
   }
 
     // ************************
@@ -73,17 +67,20 @@ AmpToolsInterfaceMPI::AmpToolsInterfaceMPI(ConfigurationInfo* configurationInfo)
   }
   else{
     parameterManagerMPI = new ParameterManagerMPI( m_minuitMinimizationManager,
-                                                   m_intensityManagers, lhcontMan );
-    parameterManagerMPI->setLHContributionManager(lhcontMan);
+                                                   m_intensityManagers );
   }
   parameterManagerMPI->setupFromConfigurationInfo( m_configurationInfo );
   m_parameterManager = parameterManagerMPI;
+
+
+
 
     // ************************
     // loop over reactions
     // ************************
 
   for (unsigned int irct = 0; irct < m_configurationInfo->reactionList().size(); irct++){
+
     ReactionInfo* reaction = m_configurationInfo->reactionList()[irct];
     string reactionName(reaction->reactionName());
     IntensityManager* intenMan = intensityManager(reactionName);
@@ -115,6 +112,7 @@ AmpToolsInterfaceMPI::AmpToolsInterfaceMPI(ConfigurationInfo* configurationInfo)
       // ************************
       // create a NormIntInterface
       // ************************
+
     NormIntInterface* normInt = NULL;
     if (genMCRdr && accMCRdr && intenMan && !(reaction->normIntFileInput())){
       normInt = new NormIntInterfaceMPI(genMCRdr, accMCRdr, *intenMan);
@@ -138,8 +136,10 @@ AmpToolsInterfaceMPI::AmpToolsInterfaceMPI(ConfigurationInfo* configurationInfo)
 
     LikelihoodCalculatorMPI* likCalc = NULL;
     if (intenMan && normInt && dataRdr && m_parameterManager){
+		cout << __FILE__ << " " << __LINE__ << endl;
       likCalc = new LikelihoodCalculatorMPI(*intenMan, *normInt, dataRdr, bkgndRdr, *parameterManagerMPI);
       m_likCalcMap[reactionName] = likCalc;
+		cout << __FILE__ << " " << __LINE__ << endl;
     }
     else{
       cout << "AmpToolsInterface ERROR:  not creating a LikelihoodCalculator for reaction " 
@@ -159,8 +159,12 @@ AmpToolsInterfaceMPI::AmpToolsInterfaceMPI(ConfigurationInfo* configurationInfo)
                                  m_minuitMinimizationManager,
                                  m_parameterManager );
 
+
   if (m_rank != 0) LikelihoodManagerMPI::deliverLikelihood();
+
 }
+
+
 
 
 
@@ -223,5 +227,4 @@ AmpToolsInterfaceMPI::finalizeFit(){
     if( m_rank == 0 ) normInt->exportNormIntCache( reaction->normIntFile() );
   }
 }
-
 

@@ -92,6 +92,7 @@ LikelihoodCalculator::operator()(){
   // split the compuation of likelihood into data and normalization
   // integral sums -- this provides parallel implementations with the
   // methods they need to compute these terms individually
+  
   return -2 * ( dataTerm() - normIntTerm() );
 }
 
@@ -126,12 +127,13 @@ LikelihoodCalculator::normIntTerm(){
 
     m_normInt.forceCacheUpdate( true );
   }
+  
   int n = m_intenManager.getTermNames().size();
   m_intenManager.prodFactorArray( m_prodFactorArray );
   
   double normTerm = 0;
   bool renormalize = m_intenManager.termsAreRenormalized();
-
+  
   switch( m_intenManager.type() ){
       
     case IntensityManager::kAmplitude:
@@ -177,7 +179,7 @@ LikelihoodCalculator::normIntTerm(){
       assert( false );
       break;
   }
-
+  
   m_firstNormIntCalc = false;
   
   if( m_hasBackground ){
@@ -216,12 +218,12 @@ LikelihoodCalculator::dataTerm(){
     
     cout << "Allocating Data and Amplitude Array in LikelihoodCalculator for " 
          << m_intenManager.reactionName() << "..." << endl;
-
+    
     m_ampVecsSignal.loadData( m_dataReaderSignal );
     m_ampVecsSignal.allocateTerms( m_intenManager, true );
 
     m_numDataEvents = m_ampVecsSignal.m_iNTrueEvents;
-
+    
     if( m_ampVecsSignal.m_hasNonUnityWeights && m_hasBackground ){
     
       cout
@@ -235,7 +237,7 @@ LikelihoodCalculator::dataTerm(){
       << "*   contribution to the likelihood.                            *\n"
       << "****************************************************************\n" << endl;
     }
-
+    
     if( m_hasBackground ){
           
       m_ampVecsBkgnd.loadData( m_dataReaderBkgnd );
@@ -253,7 +255,7 @@ LikelihoodCalculator::dataTerm(){
       }
       
       m_sumBkgWeights = m_ampVecsBkgnd.m_dSumWeights;
-
+      
       if( m_sumBkgWeights < 0 ){
         cerr
         << "****************************************************************\n"
@@ -268,7 +270,7 @@ LikelihoodCalculator::dataTerm(){
       
       m_numBkgEvents = m_ampVecsBkgnd.m_iNTrueEvents;
     }
-
+    
     cout << "\tDone." << endl;
   }
   
