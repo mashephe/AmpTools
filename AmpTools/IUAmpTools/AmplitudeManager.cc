@@ -901,6 +901,7 @@ AmplitudeManager::calcIntegrals( DataReader *genDataReader, AmpVecs& a, int iNGe
     batchVecs.loadData( genDataReader, ibatch*batchsize, (ibatch+1)*batchsize );
     batchVecs.allocateTerms( *this );
     calcTerms(batchVecs);
+    int iNBatchEvents = batchVecs.m_iNTrueEvents;
   
     int i, j, iEvent;
     for( i = 0; i < iNAmps;i++ ) {
@@ -916,7 +917,7 @@ AmplitudeManager::calcIntegrals( DataReader *genDataReader, AmpVecs& a, int iNGe
         if( m_sumCoherently[i][j] ){
 
 #ifndef GPU_ACCELERATION	  
-	  for( iEvent = 0; iEvent < batchVecs.m_iNTrueEvents; iEvent++ ) {
+	  for( iEvent = 0; iEvent < iNBatchEvents; iEvent++ ) {
 
 	    //AiAj*
 	    integralMatrix[2*i*iNAmps+2*j] += batchVecs.m_pdWeights[iEvent] *
@@ -933,10 +934,10 @@ AmplitudeManager::calcIntegrals( DataReader *genDataReader, AmpVecs& a, int iNGe
 	  }
 
 	  // normalize
-	  integralMatrix[2*i*iNAmps+2*j] /= static_cast< GDouble >( iNGenEvents );
-	  integralMatrix[2*i*iNAmps+2*j+1] /= static_cast< GDouble >( iNGenEvents );	
+	  integralMatrix[2*i*iNAmps+2*j] /= static_cast< GDouble >( iNBatchEvents );
+	  integralMatrix[2*i*iNAmps+2*j+1] /= static_cast< GDouble >( iNBatchEvents );	
 #else
-	  batchVecs.m_gpuMan.calcIntegral( &(integralMatrix[2*i*iNAmps+2*j]), i, j, iNGenEvents );
+	  batchVecs.m_gpuMan.calcIntegral( &(integralMatrix[2*i*iNAmps+2*j]), i, j, iNBatchEvents );
 #endif
 	}
       }

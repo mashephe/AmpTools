@@ -494,6 +494,7 @@ GPUManager::calcIntegral( GDouble* result, int iAmp, int jAmp, int iNGenEvents )
                              m_iNEvents );
 
   // add up the real parts
+  GDouble real_result = 0;
   if( m_iNTrueEvents <= m_iNBlocks || sizeof( GDouble ) <= 4 )
   {
     gpuErrChk( cudaMemcpy( m_pfRes, m_pfDevResRe,
@@ -501,10 +502,10 @@ GPUManager::calcIntegral( GDouble* result, int iAmp, int jAmp, int iNGenEvents )
     
     for(int i=0; i<m_iNTrueEvents; i++){
 
-      result[0] += m_pfRes[i];
+      real_result += m_pfRes[i];
     }
 
-    result[0] /= static_cast< GDouble >( iNGenEvents );
+    real_result /= static_cast< GDouble >( iNGenEvents );
   }
   else
   {
@@ -520,13 +521,15 @@ GPUManager::calcIntegral( GDouble* result, int iAmp, int jAmp, int iNGenEvents )
 
     for(int i = 0; i < m_iNBlocks; i++){
 
-      result[0] += m_pfRes[i];
+      real_result += m_pfRes[i];
     }
 
-    result[0] /= static_cast< GDouble >( iNGenEvents );
+    real_result /= static_cast< GDouble >( iNGenEvents );
   }
+  result[0] = real_result;
 
   // repeat for imaginary parts
+  GDouble imag_result = 0;
   if( m_iNTrueEvents <= m_iNBlocks || sizeof( GDouble ) <= 4 ) {
 
     gpuErrChk( cudaMemcpy( m_pfRes, m_pfDevResIm,
@@ -534,10 +537,10 @@ GPUManager::calcIntegral( GDouble* result, int iAmp, int jAmp, int iNGenEvents )
 
     for(int i=0; i<m_iNTrueEvents; i++){
     
-      result[1] += m_pfRes[i];
+      imag_result += m_pfRes[i];
     }
     
-    result[1] /= static_cast< GDouble >( iNGenEvents );
+    imag_result /= static_cast< GDouble >( iNGenEvents );
   }
   else {
 
@@ -552,11 +555,12 @@ GPUManager::calcIntegral( GDouble* result, int iAmp, int jAmp, int iNGenEvents )
                           cudaMemcpyDeviceToHost) );
     for(int i = 0; i < m_iNBlocks; i++){
 
-      result[1] += m_pfRes[i];
+      imag_result += m_pfRes[i];
     }
 
-    result[1] /= static_cast< GDouble >( iNGenEvents );
+    imag_result /= static_cast< GDouble >( iNGenEvents );
   }
+  result[1] = imag_result;
 }
 
 
