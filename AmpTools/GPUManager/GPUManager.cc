@@ -494,8 +494,6 @@ GPUManager::calcIntegral( GDouble* result, int iAmp, int jAmp, int iNGenEvents )
                              m_iNEvents );
 
   // add up the real parts
-  result[0] = 0;
-
   if( m_iNTrueEvents <= m_iNBlocks || sizeof( GDouble ) <= 4 )
   {
     gpuErrChk( cudaMemcpy( m_pfRes, m_pfDevResRe,
@@ -529,8 +527,6 @@ GPUManager::calcIntegral( GDouble* result, int iAmp, int jAmp, int iNGenEvents )
   }
 
   // repeat for imaginary parts
-  result[1] = 0;
-
   if( m_iNTrueEvents <= m_iNBlocks || sizeof( GDouble ) <= 4 ) {
 
     gpuErrChk( cudaMemcpy( m_pfRes, m_pfDevResIm,
