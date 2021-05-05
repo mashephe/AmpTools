@@ -907,8 +907,10 @@ AmplitudeManager::calcIntegrals( DataReader *genDataReader, AmpVecs& a, int iNGe
       for( j = 0; j <= i; j++ ) {
 
 	// zero out matrix elements
-	integralMatrix[2*i*iNAmps+2*j] = 0;
-        integralMatrix[2*i*iNAmps+2*j+1] = 0;
+	if( ibatch == 0 ) {
+	  integralMatrix[2*i*iNAmps+2*j] = 0;
+          integralMatrix[2*i*iNAmps+2*j+1] = 0;
+ 	}
 	      
         // if two amps don't interfere the relevant integral is zero
         if( m_sumCoherently[i][j] ){
