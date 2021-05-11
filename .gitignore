@@ -9,6 +9,7 @@ Tutorials/phiPP
 *.goutputstream*
 Tutorials/Dalitz/DalitzExe/ampPlotter
 Tutorials/Dalitz/DalitzExe/fitAmplitudes
+Tutorials/Dalitz/DalitzExe/fitAmplitudesLASSO
 Tutorials/Dalitz/DalitzExe/generateBackground
 Tutorials/Dalitz/DalitzExe/generatePhaseSpace
 Tutorials/Dalitz/DalitzExe/generatePhysics
@@ -24,7 +25,9 @@ Tutorials/Dalitz/run/*.d
 Tutorials/Dalitz/run/*.so
 Tutorials/Dalitz/run/*.pcm
 Tutorials/Dalitz/run/test.cfg
+Tutorials/Dalitz/run/dalitz1_3bw.cfg
 Tutorials/Dalitz/run/*LASSO*
+Tutorials/Dalitz/DalitzAmp/*LASSO*
 Tutorials/gammaKK/doc/*.aux
 Tutorials/gammaKK/doc/*.log
 Tutorials/gammaKK/doc/*.pdf
