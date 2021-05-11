@@ -128,11 +128,11 @@ AmpToolsInterface::resetConfigurationInfo(ConfigurationInfo* configurationInfo){
 
   LHContributionManager* lhcontMan = new LHContributionManager();
   if( m_functionality == kFull ){
-  for (unsigned int i = 0; i < m_userLHContributions.size(); i++){
-    lhcontMan->registerLHContribution( *m_userLHContributions[i] );
-  }
+    for (unsigned int i = 0; i < m_userLHContributions.size(); i++){
+      lhcontMan->registerLHContribution( *m_userLHContributions[i] );
+    }
     lhcontMan->setMinimizationManager(m_minuitMinimizationManager);
-  lhcontMan->setupFromConfigurationInfo( m_configurationInfo );
+    lhcontMan->setupFromConfigurationInfo( m_configurationInfo );
   }
   
   if( m_functionality == kFull ){
@@ -274,11 +274,13 @@ AmpToolsInterface::likelihood () const {
     ReactionInfo* reaction = m_configurationInfo->reactionList()[irct];
     L += likelihood(reaction->reactionName());
   }
+  /*
   for(unsigned int ilh = 0; ilh < m_userLHContributions.size(); ilh++){
     if(m_userLHContributions[ilh]){
       L += (*m_userLHContributions[ilh])();
     }
   }
+  */
   return L;
 }
 
@@ -852,4 +854,19 @@ float
 AmpToolsInterface::random( float randMax ){
   
   return ( (float) rand() / RAND_MAX ) * randMax;
+}
+
+void AmpToolsInterface::addToLASSO(double lambda, AmplitudeInfo* amplitude) const {
+  
+  if(m_configurationInfo == NULL){
+    cout << "ERROR, we need a configurationInfo object to enable LASSO" << endl;
+    assert(0);
+  }
+
+  string reac = (*amplitude).reactionName();
+  if(!m_likCalcMap.count(reac)){
+    cout << "ERROR, trying to add LASSO constraint for amplitude " << amplitude->ampName() << " in reaction " << reac << ", but that likelihoodCalculator does not exist!" << endl;
+    assert(0);
+  }
+  m_likCalcMap.find(reac)->second->addToLASSO(lambda, amplitude);
 }

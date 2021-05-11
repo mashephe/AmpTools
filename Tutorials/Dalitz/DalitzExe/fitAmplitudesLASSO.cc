@@ -10,8 +10,6 @@
 #include "IUAmpTools/AmpToolsInterface.h"
 #include "DalitzDataIO/DalitzDataReader.h"
 #include "DalitzAmp/BreitWigner.h"
-#include "DalitzAmp/constraint.h"
-#include "DalitzAmp/myLASSO.h"
 #include "IUAmpTools/FitResults.h"
 #include "TF1.h"
 #include "TCanvas.h"
@@ -60,13 +58,17 @@ int main( int argc, char* argv[] ){
     // ************************
 
   AmpToolsInterface::registerAmplitude(BreitWigner());
-  AmpToolsInterface::registerLHContribution(constraint());
-  AmpToolsInterface::registerLHContribution(myLASSO());
   AmpToolsInterface::registerDataReader(DalitzDataReader());
 
   AmpToolsInterface ATI(cfgInfo);
-
   cout << "LIKELIHOOD BEFORE MINIMIZATION:  " << ATI.likelihood() << endl;
+  
+  vector<AmplitudeInfo*> ampList = cfgInfo->amplitudeList();
+  for(int i=0;i<ampList.size();i++){
+  	if(ampList.at(i)->ampName().find("R13")!=string::npos)
+	  	ATI.addToLASSO(3*10000,ampList.at(i));
+  }
+
 
   MinuitMinimizationManager* fitManager = ATI.minuitMinimizationManager();
   fitManager->setPrecision(1E-13);
@@ -96,16 +98,6 @@ int main( int argc, char* argv[] ){
     c++;
   }
   ATI.finalizeFit();
-
-  FitResults results("dalitz1.fit");
-
-  TF1 *f = new TF1("f",constraint::drawThis,0,2,3);
-  f->SetParameters(results.parValue("am"),results.parValue("m1"),results.parValue("g1"));
-
-  TCanvas *can = new TCanvas();
-  gr->Draw("ap");
-  f->Draw("same");
-  can->SaveAs("test.pdf");
 
 
   return 0;

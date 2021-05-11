@@ -430,6 +430,12 @@ class AmpToolsInterface{
     void printEventDetails (string reactionName, Kinematics* kin) const;
 
 
+  /** enable LASSO method to replace hypothesis testing
+   *  in amplitude analysis
+   */
+
+    void addToLASSO(double lambda, AmplitudeInfo* amplitude) const;
+
   protected:
   
     AmpToolsInterface( const AmpToolsInterface& ati );

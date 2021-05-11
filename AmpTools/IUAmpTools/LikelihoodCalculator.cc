@@ -67,7 +67,9 @@ m_firstDataCalc( true ),
 m_firstNormIntCalc( true ),
 m_sumBkgWeights( 0 ),
 m_numBkgEvents( 0 ),
-m_numDataEvents( 0 )
+m_numDataEvents( 0 ),
+m_enableLASSO( false ),
+m_firstSigEvents_called( true )
 {
   
   m_hasBackground = ( dataReaderBkgnd != NULL );
@@ -92,7 +94,10 @@ LikelihoodCalculator::operator()(){
   // split the compuation of likelihood into data and normalization
   // integral sums -- this provides parallel implementations with the
   // methods they need to compute these terms individually
-  return -2 * ( dataTerm() - normIntTerm() );
+  double val = -2 * ( dataTerm() - normIntTerm() );
+  if(m_enableLASSO)
+    val += lassoTerm();
+  return val;
 }
 
 double
@@ -102,6 +107,32 @@ LikelihoodCalculator::numSignalEvents(){
   return numDataEvents() - sumBkgWeights();
 }
 
+double LikelihoodCalculator::lassoTerm(){
+  double val = 0;
+  
+  for( unsigned int i=0;i<m_AmpsLASSO.size();i++ ){
+   
+    if( (*m_AmpsLASSO.at(i)).fixed() ) continue;
+    
+    string ampName = (*m_AmpsLASSO.at(i)).fullName();
+  
+    double numSignalEvents = 0;
+    if(m_firstSigEvents_called){
+      numSignalEvents = numDataEvents() - sumBkgWeights();
+      m_numSigEvents = numSignalEvents;
+      m_firstSigEvents_called = false;
+    }
+    else
+      numSignalEvents = m_numSigEvents;
+    double normInt = m_normInt.normInt(ampName,ampName).real();
+    double ampScale = m_intenManager.getScale(ampName);
+    complex<double> prodPar = m_intenManager.productionFactor(ampName);
+    val += m_regularizeLASSO.at(i)*(abs(prodPar.real()*normInt/numSignalEvents)+abs(prodPar.imag()*normInt/numSignalEvents));
+    //double fraction = ( ampScale*ampScale * norm(prodPar) * normInt ) / numSignalEvents;
+    //val += m_regularizeLASSO.at(i)*abs(fraction);
+  }
+  return val;
+}
 
 double
 LikelihoodCalculator::normIntTerm(){

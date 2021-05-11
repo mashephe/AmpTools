@@ -1,0 +1,91 @@
+
+ *** Performing the Fit *** 
+
+Config file name = dalitz1.cfg
+
+
+## CONFIGURATION INFO DISPLAY ##
+
+############################################
+#############   REACTION INFO  #############
+############################################
+      REACTION NAME:  dalitz
+      PARTICLE LIST:  3
+		1.  p1
+		2.  p2
+		3.  p3
+        DATA READER:  DalitzDataReader
+				physics.acc.root
+      ACC MC READER:  DalitzDataReader
+				phasespace.acc.root
+      GEN MC READER:  DalitzDataReader
+				phasespace.gen.root
+  NORMALIZATION INTEGRAL FILE: 
+		    dalitz1.ni
+      GPU DEVICE NUMBER:  -1
+********************************************
+***********  COHERENT SUM INFO  ************
+********************************************
+      REACTION NAME:  dalitz
+  COHERENT SUM NAME:  s1
+++++++++++++++++++++++++++++++++++++++++++++
++++++++++++++  AMPLITUDE INFO  +++++++++++++
+++++++++++++++++++++++++++++++++++++++++++++
+      REACTION NAME:  dalitz
+  COHERENT SUM NAME:  s1
+     AMPLITUDE NAME:  R12
+            FACTORS:  1
+		1.   BreitWigner 1.000 0.200 1 2
+ EXTRA PERMUTATIONS:  0
+        CONSTRAINTS:  0
+         PARAMETERS:  0
+      INITIAL VALUE:  (1,0)
+               REAL?  0
+              FIXED?  0
+              SCALE:  1.0
+++++++++++++++++++++++++++++++++++++++++++++
++++++++++++++  AMPLITUDE INFO  +++++++++++++
+++++++++++++++++++++++++++++++++++++++++++++
+      REACTION NAME:  dalitz
+  COHERENT SUM NAME:  s1
+     AMPLITUDE NAME:  R13
+            FACTORS:  1
+		1.   BreitWigner 1.500 0.150 1 3
+ EXTRA PERMUTATIONS:  0
+        CONSTRAINTS:  0
+         PARAMETERS:  0
+      INITIAL VALUE:  (1,0)
+               REAL?  1
+              FIXED?  0
+              SCALE:  1.0
+ **********
+ **    1 **SET STRATEGY  1
+ **********
+ NOW USING STRATEGY  1: TRY TO BALANCE SPEED AGAINST RELIABILITY
+ **********
+ **    2 **SET EPS  1e-13
+ **********
+ FLOATING-POINT NUMBERS ASSUMED ACCURATE TO 1e-13
+
+## AMPLITUDE MANAGER INITIALIZATION ##
+ Creating amplitude manager for reaction:  dalitz
+	 particle index assignment:  p1 -->> 0
+	 particle index assignment:  p2 -->> 1
+	 particle index assignment:  p3 -->> 2
+
+## LHContribution Manager INITIALIZATION ##
+ PARAMETER DEFINITIONS:
+    NO.   NAME                 VALUE      STEP SIZE      LIMITS
+     1   dalitz::s1::R12_re            1         0.01     no limits
+     2   dalitz::s1::R12_im            0         0.01     no limits
+     3   dalitz::s1::R13_re            1         0.01     no limits
+REACTION dalitz
+LIKELIHOOD BEFORE MINIMIZATION:  Allocating Data and Amplitude Array in LikelihoodCalculator for dalitz...
+	Done.
+Loading acccepted Monte Carlo...
+	Done.
+Calculating integrals...
+	Done.
+-13595
+R12
+ERROR, trying to add LASSO constraint for amplitude R12 in reaction dalitz, but that likelihoodCalculator does not exist!

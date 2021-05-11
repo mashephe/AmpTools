@@ -41,12 +41,14 @@
 
 #include "IUAmpTools/AmpVecs.h"
 #include "IUAmpTools/IntensityManager.h"
+#include "IUAmpTools/ConfigurationInfo.h"
 
 #include "MinuitInterface/MIFunctionContribution.h"
 
 class NormIntInterface;
 class ParameterManager;
 class DataReader;
+class AmplitudeInfo;
 class MinuitMinimizationManager;
 class MinuitParameter;
 
@@ -85,6 +87,12 @@ public:
   double operator()();
   
   double numSignalEvents();
+
+  void addToLASSO(double lambda, AmplitudeInfo* amp){ 
+    m_enableLASSO = true;
+    m_regularizeLASSO.push_back(lambda);
+    m_AmpsLASSO.push_back(amp);
+  }
   
 protected:
   
@@ -92,6 +100,7 @@ protected:
   // likelihood calculation in parallel implementations
   double dataTerm();
   double normIntTerm();
+  double lassoTerm();
   
   // these are useful for MPI implementations since there are a
   // few sums that must be maintained across all processes to properly
@@ -104,6 +113,8 @@ protected:
   void setSumBkgWeights(  double sum ) { m_sumBkgWeights  = sum; }
   void setNumBkgEvents (  double num ) { m_numBkgEvents   = num; }
   void setNumDataEvents(  double num ) { m_numDataEvents  = num; }
+
+
   
 private:
   
@@ -129,6 +140,12 @@ private:
   double m_sumBkgWeights;
   double m_numBkgEvents;
   double m_numDataEvents;
+
+  bool m_enableLASSO;
+  vector<double> m_regularizeLASSO;
+  double m_numSigEvents;
+  bool m_firstSigEvents_called;
+  vector<AmplitudeInfo*> m_AmpsLASSO;
 };
 
 #endif

@@ -71,6 +71,8 @@ private:
 	
   AmpParameter m_mass;
   AmpParameter m_width;
+  AmpParameter m_amp_re;
+  AmpParameter m_amp_im;
   int m_daughter1;
   int m_daughter2;  
 

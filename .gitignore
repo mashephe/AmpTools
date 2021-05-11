@@ -24,6 +24,7 @@ Tutorials/Dalitz/run/*.d
 Tutorials/Dalitz/run/*.so
 Tutorials/Dalitz/run/*.pcm
 Tutorials/Dalitz/run/test.cfg
+Tutorials/Dalitz/run/*LASSO*
 Tutorials/gammaKK/doc/*.aux
 Tutorials/gammaKK/doc/*.log
 Tutorials/gammaKK/doc/*.pdf

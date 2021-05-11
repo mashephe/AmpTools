@@ -12,7 +12,7 @@ BreitWigner::BreitWigner( const vector< string >& args ) :
 UserAmplitude< BreitWigner >(args)
 {
 
-  assert( args.size() == 4 );
+  assert( args.size() >= 4 );
 
   m_mass = AmpParameter(args[0]);
   m_width = AmpParameter(args[1]);
@@ -22,6 +22,16 @@ UserAmplitude< BreitWigner >(args)
   // need to register any free parameters so the framework knows about them
   registerParameter( m_mass );
   registerParameter( m_width );
+  
+  m_amp_re = string("1.0");
+  m_amp_im = string("0.0");
+  if(args.size() > 4){
+  	assert(args.size() == 6);
+  	m_amp_re = AmpParameter(args[4]);
+  	m_amp_im = AmpParameter(args[5]);
+	registerParameter( m_amp_re );
+	registerParameter( m_amp_im );
+  }
 
 }
 
@@ -82,7 +92,7 @@ BreitWigner::calcAmplitude( GDouble** pKin, GDouble* userVars ) const {
 
   GDouble mass2 = (P1+P2).M2();
     
-  return  complex<GDouble>(1.0,0.0) /
+  return  complex<GDouble>(m_amp_re,m_amp_im) /
           complex<GDouble>( mass2 - m_mass*m_mass, m_mass*m_width);
 
 }

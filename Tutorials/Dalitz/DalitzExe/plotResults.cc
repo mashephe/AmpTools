@@ -14,6 +14,7 @@
 #include "IUAmpTools/FitResults.h"
 #include "DalitzDataIO/DalitzDataReader.h"
 #include "DalitzAmp/BreitWigner.h"
+#include "DalitzAmp/myLASSO.h"
 #include "DalitzPlot/DalitzPlotGenerator.h"
 
 using std::complex;
@@ -70,6 +71,7 @@ int main( int argc, char* argv[] ){
 
   AmpToolsInterface::registerDataReader( DalitzDataReader() );
   AmpToolsInterface::registerAmplitude( BreitWigner() );
+  AmpToolsInterface::registerLHContribution( myLASSO() );
   
   DalitzPlotGenerator plotGenerator( results );
   plotGenerator.enableReaction( reactionName );
