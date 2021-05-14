@@ -127,7 +127,8 @@ double LikelihoodCalculator::lassoTerm(){
     double normInt = m_normInt.normInt(ampName,ampName).real();
     double ampScale = m_intenManager.getScale(ampName);
     complex<double> prodPar = m_intenManager.productionFactor(ampName);
-    val += m_regularizeLASSO.at(i)*(abs(prodPar.real()*normInt/numSignalEvents)+abs(prodPar.imag()*normInt/numSignalEvents));
+    val += m_regularizeLASSO.at(i)*abs(prodPar*normInt/numSignalEvents);
+    //val += m_regularizeLASSO.at(i)*(abs(prodPar.real()*normInt/numSignalEvents)+abs(prodPar.imag()*normInt/numSignalEvents));
     //double fraction = ( ampScale*ampScale * norm(prodPar) * normInt ) / numSignalEvents;
     //val += m_regularizeLASSO.at(i)*abs(fraction);
   }
