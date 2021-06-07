@@ -93,7 +93,7 @@ public:
   
 protected:
   
-  // MPI implementations on the worker nodes need to be able
+  // MPI implementations on the follower nodes need to be able
   // to create a ParameterManager without attaching it to
   // a MinuitMinimizationManager - no one else should be using
   // these constructors.  Use of these constructors requires
