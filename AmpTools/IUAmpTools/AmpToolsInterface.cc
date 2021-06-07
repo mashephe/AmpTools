@@ -335,14 +335,8 @@ AmpToolsInterface::finalizeFit( const string& tag ){
   // save fit parameters
   // ************************
   
-  string fitName = m_configurationInfo->fitName();
-  string ext( ".fit" );
-  if( tag.size() != 0 ) fitName += string( "_" ) + tag;
-  string outputFile = fitName + ext;
-  
-  ofstream outFile(outputFile.c_str());
   m_fitResults->saveResults();
-  m_fitResults->writeResults( outputFile );
+  m_fitResults->writeResults( m_configurationInfo->fitOutputFileName( tag ) );
   
   // ************************
   // save normalization integrals
