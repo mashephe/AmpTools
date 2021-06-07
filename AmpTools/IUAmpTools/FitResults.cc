@@ -746,6 +746,8 @@ FitResults::writeSeed( const string& outFile ) const {
     if( parInfo->gaussianBounded() )
       output << " gaussian " << parInfo->centralValue()
            << " " << parInfo->gaussianError();
+    
+    output << endl;
   }
 }
 
