@@ -115,9 +115,7 @@ LikelihoodManagerMPI::deliverLikelihood()
              MPI_COMM_WORLD, &status );
   }
 
-  m_lastCommand = *fitFlag;
-
-  assert( m_lastCommand == kExit || m_lastCommand == kFinalizeFit );
+  m_lastCommand = static_cast<LikelihoodManagerMPI::FitCommand>(*fitFlag);
 }
 
 void
@@ -168,4 +166,4 @@ int LikelihoodManagerMPI::m_numProc = 0;
 map< int, LikelihoodCalculatorMPI* > LikelihoodManagerMPI::m_calcMap;
 
 // it is OK to intialize this to anything but kExit
-FitCommand LikelihoodManagerMPI::m_lastCommand = kComputeLikelihood;
+LikelihoodManagerMPI::FitCommand LikelihoodManagerMPI::m_lastCommand = kComputeLikelihood;

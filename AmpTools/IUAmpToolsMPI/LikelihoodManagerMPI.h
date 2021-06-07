@@ -63,7 +63,7 @@ class LikelihoodManagerMPI
   
   static void broadcastToFirst( FitCommand command );
   
-  static FitCommand lastCommand() const { return m_lastCommand; }
+  static FitCommand lastCommand() { return m_lastCommand; }
   
  private:
 
