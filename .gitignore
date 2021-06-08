@@ -2,8 +2,6 @@ doc/html
 *.a
 *.dep
 *.o
-Tutorials/EEFIT
-Tutorials/phiPP
 *.DS_Store
 *.SYMDEF*
 *.goutputstream*
@@ -21,8 +19,6 @@ Tutorials/Dalitz/run/*.fit
 Tutorials/Dalitz/run/*.ni
 Tutorials/Dalitz/run/*.root
 Tutorials/Dalitz/run/test.cfg
-Tutorials/gammaKK/doc/*.aux
-Tutorials/gammaKK/doc/*.log
-Tutorials/gammaKK/doc/*.pdf
+
 
 
