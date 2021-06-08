@@ -68,6 +68,7 @@ AmpVecs::AmpVecs(){
   
   m_termsValid    = false ;
   m_integralValid = false ;
+  m_dataLoaded = false;
     
   m_hasNonUnityWeights = false;
   m_hasMixedSignWeights = false;
@@ -89,6 +90,7 @@ AmpVecs::deallocAmpVecs()
   
   m_termsValid    = false ;
   m_integralValid = false ;
+  m_dataLoaded    = false ;
 
   m_hasNonUnityWeights = false;
   m_hasMixedSignWeights = false;
@@ -210,6 +212,7 @@ AmpVecs::loadEvent( const Kinematics* pKinematics, unsigned long long iEvent,
   
   m_termsValid = false;
   m_integralValid = false;
+  m_dataLoaded = true;
   m_userVarsOffset.clear();
 }
 
@@ -295,12 +298,11 @@ AmpVecs::allocateTerms( const IntensityManager& intenMan, bool bAllocIntensity )
     assert(false);
   }
   
-  if (m_iNEvents == 0){
+  if ( !m_dataLoaded ){
     cout << "ERROR: trying to allocate space for terms in\n" << flush;
     cout << "       AmpVecs before any events have been loaded\n" << flush;
-	 #ifndef USE_MPI
+
     assert(false);
-	 #endif
   }
   
   m_pdIntegralMatrix = new GDouble[2*m_iNTerms*m_iNTerms];
