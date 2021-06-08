@@ -104,7 +104,8 @@ AmpToolsInterface::resetConfigurationInfo(ConfigurationInfo* configurationInfo){
     ReactionInfo* reaction = m_configurationInfo->reactionList()[irct];
     string reactionName(reaction->reactionName());
 
-    if( reaction->fitType() = IntensityManager::kAmplitude ){
+
+//    if( reaction->fitType() == IntensityManager::kAmplitude ){
 
       AmplitudeManager* ampMan = new AmplitudeManager(reaction->particleList(),reactionName);
       for (unsigned int i = 0; i < m_userAmplitudes.size(); i++){
@@ -113,7 +114,7 @@ AmpToolsInterface::resetConfigurationInfo(ConfigurationInfo* configurationInfo){
       ampMan->setupFromConfigurationInfo( m_configurationInfo );
       if( m_functionality == kFull ) ampMan->setOptimizeParIteration( true );
       m_intensityManagers.push_back(ampMan);
-    }
+/*    }
     else{
       
       PDFManager* pdfMan = new PDFManager(reaction->particleList(),reactionName);
@@ -123,7 +124,7 @@ AmpToolsInterface::resetConfigurationInfo(ConfigurationInfo* configurationInfo){
       pdfMan->setupFromConfigurationInfo( m_configurationInfo );
       if( m_functionality == kFull ) pdfMan->setOptimizeParIteration( true );
       m_intensityManagers.push_back(pdfMan);
-    }
+    }*/
   }
   
   if( m_functionality == kFull ){

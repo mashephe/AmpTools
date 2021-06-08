@@ -237,7 +237,7 @@ public:
   /** Print final fit results to a file.
    */
   
-  virtual void finalizeFit();
+  virtual void finalizeFit( const string& tag = "" );
   
   
   /** This function will randomly set the production parameters in
