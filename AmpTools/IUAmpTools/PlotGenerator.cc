@@ -72,7 +72,12 @@ m_histTitles( 0 )
     
     m_ampIndex[amps[i]] = i;
     
-    // keep vector with orginal fit values
+    // keep vector with orginal fit values (Note: that these are unscaled
+    // production parameters.  In the case that an amplitude has a fixed
+    // scale that scale will be loaded when the intensity manager is
+    // set up.  If the amplitude has a scale given by a parameter, then
+    // the loop below that sets the parameters to their fit values will
+    // take care of that.)
     m_fitProdAmps.push_back( m_fitResults.productionParameter( amps[i] ) );
 
     // a parallel vector of zeros

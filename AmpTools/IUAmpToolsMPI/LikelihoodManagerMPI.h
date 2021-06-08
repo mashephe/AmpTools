@@ -43,6 +43,14 @@ class LikelihoodCalculatorMPI;
 
 using namespace std;
 
+/*
+ There is one instance of this class per MPI job and it manages what could
+ be multiple LikelihoodCalculators (one for each reaction) within a single
+ MPI job.  All LikelihoodCalculators that are created within the job
+ register with this class.  The behavior of the instance varies depending on
+ whether the MPI job is the leader or follower job.
+ */
+
 class LikelihoodManagerMPI
 {
   
@@ -52,6 +60,7 @@ class LikelihoodManagerMPI
                     kComputeIntegrals,
                     kUpdateParameters,
                     kUpdateAmpParameter,
+                    kFinalizeFit,
                     kExit };
 
   LikelihoodManagerMPI(){};
@@ -62,15 +71,18 @@ class LikelihoodManagerMPI
   
   static void broadcastToFirst( FitCommand command );
   
+  static FitCommand lastCommand() { return m_lastCommand; }
+  
  private:
 
   static void setupMPI();
 
   static bool m_mpiSetup;
-  static bool m_isMaster;
+  static bool m_isLeader;
   static int m_numProc;
 
   static map< int, LikelihoodCalculatorMPI* > m_calcMap;
+  static FitCommand m_lastCommand;
 };
 
 #endif

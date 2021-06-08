@@ -84,6 +84,8 @@ public:
   // this method delivers the likelihood
   double operator()();
   
+  double numSignalEvents();
+  
 protected:
   
   // helper functions -- also useful for pulling parts of the

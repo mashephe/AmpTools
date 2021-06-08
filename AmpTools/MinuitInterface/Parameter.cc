@@ -49,7 +49,7 @@ m_error( initialError )
 Parameter::~Parameter() {}
 
 void
-Parameter::setValue( double newValue ) {
+Parameter::setValue( double newValue, bool doNotify ) {
 
   if( m_value != newValue ){
 
@@ -59,14 +59,14 @@ Parameter::setValue( double newValue ) {
     // parameter hasn't actually changed.
     
     m_value = newValue;
-    notify();
+    if( doNotify ) notify();
   }
 }
 
 void
 Parameter::setError( double newError, bool doNotify ) {
    m_error = newError;
-   if ( doNotify ) notify();
+   if( doNotify ) notify();
 }
 
 void

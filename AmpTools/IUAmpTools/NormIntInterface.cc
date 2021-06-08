@@ -336,8 +336,11 @@ NormIntInterface::forceCacheUpdate( bool normIntOnly ) const
     return;
   }
   
-  if( !normIntOnly ){
-  
+  // we only need to recalculate the generated MC integrals if we haven't
+  // done it yet or there are floating paramters in the amplitude
+  if( !normIntOnly &&
+      ( m_emptyAmpIntCache || m_pIntenManager->hasTermWithFreeParam() ) ){
+      
     // now we need to have the generated MC in addition to the accepted
     // MC in order to be able to continue
     assert( m_genMCReader != NULL );

@@ -96,6 +96,13 @@ LikelihoodCalculator::operator()(){
   return -2 * ( dataTerm() - normIntTerm() );
 }
 
+double
+LikelihoodCalculator::numSignalEvents(){
+
+  if( m_firstDataCalc ) dataTerm();
+  return numDataEvents() - sumBkgWeights();
+}
+
 
 double
 LikelihoodCalculator::normIntTerm(){
