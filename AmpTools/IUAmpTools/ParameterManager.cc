@@ -71,7 +71,7 @@ m_intenManagers( intenManagers )
 }
 
 // protected constructors: these are used in MPI implementations where
-// the ParameterManager is created on a worker node that does not have
+// the ParameterManager is created on a follower node that does not have
 // a MinuitMinimizationManager.  The reference must be initialized, so
 // it is initialized to NULL but never used.  The class using these
 // constructors must override any method that uses the

@@ -295,7 +295,7 @@ AmpToolsInterface::randomizeProductionPars( float maxFitFraction ){
     
     complex< double > prodPar( prodParMag*cos( prodParPhase ),
                               prodParMag*sin( prodParPhase ) );
-                              
+    
     m_parameterManager->setProductionParameter( ampName, prodPar );
   }
 }
@@ -324,7 +324,6 @@ AmpToolsInterface::randomizeParameter( const string& parName, float min, float m
     return;
   }
   
-  
   double value = min + random( max - min );
   m_parameterManager->setAmpParameter( parName, value );
 }
@@ -336,14 +335,8 @@ AmpToolsInterface::finalizeFit( const string& tag ){
   // save fit parameters
   // ************************
   
-  string fitName = m_configurationInfo->fitName();
-  string ext( ".fit" );
-  if( tag.size() != 0 ) fitName += string( "_" ) + tag;
-  string outputFile = fitName + ext;
-  
-  ofstream outFile(outputFile.c_str());
   m_fitResults->saveResults();
-  m_fitResults->writeResults( outputFile );
+  m_fitResults->writeResults( m_configurationInfo->fitOutputFileName( tag ) );
   
   // ************************
   // save normalization integrals

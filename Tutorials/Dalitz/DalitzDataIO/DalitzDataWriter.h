@@ -23,25 +23,25 @@ private:
   TTree* m_outTree;
   int m_eventCounter;
 
-  float m_EnP1;
-  float m_PxP1;
-  float m_PyP1;
-  float m_PzP1;
+  double m_EnP1;
+  double m_PxP1;
+  double m_PyP1;
+  double m_PzP1;
 
-  float m_EnP2;
-  float m_PxP2;
-  float m_PyP2;
-  float m_PzP2;
+  double m_EnP2;
+  double m_PxP2;
+  double m_PyP2;
+  double m_PzP2;
 
-  float m_EnP3;
-  float m_PxP3;
-  float m_PyP3;
-  float m_PzP3;
+  double m_EnP3;
+  double m_PxP3;
+  double m_PyP3;
+  double m_PzP3;
 
-  float m_weight;
+  double m_weight;
   
-  float m_s12;
-  float m_s23;
+  double m_s12;
+  double m_s23;
 
 };
 

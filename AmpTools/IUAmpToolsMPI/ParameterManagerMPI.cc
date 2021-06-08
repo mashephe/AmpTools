@@ -48,9 +48,9 @@ ParameterManager( minuitManager, intenManager )
 {
   setupMPI();
   
-  if( !m_isMaster ){
+  if( !m_isLeader ){
     
-    cerr << "Instance of MinuitMinimizationManager exists on worker node"
+    cerr << "Instance of MinuitMinimizationManager exists on follower node"
     << endl;
     
     assert( false );
@@ -64,9 +64,9 @@ ParameterManager( minuitManager, intenManagers )
 {
   setupMPI();
   
-  if( !m_isMaster ){
+  if( !m_isLeader ){
     
-    cerr << "Instance of MinuitMinimizationManager exists on worker node"
+    cerr << "Instance of MinuitMinimizationManager exists on follower node"
     << endl;
     
     assert( false );
@@ -80,9 +80,9 @@ m_intenManagers( 0 )
 {
   setupMPI();
   
-  if( m_isMaster ){
+  if( m_isLeader ){
     
-    cerr << "Master ParameterManager has no MinuitMinimizationManager"
+    cerr << "Leader ParameterManager has no MinuitMinimizationManager"
     << endl;
     
     assert( false );
@@ -98,9 +98,9 @@ m_intenManagers( intenManagers )
 {
   setupMPI();
   
-  if( m_isMaster ){
+  if( m_isLeader ){
     
-    cerr << "Master ParameterManager has no MinuitMinimizationManager"
+    cerr << "Leader ParameterManager has no MinuitMinimizationManager"
     << endl;
     
     assert( false );
@@ -110,10 +110,10 @@ m_intenManagers( intenManagers )
 ParameterManagerMPI::~ParameterManagerMPI()
 {
  
-  // we need to deallocate the memory on the worker nodes that
+  // we need to deallocate the memory on the follower nodes that
   // was used to hold the parameter values
   
-  if( !m_isMaster ){
+  if( !m_isLeader ){
   
     for( map< string, complex< double >* >::iterator mapItr = m_prodParMap.begin();
         mapItr != m_prodParMap.end();
@@ -133,16 +133,16 @@ ParameterManagerMPI::setupMPI()
   MPI_Comm_rank( MPI_COMM_WORLD, &m_rank );
   MPI_Comm_size( MPI_COMM_WORLD, &m_numProc );
 
-  m_isMaster = ( m_rank == 0 );
+  m_isLeader = ( m_rank == 0 );
 }
 
 void ParameterManagerMPI::addProductionParameter( const string& termName,
                                                   bool real, bool fixed )
 {
   
-  if( m_isMaster ){
+  if( m_isLeader ){
     
-    // utilize the base class functionality for the master node
+    // utilize the base class functionality for the leader node
     ParameterManager::addProductionParameter( termName, real, fixed );
   
     // then use member data to hang onto a pointer to the complex number
@@ -164,7 +164,7 @@ void ParameterManagerMPI::addProductionParameter( const string& termName,
       assert( false );
     }
     
-    // now allocate memory to hold the parameter values on the worker nodes
+    // now allocate memory to hold the parameter values on the follower nodes
     // initialize with the inital value from the amplitude manager.
     
     m_prodParMap[termName] = 
@@ -182,9 +182,9 @@ void ParameterManagerMPI::addAmplitudeParameter( const string& termName,
 
   const string& parName = parInfo->parName();
 
-  if( m_isMaster ){
+  if( m_isLeader ){
     
-    // utilize the base class functionality for the master node
+    // utilize the base class functionality for the leader node
     ParameterManager::addAmplitudeParameter( termName, parInfo );
   
     // then use member data to hang onto a pointer to the double
@@ -234,12 +234,12 @@ void ParameterManagerMPI::addAmplitudeParameter( const string& termName,
 void ParameterManagerMPI::updateParameters()
 {
   // pointers to parameters are stored in maps on both the
-  // master and worker nodes -- these maps contain the
+  // leader and follower nodes -- these maps contain the
   // same keys and should be sorted in the same way
   //
   // iterate over the map and pack an array and then broadcast
-  // this from the master to the workers, then copy back
-  // out of the array into the map on the workers
+  // this from the leader to the followers, then copy back
+  // out of the array into the map on the followers
   
   double* parData = new double[2*m_prodParMap.size()+m_ampParMap.size()];
   
@@ -263,7 +263,7 @@ void ParameterManagerMPI::updateParameters()
 
   MPI_Bcast( parData, i, MPI_DOUBLE, 0, MPI_COMM_WORLD );
   
-  if( !m_isMaster ){
+  if( !m_isLeader ){
     
     i = 0;
     for( map< string, complex< double >* >::iterator
@@ -298,7 +298,7 @@ void ParameterManagerMPI::updateAmpParameter( const string& parName )
   
   MPI_Status status;
   
-  if( m_isMaster ){
+  if( m_isLeader ){
     
     map< string, double* >::iterator parItr =
     m_ampParMap.find( parName );
@@ -343,15 +343,15 @@ void ParameterManagerMPI::updateAmpParameter( const string& parName )
 void
 ParameterManagerMPI::update( const string& parName ){
   
-  // should only be called directly on the master via
+  // should only be called directly on the leader via
   // the call to virtual ParameterManager::update 
   
-  assert( m_isMaster );
+  assert( m_isLeader );
  
-  // this puts workers into the updateAmpParameter routine above 
+  // this puts followers into the updateAmpParameter routine above
   LikelihoodManagerMPI::broadcastToFirst( LikelihoodManagerMPI::kUpdateAmpParameter );
   
-  // now put the master there
+  // now put the leader there
   updateAmpParameter( parName );
 }
 
