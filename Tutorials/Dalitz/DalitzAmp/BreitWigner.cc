@@ -84,7 +84,6 @@ BreitWigner::calcAmplitude( GDouble** pKin, GDouble* userVars ) const {
 
   GDouble mass2 = (P1+P2).M2();
 
-  cout << m_mass << " " << m_width << " " << m_daughter1 << " " << m_daughter2 << endl;
     
   return  complex<GDouble>(1.0,0.0) /
           complex<GDouble>( mass2 - m_mass*m_mass, m_mass*m_width);
