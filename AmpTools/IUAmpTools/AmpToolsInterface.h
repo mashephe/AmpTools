@@ -318,6 +318,7 @@ class AmpToolsInterface{
    */
 
     int numEvents(unsigned int iDataSet = 0) const;
+    double sumWeights(unsigned int iDataSet = 0) const;
 
 
   /** Retrieve the intensity calculated for the specified event.

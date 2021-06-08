@@ -556,6 +556,18 @@ AmpToolsInterface::numEvents(unsigned int iDataSet) const {
   
 }
 
+double
+AmpToolsInterface::sumWeights(unsigned int iDataSet) const {
+  
+  if (iDataSet >= MAXAMPVECS){
+    cout << "AmpToolsInterface:  ERROR data set index out of range" << endl;
+    exit(1);
+  }
+  
+  return m_ampVecs[iDataSet].m_dSumWeights;
+  
+}
+
 
 Kinematics*
 AmpToolsInterface::kinematics(int iEvent,

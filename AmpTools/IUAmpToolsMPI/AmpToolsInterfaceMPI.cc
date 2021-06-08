@@ -29,7 +29,7 @@ AmpToolsInterfaceMPI::AmpToolsInterfaceMPI(ConfigurationInfo* configurationInfo)
     // create a MinuitMinimizationManager
     // ************************
 
-  m_minuitMinimizationManager = new MinuitMinimizationManager(100);
+  m_minuitMinimizationManager = new MinuitMinimizationManager(500);
   m_minuitMinimizationManager->setPrecision( 1E-13 );
 
 
