@@ -56,14 +56,14 @@ m_firstPass( true )
   
   LikelihoodManagerMPI::registerCalculator( m_thisId, this );
   
-  if( !m_isMaster ){
+  if( !m_isLeader ){
     
-    // check back in with the master after registration
+    // check back in with the leader after registration
     MPI_Send( &m_thisId, 1, MPI_INT, 0, MPITag::kIntSend, MPI_COMM_WORLD );
   }
   else{
     
-    // wait for the workers to check in before proceeding -- if this is 
+    // wait for the followers to check in before proceeding -- if this is
     // not done, the immediate calls to operator()() could behave
     // unexpectedly
     
@@ -82,18 +82,47 @@ m_firstPass( true )
 
 LikelihoodCalculatorMPI::~LikelihoodCalculatorMPI(){
   
-  // have the master break all of the workers out of their
-  // deliverLikelihood loops
-  if( m_isMaster && m_thisId == kFirstId ){
+  // have the leader break all of the followers out of their
+  // deliverLikelihood loops -- logic identical to finalizeFit()
+  // but the command is different and so will be the subsequent
+  // behavior
+  if( m_isLeader && m_thisId == kFirstId ){
     
-    // a two element array to hold commands that go to the workers
+    // a two element array to hold commands that go to the followers
     // the first element is the id of the likelihood calculator
     // the second element is the flag of the command
     int cmnd[2];
     cmnd[0] = m_thisId;
     
-    // break the likelihood manager out of its loop on the workers
+    // break the likelihood manager out of its loop on the followers
     cmnd[1] = LikelihoodManagerMPI::kExit;
+    for( int i = 1; i < m_numProc; ++i ){
+      
+      MPI_Send( cmnd, 2, MPI_INT, i, MPITag::kIntSend, MPI_COMM_WORLD );
+    }
+  }
+}
+
+void
+LikelihoodCalculatorMPI::finalizeFit(){
+
+  // have the leader break all of the followers out of their
+  // deliverLikelihood loops by sending the finalize fit command
+  //
+  // this command will be sent only once to each follower (by the first
+  // LikelihoodCalculator in the leader job) -- it should only
+  // be sent once as it will be received by the one instance of the
+  // LikelihoodManager running in the scope of the follower job
+  if( m_isLeader && m_thisId == kFirstId ){
+    
+    // a two element array to hold commands that go to the followers
+    // the first element is the id of the likelihood calculator
+    // the second element is the flag of the command
+    int cmnd[2];
+    cmnd[0] = m_thisId;
+    
+    // break the likelihood manager out of its loop on the followers
+    cmnd[1] = LikelihoodManagerMPI::kFinalizeFit;
     for( int i = 1; i < m_numProc; ++i ){
       
       MPI_Send( cmnd, 2, MPI_INT, i, MPITag::kIntSend, MPI_COMM_WORLD );
@@ -104,17 +133,17 @@ LikelihoodCalculatorMPI::~LikelihoodCalculatorMPI(){
 double
 LikelihoodCalculatorMPI::operator()()
 {
-  assert( m_isMaster );
+  assert( m_isLeader );
   
   MPI_Status status;
   
-  // a two element array to hold commands that go to the workers
+  // a two element array to hold commands that go to the followers
   // the first element is the id of the likelihood calculator
   // the second element is the flag of the command
   int cmnd[2];
   cmnd[0] = m_thisId;
   
-  // tell all of the workers to update parameters
+  // tell all of the followers to update parameters
   // note: this is a little inefficient since all instances of the
   // likelihood calculator share the same parameter manager -- this
   // cause a little extra overhead in multiple final-state fits
@@ -124,10 +153,10 @@ LikelihoodCalculatorMPI::operator()()
     MPI_Send( cmnd, 2, MPI_INT, i, MPITag::kIntSend, MPI_COMM_WORLD );
   }
   
-  // tell the master to do parameter update
+  // tell the leader to do parameter update
   m_parManager.updateParameters();
   
-  // tell all of the workers to send the partial sums 
+  // tell all of the followers to send the partial sums
   cmnd[1] = LikelihoodManagerMPI::kComputeLikelihood;
   for( int i = 1; i < m_numProc; ++i ){
     
@@ -157,8 +186,8 @@ LikelihoodCalculatorMPI::operator()()
   setNumDataEvents( numDataEvents );
   
   // if we have an amplitude with a free parameter, the call to normIntTerm()
-  // will trigger recomputation of NI's -- we need to put the workers in the
-  // loop to send the recomputed NI's back to the master
+  // will trigger recomputation of NI's -- we need to put the followers in the
+  // loop to send the recomputed NI's back to the leader
   if( m_intenManager.hasTermWithFreeParam() || m_firstPass ){
     
     cmnd[1] = LikelihoodManagerMPI::kComputeIntegrals;
@@ -168,7 +197,7 @@ LikelihoodCalculatorMPI::operator()()
     }
   }
   
-  // this call will utilize the NormIntInterface on the master which
+  // this call will utilize the NormIntInterface on the leader which
   // ultimately gets handled by the instance of NormIntInterfaceMPI
   // that is passed into the constructor of this class
   lnL -= normIntTerm();
@@ -181,25 +210,25 @@ LikelihoodCalculatorMPI::operator()()
 void
 LikelihoodCalculatorMPI::updateParameters()
 {
-  assert( !m_isMaster );
+  assert( !m_isLeader );
   
-  // do the update on the worker nodes
+  // do the update on the follower nodes
   m_parManager.updateParameters();
 }
 
 void
 LikelihoodCalculatorMPI::updateAmpParameter()
 {
-  assert( !m_isMaster );
+  assert( !m_isLeader );
   
-  // do the update on the worker nodes
+  // do the update on the follower nodes
   m_parManager.updateAmpParameter();
 }
 
 void
 LikelihoodCalculatorMPI::computeLikelihood()
 {
-  assert( !m_isMaster );
+  assert( !m_isLeader );
   
   double data[4];
   
@@ -217,7 +246,7 @@ LikelihoodCalculatorMPI::setupMPI()
   MPI_Comm_rank( MPI_COMM_WORLD, &m_rank );
   MPI_Comm_size( MPI_COMM_WORLD, &m_numProc );
   
-  m_isMaster = ( m_rank == 0 );
+  m_isLeader = ( m_rank == 0 );
 }
 
 int LikelihoodCalculatorMPI::m_idCounter = kFirstId;

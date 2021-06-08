@@ -53,6 +53,7 @@
 vector<Amplitude*> AmpToolsInterface::m_userAmplitudes;
 vector<PDF*> AmpToolsInterface::m_userPDFs;
 vector<DataReader*> AmpToolsInterface::m_userDataReaders;
+unsigned int AmpToolsInterface::m_randomSeed = 0;
 
 AmpToolsInterface::AmpToolsInterface( FunctionalityFlag flag ) :
 m_functionality( flag ),
@@ -61,7 +62,7 @@ m_minuitMinimizationManager(NULL),
 m_parameterManager(NULL),
 m_fitResults(NULL)
 {
-  
+  srand( m_randomSeed );
 }
 
 
@@ -73,7 +74,7 @@ m_parameterManager(NULL),
 m_fitResults(NULL){
   
   resetConfigurationInfo(configurationInfo);
-  
+  srand( m_randomSeed );
 }
 
 
@@ -279,19 +280,78 @@ AmpToolsInterface::likelihood () const {
   return L;
 }
 
+void
+AmpToolsInterface::randomizeProductionPars( float maxFitFraction ){
+  
+  // shouldn't be callin' unless you're fittin'
+  if( m_functionality != kFull ) return;
+  
+  vector< AmplitudeInfo* > amps = m_configurationInfo->amplitudeList();
+    
+  for( vector< AmplitudeInfo* >::iterator ampItr = amps.begin();
+      ampItr != amps.end();
+      ++ampItr ){
+   
+    if( (**ampItr).fixed() ) continue;
+    
+    string ampName = (**ampItr).fullName();
+    string reac = (**ampItr).reactionName();
+  
+    double numSignalEvents = likelihoodCalculator(reac)->numSignalEvents();
+    double normInt = normIntInterface(reac)->normInt(ampName,ampName).real();
+    double ampScale = intensityManager(reac)->getScale(ampName);
+    
+    // fit fraction = ( scale^2 * prodPar^2 * normInt ) / numSignalEvents
+    
+    double fitFraction = random( maxFitFraction );
+    double prodParMag = sqrt( ( numSignalEvents * fitFraction ) /
+                              ( ampScale * ampScale * normInt ) );
+    double prodParPhase = ( (**ampItr).real() ? 0 : random( 2*PI ) );
+    
+    complex< double > prodPar( prodParMag*cos( prodParPhase ),
+                              prodParMag*sin( prodParPhase ) );
+    
+    m_parameterManager->setProductionParameter( ampName, prodPar );
+  }
+}
 
 void
-AmpToolsInterface::finalizeFit(){
+AmpToolsInterface::randomizeParameter( const string& parName, float min, float max ){
+
+  vector<ParameterInfo*> parInfoVec = m_configurationInfo->parameterList();
+
+  auto parItr = parInfoVec.begin();
+  for( ; parItr != parInfoVec.end(); ++parItr ){
+    
+    if( (**parItr).parName() == parName ) break;
+  }
+  
+  if( parItr == parInfoVec.end() ){
+    
+    cout << "ERROR:  request to randomize nonexistent parameter:  " << parName << endl;
+    return;
+  }
+  
+  if( (**parItr).fixed() ){
+    
+    cout << "ERROR:  request to randomize a parameter named " << parName
+         << " that is fixed.  Ignoring." << endl;
+    return;
+  }
+  
+  double value = min + random( max - min );
+  m_parameterManager->setAmpParameter( parName, value );
+}
+
+void
+AmpToolsInterface::finalizeFit( const string& tag ){
   
   // ************************
   // save fit parameters
   // ************************
   
-  string outputFile(m_configurationInfo->fitOutputFileName());
-  ofstream outFile(outputFile.c_str());
   m_fitResults->saveResults();
-  m_fitResults->writeResults( outputFile );
-  
+  m_fitResults->writeResults( m_configurationInfo->fitOutputFileName( tag ) );
   
   // ************************
   // save normalization integrals
@@ -311,7 +371,6 @@ AmpToolsInterface::finalizeFit(){
     }
   }
 }
-
 
 IntensityManager*
 AmpToolsInterface::intensityManager(const string& reactionName) const {
@@ -401,11 +460,16 @@ AmpToolsInterface::clear(){
       string reactionName(reaction->reactionName());
       
       if (likelihoodCalculator(reactionName)) delete m_likCalcMap[reactionName];
-      if (intensityManager(reactionName)) delete intensityManager(reactionName);
       if (dataReader(reactionName)) delete dataReader(reactionName);
       if (accMCReader(reactionName)) delete accMCReader(reactionName);
       if (genMCReader(reactionName)) delete genMCReader(reactionName);
       if (normIntInterface(reactionName)) delete normIntInterface(reactionName);
+    }
+
+    // logic above won't work for these since the lookup function for each reaction
+    // depends on the reaction itself
+    for (unsigned int i = 0; i < m_intensityManagers.size(); i++){
+      delete m_intensityManagers[i];
     }
   }
   
@@ -717,6 +781,7 @@ AmpToolsInterface::printAmplitudes(string reactionName, Kinematics* kin) const {
         for (unsigned int ifact = 0; ifact < nFact; ifact++){
           
           cout << "          AMPLITUDE FACTOR = " << ampFactors[ifact]->name() << endl;
+          cout << "          IDENTIFIER = " << ampFactors[ifact]->identifier() << endl;
           cout << "          RESULT = ( "
                << aVecs.m_pdAmpFactors[ifact*nPerm*2+iperm*2] << ", "
                << aVecs.m_pdAmpFactors[ifact*nPerm*2+iperm*2+1] << " )"
@@ -752,4 +817,10 @@ AmpToolsInterface::printEventDetails(string reactionName, Kinematics* kin) const
   printAmplitudes(reactionName,kin);
   printIntensity(reactionName,kin);
   
+}
+
+float
+AmpToolsInterface::random( float randMax ){
+  
+  return ( (float) rand() / RAND_MAX ) * randMax;
 }

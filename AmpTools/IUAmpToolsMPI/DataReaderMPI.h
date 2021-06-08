@@ -24,9 +24,9 @@ struct KinStruct {
 /**
  * This is a template that can be used to turn a user-defined DataReader
  * object into a parallel data reader using MPI.  Use of this template will
- * cause the data to be distributed evenly amongst the worker nodes.  Each
- * of the instances of this class on the worker nodes will behave as if
- * they have only a subset of the data.  The instance of it on the master
+ * cause the data to be distributed evenly amongst the follower nodes.  Each
+ * of the instances of this class on the follower nodes will behave as if
+ * they have only a subset of the data.  The instance of it on the leader
  * node will behave as if it has all of the data.  Be sure that the getEvent, 
  * resetSource, and numEvents methods in the user-defined class are declared
  * virtual.
@@ -46,7 +46,7 @@ public:
    * This is the default constructor.
    */
 
-  DataReaderMPI() : T() { m_isDefault = true; m_isMaster = true; }
+  DataReaderMPI() : T() { m_isDefault = true; m_isLeader = true; }
 
   /**
    * This is the constructor for the templated class, which takes as
@@ -111,7 +111,7 @@ private:
   
   int m_rank;
   int m_numProc;
-  bool m_isMaster;
+  bool m_isLeader;
   
   vector<Kinematics*> m_ptrCache;
   vector<Kinematics*>::iterator m_ptrItr;
@@ -133,20 +133,20 @@ DataReaderMPI<T>::DataReaderMPI( const vector< string >& args ) :
   MPI_Comm_rank( MPI_COMM_WORLD, &m_rank );
   MPI_Comm_size( MPI_COMM_WORLD, &m_numProc );
   
-  m_isMaster = ( m_rank == 0 );
+  m_isLeader = ( m_rank == 0 );
   
   defineMPIType();
   
-  if( m_isMaster ) distributeData();
+  if( m_isLeader ) distributeData();
   else receiveData();  
 }
 
 template< class T >
 DataReaderMPI<T>::~DataReaderMPI(){
   
-  // clean up data cache on worker nodes
+  // clean up data cache on follower nodes
   
-  if( !m_isMaster && !m_isDefault ){
+  if( !m_isLeader && !m_isDefault ){
      
     for( vector<Kinematics*>::iterator ptrItr = m_ptrCache.begin();
         ptrItr != m_ptrCache.end();
@@ -163,14 +163,14 @@ template< class T >
 Kinematics* DataReaderMPI<T>::getEvent()
 {
   
-  if( m_isMaster ) return T::getEvent();
+  if( m_isLeader ) return T::getEvent();
   
   if( m_ptrItr != m_ptrCache.end() ){
     
     // the standard behavior for DataReaders is that the calling class
     // takes ownership of the memory returned by getEvent -- this means
     // that this memory will be deleted after the call.  We don't want
-    // our cache of data on the workers to be deleted since this 
+    // our cache of data on the followers to be deleted since this
     // doesn't allow for a reset and re-read of the data.  Return a new
     // Kinematics object then.
     
@@ -186,11 +186,11 @@ template< class T >
 void DataReaderMPI<T>::resetSource()
 {
   
-  if( m_isMaster ){
+  if( m_isLeader ){
     
-    //    cout << "Resetting master data source " << m_rank << endl;
+    //    cout << "Resetting leader data source " << m_rank << endl;
     
-    // on the master, we want the data reader to behave
+    // on the leader, we want the data reader to behave
     // like a normal instance of the non-MPI version so use the 
     // user defined source reset method
     
@@ -200,7 +200,7 @@ void DataReaderMPI<T>::resetSource()
     
     //    cout << "Resetting data source on process with rank " << m_rank << endl;
     
-    // on the workers the "source" is the local cache of Kinematics
+    // on the followers the "source" is the local cache of Kinematics
     // objects so this should be reset
     
     m_ptrItr = m_ptrCache.begin();
@@ -297,7 +297,7 @@ void DataReaderMPI<T>::receiveData()
 template< class T >
 unsigned int DataReaderMPI<T>::numEvents() const
 {
-  if( m_isMaster ){
+  if( m_isLeader ){
     
     return T::numEvents();
   }

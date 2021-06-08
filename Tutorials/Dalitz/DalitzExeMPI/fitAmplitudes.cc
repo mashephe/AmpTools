@@ -82,10 +82,11 @@ int main( int argc, char* argv[] ){
     }
 
     cout << "LIKELIHOOD AFTER MINIMIZATION:  " << ATI.likelihood() << endl;
+
+    ATI.finalizeFit();
   }
 
-  ATI.finalizeFit();
-
+  ATI.exitMPI();
   MPI_Finalize();
 
   return 0;

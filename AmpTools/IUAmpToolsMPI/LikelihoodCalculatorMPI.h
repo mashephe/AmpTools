@@ -74,10 +74,10 @@ class LikelihoodCalculatorMPI : public LikelihoodCalculator
 
   /**
    * This is the constructor.  On all nodes setupMPI() is called first to
-   * define the rank and number of processes.  On the woker nodes, each
+   * define the rank and number of processes.  On the follower nodes, each
    * instance of LikelihoodCalulatorMPI registers itself with the 
-   * LikelihoodManagerMPI.  Each instance on the worker nodes has a unique
-   * ID which is derived from the cuerrent value of the static member data
+   * LikelihoodManagerMPI.  Each instance on the follower nodes has a unique
+   * ID which is derived from the current value of the static member data
    * m_idCounter.
    *
    * Arguments to this constructor are similar to those for LikelihoodCalculator.
@@ -104,30 +104,37 @@ class LikelihoodCalculatorMPI : public LikelihoodCalculator
   
   /**
    * This is the destructor.  When the instance of LikelihoodCalculatorMPI
-   * is destroyed on the master node, it sends the exit flag (via the
+   * is destroyed on the leader node, it sends the exit flag (via the
    * LikelihoodManagerMPI) to the corresponding LikelihoodCalculatorMPI that
-   * exists on the worker nodes.
+   * exists on the follower nodes.
    */
   
   ~LikelihoodCalculatorMPI();
 
   /**
-   * The following operator should only ever be called on the master.  It 
+   * The following operator should only ever be called on the leader.  It
    * overrides the operator()() that is called from MIFunctionContribution class.
-   * Using the LikelihoodManagerMPI, it directs all of the workers to compute
+   * Using the LikelihoodManagerMPI, it directs all of the followers to compute
    * and then send partial contributions of the sum of log intensities.  The
-   * routine on the master collects and sums the contributions from the workers.
+   * routine on the leader collects and sums the contributions from the followers.
    * It then, if necessary, triggers an update of the normalization integral 
-   * calculculation on the workers.  Finally it provides the new 
+   * calculculation on the followers.  Finally it provides the new
    * -2 ln( likelihood ) for the fit.
    */
   double operator()();
+  
+  /**
+   * This sends the finalize fit flag to all follower jobs which breaks them
+   * out of the deliverLikelihood method of the LikelihoodManagerMPI.
+   */
+  
+  void finalizeFit();
   
 private:
 
   // the following functions are used by the LikelihoodManager to trigger
   // portions of the likeihood calculation -- they should only be called
-  // on the worker nodes
+  // on the follower nodes
   void updateParameters();
   void updateAmpParameter();
   void computeLikelihood();
@@ -143,7 +150,7 @@ private:
 
   int m_rank;
   int m_numProc;
-  bool m_isMaster;
+  bool m_isLeader;
   bool m_firstPass;
 };
 

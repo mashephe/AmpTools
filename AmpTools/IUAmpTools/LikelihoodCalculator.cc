@@ -96,6 +96,13 @@ LikelihoodCalculator::operator()(){
   return -2 * ( dataTerm() - normIntTerm() );
 }
 
+double
+LikelihoodCalculator::numSignalEvents(){
+
+  if( m_firstDataCalc ) dataTerm();
+  return numDataEvents() - sumBkgWeights();
+}
+
 
 double
 LikelihoodCalculator::normIntTerm(){
@@ -231,12 +238,50 @@ LikelihoodCalculator::dataTerm(){
 
     m_numDataEvents = m_ampVecsSignal.m_iNTrueEvents;
     
-    if( m_hasBackground ){
+    if( m_ampVecsSignal.m_hasNonUnityWeights && m_hasBackground ){
     
-      m_ampVecsBkgnd.loadData( m_dataReaderBkgnd, true );
+      cout
+      << "****************************************************************\n"
+      << "* WARNING: Events in the signal data sample have weights       *\n"
+      << "*   that differ from 1 and a background data sample has been   *\n"
+      << "*   provided.  This will produce incorrect results.  The       *\n"
+      << "*   recommended solution is to set all signal weights to unity *\n"
+      << "*   and put all background events in the background file with  *\n"
+      << "*   weights such that the weighted sum mimics the background   *\n"
+      << "*   contribution to the likelihood.                            *\n"
+      << "****************************************************************\n" << endl;
+    }
+    
+    if( m_hasBackground ){
+          
+      m_ampVecsBkgnd.loadData( m_dataReaderBkgnd );
       m_ampVecsBkgnd.allocateTerms( m_intenManager, true );
 
-      m_sumBkgWeights = m_ampVecsBkgnd.m_dAbsSumWeights;
+      if( m_ampVecsBkgnd.m_hasMixedSignWeights ){
+        cout
+        << "***************************************************************\n"
+        << "* NOTICE:  Weights with both positive and negative signs were *\n"
+        << "* detected in the background file.  This may be desirable for *\n"
+        << "* some applications.  Older versions of AmpTools (v0.10.x and *\n"
+        << "* prior) will not properly handle this case and will also not *\n"
+        << "* print this notification to the screen.                      *\n"
+        << "***************************************************************\n" << endl;
+      }
+      
+      m_sumBkgWeights = m_ampVecsBkgnd.m_dSumWeights;
+      
+      if( m_sumBkgWeights < 0 ){
+        cerr
+        << "****************************************************************\n"
+        << "* ERROR: The sum of all background weights is negative.  This  *\n"
+        << "*   implies a negative background in the signal region, which  *\n"
+        << "*   unphysical.  The weighted sum of the background events     *\n"
+        << "*   should represent the background contribution to the signal *\n"
+        << "*   region.                                                    *\n"
+        << "****************************************************************\n" << endl;
+        assert( false );
+      }
+      
       m_numBkgEvents = m_ampVecsBkgnd.m_iNTrueEvents;
     }
     
@@ -245,9 +290,13 @@ LikelihoodCalculator::dataTerm(){
   
   double sumLnI = m_intenManager.calcSumLogIntensity( m_ampVecsSignal );
   
+  // if there is a background file, we try to correct the sumLnI for background
+  // by subtracting the contribution to the likelihood as derived from the
+  // weighted background sample (the sign change here from v0.10.x and prior is
+  // consistent with no longer forcing weights in the background sample to be negative)
   if( m_hasBackground ){
 
-    sumLnI += m_intenManager.calcSumLogIntensity( m_ampVecsBkgnd );
+    sumLnI -= m_intenManager.calcSumLogIntensity( m_ampVecsBkgnd );
   }
   
   m_firstDataCalc = false;

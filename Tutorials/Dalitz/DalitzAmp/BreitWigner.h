@@ -55,7 +55,8 @@ public:
   // can run with only the user-defined data and not the original
   // four-vectors.  It is used to optimize memory usage in GPU
   // based fits.
-  bool needsUserVarsOnly() const { return true; }
+  //bool needsUserVarsOnly() const { return true; }
+  bool needsUserVarsOnly() const { return false; }
   // **  end of optional lines **
   
 #ifdef GPU_ACCELERATION

@@ -50,14 +50,12 @@ This tutorial could be used as a starting point for new analyses.  It is recomme
 
 \section{Preliminaries}
 
-Two external packages are required to run the Dalitz tutorial: {\tt ROOT} and {\tt CLHEP}. Once they are installed (directions for installation can be found elsewhere), the following environment variables should be set:
+Only one external package is required to run the Dalitz tutorial: {\tt ROOT}. Once {\tt ROOT} is installed (directions for installation can be found elsewhere), the following environment variable should be set:
 \begin{verbatim}
   > setenv ROOTSYS [top ROOT directory]
-  > setenv CLHEP_INCLUDE_DIR [directory of CLHEP header files]
-  > setenv CLHEP_LIB_DIR [directory of CLHEP libraries]
 \end{verbatim}
 
-The latest fixed release of the {\tt AmpTools} code, along with related packages and tutorials, can be downloaded as a tarball from {\tt sourceforge.net/projects/amptools}.  Once unpacking the tarball, set the following:
+The latest fixed release of the {\tt AmpTools} code, along with related packages and tutorials, can be cloned or downloaded as a tarball from {\tt https://github.com/mashephe/AmpTools}.  Once the source code is unpacked, set the following:
 \begin{verbatim}
   > setenv AMPTOOLS [top directory]/AmpTools
   > setenv AMPPLOTTER [top directory]/AmpPlotter
@@ -278,9 +276,9 @@ The {\tt plotResults} application uses the {\tt DalitzPlotGenerator} to make {\t
   > cd $DALITZ/DalitzExe
   > make plotResults_exe
   > cd $DALITZ/run
-  > $DALITZ/DalitzExe/plotResults dalitz1.cfg dalitz1.fit dalitz1.root
+  > $DALITZ/DalitzExe/plotResults dalitz1.fit dalitz1.root
 \end{verbatim}
-This takes as input the {\tt dalitz1.cfg} configuration file and the {\tt dalitz1.fit} text file containing fit results~(Section~\ref{sec:fit}).  The output is {\tt dalitz1.root}, a {\tt ROOT} file containing histograms.
+This takes as input the {\tt dalitz1.fit} text file containing fit results~(Section~\ref{sec:fit}).  The output is {\tt dalitz1.root}, a {\tt ROOT} file containing histograms.
 
 To plot data with fit results overlaid, one can use, for example:
 \begin{verbatim}

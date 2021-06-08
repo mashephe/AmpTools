@@ -31,6 +31,18 @@ Tutorials/Dalitz/DalitzExe/ampPlotter.cc
 
 RELEASE NOTES:
 
+v0.11.0 (19-Jan-2021):
+
+Fix bug that resulted in improper initialization of check boxes for various
+reactions in the case a multiple reaction fit is used.
+
+In this version the GUI takes advantage of the ability for the PlotGenerator
+class to be created without the generated MC to conserve memory.  If this
+use case is detected, the Generated MC button will be grayed out.
+
+If a background file is not specified the background button will be disabled
+and grayed out.
+
 v0.6 (28-Jun-13):
 
 No changes to AmpPlotter with this release.

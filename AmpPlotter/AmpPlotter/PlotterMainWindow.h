@@ -58,7 +58,7 @@ class PlotterMainWindow : public TGMainFrame
  public:
 	
   enum { kWidth  = 690 };
-  enum { kHeight = 400 };
+  enum { kHeight = 500 };
 	
   enum { kIndexMask     = 0x000000FF };
   enum { kButtonMask    = 0xFFFFFF00 };

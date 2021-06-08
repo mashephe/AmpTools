@@ -1,5 +1,7 @@
 
 TCanvas* c1;
+void plotProjections(int canvas, TString projection);
+
 
 void plotResult(){
 

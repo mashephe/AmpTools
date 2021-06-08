@@ -48,7 +48,7 @@
 #include "IUAmpTools/AmpToolsInterface.h"
 #include "IUAmpTools/FitResults.h"
 
-PlotGenerator::PlotGenerator( const FitResults& results ) :
+PlotGenerator::PlotGenerator( const FitResults& results, Option opt ) :
 m_fitResults( results ),
 // in the context of this class we are not going to modify the
 // configuration info, but the AmpToolsInterface requires a
@@ -58,6 +58,8 @@ m_fitResults( results ),
 m_ati( const_cast< ConfigurationInfo* >( results.configInfo() ),
        AmpToolsInterface::kPlotGeneration ),
 m_cfgInfo( results.configInfo() ),
+m_option( opt ),
+m_hasBackground( false ),
 m_fullAmplitudes( 0 ),
 m_uniqueAmplitudes( 0 ),
 m_histVect( 0 ),
@@ -70,7 +72,12 @@ m_histTitles( 0 )
     
     m_ampIndex[amps[i]] = i;
     
-    // keep vector with orginal fit values
+    // keep vector with orginal fit values (Note: that these are unscaled
+    // production parameters.  In the case that an amplitude has a fixed
+    // scale that scale will be loaded when the intensity manager is
+    // set up.  If the amplitude has a scale given by a parameter, then
+    // the loop below that sets the parameters to their fit values will
+    // take care of that.)
     m_fitProdAmps.push_back( m_fitResults.productionParameter( amps[i] ) );
 
     // a parallel vector of zeros
@@ -133,8 +140,6 @@ m_histTitles( 0 )
           mapItr != m_ampParameters.end();
           ++mapItr ){
         
-        cout << "setting parameter " << mapItr->first << " to " << mapItr->second << endl;
-        
         m_intenManagerMap[reactName]->setParValue( *ampName, mapItr->first, mapItr->second );
       }
     }
@@ -142,12 +147,15 @@ m_histTitles( 0 )
     // now load up the data and MC for that reaction
     m_ati.loadEvents( m_ati.dataReader( reactName ), i * kNumTypes + kData );
     m_ati.loadEvents( m_ati.bkgndReader( reactName ), i * kNumTypes + kBkgnd );
+    // keep track of any of the reactions have a background file events in it
+    m_hasBackground = ( m_hasBackground || ( m_ati.numEvents( i * kNumTypes + kBkgnd ) != 0 ));
+
     m_ati.loadEvents( m_ati.accMCReader( reactName ), i * kNumTypes + kAccMC );
-    m_ati.loadEvents( m_ati.genMCReader( reactName ), i * kNumTypes + kGenMC );
+    if( m_option != kNoGenMC ) m_ati.loadEvents( m_ati.genMCReader( reactName ), i * kNumTypes + kGenMC );
     
     // calculate the amplitudes and intensities for the accepted and generated MC
     m_ati.processEvents( reactName, i * kNumTypes + kAccMC );
-    m_ati.processEvents( reactName, i * kNumTypes + kGenMC );
+    if( m_option != kNoGenMC ) m_ati.processEvents( reactName, i * kNumTypes + kGenMC );
   }
   
   // buildUniqueAmplitudes will also create an initalize the maps that store
@@ -206,7 +214,7 @@ PlotGenerator::~PlotGenerator(){
 }
 
 pair< double, double >
-PlotGenerator::intensity( bool accCorrected ) const {
+PlotGenerator::intensity( const string& reactName, bool accCorrected ) const {
   
   vector< string > enabledAmps;
   
@@ -217,8 +225,9 @@ PlotGenerator::intensity( bool accCorrected ) const {
     
     vector< string > parts = stringSplit( *amp, "::" );
     
-    // be sure the reaction, sum, and amplitude are enabled
-    if( !m_reactEnabled.find( parts[0] )->second ) continue;
+    // be sure the sum and amplitude are enabled for the reaction
+    // that we care about
+    if( reactName != parts[0]  ) continue;
     if( !m_sumEnabled.find( parts[1] )->second ) continue;
     if( !m_ampEnabled.find( parts[2] )->second ) continue;
     
@@ -230,10 +239,14 @@ PlotGenerator::intensity( bool accCorrected ) const {
 
 
 Histogram* PlotGenerator::projection( unsigned int projectionIndex, string reactName,
-                                     unsigned int type ) {
+                                      unsigned int type ) {
   
-  // return an empty histogram if final state is not enabled
+  // return a NULL histogram if final state is not enabled
   if( !m_reactEnabled[reactName] ) return NULL;
+  
+  // return a NULL histogram if someone asks for generated
+  // MC and it is not enabled
+  if( ( type == kGenMC ) && ( m_option == kNoGenMC ) ) return NULL;
   
   // use same ampConfig for data since data histograms are
   // independent of which projections are turned on
@@ -290,7 +303,8 @@ Histogram* PlotGenerator::projection( unsigned int projectionIndex, string react
     }
     (*cachePtr)[config][reactName] = m_histVect_clone;
     
-    // renormalize MC
+    // renormalize MC - the cache contains one set of plots for each
+    // reaction, so we need to compute intensities for only that reaction
     if( type != kData ){
       
       vector< Histogram* >* histVect = &((*cachePtr)[config][reactName]);
@@ -300,10 +314,10 @@ Histogram* PlotGenerator::projection( unsigned int projectionIndex, string react
         
         switch( type ){
             
-          case kAccMC: (*hist)->normalize( intensity( false ).first );
+          case kAccMC: (*hist)->normalize( intensity( reactName, false ).first );
             break;
             
-          case kGenMC: (*hist)->normalize( intensity( true ).first );
+          case kGenMC: (*hist)->normalize( intensity( reactName, true ).first );
             break;
             
           default:
@@ -389,7 +403,7 @@ PlotGenerator::fillProjections( const string& reactName, unsigned int type ){
        
     // the user defines this function in the derived class and it
     // calls the fillHistogram method immediately below
-    projectEvent( kin );
+    projectEvent( kin, reactName );
     
     // cleanup allocated memory
     delete kin;
@@ -667,5 +681,15 @@ PlotGenerator::stringSplit(const string& str, const string& delimiters ) const
   }
   
   return tokens;
+}
+
+void
+PlotGenerator::projectEvent( Kinematics* kin, const string& reaction ){
+  
+  // by default this function calls projectEvent without the reaction name
+  // in some instances (plotting of multiple reactions simultaneously) one
+  // may wish to override this function and do reaction-dependent plotting
+  
+  projectEvent( kin );
 }
 

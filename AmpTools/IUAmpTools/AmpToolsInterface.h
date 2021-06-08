@@ -129,6 +129,8 @@ public:
   
   static void registerDataReader( const DataReader& defaultDataReader);
   
+  static void setRandomSeed( unsigned int seed ) { m_randomSeed = seed; }
+  
   /** Use this method to re-initialize all IUAmpTools classes based on information
    *  in a new or modified ConfigurationInfo object.
    */
@@ -237,6 +239,30 @@ public:
   
   virtual void finalizeFit();
   
+  
+  /** This function will randomly set the production parameters in
+   * the likelihood calculator.  It is useful when searching for multiple
+   * ambiguous solutions.  Production parameters will be set such that
+   * starting fit fraction varies between zero and fraction specified
+   * by the optional argument.  The phase will be set randomly between
+   * zero and 2 pi.
+   */
+  
+  void randomizeProductionPars( float maxFitFraction = 1 );
+  
+  /** This function will fill the value of a parameter named parName with
+   * a randon number between min (0 default) and max (1 default).  The parName
+   * should be the name of a parameter declared in the config file using
+   * the parameter keyword.  This function is not able to modify parameters
+   * that are production coefficients of amplitudes.
+   */
+  
+  void randomizeParameter( const string& parName, float min = 0, float max = 1 );
+  
+  /** Print final fit results to a file.  The tag can be used to
+   *  generate a unique name in the case that multiple results are
+   *  written for a singele fit job.
+   */
   
   /** For manual calculations:  clear all events and calculations.
    *  Call this before loading events from a new reaction or to start
@@ -414,6 +440,7 @@ protected:
   
   FunctionalityFlag m_functionality;
   
+  
   void clear();
   
   ConfigurationInfo*          m_configurationInfo;
@@ -435,12 +462,19 @@ protected:
   static vector<PDF*> m_userPDFs;
   static vector<DataReader*> m_userDataReaders;
   
+  static unsigned int m_randomSeed;
+  
+  // these variables are used in cases where the AmpToolsInterface
+  // most provide a place to load the data -- during normal
+  // fitting the data are
+  
   static const int MAXAMPVECS = 50;
   AmpVecs m_ampVecs[MAXAMPVECS];
   string  m_ampVecsReactionName[MAXAMPVECS];
   
   FitResults* m_fitResults;
   
+  float random( float randMax );  
 };
 
 

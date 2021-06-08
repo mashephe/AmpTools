@@ -56,7 +56,7 @@ public:
   enum { kMaxNameLength = 200 };
   
   // since there is only one MinuitMinimizationManager we must add
-  // an additional constructor for the worker nodes
+  // an additional constructor for the follower nodes
   
   // this constructor is called on the head node
   ParameterManagerMPI( MinuitMinimizationManager* minuitManager,
@@ -64,14 +64,14 @@ public:
   ParameterManagerMPI( MinuitMinimizationManager* minuitManager,
                       const vector< IntensityManager* >& intenManagers );
   
-  // this constructor should be called on the worker nodes
+  // this constructor should be called on the follower nodes
   ParameterManagerMPI( IntensityManager* intenManager );
   ParameterManagerMPI( const vector< IntensityManager* >& intenManagers );
   
   ~ParameterManagerMPI();
   
   // override these functions to do the appropriate thing depending
-  // on whether this instance is on the head or worker node
+  // on whether this instance is on the head or follower node
   void addProductionParameter( const string& termName, bool real = false, bool fixed = false );
   void addAmplitudeParameter( const string& termName, const ParameterInfo* parInfo );
   
@@ -79,9 +79,9 @@ public:
   // to update the parameters in advance of the likelihood calculation
   void updateParameters();
   
-  // the likelihood calculator on the worker nodes will call this routine
+  // the likelihood calculator on the follower nodes will call this routine
   // in order to update a changed ampitude parameter -- the update routine
-  // on the master (function below) will call this directly with the
+  // on the leader (function below) will call this directly with the
   // parameter name
   void updateAmpParameter( const string& parName = "" );
   
@@ -98,7 +98,7 @@ private:
   
   int m_rank;
   int m_numProc;
-  bool m_isMaster;
+  bool m_isLeader;
   
   map< string, complex< double >* > m_prodParMap;
   map< string, double* > m_ampParMap;

@@ -87,6 +87,10 @@ m_reactionVec( reactionVec )
     genMC->setFillColor(   41 );
     m_genMCGroup->addComponent( genMC );
     m_reactionGroup[i]->addComponent( genMC );
+
+    // enable all reactions by default - this behavior matches that of the
+    // PlotGenerator class in the core AmpTools library
+    enableReaction( i );
   }
   
   
@@ -97,7 +101,6 @@ PlotComponentManager::enableReaction( int index ){
   
   ComponentGroup* group = m_reactionGroup[index];
   
-  //	cout << "Enabling display of reaction:  " << group->title() << endl;
   group->enable();
   m_generator.enableReaction( m_reactionVec[index] );
 }
@@ -107,7 +110,6 @@ PlotComponentManager::disableReaction( int index ){
   
   ComponentGroup* group = m_reactionGroup[index];
   
-  //	cout << "Disabling display of reaction:  " << group->title() << endl;
   group->disable();
   m_generator.disableReaction( m_reactionVec[index] );
 }
