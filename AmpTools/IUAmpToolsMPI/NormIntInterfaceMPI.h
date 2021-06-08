@@ -67,7 +67,7 @@ private:
   
   int m_rank;
   int m_numProc;
-  bool m_isMaster;
+  bool m_isLeader;
 };
 
 #endif

@@ -79,7 +79,7 @@ NormIntInterfaceMPI::normInt( string amp, string conjAmp, bool forceUseCache ) c
 
 void NormIntInterfaceMPI::forceCacheUpdate( bool normIntOnly ) const {
   
-  if( !m_isMaster ) NormIntInterface::forceCacheUpdate( normIntOnly );
+  if( !m_isLeader ) NormIntInterface::forceCacheUpdate( normIntOnly );
   
   if( !normIntOnly ) sumIntegrals( kAmpInt );
   sumIntegrals( kNormInt );
@@ -93,18 +93,18 @@ NormIntInterfaceMPI::setupMPI()
   
   MPI_Status status;
   
-  m_isMaster = ( m_rank == 0 );
+  m_isLeader = ( m_rank == 0 );
   
   int totalGenEvents = 0;
   int totalAccEvents = 0;
     
-  if( m_isMaster ){
+  if( m_isLeader ){
     
     for( int i = 1; i < m_numProc; ++i ){
       
       int thisEvents;
 
-      // trigger sending of events from workers -- data is irrelevant
+      // trigger sending of events from followers -- data is irrelevant
       MPI_Send( &thisEvents, 1, MPI_INT, i, MPITag::kAcknowledge,
                MPI_COMM_WORLD );
       
@@ -129,11 +129,11 @@ NormIntInterfaceMPI::setupMPI()
     
     int thisEvents;
 
-    // if we are not the master, send generated and accepted events
-    // to master and wait for acknowledge
+    // if we are not the leader, send generated and accepted events
+    // to leader and wait for acknowledge
 
-    // workers can beat the master to this point in the code if the master is
-    // still distributing data -- need to pause here and wait for master
+    // followers can beat the leader to this point in the code if the leader is
+    // still distributing data -- need to pause here and wait for leader
     // to signal that it is ready to accept numbers of events
 
     // data is irrelevant for this receive
@@ -167,9 +167,9 @@ NormIntInterfaceMPI::sumIntegrals( IntType type ) const
   GDouble* result = new GDouble[cacheSize()];
   
   // zero out the result array
-  if( m_isMaster ) memset( integrals, 0, cacheSize() * sizeof( GDouble ) );
+  if( m_isLeader ) memset( integrals, 0, cacheSize() * sizeof( GDouble ) );
   
-  // at this point, the master should be holding an array full of zeroes
+  // at this point, the leader should be holding an array full of zeroes
   // and other nodes will hold integrals for their subsets of data
   
   // sum over all nodes and distribute results to each
@@ -177,8 +177,8 @@ NormIntInterfaceMPI::sumIntegrals( IntType type ) const
     ( sizeof( GDouble ) == sizeof( double ) ? MPI_DOUBLE : MPI_FLOAT );  
   MPI_Allreduce( integrals, result, cacheSize(), t, MPI_SUM, MPI_COMM_WORLD );
 
-  // now broadcast the total number of events from the master to the
-  // workers so that they may renormalize the sum properly
+  // now broadcast the total number of events from the leader to the
+  // followers so that they may renormalize the sum properly
   int totalEvents = numGenEvents();
   MPI_Bcast( &totalEvents, 1, MPI_INT, 0, MPI_COMM_WORLD );
   

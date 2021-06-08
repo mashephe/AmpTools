@@ -29,7 +29,7 @@ AmpToolsInterfaceMPI::AmpToolsInterfaceMPI(ConfigurationInfo* configurationInfo)
     // create a MinuitMinimizationManager
     // ************************
 
-  m_minuitMinimizationManager = new MinuitMinimizationManager(100);
+  m_minuitMinimizationManager = new MinuitMinimizationManager(500);
   m_minuitMinimizationManager->setPrecision( 1E-13 );
 
 
@@ -157,22 +157,44 @@ AmpToolsInterfaceMPI::AmpToolsInterfaceMPI(ConfigurationInfo* configurationInfo)
                                  m_minuitMinimizationManager,
                                  m_parameterManager );
 
-
-  if (m_rank != 0) LikelihoodManagerMPI::deliverLikelihood();
-
+  if (m_rank != 0){
+    
+    // the followers should be ready to fit and finalize the fit in successsion
+    while( LikelihoodManagerMPI::lastCommand() !=
+           LikelihoodManagerMPI::kExit ){
+  
+      LikelihoodManagerMPI::deliverLikelihood();
+      if( LikelihoodManagerMPI::lastCommand() == LikelihoodManagerMPI::kFinalizeFit )
+        finalizeFit();
+    }
+  }
 }
 
+void AmpToolsInterfaceMPI::exitMPI(){
+  
+  // exit should be called prior to the AmpToolsInterfaceMPI object
+  // going out of scope, being destroyed, or MPI_Finalize() being called
+  
+  if (m_rank == 0){
 
-
-
+    for (unsigned int irct = 0;
+         irct < m_configurationInfo->reactionList().size(); irct++){
+      ReactionInfo* reaction = m_configurationInfo->reactionList()[irct];
+      string reactionName(reaction->reactionName());
+      if (m_likCalcMap.find(reactionName) != m_likCalcMap.end())
+        delete m_likCalcMap[reactionName];
+      m_likCalcMap.erase(reactionName);
+    }
+  }
+}
 
 void
-AmpToolsInterfaceMPI::finalizeFit(){
+AmpToolsInterfaceMPI::finalizeFit( const string& tag ){
 
   if (m_rank != 0){
 
-    // this forceCacheUpdate on the workers executes simultaneously with the
-    // same call in FitResults::writeResults on the master
+    // this forceCacheUpdate on the followers executes simultaneously with the
+    // same call in FitResults::writeResults on the leader
 
     for (unsigned int irct = 0; irct < m_configurationInfo->reactionList().size(); irct++){
       ReactionInfo* reaction = m_configurationInfo->reactionList()[irct];
@@ -188,31 +210,27 @@ AmpToolsInterfaceMPI::finalizeFit(){
       // save fit parameters
       // ************************
 
-    string outputFile(m_configurationInfo->fitOutputFileName());
-    ofstream outFile(outputFile.c_str());
     m_fitResults->saveResults();
  
-    // after saving the results destroy the LikelihoodCalculatorMPI
-    // class on the master -- this will break the worker nodes out
-    // of their deliverLikelihood loop and let them enter this routine
+    // after saving the results trigger the follower classes
+    // to finalize the fit so they will end up in this function
 
     for (unsigned int irct = 0;
          irct < m_configurationInfo->reactionList().size(); irct++){
       ReactionInfo* reaction = m_configurationInfo->reactionList()[irct];
       string reactionName(reaction->reactionName());
       if (m_likCalcMap.find(reactionName) != m_likCalcMap.end())
-        delete m_likCalcMap[reactionName];
-      m_likCalcMap.erase(reactionName);
+        dynamic_cast<LikelihoodCalculatorMPI*>(m_likCalcMap[reactionName])->finalizeFit();
     }
 
-    m_fitResults->writeResults( outputFile );
+    m_fitResults->writeResults( m_configurationInfo->fitOutputFileName( tag ) );
  }
  
    // ************************
    // save normalization integrals
    // ************************
 
-  // this runs on both the workers and the masters simultaneously
+  // this runs on both the followers and the leader simultaneously
 
   for (unsigned int irct = 0; irct < m_configurationInfo->reactionList().size(); irct++){
 

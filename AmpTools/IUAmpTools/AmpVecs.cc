@@ -68,6 +68,7 @@ AmpVecs::AmpVecs(){
   
   m_termsValid    = false ;
   m_integralValid = false ;
+  m_dataLoaded = false;
     
   m_hasNonUnityWeights = false;
   m_hasMixedSignWeights = false;
@@ -89,6 +90,7 @@ AmpVecs::deallocAmpVecs()
   
   m_termsValid    = false ;
   m_integralValid = false ;
+  m_dataLoaded    = false ;
 
   m_hasNonUnityWeights = false;
   m_hasMixedSignWeights = false;
@@ -210,6 +212,7 @@ AmpVecs::loadEvent( const Kinematics* pKinematics, unsigned long long iEvent,
   
   m_termsValid = false;
   m_integralValid = false;
+  m_dataLoaded = true;
   m_userVarsOffset.clear();
 }
 
@@ -228,10 +231,20 @@ AmpVecs::loadData( DataReader* pDataReader ){
   
   pDataReader->resetSource();
   m_iNTrueEvents = pDataReader->numEvents();
-  
+
+  // try to print an informative message -- this can be normal behavior in
+  // an MPI job with a sparse background source and many concurrent processess
   if( m_iNTrueEvents < 1 ){
-    cout << "The data source is empty." << endl;
-    assert(false);
+    
+    string readerName = pDataReader->name();
+    vector< string > readerArgs = pDataReader->arguments();
+    
+    cout << "NOTICE:  " << readerName << " with arguments:  \n\t";
+    for( auto arg = readerArgs.begin(); arg != readerArgs.end(); ++arg ){
+      
+      cout << *arg << "\t";
+    }
+    cout << "\n does not contain any events." << endl;
   }
   
   // Loop over events and load each one individually
@@ -260,7 +273,9 @@ AmpVecs::loadData( DataReader* pDataReader ){
   for (unsigned long long int iEvent = m_iNTrueEvents; iEvent < m_iNEvents; iEvent++){
     loadEvent(pKinematics, iEvent, m_iNTrueEvents );
   }
-  delete pKinematics;
+
+  if( m_iNTrueEvents )
+  	delete pKinematics;
   
   m_termsValid = false;
   m_integralValid = false;
@@ -283,9 +298,10 @@ AmpVecs::allocateTerms( const IntensityManager& intenMan, bool bAllocIntensity )
     assert(false);
   }
   
-  if (m_iNEvents == 0){
+  if ( !m_dataLoaded ){
     cout << "ERROR: trying to allocate space for terms in\n" << flush;
     cout << "       AmpVecs before any events have been loaded\n" << flush;
+
     assert(false);
   }
   

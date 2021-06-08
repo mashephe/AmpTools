@@ -72,6 +72,10 @@ public:
   
   void setupFromConfigurationInfo( ConfigurationInfo* cfgInfo );
     
+  void setProductionParameter( const string& termName,
+                               complex< double > prodPar );
+  void setAmpParameter( const string& parName, double value );
+  
   // these functions provide a list of all known parameters, including those that are
   // constrained to other parameters in addition to a covariance matrix that
   // incorporates those constraints
@@ -89,7 +93,7 @@ public:
   
 protected:
   
-  // MPI implementations on the worker nodes need to be able
+  // MPI implementations on the follower nodes need to be able
   // to create a ParameterManager without attaching it to
   // a MinuitMinimizationManager - no one else should be using
   // these constructors.  Use of these constructors requires

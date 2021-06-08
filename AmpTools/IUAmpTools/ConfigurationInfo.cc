@@ -54,6 +54,15 @@ ConfigurationInfo::~ConfigurationInfo(){
   removeReaction();
 }
 
+string
+ConfigurationInfo::fitOutputFileName( const string& tag ) const {
+  
+  string fitName = m_fitName;
+  if( tag.size() != 0 ) fitName += string( "_" ) + tag;
+  string ext( ".fit" );
+  
+  return fitName + ext;
+}
 
 vector< string >
 ConfigurationInfo::userKeywords() const{

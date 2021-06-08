@@ -142,8 +142,7 @@ public:
   /**
    * Name of the fit results file.
    */
-  string fitOutputFileName() const { return m_fitName + ".fit"; }
-
+  string fitOutputFileName( const string& tag = "" ) const;
 
   /**
    * A list of user-defined keywords.

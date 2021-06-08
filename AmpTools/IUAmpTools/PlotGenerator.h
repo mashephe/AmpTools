@@ -121,6 +121,8 @@ protected:
   void fillHistogram( int index, double valueX,double valueY );
   void fillHistogram( int index, vector <double> &data, double weight = 1);
   
+  double getEventWeight() const { return m_currentEventWeight; }
+  
   unsigned int getAmpIndex( const string& ampName ) const;
  
 private:
