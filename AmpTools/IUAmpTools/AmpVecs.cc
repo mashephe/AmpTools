@@ -228,12 +228,20 @@ AmpVecs::loadData( DataReader* pDataReader ){
   
   pDataReader->resetSource();
   m_iNTrueEvents = pDataReader->numEvents();
-  
+
+  // try to print an informative message -- this can be normal behavior in
+  // an MPI job with a sparse background source and many concurrent processess
   if( m_iNTrueEvents < 1 ){
-    cout << "The data source is empty." << endl;
-	 #ifndef USE_MPI
-    assert(false);
-	 #endif
+    
+    string readerName = pDataReader->name();
+    vector< string > readerArgs = pDataReader->arguments();
+    
+    cout << "NOTICE:  " << readerName << " with arguments:  \n\t";
+    for( auto arg = readerArgs.begin(); arg != readerArgs.end(); ++arg ){
+      
+      cout << *arg << "\t";
+    }
+    cout << "\n does not contain any events." << endl;
   }
   
   // Loop over events and load each one individually
@@ -259,7 +267,6 @@ AmpVecs::loadData( DataReader* pDataReader ){
   
   // Fill any remaining space in the data array with the last event's kinematics
   
-// this ends in a segmentation violation
   for (unsigned long long int iEvent = m_iNTrueEvents; iEvent < m_iNEvents; iEvent++){
     loadEvent(pKinematics, iEvent, m_iNTrueEvents );
   }
