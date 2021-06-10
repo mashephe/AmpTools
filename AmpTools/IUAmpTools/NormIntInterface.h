@@ -113,7 +113,7 @@ private:
   DataReader* m_genMCReader;
   
   int m_nGenEvents;
-  double m_sumAccWeights; // mutable enables lazy evaluation
+  mutable double m_sumAccWeights; // mutable enables lazy evaluation
   
   vector< string > m_termNames;
   map< string, int > m_termIndex;
