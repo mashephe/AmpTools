@@ -110,7 +110,9 @@ public:
     while( ( 1 << iPow ) < iNEvents ) iPow++;
     return 1 << iPow; 
   }
-  
+ 
+  double totalGlobalMem() { return m_devProp_totalGlobalMem; }
+ 
 private:
   
   static bool m_cudaDisplay;
@@ -160,6 +162,7 @@ private:
   // Internal Utils
   
   unsigned int m_devProp_major;
+  float m_devProp_totalGlobalMem;
 
   void calcCUDADims();
   

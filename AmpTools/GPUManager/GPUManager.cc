@@ -125,6 +125,7 @@ GPUManager::GPUManager()
   gpuErrChk( cudaGetDeviceProperties( &devProp, thisDevice ) );
   
   m_devProp_major = devProp.major;
+  m_devProp_totalGlobalMem = devProp.totalGlobalMem/((float)1024*1024);
 
   if( ! m_cudaDisplay ){
     
