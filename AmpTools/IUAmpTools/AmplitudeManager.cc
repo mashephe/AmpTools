@@ -885,6 +885,9 @@ AmplitudeManager::calcIntegrals( DataReader *genDataReader, AmpVecs& a, int iNGe
   totalMemory /= (1024*1024);
 
   double maxMemory = 12000; // 12 GB limit
+#ifdef GPU_ACCELERATION 
+  maxMemory = a.m_gpuMan.totalGlobalMem() - 4000;
+#endif
   if(totalMemory > maxMemory) {
     num_batches = (int)(totalMemory/maxMemory) + 1;
     batchsize = iNTrueEvents/num_batches;
@@ -897,7 +900,6 @@ AmplitudeManager::calcIntegrals( DataReader *genDataReader, AmpVecs& a, int iNGe
   for(int ibatch=0; ibatch<num_batches; ibatch++) {
 
     batchVecs.deallocAmpVecs();
-
     batchVecs.loadData( genDataReader, ibatch*batchsize, (ibatch+1)*batchsize );
     batchVecs.allocateTerms( *this );
     calcTerms(batchVecs);
