@@ -70,7 +70,8 @@ public:
 	virtual HistStruct toStruct() const=0;
 	virtual Histogram* Clone() const=0;
 	
-	void normalize( double scaleFactor );
+	void normalize( double integral );
+  void rescale( double scaleFactor );
 	double entries(){ return( m_entries ); }
 	void clear();
 	void operator+=( HistStruct& hStruct );
