@@ -65,7 +65,7 @@ public:
   void operator+=( const NormIntInterface& nii );
 
   int numGenEvents() const { return m_nGenEvents; }
-  int numAccEvents() const { return m_nAccEvents; }
+  double numAccEvents() const { return m_sumAccWeights; }
   
   // does this interface have the ability to recalculate integrals?
   bool hasAccessToMC() const;
@@ -91,7 +91,7 @@ public:
   const GDouble* normIntMatrix() const { return m_normIntCache; }
   
   void setGenEvents( int events ) { m_nGenEvents = events; }
-  void setAccEvents( int events ) { m_nAccEvents = events; }
+  void setAccEvents( double sumWeights ) { m_sumAccWeights = sumWeights; }
   
 protected:
   
@@ -113,7 +113,7 @@ private:
   DataReader* m_genMCReader;
   
   int m_nGenEvents;
-  int m_nAccEvents;
+  double m_sumAccWeights; // mutable enables lazy evaluation
   
   vector< string > m_termNames;
   map< string, int > m_termIndex;
