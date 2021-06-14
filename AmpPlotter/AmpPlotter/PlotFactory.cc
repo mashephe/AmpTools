@@ -246,7 +246,7 @@ PlotFactory::drawPlot( void )
   if( data ){
         
     data->SetStats( 0 );
-    data->SetMinimum( 0 );
+    if( data->GetMinimum() > 0 ) data->SetMinimum( 0 );
     data->SetTitle( m_availablePlots[m_currentPlot].c_str() );
     if( is2D ){
       data->Draw( "SCAT" );
