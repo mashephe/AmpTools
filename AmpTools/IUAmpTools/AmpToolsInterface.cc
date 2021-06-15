@@ -287,7 +287,10 @@ AmpToolsInterface::randomizeProductionPars( float maxFitFraction ){
     string reac = (**ampItr).reactionName();
   
     double numSignalEvents = likelihoodCalculator(reac)->numSignalEvents();
-    double normInt = normIntInterface(reac)->normInt(ampName,ampName).real();
+    // for the NI interface to use the cache to avoid a mess with MPI jobs and
+    // retrigging of NI calculation -- we don't require a precise number
+    // for this anyway!
+    double normInt = normIntInterface(reac)->normInt(ampName,ampName,true).real();
     double ampScale = intensityManager(reac)->getScale(ampName);
     
     // fit fraction = ( scale^2 * prodPar^2 * normInt ) / numSignalEvents
