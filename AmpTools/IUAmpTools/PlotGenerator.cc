@@ -60,6 +60,7 @@ m_ati( const_cast< ConfigurationInfo* >( results.configInfo() ),
 m_cfgInfo( results.configInfo() ),
 m_option( opt ),
 m_hasBackground( false ),
+m_weightMCByIntensity( true ),
 m_fullAmplitudes( 0 ),
 m_uniqueAmplitudes( 0 ),
 m_histVect( 0 ),
@@ -388,7 +389,7 @@ PlotGenerator::fillProjections( const string& reactName, unsigned int type ){
   int dataIndex = m_reactIndex[reactName] * kNumTypes + type;
       
   // calculate intensities for MC:
-  if( !isDataOrBkgnd ) m_ati.processEvents( reactName, dataIndex );
+  if( !isDataOrBkgnd && m_weightMCByIntensity ) m_ati.processEvents( reactName, dataIndex );
   
   // if we are plotting MC then each event will be weighted by
   // the intensity, but the intensity (derived from the production
@@ -407,7 +408,7 @@ PlotGenerator::fillProjections( const string& reactName, unsigned int type ){
     Kinematics* kin = m_ati.kinematics(i, dataIndex);
     m_currentEventWeight = kin->weight();
     
-    if( !isDataOrBkgnd ){
+    if( !isDataOrBkgnd && m_weightMCByIntensity ){
 
       // m_ati.intensity already contains a possible MC-event weight
       m_currentEventWeight = m_ati.intensity( i, dataIndex ) / totalIntensity;
@@ -604,6 +605,14 @@ PlotGenerator::isReactionEnabled( const string& reactName ) const {
 }
 
 void
+PlotGenerator::setWeightMCByIntensity( bool value ){
+  
+  m_weightMCByIntensity = value;
+  recordConfiguration();
+}
+
+
+void
 PlotGenerator::recordConfiguration() {
   
   // generate a string to identify the current amplitude configuation
@@ -622,7 +631,9 @@ PlotGenerator::recordConfiguration() {
       
       m_currentConfiguration += *ampItr;
     }
-  }    
+  }
+  
+  m_currentConfiguration += ( m_weightMCByIntensity ? "_weighted" : "_unweighted" );
 }
 
 void
