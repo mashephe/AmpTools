@@ -79,6 +79,8 @@ public:
   void enableReaction( int reactionIndex );
 	void disableReaction( int reactionIndex );
   
+  void weightMC( bool value ) { m_generator.setWeightMCByIntensity( value ); }
+  
 private:
   
   PlotGenerator& m_generator;
