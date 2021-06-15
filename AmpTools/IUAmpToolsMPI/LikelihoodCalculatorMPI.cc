@@ -207,6 +207,25 @@ LikelihoodCalculatorMPI::operator()()
   return -2 * lnL;
 }
 
+double
+LikelihoodCalculatorMPI::numSignalEvents(){
+  
+  // should only be asking for the number of signal
+  // events from the leader process.  If this gets
+  // called on the follower nodes, it is likely a
+  // programming error since the quantity:
+  //
+  //    N_signal = N_data - ( sum_i w_i )_background
+  //
+  // only makes sense to use for the entire data set.
+  
+  assert( m_isLeader );
+  
+  if( !m_firstPass ) operator()();
+  
+  return numDataEvents() - sumBkgWeights();
+}
+
 void
 LikelihoodCalculatorMPI::updateParameters()
 {
