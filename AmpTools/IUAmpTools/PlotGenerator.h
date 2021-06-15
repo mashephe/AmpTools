@@ -154,7 +154,7 @@ private:
   Option m_option;
   bool m_hasBackground;
 
-  map< string, NormIntInterface* > m_normIntMap;
+  map< string, const NormIntInterface* > m_normIntMap;
   map< string, IntensityManager* > m_intenManagerMap;
   
   // dimension of these vectors is the number of amplitudes (constrained + free)

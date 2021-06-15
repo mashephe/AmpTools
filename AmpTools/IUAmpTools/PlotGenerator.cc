@@ -105,7 +105,7 @@ m_histTitles( 0 )
     m_reactEnabled[rctInfo->reactionName()] = true;
     
     // keep a pointer to the NormalizationIntegralInterface
-    m_normIntMap[reactName] = m_ati.normIntInterface( reactName );
+    m_normIntMap[reactName] = m_fitResults.normInt( reactName );
     
     // keep a pointer to the AmplitudeManager
     m_intenManagerMap[reactName] = m_ati.intensityManager( reactName );
@@ -314,10 +314,13 @@ Histogram* PlotGenerator::projection( unsigned int projectionIndex, string react
         
         switch( type ){
             
-          case kAccMC: (*hist)->normalize( intensity( reactName, false ).first );
+          case kAccMC: (*hist)->rescale( intensity( reactName, false ).first /
+                                         m_normIntMap[reactName]->numAccEvents() );
+            
             break;
             
-          case kGenMC: (*hist)->normalize( intensity( reactName, true ).first );
+          case kGenMC: (*hist)->rescale( intensity( reactName, true ).first /
+                                         m_normIntMap[reactName]->numGenEvents() );
             break;
             
           default:
@@ -386,6 +389,15 @@ PlotGenerator::fillProjections( const string& reactName, unsigned int type ){
       
   // calculate intensities for MC:
   if( !isDataOrBkgnd ) m_ati.processEvents( reactName, dataIndex );
+  
+  // if we are plotting MC then each event will be weighted by
+  // the intensity, but the intensity (derived from the production
+  // coefficients) has a scale that acceptance corrected number
+  // of events -- so we will get this intensity here and use it
+  // to rescale the event-by-event weights in the loop below so that
+  // the scale of resulting histograms is not off by a factor of
+  // the number of acceptance corrected events
+  double totalIntensity = intensity( reactName ).first;
         
   // loop over ampVecs and fill histograms
   for( unsigned int i = 0; i < m_ati.numEvents( dataIndex ); ++i ){
@@ -398,7 +410,7 @@ PlotGenerator::fillProjections( const string& reactName, unsigned int type ){
     if( !isDataOrBkgnd ){
 
       // m_ati.intensity already contains a possible MC-event weight
-      m_currentEventWeight = m_ati.intensity( i, dataIndex );
+      m_currentEventWeight = m_ati.intensity( i, dataIndex ) / totalIntensity;
     }
        
     // the user defines this function in the derived class and it
