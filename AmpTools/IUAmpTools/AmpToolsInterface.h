@@ -451,8 +451,8 @@ class AmpToolsInterface{
   static unsigned int m_randomSeed;
   
   // these variables are used in cases where the AmpToolsInterface
-  // most provide a place to load the data -- during normal
-  // fitting the data are 
+  // must provide a place to load the data -- during normal
+  // fitting the data are held by the likelihood calculator
 
     static const int MAXAMPVECS = 50;
     AmpVecs m_ampVecs[MAXAMPVECS];

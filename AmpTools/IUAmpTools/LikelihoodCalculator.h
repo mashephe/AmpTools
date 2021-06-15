@@ -84,7 +84,7 @@ public:
   // this method delivers the likelihood
   double operator()();
   
-  double numSignalEvents();
+  virtual double numSignalEvents();
   
 protected:
   

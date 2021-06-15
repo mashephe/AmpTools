@@ -130,6 +130,14 @@ class LikelihoodCalculatorMPI : public LikelihoodCalculator
   
   void finalizeFit();
   
+  /**
+   *  This returns the number of signal event which is the number of events
+   *  in the data file minus the sum of the weights in the background file.
+   *  it should be called on the lead process which will provide the number
+   *  for the entire job summed over all following processes.
+   */
+  double numSignalEvents();
+  
 private:
 
   // the following functions are used by the LikelihoodManager to trigger
