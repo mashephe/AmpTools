@@ -95,7 +95,6 @@ m_termNames( intenManager.getTermNames() )
   m_termNames = intenManager.getTermNames();
   
   m_nGenEvents = m_genMCReader->numEvents();
-  m_nAccEvents = m_accMCReader->numEvents(); 
   
   initializeCache();
 }
@@ -104,7 +103,7 @@ m_termNames( intenManager.getTermNames() )
 istream&
 NormIntInterface::loadNormIntCache( istream& input )
 {
-  input >> m_nGenEvents >> m_nAccEvents;
+  input >> m_nGenEvents >> m_sumAccWeights;
   
   int numTerms;
   input >> numTerms;
@@ -157,7 +156,7 @@ NormIntInterface::operator+=( const NormIntInterface& nii )
   double nAccEvts = nii.numAccEvents();
   double nGenEvts = nii.numGenEvents();
   
-  double totalAccEvts = nAccEvts + m_nAccEvents;
+  double totalAccEvts = nAccEvts + m_sumAccWeights;
   double totalGenEvts = nGenEvts + m_nGenEvents;
   
   string ampName, conjAmpName;
@@ -167,8 +166,8 @@ NormIntInterface::operator+=( const NormIntInterface& nii )
   for( int i = 0; i < n; ++i ){
     for( int j = 0; j < n; ++j ){
     
-      m_ampIntCache[2*i*n+j]   *= m_nAccEvents;
-      m_ampIntCache[2*i*n+j+1] *= m_nAccEvents;
+      m_ampIntCache[2*i*n+j]   *= m_sumAccWeights;
+      m_ampIntCache[2*i*n+j+1] *= m_sumAccWeights;
 
       complex< double > ai = nii.ampInt( m_termNames[i], m_termNames[j]  );
       
@@ -194,7 +193,7 @@ NormIntInterface::operator+=( const NormIntInterface& nii )
   }
   
   
-  m_nAccEvents = totalAccEvts;
+  m_sumAccWeights = totalAccEvts;
   m_nGenEvents = totalGenEvts;
   
   m_emptyNormIntCache = false;
@@ -375,6 +374,7 @@ NormIntInterface::forceCacheUpdate( bool normIntOnly ) const
     
     cout << "Loading acccepted Monte Carlo..." << endl;
     m_mcVecs.loadData( m_accMCReader );
+    m_sumAccWeights = m_mcVecs.m_dSumWeights;
     m_mcVecs.allocateTerms( *m_pIntenManager );
     cout << "\tDone." << endl;
     
@@ -406,7 +406,7 @@ NormIntInterface::exportNormIntCache( ostream& out, bool renormalize) const
 {
   if( m_emptyNormIntCache || m_emptyAmpIntCache ) forceCacheUpdate();
   
-  out << m_nGenEvents << "\t" << m_nAccEvents << endl;
+  out << m_nGenEvents << "\t" << m_sumAccWeights << endl;
   
   out << m_termNames.size() << endl;
   

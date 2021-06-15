@@ -102,6 +102,8 @@ public:
   void disableSum( unsigned int uniqueSumIndex );
   void enableSum( unsigned int uniqueSumIndex );
   
+  void setWeightMCByIntensity( bool value );
+  
   bool isReactionEnabled( const string& reactName ) const;
   bool isAmpEnabled( unsigned int uniqueAmpIndex ) const;
   bool isSumEnabled( unsigned int uniqueSumIndex ) const;
@@ -153,8 +155,9 @@ private:
   const ConfigurationInfo* m_cfgInfo;
   Option m_option;
   bool m_hasBackground;
+  bool m_weightMCByIntensity;
 
-  map< string, NormIntInterface* > m_normIntMap;
+  map< string, const NormIntInterface* > m_normIntMap;
   map< string, IntensityManager* > m_intenManagerMap;
   
   // dimension of these vectors is the number of amplitudes (constrained + free)

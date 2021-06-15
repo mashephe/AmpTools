@@ -96,13 +96,14 @@ NormIntInterfaceMPI::setupMPI()
   m_isLeader = ( m_rank == 0 );
   
   int totalGenEvents = 0;
-  int totalAccEvents = 0;
+  double totalAccWeights = 0;
     
   if( m_isLeader ){
     
     for( int i = 1; i < m_numProc; ++i ){
       
       int thisEvents;
+      double thisWeights;
 
       // trigger sending of events from followers -- data is irrelevant
       MPI_Send( &thisEvents, 1, MPI_INT, i, MPITag::kAcknowledge,
@@ -113,9 +114,9 @@ NormIntInterfaceMPI::setupMPI()
                MPI_COMM_WORLD, &status );
       totalGenEvents += thisEvents;
       
-      MPI_Recv( &thisEvents, 1, MPI_INT, i, MPITag::kIntSend,
+      MPI_Recv( &thisWeights, 1, MPI_DOUBLE, i, MPITag::kIntSend,
                MPI_COMM_WORLD, &status );
-      totalAccEvents += thisEvents;
+      totalAccWeights += thisWeights;
       
       // send acknowledgment 
       MPI_Send( &thisEvents, 1, MPI_INT, i, MPITag::kAcknowledge,
@@ -123,11 +124,12 @@ NormIntInterfaceMPI::setupMPI()
     }
     
     setGenEvents( totalGenEvents );
-    setAccEvents( totalAccEvents );
+    setAccEvents( totalAccWeights );
   }
   else{
     
     int thisEvents;
+    double thisWeights;
 
     // if we are not the leader, send generated and accepted events
     // to leader and wait for acknowledge
@@ -143,8 +145,8 @@ NormIntInterfaceMPI::setupMPI()
     thisEvents = numGenEvents();
     MPI_Send( &thisEvents, 1, MPI_INT, 0, MPITag::kIntSend, MPI_COMM_WORLD );
     
-    thisEvents = numAccEvents();
-    MPI_Send( &thisEvents, 1, MPI_INT, 0, MPITag::kIntSend, MPI_COMM_WORLD );
+    thisWeights = numAccEvents();
+    MPI_Send( &thisWeights, 1, MPI_DOUBLE, 0, MPITag::kIntSend, MPI_COMM_WORLD );
     
     MPI_Recv( &thisEvents, 1, MPI_INT, 0, MPITag::kAcknowledge, MPI_COMM_WORLD,
              &status );

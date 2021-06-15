@@ -65,12 +65,13 @@ class PlotterMainWindow : public TGMainFrame
 
   enum { kReaction      = 0x000100 };
   enum { kType          = 0x000200 };
+  enum { kDrawOption    = 0x000400 };
 	
   enum { kExit, kPlot, kSelectAllAmp, kClearAmp, kSelectAllSum, kClearSum,
          kChoosePlot, kChoosePad , kclearCanv, kChooseCanv};
   enum { kData, kBkgnd, kAccMC, kGenMC };
   enum { kSumSelect, kAmpSelect };  
-  
+  enum { kWeightMC };
   
   PlotterMainWindow( const TGWindow*, PlotFactory& );
 	
@@ -103,7 +104,8 @@ class PlotterMainWindow : public TGMainFrame
 	
   vector<TGCheckButton*> m_reactionButtons;
   vector<TGCheckButton*> m_typeButtons;
-	
+  TGCheckButton* m_weightMCButton;
+  
   TGVerticalFrame*   m_mainFrame;
   TGHorizontalFrame* m_menuFrame;
   TGHorizontalFrame* m_restFrame;

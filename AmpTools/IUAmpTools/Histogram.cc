@@ -62,8 +62,12 @@ Histogram::clear( void ){
 
 void
 Histogram::normalize( double integral ){
-  
-  double scaleFactor = integral / m_entries;
+    
+  rescale( integral / m_entries );
+}
+
+void
+Histogram::rescale( double scaleFactor ){
   
   for( int i = 0; i < m_nBins; ++i ){
     

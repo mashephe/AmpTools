@@ -216,6 +216,11 @@ m_generator( factory.generator() )
   // create a new frame to hold the canvas layout options
   m_canvFrame = new TGGroupFrame( m_rightFrame, "Draw Options", kVerticalFrame );
   TGLayoutHints canvLayoutHints( kLHintsBottom | kLHintsExpandX, 0, 0, 5, 0 );
+ 
+  m_weightMCButton = new TGCheckButton( m_canvFrame, "Weight Monte Carlo with Fit Results", kWeightMC | kDrawOption );
+  m_weightMCButton->SetState( kButtonDown );
+  m_weightMCButton->Associate( this );
+  m_canvFrame->AddFrame( m_weightMCButton, &canvLayoutHints );
   
   // create a list box to select which pad to draw on
   m_padButton = new TGComboBox( m_canvFrame, kChoosePad );
@@ -300,7 +305,7 @@ PlotterMainWindow::ProcessMessage( long mes, long p1, long p2 )
       switch( GET_SUBMSG( mes ) ){
           
         case kCM_CHECKBUTTON:
-   				
+   				          
           index = kIndexMask & p1;
           switch( kButtonMask & p1 ){
               
@@ -364,6 +369,14 @@ PlotterMainWindow::ProcessMessage( long mes, long p1, long p2 )
                     m_componentManager.disableGenMC();
                   }
                   break;
+              }
+            case kDrawOption:
+                            
+              switch( index ) {
+                  
+                case kWeightMC:
+                  
+                  m_componentManager.weightMC( m_weightMCButton->GetState() == kButtonDown );
               }
               break;
               

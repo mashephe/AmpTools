@@ -183,29 +183,35 @@ AmpToolsInterface::resetConfigurationInfo(ConfigurationInfo* configurationInfo){
         cout << "AmpToolsInterface WARNING:  not creating a DataReader for accepted MC associated with reaction "
         << reactionName << endl;
       
-      
-      // ************************
-      // create a NormIntInterface
-      // ************************
-      
-      NormIntInterface* normInt = NULL;
-      if (genMCRdr && accMCRdr && intenMan && !(reaction->normIntFileInput())){
-        normInt = new NormIntInterface(genMCRdr, accMCRdr, *intenMan);
-        m_normIntMap[reactionName] = normInt;
-        if (reaction->normIntFile() == "")
-          cout << "AmpToolsInterface WARNING:  no name given to NormInt file for reaction "
-          << reactionName << endl;
-      }
-      else if (reaction->normIntFileInput()){
-        normInt = new NormIntInterface(reaction->normIntFile());
-        m_normIntMap[reactionName] = normInt;
-      }
-      else{
-        cout << "AmpToolsInterface WARNING:  not creating a NormIntInterface for reaction "
-        << reactionName << endl;
-      }
-      
       if( m_functionality == kFull ){
+ 
+        // ************************
+        // create a NormIntInterface
+        // ************************
+        
+        // note that in the case that the ATI is being used for plot generation
+        // then the NI's should be obtained from the FitResults object as this
+        // contains the NI cache at the end of the fit
+        
+        NormIntInterface* normInt = NULL;
+        if (genMCRdr && accMCRdr && intenMan && !(reaction->normIntFileInput())){
+          
+          normInt = new NormIntInterface(genMCRdr, accMCRdr, *intenMan);
+          m_normIntMap[reactionName] = normInt;
+          if (reaction->normIntFile() == "")
+            cout << "AmpToolsInterface WARNING:  no name given to NormInt file for reaction "
+            << reactionName << endl;
+        }
+        else if (reaction->normIntFileInput()){
+
+          normInt = new NormIntInterface(reaction->normIntFile());
+          m_normIntMap[reactionName] = normInt;
+        }
+        else{
+
+          cout << "AmpToolsInterface WARNING:  not creating a NormIntInterface for reaction "
+          << reactionName << endl;
+        }
         
         // ************************
         // create a LikelihoodCalculator
@@ -227,8 +233,7 @@ AmpToolsInterface::resetConfigurationInfo(ConfigurationInfo* configurationInfo){
   // ************************
   // create FitResults
   // ************************
-  
-  
+    
   if( m_functionality == kFull ){
     
     m_fitResults = new FitResults( m_configurationInfo,
@@ -236,13 +241,12 @@ AmpToolsInterface::resetConfigurationInfo(ConfigurationInfo* configurationInfo){
                                   m_likCalcMap,
                                   m_normIntMap,
                                   m_minuitMinimizationManager,
-                                  m_parameterManager );
+                                  m_parameterManager );    
   }
-  else if( m_functionality == kPlotGeneration ){
-    
-    string inputResultsFile(m_configurationInfo->fitOutputFileName());
-    m_fitResults = new FitResults( inputResultsFile );
-  }
+  
+  // if functionality is for PlotGeneration then fitResults
+  // is left NULL -- in general m_fitResults is used to keep track
+  // of an output of the interface
 }
 
 
@@ -473,7 +477,7 @@ AmpToolsInterface::clear(){
   
   if (minuitMinimizationManager()) delete minuitMinimizationManager();
   if (parameterManager()) delete parameterManager();
-  
+  if (fitResults()) delete fitResults();
 }
 
 

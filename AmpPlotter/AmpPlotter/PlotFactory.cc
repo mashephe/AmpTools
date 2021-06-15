@@ -160,7 +160,6 @@ PlotFactory::drawPlot( void )
     if( h->GetEntries() == 0 ) continue;
     
     haveAcc = true;
-    
     is2D = ( h->GetDimension() == 2 );
     h->SetTitleOffset( m_showTitle ? 1 : 100 );
     accStack->Add( h, "hist" );
@@ -182,7 +181,6 @@ PlotFactory::drawPlot( void )
     if( h->GetEntries() == 0 ) continue;
 
     haveAcc = true;
-
     is2D = ( h->GetDimension() == 2 );
     h->SetTitleOffset( m_showTitle ? 1 : 100 );
     accStack->Add( h, "hist" );
@@ -205,9 +203,9 @@ PlotFactory::drawPlot( void )
         
     // skip over empty default histograms that may be returned
     if( h->GetEntries() == 0 ) continue;
-    
-    is2D = ( h->GetDimension() == 2 );
+
     haveGen = true;
+    is2D = ( h->GetDimension() == 2 );
     h->SetTitleOffset( m_showTitle ? 1 : 100 );
     genStack->Add( h, "hist" );
   }
@@ -246,7 +244,7 @@ PlotFactory::drawPlot( void )
   if( data ){
         
     data->SetStats( 0 );
-    data->SetMinimum( 0 );
+    if( data->GetMinimum() > 0 ) data->SetMinimum( 0 );
     data->SetTitle( m_availablePlots[m_currentPlot].c_str() );
     if( is2D ){
       data->Draw( "SCAT" );
@@ -274,6 +272,13 @@ PlotFactory::drawPlot( void )
       if( haveGen ) genStack->Draw();
       if( haveGen && haveAcc ) accStack->Draw( "SAME" );
       else if( haveAcc ) accStack->Draw();
+    }
+    
+    if( haveGen ){
+      genStack->SetTitle( m_availablePlots[m_currentPlot].c_str() );
+    }
+    else{
+      accStack->SetTitle( m_availablePlots[m_currentPlot].c_str() );
     }
   }
 

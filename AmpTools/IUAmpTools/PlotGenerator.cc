@@ -60,6 +60,7 @@ m_ati( const_cast< ConfigurationInfo* >( results.configInfo() ),
 m_cfgInfo( results.configInfo() ),
 m_option( opt ),
 m_hasBackground( false ),
+m_weightMCByIntensity( true ),
 m_fullAmplitudes( 0 ),
 m_uniqueAmplitudes( 0 ),
 m_histVect( 0 ),
@@ -105,7 +106,7 @@ m_histTitles( 0 )
     m_reactEnabled[rctInfo->reactionName()] = true;
     
     // keep a pointer to the NormalizationIntegralInterface
-    m_normIntMap[reactName] = m_ati.normIntInterface( reactName );
+    m_normIntMap[reactName] = m_fitResults.normInt( reactName );
     
     // keep a pointer to the AmplitudeManager
     m_intenManagerMap[reactName] = m_ati.intensityManager( reactName );
@@ -314,10 +315,13 @@ Histogram* PlotGenerator::projection( unsigned int projectionIndex, string react
         
         switch( type ){
             
-          case kAccMC: (*hist)->normalize( intensity( reactName, false ).first );
+          case kAccMC: (*hist)->rescale( intensity( reactName, false ).first /
+                                         m_normIntMap[reactName]->numAccEvents() );
+            
             break;
             
-          case kGenMC: (*hist)->normalize( intensity( reactName, true ).first );
+          case kGenMC: (*hist)->rescale( intensity( reactName, true ).first /
+                                         m_normIntMap[reactName]->numGenEvents() );
             break;
             
           default:
@@ -385,7 +389,16 @@ PlotGenerator::fillProjections( const string& reactName, unsigned int type ){
   int dataIndex = m_reactIndex[reactName] * kNumTypes + type;
       
   // calculate intensities for MC:
-  if( !isDataOrBkgnd ) m_ati.processEvents( reactName, dataIndex );
+  if( !isDataOrBkgnd && m_weightMCByIntensity ) m_ati.processEvents( reactName, dataIndex );
+  
+  // if we are plotting MC then each event will be weighted by
+  // the intensity, but the intensity (derived from the production
+  // coefficients) has a scale that acceptance corrected number
+  // of events -- so we will get this intensity here and use it
+  // to rescale the event-by-event weights in the loop below so that
+  // the scale of resulting histograms is not off by a factor of
+  // the number of acceptance corrected events
+  double totalIntensity = intensity( reactName ).first;
         
   // loop over ampVecs and fill histograms
   for( unsigned int i = 0; i < m_ati.numEvents( dataIndex ); ++i ){
@@ -395,10 +408,10 @@ PlotGenerator::fillProjections( const string& reactName, unsigned int type ){
     Kinematics* kin = m_ati.kinematics(i, dataIndex);
     m_currentEventWeight = kin->weight();
     
-    if( !isDataOrBkgnd ){
+    if( !isDataOrBkgnd && m_weightMCByIntensity ){
 
       // m_ati.intensity already contains a possible MC-event weight
-      m_currentEventWeight = m_ati.intensity( i, dataIndex );
+      m_currentEventWeight = m_ati.intensity( i, dataIndex ) / totalIntensity;
     }
        
     // the user defines this function in the derived class and it
@@ -592,6 +605,14 @@ PlotGenerator::isReactionEnabled( const string& reactName ) const {
 }
 
 void
+PlotGenerator::setWeightMCByIntensity( bool value ){
+  
+  m_weightMCByIntensity = value;
+  recordConfiguration();
+}
+
+
+void
 PlotGenerator::recordConfiguration() {
   
   // generate a string to identify the current amplitude configuation
@@ -610,7 +631,9 @@ PlotGenerator::recordConfiguration() {
       
       m_currentConfiguration += *ampItr;
     }
-  }    
+  }
+  
+  m_currentConfiguration += ( m_weightMCByIntensity ? "_weighted" : "_unweighted" );
 }
 
 void
