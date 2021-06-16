@@ -90,7 +90,7 @@ protected:
   
   // helper functions -- also useful for pulling parts of the
   // likelihood calculation in parallel implementations
-  double dataTerm();
+  double dataTerm( bool suppressError = false );
   double normIntTerm();
   
   // these are useful for MPI implementations since there are a

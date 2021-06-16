@@ -206,7 +206,7 @@ LikelihoodCalculator::normIntTerm(){
 }
 
 double
-LikelihoodCalculator::dataTerm(){
+LikelihoodCalculator::dataTerm( bool suppressError ){
   
 #ifdef VTRACE
   VT_TRACER( "LikelihoodCalculator::dataTerm" );
@@ -256,7 +256,10 @@ LikelihoodCalculator::dataTerm(){
       
       m_sumBkgWeights = m_ampVecsBkgnd.m_dSumWeights;
       
-      if( m_sumBkgWeights < 0 ){
+      // the extra boolean allows MPI jobs to suppress this check which
+      // may fail on one of the follower nodes if the background sample
+      // is sparse
+      if( m_sumBkgWeights < 0 && !suppressError ){
         cerr
         << "****************************************************************\n"
         << "* ERROR: The sum of all background weights is negative.  This  *\n"
