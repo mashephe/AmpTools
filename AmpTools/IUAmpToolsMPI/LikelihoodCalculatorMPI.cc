@@ -184,6 +184,18 @@ LikelihoodCalculatorMPI::operator()()
   setSumBkgWeights( sumBkgWeights );
   setNumBkgEvents ( numBkgEvents  );
   setNumDataEvents( numDataEvents );
+
+  if( sumBkgWeights < 0 ){
+    cerr
+    << "****************************************************************\n"
+    << "* ERROR: The sum of all background weights is negative.  This  *\n"
+    << "*   implies a negative background in the signal region, which  *\n"
+    << "*   unphysical.  The weighted sum of the background events     *\n"
+    << "*   should represent the background contribution to the signal *\n"
+    << "*   region.                                                    *\n"
+    << "****************************************************************\n" << endl;
+    assert( false );
+  }
   
   // if we have an amplitude with a free parameter, the call to normIntTerm()
   // will trigger recomputation of NI's -- we need to put the followers in the
@@ -251,7 +263,10 @@ LikelihoodCalculatorMPI::computeLikelihood()
   
   double data[4];
   
-  data[0] = dataTerm();
+  // true flag will suppress error checking on the
+  // sum of background weights on each node -- this checking
+  // happpens on the leader node in operator()() above
+  data[0] = dataTerm( true );
   data[1] = sumBkgWeights();
   data[2] = numBkgEvents();
   data[3] = numDataEvents();
