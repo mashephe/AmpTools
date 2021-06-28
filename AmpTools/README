@@ -73,6 +73,20 @@ the square root of the intensity computed from the parameters and the kinematics
 
 RELEASE NOTES:
 
+v0.12.0 (28-Jun-2021):
+
+This version has a new feature that allows one to successively randomize
+the starting parameters and refit data.  Such changes required modifications
+to the general approach for MPI-based fits, and existing MPI applications are
+not likely to work without some modification.  See the DalitzExeMPI/fitAmplitudes
+example for how to properly terminate MPI fitting jobs.
+
+When making projections of the fit results in the PlotGenerator the code now
+normalizes fit-weighted MC by a factor determined from the fit parameters rather
+than the integral of the histogram.  This allows for plotting weighted histograms,
+e.g., moments of the data, where the weighted bin contents may have varying
+signs.
+
 v0.11.0 (19-Jan-2021):
 
 This update changes the treatement of weigths in a background file provided

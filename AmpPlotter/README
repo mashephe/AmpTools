@@ -31,6 +31,11 @@ Tutorials/Dalitz/DalitzExe/ampPlotter.cc
 
 RELEASE NOTES:
 
+v0.12.0 (28-Jun-2021):
+
+This release provides a GUI checkbox that lets the user toggle off
+and on the weighting of the MC by the fit model.
+
 v0.11.0 (19-Jan-2021):
 
 Fix bug that resulted in improper initialization of check boxes for various
