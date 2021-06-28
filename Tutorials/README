@@ -15,6 +15,12 @@ data set for fitting.  This example can also be compiled to use MPI and GPU acce
 
 RELEASE NOTES:
 
+v0.12 (28-Jun-21):
+
+A new structure for MPI-based fitting is reflected in the fitAmplitudes
+executable.  This allows multiple subsequent fits to be run in a single
+executable, e.g., when fitting with randomized fit parameters.
+
 v0.11 (19-Jan-21):
 
 Removed gammaKK tutorial because it has not been maintained
