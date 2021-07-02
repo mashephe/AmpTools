@@ -49,6 +49,8 @@
 #include "IUAmpTools/IntensityManager.h"
 #include "IUAmpTools/Amplitude.h"
 #include "IUAmpTools/AmpVecs.h"
+#include "IUAmpTools/LHContribution.h"
+#include "IUAmpTools/LHContributionManager.h"
 #include "IUAmpTools/Kinematics.h"
 #include "IUAmpTools/NormIntInterface.h"
 #include "IUAmpTools/ConfigFileParser.h"
@@ -112,6 +114,13 @@ class AmpToolsInterface{
    */
 
     static void registerAmplitude( const Amplitude& defaultAmplitude);
+
+  /** Static function to register a user LHContribution class.  For example,
+   *  to register a user-defined phaseshift LHContribution, one would use:
+   *     AmpToolsInterface::registerAmplitude(phaseshift());
+   */
+
+    static void registerLHContribution( const LHContribution& defaulLHContribution);
 
   /** Static function to register a user DataReader class.  For example,
    *  to register a user-defined CLEODataReader, one would use:
@@ -223,6 +232,12 @@ class AmpToolsInterface{
    */
 
     double likelihood(const string& reactionName) const;
+
+   double onlyLikelihood() const;
+   double onlyLikelihood(const string& reactionName) const;
+   
+   double onlyLASSO() const;
+   double onlyLASSO(const string& reactionName) const;
 
   /** This function will randomly set the production parameters in
    * the likelihood calculator.  It is useful when searching for multiple
@@ -421,6 +436,12 @@ class AmpToolsInterface{
     void printEventDetails (string reactionName, Kinematics* kin) const;
 
 
+  /** enable LASSO method to replace hypothesis testing
+   *  in amplitude analysis
+   */
+
+    void enableLASSO(double lambda) const;
+
   protected:
   
     AmpToolsInterface( const AmpToolsInterface& ati );
@@ -446,6 +467,7 @@ class AmpToolsInterface{
     map<string,LikelihoodCalculator*> m_likCalcMap;
 
     static vector<Amplitude*>  m_userAmplitudes;
+    static vector<LHContribution*>  m_userLHContributions;
     static vector<DataReader*> m_userDataReaders;
   
   static unsigned int m_randomSeed;

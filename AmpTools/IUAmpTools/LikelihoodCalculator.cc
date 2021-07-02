@@ -67,7 +67,10 @@ m_firstDataCalc( true ),
 m_firstNormIntCalc( true ),
 m_sumBkgWeights( 0 ),
 m_numBkgEvents( 0 ),
-m_numDataEvents( 0 )
+m_numDataEvents( 0 ),
+m_enableLASSO( false ),
+m_lassoTerm( 0 ),
+m_regularizeLASSO( 0 )
 {
   
   m_hasBackground = ( dataReaderBkgnd != NULL );
@@ -94,6 +97,20 @@ LikelihoodCalculator::operator()(){
   // methods they need to compute these terms individually
   
   return -2 * ( dataTerm() - normIntTerm() );
+}
+
+double
+LikelihoodCalculator::returnLassoTerm(){
+	return m_lassoTerm;
+}
+
+
+double
+LikelihoodCalculator::returnLikelihoodTerm(){
+  double val = -2 * ( dataTerm() - normIntTerm());
+  if(m_enableLASSO)
+    val -= m_lassoTerm;
+	return val;
 }
 
 double
@@ -133,7 +150,9 @@ LikelihoodCalculator::normIntTerm(){
   
   double normTerm = 0;
   bool renormalize = m_intenManager.termsAreRenormalized();
-  
+
+  double lassoTerm = 0;
+
   switch( m_intenManager.type() ){
       
     case IntensityManager::kAmplitude:
@@ -162,6 +181,11 @@ LikelihoodCalculator::normIntTerm(){
           if( renormalize ){
             thisTerm /= sqrt( m_ampIntArray[2*a*n+2*a] *
                               m_ampIntArray[2*b*n+2*b] );
+          }
+
+          if(m_enableLASSO && a==b){
+            double _lassoTerm = norm(complex<double>(reVa,imVa))*reNI;
+            lassoTerm += m_regularizeLASSO * sqrt(_lassoTerm);
           }
           
           normTerm += thisTerm;
@@ -192,7 +216,12 @@ LikelihoodCalculator::normIntTerm(){
 
     normTerm = ( m_numDataEvents - m_sumBkgWeights ) * log( normTerm );
     normTerm += nPred - ( m_numDataEvents * log( nPred ) );
-    
+
+    if(m_enableLASSO){
+      m_lassoTerm = lassoTerm;
+      normTerm += 0.5*lassoTerm;
+    }
+
     return normTerm;
   }
   else{
@@ -201,6 +230,10 @@ LikelihoodCalculator::normIntTerm(){
     // a Poisson distribution of the predicted signal and the number of
     // observed events to normalize the fit components
     
+    if(m_enableLASSO){
+      m_lassoTerm = lassoTerm;
+      normTerm += 0.5*lassoTerm;
+    }
     return normTerm;
   }
 }

@@ -50,6 +50,7 @@
 
 
 vector<Amplitude*> AmpToolsInterface::m_userAmplitudes;
+vector<LHContribution*> AmpToolsInterface::m_userLHContributions;
 vector<DataReader*> AmpToolsInterface::m_userDataReaders;
 unsigned int AmpToolsInterface::m_randomSeed = 0;
 
@@ -121,6 +122,15 @@ AmpToolsInterface::resetConfigurationInfo(ConfigurationInfo* configurationInfo){
     
     m_intensityManagers.push_back(ampMan);
   }
+
+  LHContributionManager* lhcontMan = new LHContributionManager();
+  if( m_functionality == kFull ){
+    for (unsigned int i = 0; i < m_userLHContributions.size(); i++){
+      lhcontMan->registerLHContribution( *m_userLHContributions[i] );
+    }
+    lhcontMan->setMinimizationManager(m_minuitMinimizationManager);
+    lhcontMan->setupFromConfigurationInfo( m_configurationInfo );
+  }
   
   if( m_functionality == kFull ){
     
@@ -128,9 +138,9 @@ AmpToolsInterface::resetConfigurationInfo(ConfigurationInfo* configurationInfo){
     // create a ParameterManager
     // ************************
     
-    m_parameterManager = new ParameterManager ( m_minuitMinimizationManager, m_intensityManagers );
+    m_parameterManager = new ParameterManager ( m_minuitMinimizationManager, m_intensityManagers, lhcontMan );
     m_parameterManager->setupFromConfigurationInfo( m_configurationInfo );
-    
+    m_parameterManager->setLHContributionManager(lhcontMan);
   }
   
   // ************************
@@ -258,6 +268,19 @@ AmpToolsInterface::likelihood (const string& reactionName) const {
   return 0.0;
 }
 
+double
+AmpToolsInterface::onlyLikelihood (const string& reactionName) const {
+  LikelihoodCalculator* likCalc = likelihoodCalculator(reactionName);
+  if (likCalc) return (*likCalc).returnLikelihoodTerm();
+  return 0.0;
+}
+
+double
+AmpToolsInterface::onlyLASSO (const string& reactionName) const {
+  LikelihoodCalculator* likCalc = likelihoodCalculator(reactionName);
+  if (likCalc) return (*likCalc).returnLassoTerm();
+  return 0.0;
+}
 
 double
 AmpToolsInterface::likelihood () const {
@@ -267,6 +290,24 @@ AmpToolsInterface::likelihood () const {
     L += likelihood(reaction->reactionName());
   }
   return L;
+}
+
+double AmpToolsInterface::onlyLikelihood() const {
+	double L = 0.;
+	for (unsigned int irct = 0; irct < m_configurationInfo->reactionList().size(); irct++){
+		ReactionInfo* reaction = m_configurationInfo->reactionList()[irct];
+		L += onlyLikelihood(reaction->reactionName());
+	}
+	return L;
+}
+
+double AmpToolsInterface::onlyLASSO() const {
+	double L = 0.;
+	for (unsigned int irct = 0; irct < m_configurationInfo->reactionList().size(); irct++){
+		ReactionInfo* reaction = m_configurationInfo->reactionList()[irct];
+		L += onlyLASSO(reaction->reactionName());
+	}
+	return L;
 }
 
 void
@@ -428,6 +469,12 @@ AmpToolsInterface::registerAmplitude( const Amplitude& amplitude){
   
 }
 
+void
+AmpToolsInterface::registerLHContribution( const LHContribution& lhcont){
+  
+  m_userLHContributions.push_back(lhcont.clone());
+  
+}
 
 
 void
@@ -825,4 +872,10 @@ float
 AmpToolsInterface::random( float randMax ){
   
   return ( (float) rand() / RAND_MAX ) * randMax;
+}
+
+void AmpToolsInterface::enableLASSO(double lambda) const {
+  for(auto &p : m_likCalcMap){
+    p.second->enableLASSO(lambda);
+  }
 }

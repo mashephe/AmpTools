@@ -83,8 +83,16 @@ public:
   
   // this method delivers the likelihood
   double operator()();
+  double returnLassoTerm();
+  double returnLikelihoodTerm();
+  
   
   virtual double numSignalEvents();
+
+  void enableLASSO(double lambda){ 
+    m_enableLASSO = true;
+    m_regularizeLASSO = lambda;
+  }
   
 protected:
   
@@ -129,6 +137,10 @@ private:
   double m_sumBkgWeights;
   double m_numBkgEvents;
   double m_numDataEvents;
+
+  bool m_enableLASSO;
+  double m_regularizeLASSO;
+  double m_lassoTerm;
 };
 
 #endif

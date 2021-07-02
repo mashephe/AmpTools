@@ -70,6 +70,33 @@ m_intenManagers( intenManagers )
 //  cout << "Parameter manager initialized." << endl;
 }
 
+ParameterManager::ParameterManager( MinuitMinimizationManager* minuitManager,
+                                    IntensityManager* intenManager,
+                                    LHContributionManager *lhcontManager ) :
+MIObserver(),
+m_minuitManager( minuitManager ),
+m_intenManagers( 0 ),
+m_lhcontManagers( lhcontManager )
+{ 
+  m_minuitManager->attach( this );
+  m_intenManagers.push_back(intenManager);
+//  cout << "Parameter manager initialized." << endl;
+}
+
+
+ParameterManager::
+ParameterManager( MinuitMinimizationManager* minuitManager,
+                 const vector<IntensityManager*>& intenManagers,
+                 LHContributionManager *lhcontManager ) :
+MIObserver(),
+m_minuitManager( minuitManager ),
+m_intenManagers( intenManagers ),
+m_lhcontManagers( lhcontManager )
+{ 
+  m_minuitManager->attach( this );
+//  cout << "Parameter manager initialized." << endl;
+}
+
 // protected constructors: these are used in MPI implementations where
 // the ParameterManager is created on a follower node that does not have
 // a MinuitMinimizationManager.  The reference must be initialized, so
@@ -149,6 +176,27 @@ ParameterManager::setupFromConfigurationInfo( ConfigurationInfo* cfgInfo ){
       addAmplitudeParameter( (**ampItr).fullName(), *parItr );
     }
   }
+
+
+  /** do the same for LHContributions
+   */
+
+
+  vector< LHContributionInfo* > lhconts = cfgInfo->LHContributionList();
+
+  for( vector< LHContributionInfo* >::iterator lhcontsItr = lhconts.begin();
+      lhcontsItr != lhconts.end();
+      ++lhcontsItr ){
+    
+    vector< ParameterInfo* > pars = (**lhcontsItr).parameters();
+    
+    for( vector< ParameterInfo* >::const_iterator parItr = pars.begin();
+        parItr != pars.end();
+        ++parItr ){
+      addLHContributionParameter( (**lhcontsItr).fullName(), *parItr );
+    }
+  }
+
 }
 
 void
@@ -160,6 +208,26 @@ ParameterManager::setProductionParameter( const string& termName,
 
 void
 ParameterManager::setAmpParameter( const string& parName,
+                                   double value ){
+
+  auto ampParItr = m_ampParams.find( parName );
+  
+  if( ampParItr == m_ampParams.end() ){
+    
+    cout << "ERROR:  request to set value of unkown parameter named "
+         << parName << " -- ignoring request." << endl;
+    return;
+  }
+  
+  // the "false" here disables notifications that
+  // parameters have changed -- this avoids undesirable
+  // behavior when trying to setup a fit, which is what
+  // this member function is used for
+  ampParItr->second->setValue( value, false );
+}
+
+void
+ParameterManager::setLHContributionParameter( const string& parName,
                                    double value ){
 
   auto ampParItr = m_ampParams.find( parName );
@@ -254,6 +322,63 @@ ParameterManager::addAmplitudeParameter( const string& termName, const Parameter
   }
 }
 
+
+void ParameterManager::addLHContributionParameter( const string& lhcontName, const ParameterInfo* parInfo ){
+  const string& parName = parInfo->parName();
+  
+  // see if this is a parameter that we already know about
+  
+  map< string, MinuitParameter* >::iterator mapItr = m_ampParams.find( parName );
+  MinuitParameter* parPtr;
+  
+  if( mapItr == m_ampParams.end() ){
+        
+    parPtr = new MinuitParameter( parName, m_minuitManager->parameterManager(),
+                                 parInfo->value());
+    
+    // attach to allow the parameter to call back this class when it is updated
+    parPtr->attach( this );
+    
+    if( parInfo->fixed() ){
+      parPtr->fix();
+    }
+    
+    if( parInfo->bounded() ){
+      parPtr->bound( parInfo->lowerBound(), parInfo->upperBound() );
+    }
+    
+    if( parInfo->gaussianBounded() ){
+      
+      GaussianBound* boundPtr = 
+      new GaussianBound( m_minuitManager, parPtr, parInfo->centralValue(),
+                        parInfo->gaussianError() );
+      
+      m_boundPtrCache.push_back( boundPtr );
+    }
+    
+    // keep track of new objects that are being allocated
+    m_ampPtrCache.push_back( parPtr );
+    m_ampParams[parName] = parPtr;
+  }
+  else{
+    parPtr = mapItr->second;
+  }
+
+  // find the LHContribution Manager that has the relevant LHContribution
+
+    
+  if( parInfo->fixed() ){
+      
+      // if it is fixed just go ahead and set the parameter by value
+      // this prevents Amplitude class from thinking that it has
+      // a free parameter
+    m_lhcontManagers->setParValue( lhcontName, parName, parInfo->value() );
+  }
+  else{
+    m_lhcontManagers->setParPtr( lhcontName, parName, parPtr->constValuePtr() );
+  }
+}
+
 void 
 ParameterManager::addProductionParameter( const string& termName, bool real, bool fixed )
 {
@@ -318,6 +443,18 @@ ParameterManager::getProdParPtr( const string& termName ){
 
 double* 
 ParameterManager::getAmpParPtr( const string& parName ){
+  
+  map< string, MinuitParameter* >::iterator mapItr = m_ampParams.find( parName );
+  
+  // make sure we found one
+  assert( mapItr != m_ampParams.end() );
+  
+  return mapItr->second->valuePtr();
+}
+
+
+double* 
+ParameterManager::getLHContributionParPtr( const string& parName ){
   
   map< string, MinuitParameter* >::iterator mapItr = m_ampParams.find( parName );
   
