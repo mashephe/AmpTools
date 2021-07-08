@@ -304,29 +304,17 @@ Histogram* PlotGenerator::projection( unsigned int projectionIndex, string react
     }
     (*cachePtr)[config][reactName] = m_histVect_clone;
     
-    // renormalize MC - the cache contains one set of plots for each
-    // reaction, so we need to compute intensities for only that reaction
-    if( type != kData ){
+    // renormalize MC  in the case it is intensity-weighted - the cache contains
+    // one set of plots for each reaction, so we need to normalized by the
+    // generated events for that reaction
+    if( ( ( type == kAccMC ) || ( type == kGenMC ) ) && m_weightMCByIntensity  ){
       
       vector< Histogram* >* histVect = &((*cachePtr)[config][reactName]);
       for( vector< Histogram* >::iterator hist = histVect->begin();
           hist != histVect->end();
           ++hist ){
-        
-        switch( type ){
-            
-          case kAccMC: (*hist)->rescale( intensity( reactName, false ).first /
-                                         m_normIntMap[reactName]->numAccEvents() );
-            
-            break;
-            
-          case kGenMC: (*hist)->rescale( intensity( reactName, true ).first /
-                                         m_normIntMap[reactName]->numGenEvents() );
-            break;
-            
-          default:
-            break;
-        }
+                  
+        (*hist)->rescale( 1. / m_normIntMap[reactName]->numGenEvents() );
       }
     }
   }
@@ -391,15 +379,6 @@ PlotGenerator::fillProjections( const string& reactName, unsigned int type ){
   // calculate intensities for MC:
   if( !isDataOrBkgnd && m_weightMCByIntensity ) m_ati.processEvents( reactName, dataIndex );
   
-  // if we are plotting MC then each event will be weighted by
-  // the intensity, but the intensity (derived from the production
-  // coefficients) has a scale that acceptance corrected number
-  // of events -- so we will get this intensity here and use it
-  // to rescale the event-by-event weights in the loop below so that
-  // the scale of resulting histograms is not off by a factor of
-  // the number of acceptance corrected events
-  double totalIntensity = intensity( reactName ).first;
-        
   // loop over ampVecs and fill histograms
   for( unsigned int i = 0; i < m_ati.numEvents( dataIndex ); ++i ){
     
@@ -411,7 +390,7 @@ PlotGenerator::fillProjections( const string& reactName, unsigned int type ){
     if( !isDataOrBkgnd && m_weightMCByIntensity ){
 
       // m_ati.intensity already contains a possible MC-event weight
-      m_currentEventWeight = m_ati.intensity( i, dataIndex ) / totalIntensity;
+      m_currentEventWeight = m_ati.intensity( i, dataIndex );
     }
        
     // the user defines this function in the derived class and it
