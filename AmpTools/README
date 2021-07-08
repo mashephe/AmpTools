@@ -73,6 +73,14 @@ the square root of the intensity computed from the parameters and the kinematics
 
 RELEASE NOTES:
 
+v0.12.1 (8-Jul-2021):
+
+This version fixes a bug in the normalization of accepted Monte Carlo when
+trying to make projections of a fit in order to compare the data with
+fit results.  The scale of the accepted MC can appear systematically
+off such that its integral is not consistent with the data.  This is
+usually incorrect and this bug fix should remedy the problem.
+
 v0.12.0 (28-Jun-2021):
 
 This version has a new feature that allows one to successively randomize
