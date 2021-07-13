@@ -101,7 +101,7 @@ public:
    * vectors that makeup an event.
    */
   
-  enum { kMaxParticles = 7 };
+  enum { kMaxParticles = 8 };
   
   /**
    * Set the event ID.
