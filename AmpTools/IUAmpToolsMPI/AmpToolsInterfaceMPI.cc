@@ -30,8 +30,6 @@ AmpToolsInterfaceMPI::AmpToolsInterfaceMPI(ConfigurationInfo* configurationInfo)
     // ************************
 
   m_minuitMinimizationManager = new MinuitMinimizationManager(500);
-  m_minuitMinimizationManager->setPrecision( 1E-13 );
-
 
     // ************************
     // create an AmplitudeManager for each reaction
