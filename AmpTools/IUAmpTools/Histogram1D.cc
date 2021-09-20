@@ -114,17 +114,30 @@ TH1* Histogram1D::toRoot( void ) const {
     plot->SetBinError( i+1, sqrt( m_sumWeightSq[i] ) );
   }
   
-  ostringstream yLabel;
-  yLabel << "Candidates / ";
-  yLabel.precision( 2 );
-  float binSize = ( m_xHigh - m_xLow ) / m_nBins;
-  yLabel << binSize;
-  
-  plot->GetYaxis()->SetTitle( yLabel.str().c_str() );
-  plot->GetXaxis()->SetTitle( title().c_str() );
+  plot->GetYaxis()->SetDecimals();
   plot->GetXaxis()->SetDecimals();
-  plot->GetXaxis()->SetTitleOffset(1.2);
 
+  // sometimes people will want to pass in axes labels
+  // through the histogram title using a semi-colon which
+  // is standard in ROOT -- if this is not done, then
+  // try to guess good labels for the axes
+  if( strlen( plot->GetYaxis()->GetTitle() ) == 0 ) {
+
+    ostringstream yLabel;
+    yLabel << "Candidates / ";
+    yLabel.precision( 2 );
+    float binSize = ( m_xHigh - m_xLow ) / m_nBins;
+    yLabel << binSize;
+    plot->GetYaxis()->SetTitle( yLabel.str().c_str() );
+  }
+  
+  if( strlen( plot->GetXaxis()->GetTitle() ) == 0 ) {
+    
+    plot->GetXaxis()->SetTitle( title().c_str() );
+    plot->GetXaxis()->SetDecimals();
+    plot->GetXaxis()->SetTitleOffset(1.2);
+  }
+  
   return (TH1*)plot;
 }
 

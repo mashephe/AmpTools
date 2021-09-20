@@ -73,6 +73,18 @@ the square root of the intensity computed from the parameters and the kinematics
 
 RELEASE NOTES:
 
+v0.12.2 (20-Sep-2021):
+
+Occasionally MIGRAD will fail with an error that says "machine
+precision limits further improvement."  This condition can be fixed
+by eliminating the manual setting of machine precision in the
+AmpToolsInterface and allowing MINUIT to automatically determine the
+machine precision.  (This is a remnant of single precision GPU
+computation.)  The user can always override this by calling the
+setPrecision funcion in the MinimizaitonManager -- this will no
+longer be done by default in the AmpToolsInterface.  Also this release
+has some very small adjustments to axes labels in plots.
+
 v0.12.1 (8-Jul-2021):
 
 This version fixes a bug in the normalization of accepted Monte Carlo when
