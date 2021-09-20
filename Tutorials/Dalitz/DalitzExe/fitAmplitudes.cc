@@ -61,7 +61,6 @@ int main( int argc, char* argv[] ){
   cout << "LIKELIHOOD BEFORE MINIMIZATION:  " << ATI.likelihood() << endl;
 
   MinuitMinimizationManager* fitManager = ATI.minuitMinimizationManager();
-  fitManager->setPrecision(1E-13);
   fitManager->setStrategy(1);
 
   fitManager->migradMinimization();
