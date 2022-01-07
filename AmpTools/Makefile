@@ -1,13 +1,62 @@
+############################################################
+# Using make to build AmpTools:
+#
+# The user should be sure that root-config is in the path prior to building.
+#
+# options:
+#     MPI=1   (compile with MPI support)
+#     GPU=1   (compile GPU-accelerated code, works with MPI also)
+#     GPU_ARCH=arch_flag  (set the GPU architecture flag to arch_flag, e.g, sm_20)
+#
+#     VERBOSE=1   (shows make actions)
+#
+# Below are the common user-configurable options for building AmpTools.
+
+CXX := gcc
+CXX_FLAGS := -O3
+
+# to use MPI, an MPI compiler should be in the user path
+
+MPICXX := mpicxx
+
+# to use CUDA the environment variable CUDA_INSTALL_PATH must be defined
+# and the proper architecture specified for the GPU.  In addition
+# the nvcc compiler (likely in $CUDA_INSTALL_PATH/bin) needs to be in
+# the user's path
+
+NVCC :=	nvcc
+NVCC_FLAGS := -m64
+
+ifndef GPU_ARCH
+GPU_ARCH := sm_20
+endif
+
+NVCC_FLAGS += -arch=$(GPU_ARCH)
+
+############################################################
+# Most things below here probably don't need to be changed
+#
+# (expert option for profile and tracing)
+# to build code instrumented for Vampir Trace use VTRACE=1
+
+ifdef VTRACE
+CXX := vtcxx -vt:inst manual
+
+ifdef MPI
+CXX += -vt:mpi
+endif
+
+NVCC := vtnvcc
+CXX_FLAGS += -DVTRACE
+endif
 
 INC_DIR :=  -I.. -I$(shell root-config --incdir)
+CXX_FLAGS += $(shell root-config --cflags)
 
 SRCDIRS := UpRootMinuit MinuitInterface IUAmpTools
 ALLDIRS := $(SRCDIRS) IUAmpToolsMPI GPUManager
 
-CXX := gcc
-CXX_FLAGS := -O3 $(shell root-config --cflags)
-
-# for more detailed info, use VERBOSE=1
+# check verbose output
 ifdef VERBOSE
 	Q :=
 	vecho = @true
@@ -16,51 +65,25 @@ else
 	vecho = @echo
 endif
 
-#To build in MPI-exentsions type: make MPI=1
-#(this can be used with GPU, e.g.:  make MPI=1 GPU=1)
-
-ifdef MPI
-
-SRCDIRS += IUAmpToolsMPI
-
-MPICC := mpicxx 
-CXX_FLAGS += -DUSE_MPI
-
-endif
-
-TARGET_LIBS := $(addsuffix .a, $(addprefix lib, $(SRCDIRS)))
-
-#To build GPU-accelerated code type: make GPU=1
-
+# check if GPU build is requested
 ifdef GPU
-
 SRCDIRS += GPUManager
-TARGET_LIBS_GPU :=  $(addsuffix _GPU.a, $(addprefix lib, $(SRCDIRS)))
-
-NVCC :=	nvcc
-CUDA_FLAGS := -m64 -arch=sm_20
-INC_DIR += -I$(CUDA_INSTALL_PATH)/include 
-
+INC_DIR += -I$(CUDA_INSTALL_PATH)/include
 CXX_FLAGS += -DGPU_ACCELERATION
-DEFAULT := libAmpTools_GPU.a
-
-else
-
-DEFAULT := libAmpTools.a
-
+SUFFIX := _GPU
 endif
 
-# To build code instrumented for Vampir Trace  VTRACE=1
-
-ifdef VTRACE
-
-CXX := vtcxx -vt:inst manual
-MPICC := vtcxx -vt:mpi -vt:inst manual
-NVCC := vtnvcc
-
-CXX_FLAGS += -DVTRACE
-
+# check if MPI build is requested
+ifdef MPI
+CXX := $(MPICXX)
+SRCDIRS += IUAmpToolsMPI
+CXX_FLAGS += -DUSE_MPI
+SUFFIX += _MPI
 endif
+
+# setup the targets
+DEFAULT := libAmpTools$(SUFFIX).a
+TARGET_LIBS := $(SRCDIRS:%=lib%$(SUFFIX).a)
 
 export
 
@@ -71,29 +94,23 @@ default: lib $(DEFAULT)
 lib:
 	$(Q)mkdir lib
 
-libAmpTools.a: $(TARGET_LIBS)
+$(DEFAULT): $(TARGET_LIBS)
 	$(foreach lib, $(TARGET_LIBS), $(shell cd lib; ar -x $(lib) ) )
-	$(Q)(cd lib && ar -rsc $@ *.o && ranlib $@)
-	$(Q)(cd lib && rm -f *.o)
+	$(Q)(cd lib && ar -rsc $@ .*$(SUFFIX).o && ranlib $@)
+	$(Q)(cd lib && rm -f .*$(SUFFIX).o)
+	$(Q)(cd lib && rm -f $(TARGET_LIBS))
+	$(Q)-rm -f lib/__*
 	$(vecho) "=== Build of $@ is complete. ==="
 
-libAmpTools_GPU.a: $(TARGET_LIBS) $(TARGET_LIBS_GPU)
-	$(foreach lib_GPU, $(TARGET_LIBS_GPU), $(shell cd lib; ar -x $(lib_GPU) ) )
-	$(Q)(cd lib && ar -rsc $@ *.o && ranlib $@)
-	$(Q)(cd lib && rm -f *.o)
-	$(vecho) "=== Build of $@ is complete. ==="
+# descend into the directory obtained by stripping lib and
+# $(SUFFIX).a and execute make with LIB set to the target
+lib%.a:
+	$(Q)$(MAKE) -C $(subst lib,, $(subst $(SUFFIX).a,, $@ )) LIB=$@
+	$(Q)cp $(subst lib,, $(subst $(SUFFIX).a,, $@))/$@ lib/
 
-lib%_GPU.a: 
-	$(Q)$(MAKE) -C $(subst lib,, $(subst _GPU.a,, $@ )) LIB=$@
-	$(Q)cp $(subst lib,, $(subst _GPU.a,, $@))/$@ lib/
-
-lib%.a: 
-	$(Q)$(MAKE) -C $(subst lib,, $(subst .a,, $@ )) LIB=$@
-	$(Q)cp $(subst lib,, $(subst .a,, $@))/$@ lib/
-
-
+# cleaning
 clean: $(addprefix clean_, $(ALLDIRS))
-	$(Q)-rm -f lib/*.a
+	$(Q)-rm -f lib/*
 
 clean_%:
 	$(Q)-cd $(subst clean_,, $@) && $(MAKE) clean

@@ -1,82 +1,62 @@
 
-INC_DIR :=  -I.. -I$(shell root-config --incdir) \
-  -I$(AMPTOOLS) -I$(AMPPLOTTER) -I$(DALITZ)
+INC_DIR += -I$(AMPPLOTTER)
 
-LIB_DIR := -L$(shell root-config --libdir) \
-	-L$(AMPTOOLS)/lib -L$(AMPPLOTTER)/lib -L$(DALITZ)/lib
+# need some linking information available
+LIB_DIR := -L$(shell root-config --libdir) $(CUDA_LIBS) \
+	-L$(AMPTOOLS)/lib -L$(AMPPLOTTER)/lib -L../lib
+	
+LIBS :=  -l$(PROJECT)$(SUFFIX) -lAmpPlotter -lAmpTools$(ATSUFFIX) \
+	$(shell root-config --glibs) $(CUDA_LINK) -lstdc++
 
-ROOTLIBS := $(shell root-config --glibs)
+# any source file falls into one of these two categories -- we'll
+# assume that anything that has MPI in the name is an MPI executable
+MPI_SRC := $(shell ls *.cc | grep -i mpi)
+NOMPI_SRC := $(shell ls *.cc | grep -vi mpi)
 
-CXX := gcc
-#CXX_FLAGS := -O3 -m32
-CXX_FLAGS := -O3 $(shell root-config --cflags)
+TARGET_EXE := $(NOMPI_SRC:%.cc=.%$(SUFFIX)_nompiexe)
 
-# for more detailed info, use VERBOSE=1
-ifdef VERBOSE
-	Q :=
-	vecho = @true
-else
-	Q := @
-	vecho = @echo
-endif
-
+# optionally if MPI is called for, we will build the MPI executables
 ifdef MPI
-
-CXX := mpicxx -cc=$(CXX)
-CXX_FLAGS += -DUSEMPI
-
+TARGET_EXE += $(MPI_SRC:%.cc=.%$(SUFFIX)_mpiexe)
 endif
-
-
-# To build code instrumented for Vampir Trace  VTRACE=1
-
-ifdef VTRACE
-
-CXX := vtcxx -vt:inst manual
-MPICC := vtcxx -vt:mpi -vt:inst manual
-
-CXX_FLAGS += -DVTRACE
-
-endif
-
-ifdef GPU
-
-INC_DIR += -I$(CUDA_INSTALL_PATH)/include
-LIB_DIR += -L$(CUDA_INSTALL_PATH)/lib64
-
-LIBS :=  -lDalitz_GPU -lAmpPlotter -lAmpTools_GPU $(ROOTLIBS) -lcudart -lstdc++
-CXX_FLAGS += -DGPU_ACCELERATION
-
-else
-
-LIBS :=  -lDalitz -lAmpPlotter -lAmpTools $(ROOTLIBS) -lstdc++
-
-endif
-
-SRCFILES := $(wildcard *.cc)
-TARGET_EXE := $(subst .cc,_exe,$(SRCFILES))
 
 .PHONY: default
-.PRECIOUS: %.o
+.PRECIOUS: .%$(SUFFIX).o .%$(SUFFIX)_mpi.o
 
 default: $(TARGET_EXE)
 
-# generic build rule (requires all libraries)
+test:
+	$(vecho) "exesuffix: $(SUFFIX)"
+	$(vecho) "suffix: $(SUFFIX)"
+	$(vecho) $(TARGET_EXE)
 
-%_exe: %.o
-	$(vecho) "--> Linking $(subst _exe,,$@)"
-	$(Q)$(CXX) $(CXX_FLAGS) -o $(subst _exe,,$@) $< -O3 $(INC_DIR) $(LIB_DIR) $(LIBS)
+.%$(SUFFIX)_nompiexe: .%$(SUFFIX).o
+	$(vecho) "--> Linking $*"
+	$(Q)$(CXX) $(CXX_FLAGS) -o $(subst _nompiexe,_bin,$@) $< \
+	$(INC_DIR) $(LIB_DIR) $(LIBS)
 
-%.o : %.cc
+.%$(SUFFIX)_mpiexe: .%$(SUFFIX)_mpi.o
+	$(vecho) "--> Linking $*"
+	$(Q)$(MPICXX) $(CXX_FLAGS) -o $(subst _mpiexe,_bin,$@) $< \
+	$(INC_DIR) $(LIB_DIR) $(LIBS)
+
+.%$(SUFFIX).o: %.cc .%$(SUFFIX).d
 	$(vecho) "-> Compiling $<"
-	$(Q)$(CXX) $(CXX_FLAGS) -M -o $*.d $< $(INC_DIR) ; \
-	cp $*.d $*.dep; \
-	sed -e 's/#.*//' -e 's/^[^:]*: *//' -e 's/ *\\$$//' \
-		-e '/^$$/ d' -e 's/$$/ :/' < $*.d >> $*.dep; \
-	rm -f $*.d $*.d.bak
+	$(Q)$(CXX) $(CXX_FLAGS) -M -MP -MT $@ -o .$*$(SUFFIX).d $< $(INC_DIR)
 	$(Q)$(CXX) $(CXX_FLAGS) -c -o $@ $< $(INC_DIR)
 
+.%$(SUFFIX)_mpi.o: %.cc .%$(SUFFIX).d
+	$(vecho) "-> Compiling $<"
+	$(Q)$(MPICXX) $(CXX_FLAGS) -M -MP -MT $@ -o .$*$(SUFFIX).d $< $(INC_DIR)
+	$(Q)$(MPICXX) $(CXX_FLAGS) -c -o $@ $< $(INC_DIR)
+
+DEPFILES := $(NOMPI_SRC:%.cc=.%$(SUFFIX).d)
+ifdef MPI
+DEPFILES += $(MPI_SRC:%.cc=.%$(SUFFIX).d)
+endif
+$(DEPFILES):
+
 clean:
-	$(Q)rm -f *.o *.dep $(subst _exe,,$(TARGET_EXE))
+	$(Q)rm -f .*.o .*.d .*bin
 
 -include $(SRCFILES:.cc=.dep)

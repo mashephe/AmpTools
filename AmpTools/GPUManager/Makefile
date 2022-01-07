@@ -1,42 +1,29 @@
-
 SRCFILES	:= $(wildcard *.cc)
-
-ifdef GPU
 CUDAFILES	:= $(wildcard *.cu)
-endif
-
-ifdef MPI
-CXX = $(MPICC)
-endif
 
 .PHONY: default clean
 .PRECIOUS: %.o
 
 default: $(LIB)
 
-%.a: $(SRCFILES:.cc=.o) $(CUDAFILES:.cu=.o)
+%.a:  $(SRCFILES:%.cc=.%$(SUFFIX).o) $(CUDAFILES:%.cu=.%$(SUFFIX).o)
 	$(vecho) "--> Archiving $@"
 	$(Q)ar -rsc $@ $^
 
-%.o : %.cc
+.%$(SUFFIX).o: %.cc .%$(SUFFIX).d
 	$(vecho) "-> Compiling $<"
-	$(Q)$(CXX) $(CXX_FLAGS) -M -o $*.d $< $(INC_DIR) ; \
-	cp $*.d $*.dep; \
-	sed -e 's/#.*//' -e 's/^[^:]*: *//' -e 's/ *\\$$//' \
-		-e '/^$$/ d' -e 's/$$/ :/' < $*.d >> $*.dep; \
-	rm -f $*.d $*.d.bak
+	$(Q)$(CXX) $(CXX_FLAGS) -M -MP -MT $@ -o .$*$(SUFFIX).d $< $(INC_DIR)
 	$(Q)$(CXX) $(CXX_FLAGS) -c -o $@ $< $(INC_DIR)
 
-%.o : %.cu
+.%$(SUFFIX).o: %.cu .%$(SUFFIX).d
 	$(vecho) "-> Compiling $<"
-	$(Q)$(NVCC) $(CUDA_FLAGS) -M -o $*.d $< $(INC_DIR) ; \
-	cp $*.d $*.dep; \
-	sed -e 's/#.*//' -e 's/^[^:]*: *//' -e 's/ *\\$$//' \
-		-e '/^$$/ d' -e 's/$$/ :/' < $*.d >> $*.dep; \
-	rm -f $*.d $*.d.bak
-	$(Q)$(NVCC) $(CUDA_FLAGS) -c -o $@ $< $(INC_DIR)
+	$(Q)$(NVCC) $(NVCC_FLAGS) -M -MP -MT $@ -o .$*$(SUFFIX).d $< $(INC_DIR)
+	$(Q)$(NVCC) $(NVCC_FLAGS) -c -o $@ $< $(INC_DIR)
+
+DEPFILES := $(SRCFILES:%.cc=.%$(SUFFIX).d) $(CUDAFILES:%.cu=.%$(SUFFIX).d)
+$(DEPFILES):
 
 clean:
-	$(Q)-rm -f *.o *.dep *.a
+	$(Q)-rm -f .*.o .*.d *.a
 
--include $(SRCFILES:.cc=.dep)
+-include $(DEPFILES)

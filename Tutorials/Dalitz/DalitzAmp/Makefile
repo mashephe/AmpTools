@@ -1,43 +1,41 @@
 
 SRCFILES := $(wildcard *.cc)
-FORTRAMPS := $(wildcard *.f)
 
 ifdef GPU
 CUDAFILES := $(wildcard *cu)
 endif
 
-.PHONY: default
-.PRECIOUS: %.o
+# Adam, did you put this here?
+FORTRAMPS := $(wildcard *.f)
+$(F77) := gfortran
+
+.PHONY: default clean
+.PRECIOUS: .%$(SUFFIX).o
 
 default: $(LIB)
 
-%.a: $(SRCFILES:.cc=.o) $(FORTRAMPS:.f=.o) $(CUDAFILES:.cu=.o)
+%.a:  $(SRCFILES:%.cc=.%$(SUFFIX).o) $(FORTRAMPS:%.f=.%$(SUFFIX).o) $(CUDAFILES:%.cu=.%$(SUFFIX).o)
 	$(vecho) "--> Archiving $@"
 	$(Q)ar -rsc $@ $^
 
-%.o : %.f
+.%$(SUFFIX).o: %.cc .%$(SUFFIX).d
 	$(vecho) "-> Compiling $<"
-	$(Q)gfortran -c -O3 -o $@ $<
-
-%.o : %.cc
-	$(vecho) "-> Compiling $<"
-	$(Q)$(CXX) $(CXX_FLAGS) -M -o $*.d $< $(INC_DIR) ; \
-	cp $*.d $*.dep; \
-	sed -e 's/#.*//' -e 's/^[^:]*: *//' -e 's/ *\\$$//' \
-		-e '/^$$/ d' -e 's/$$/ :/' < $*.d >> $*.dep; \
-	rm -f $*.d $*.d.bak
+	$(Q)$(CXX) $(CXX_FLAGS) -M -MP -MT $@ -o .$*$(SUFFIX).d $< $(INC_DIR)
 	$(Q)$(CXX) $(CXX_FLAGS) -c -o $@ $< $(INC_DIR)
-	
-%.o : %.cu
+
+.%$(SUFFIX).o: %.cu .%$(SUFFIX).d
 	$(vecho) "-> Compiling $<"
-	$(Q)$(NVCC) $(CUDA_FLAGS) -M -o $*.d $< $(INC_DIR) ; \
-	cp $*.d $*.dep; \
-	sed -e 's/#.*//' -e 's/^[^:]*: *//' -e 's/ *\\$$//' \
-		-e '/^$$/ d' -e 's/$$/ :/' < $*.d >> $*.dep; \
-	rm -f $*.d $*.d.bak
-	$(Q)$(NVCC) $(CUDA_FLAGS) -c -o $@ $< $(INC_DIR)
+	$(Q)$(NVCC) $(NVCC_FLAGS) -M -MP -MT $@ -o .$*$(SUFFIX).d $< $(INC_DIR)
+	$(Q)$(NVCC) $(NVCC_FLAGS) -c -o $@ $< $(INC_DIR)
+
+.%$(SUFFIX).o: %.f
+	$(vecho) "-> Compiling $<"
+	$(Q)$(F77) -c -O3 -o $@ $<
+
+DEPFILES := $(SRCFILES:%.cc=.%$(SUFFIX).d) $(CUDAFILES:%.cu=.%$(SUFFIX).d)
+$(DEPFILES):
 
 clean:
-	$(Q)-rm -f *.o *.dep *.a
+	$(Q)-rm -f .*.o .*.d *.a
 
--include $(SRCFILES:.cc=.dep)
+-include $(DEPFILES)
