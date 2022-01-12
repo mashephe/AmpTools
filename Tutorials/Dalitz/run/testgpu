@@ -1,60 +1,14 @@
       echo
       echo --------------------------------
       echo
-      echo COMPILE AMPTOOLS
+      echo COMPILE AMPTOOLS TREE
       echo
       echo --------------------------------
       echo
-      #sleep 3
+      sleep 3
 
-cd $AMPTOOLS
-make clean
-make GPU=1
-
-
-      echo
-      echo --------------------------------
-      echo
-      echo COMPILE AMPPLOTTER
-      echo
-      echo --------------------------------
-      echo
-      #sleep 3
-
-cd $AMPPLOTTER
-make clean
-make GPU=1
-
-
-      #sleep 1
-      echo
-      echo --------------------------------
-      echo
-      echo COMPILE DALITZ
-      echo
-      echo --------------------------------
-      echo
-      #sleep 3
-
-cd $DALITZ
-make clean
-make GPU=1
-
-
-      #sleep 1
-      echo
-      echo --------------------------------
-      echo
-      echo COMPILE DALITZEXE
-      echo
-      echo --------------------------------
-      echo
-      #sleep 3
-
-cd $DALITZ/DalitzExe
-make clean
-make GPU=1
-
+cd $AMPTOOLS_ROOT
+make gpu
 
       #sleep 1
       echo
@@ -239,7 +193,7 @@ cd $DALITZ/run
       #sleep 3
 
 cd $DALITZ/run
-$DALITZ/DalitzExe/fitAmplitudes GPU.dalitz1.cfg
+$DALITZ/DalitzExe/fitAmplitudes_GPU GPU.dalitz1.cfg
 
 
       #sleep 1
