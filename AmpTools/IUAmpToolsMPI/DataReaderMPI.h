@@ -358,39 +358,39 @@ void DataReaderMPI<T>::defineMPIType()
   MPI_Datatype type[6];
   
   MPI_Aint baseAddress;
-  MPI_Address( &kinStruct, &baseAddress );
+  MPI_Get_address( &kinStruct, &baseAddress );
   
   length[0] = 1;
-  MPI_Address( &kinStruct.nPart, &loc[0] );
+  MPI_Get_address( &kinStruct.nPart, &loc[0] );
   loc[0] -= baseAddress;
   type[0] = MPI_INT;
   
   length[1] = 1;
-  MPI_Address( &kinStruct.weight, &loc[1] );
+  MPI_Get_address( &kinStruct.weight, &loc[1] );
   loc[1] -= baseAddress;
   type[1] = MPI_FLOAT;
   
   length[2] = Kinematics::kMaxParticles;
-  MPI_Address( &kinStruct.e, &loc[2] );
+  MPI_Get_address( &kinStruct.e, &loc[2] );
   loc[2] -= baseAddress;
   type[2] = MPI_FLOAT;
   
   length[3] = Kinematics::kMaxParticles;
-  MPI_Address( &kinStruct.px, &loc[3] );
+  MPI_Get_address( &kinStruct.px, &loc[3] );
   loc[3] -= baseAddress;
   type[3] = MPI_FLOAT;
   
   length[4] = Kinematics::kMaxParticles;
-  MPI_Address( &kinStruct.py, &loc[4] );
+  MPI_Get_address( &kinStruct.py, &loc[4] );
   loc[4] -= baseAddress;
   type[4] = MPI_FLOAT;
   
   length[5] = Kinematics::kMaxParticles;
-  MPI_Address( &kinStruct.pz, &loc[5] );
+  MPI_Get_address( &kinStruct.pz, &loc[5] );
   loc[5] -= baseAddress;
   type[5] = MPI_FLOAT;
   
-  MPI_Type_struct( 6, length, loc, type, &MPI_KinStruct );
+  MPI_Type_create_struct( 6, length, loc, type, &MPI_KinStruct );
   MPI_Type_commit( &MPI_KinStruct );
 }
 
