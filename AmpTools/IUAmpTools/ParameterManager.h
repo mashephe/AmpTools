@@ -75,7 +75,8 @@ public:
   void setProductionParameter( const string& termName,
                                complex< double > prodPar );
   void setAmpParameter( const string& parName, double value );
-  
+  void setAmpFixed( const string& parName ); 
+ 
   // these functions provide a list of all known parameters, including those that are
   // constrained to other parameters in addition to a covariance matrix that
   // incorporates those constraints

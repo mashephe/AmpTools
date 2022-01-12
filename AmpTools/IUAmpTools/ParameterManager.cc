@@ -179,6 +179,19 @@ ParameterManager::setAmpParameter( const string& parName,
 }
 
 void
+ParameterManager::setAmpFixed( const string& parName){
+  auto ampParItr = m_ampParams.find( parName );
+  
+  if( ampParItr == m_ampParams.end() ){
+    cout << "ERROR:  request to fix value of unknown parameter named "
+         << parName << " -- ignoring request." << endl;
+    return;
+  }
+
+  ampParItr->second->fix();
+}
+
+void
 ParameterManager::addAmplitudeParameter( const string& termName, const ParameterInfo* parInfo ){
   
   const string& parName = parInfo->parName();
