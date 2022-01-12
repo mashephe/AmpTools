@@ -1,22 +1,9 @@
 
-############################################################
-# Using make to build AmpPlotter
-#
-# The user should be sure that root-config is in the path prior to building.
-# The enviornment variable AMPTOOLS must be set to the AmpTools library
-# top level.
-#
-# options:
-#
-#     VERBOSE=1   (shows make actions)
-#
-#  Note that the GUI AmpPlotter library has no GPU or MPI code.
-#
-# Below are the common user-configurable options for building AmpPlotter
+ifndef AMPTOOLS_ROOT
+$(error Please set AMPTOOLS_ROOT to point to the root of the AmpTools source tree.)
+endif
 
-CXX := gcc
-CXX_FLAGS := -O3 $(shell root-config --cflags)
-
+include $(AMPTOOLS_ROOT)/Makefile.settings
 
 ###########################################################
 # Most things below here probably don't need to be changed
@@ -40,6 +27,8 @@ else
 	Q := @
 	vecho = @echo
 endif
+
+CXX_FLAGS += $(shell root-config --cflags)
 
 DEFAULT := libAmpPlotter.a
 

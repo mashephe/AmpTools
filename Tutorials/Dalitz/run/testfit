@@ -1,60 +1,14 @@
       echo
       echo --------------------------------
       echo
-      echo COMPILE AMPTOOLS
+      echo COMPILE AMPTOOLS TREE
       echo
       echo --------------------------------
       echo
       sleep 3
 
-cd $AMPTOOLS
-make clean
+cd $AMPTOOLS_ROOT
 make
-
-
-      echo
-      echo --------------------------------
-      echo
-      echo COMPILE AMPPLOTTER
-      echo
-      echo --------------------------------
-      echo
-      sleep 3
-
-cd $AMPPLOTTER
-make clean
-make
-
-
-      sleep 1
-      echo
-      echo --------------------------------
-      echo
-      echo COMPILE DALITZ
-      echo
-      echo --------------------------------
-      echo
-      sleep 3
-
-cd $DALITZ
-make clean
-make
-
-
-      sleep 1
-      echo
-      echo --------------------------------
-      echo
-      echo COMPILE DALITZEXE
-      echo
-      echo --------------------------------
-      echo
-      sleep 3
-
-cd $DALITZ/DalitzExe
-make clean
-make
-
 
       sleep 1
       echo
@@ -67,7 +21,7 @@ make
       sleep 3
 
 cd $DALITZ/run
-$DALITZ/DalitzExe/generatePhaseSpace phasespace.gen.root 100000
+$DALITZ/bin/generatePhaseSpace phasespace.gen.root 100000
 
 
       sleep 1
@@ -81,7 +35,7 @@ $DALITZ/DalitzExe/generatePhaseSpace phasespace.gen.root 100000
       sleep 3
 
 cd $DALITZ/run
-$DALITZ/DalitzExe/plotData phasespace.gen.root plots.phasespace.gen.root
+$DALITZ/bin/plotData phasespace.gen.root plots.phasespace.gen.root
 
 
       sleep 1
@@ -110,7 +64,7 @@ root -l plots.phasespace.gen.root plotData.C
       sleep 3
 
 cd $DALITZ/run
-$DALITZ/DalitzExe/generatePhysics dalitz1.cfg physics.gen.root 100000
+$DALITZ/bin/generatePhysics dalitz1.cfg physics.gen.root 100000
 
 
       sleep 1
@@ -124,7 +78,7 @@ $DALITZ/DalitzExe/generatePhysics dalitz1.cfg physics.gen.root 100000
       sleep 3
 
 cd $DALITZ/run
-$DALITZ/DalitzExe/plotData physics.gen.root plots.physics.gen.root
+$DALITZ/bin/plotData physics.gen.root plots.physics.gen.root
 
 
       sleep 1
@@ -153,7 +107,7 @@ root -l plots.physics.gen.root plotData.C
       sleep 3
 
 cd $DALITZ/run
-$DALITZ/DalitzExe/toyAcceptance phasespace.gen.root phasespace.acc.root
+$DALITZ/bin/toyAcceptance phasespace.gen.root phasespace.acc.root
 
 
       sleep 1
@@ -167,7 +121,7 @@ $DALITZ/DalitzExe/toyAcceptance phasespace.gen.root phasespace.acc.root
       sleep 3
 
 cd $DALITZ/run
-$DALITZ/DalitzExe/plotData phasespace.acc.root plots.phasespace.acc.root
+$DALITZ/bin/plotData phasespace.acc.root plots.phasespace.acc.root
 
 
       sleep 1
@@ -196,7 +150,7 @@ root -l plots.phasespace.acc.root plotData.C
       sleep 3
 
 cd $DALITZ/run
-$DALITZ/DalitzExe/toyAcceptance physics.gen.root physics.acc.root
+$DALITZ/bin/toyAcceptance physics.gen.root physics.acc.root
 
 
       sleep 1
@@ -210,7 +164,7 @@ $DALITZ/DalitzExe/toyAcceptance physics.gen.root physics.acc.root
       sleep 3
 
 cd $DALITZ/run
-$DALITZ/DalitzExe/plotData physics.acc.root plots.physics.acc.root
+$DALITZ/bin/plotData physics.acc.root plots.physics.acc.root
 
 
       sleep 1
@@ -239,7 +193,7 @@ root -l plots.physics.acc.root plotData.C
       sleep 3
 
 cd $DALITZ/run
-$DALITZ/DalitzExe/fitAmplitudes dalitz1.cfg
+$DALITZ/bin/fitAmplitudes dalitz1.cfg
 
 
       sleep 1
@@ -253,7 +207,7 @@ $DALITZ/DalitzExe/fitAmplitudes dalitz1.cfg
       sleep 3
 
 cd $DALITZ/run
-$DALITZ/DalitzExe/plotResults dalitz1.fit dalitz1.root
+$DALITZ/bin/plotResults dalitz1.fit dalitz1.root
 
 
       sleep 1
@@ -281,11 +235,7 @@ root -l plots.physics.acc.root dalitz1.root plotResult.C
       sleep 3
 
 cd $DALITZ/run
-$DALITZ/DalitzExe/ampPlotter dalitz1.fit
-
-
-
-
+$DALITZ/bin/ampPlotter dalitz1.fit
 
 
 
