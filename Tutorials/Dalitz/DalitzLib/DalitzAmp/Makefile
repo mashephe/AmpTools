@@ -25,7 +25,7 @@ default: $(LIB)
 
 .%$(SUFFIX).o: %.cu .%$(SUFFIX).d
 	$(vecho) "-> Compiling $<"
-	$(Q)$(NVCC) $(NVCC_FLAGS) -M -MP -MT $@ -o .$*$(SUFFIX).d $< $(INC_DIR)
+	$(Q)$(NVCC) $(NVCC_FLAGS) -M -MT $@ -o .$*$(SUFFIX).d $< $(INC_DIR)
 	$(Q)$(NVCC) $(NVCC_FLAGS) -c -o $@ $< $(INC_DIR)
 
 .%$(SUFFIX).o: %.f
