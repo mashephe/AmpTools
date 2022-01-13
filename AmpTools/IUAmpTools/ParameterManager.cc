@@ -179,19 +179,6 @@ ParameterManager::setAmpParameter( const string& parName,
 }
 
 void
-ParameterManager::setAmpFixed( const string& parName){
-  auto ampParItr = m_ampParams.find( parName );
-  
-  if( ampParItr == m_ampParams.end() ){
-    cout << "ERROR:  request to fix value of unknown parameter named "
-         << parName << " -- ignoring request." << endl;
-    return;
-  }
-
-  ampParItr->second->fix();
-}
-
-void
 ParameterManager::addAmplitudeParameter( const string& termName, const ParameterInfo* parInfo ){
   
   const string& parName = parInfo->parName();
@@ -245,19 +232,7 @@ ParameterManager::addAmplitudeParameter( const string& termName, const Parameter
     if( !(*intenManPtr)->hasTerm( termName ) ) continue;
     
     foundOne = true;
-    
-    if( parInfo->fixed() ){
-      
-      // if it is fixed just go ahead and set the parameter by value
-      // this prevents Amplitude class from thinking that is has
-      // a free parameter
-      
-      (**intenManPtr).setParValue( termName, parName, parInfo->value() );
-    }
-    else{
-      
-      (**intenManPtr).setParPtr( termName, parName, parPtr->constValuePtr() );
-    }
+    (**intenManPtr).setParPtr( termName, parName, parPtr->constValuePtr() );
   }
   
   if( !foundOne ){
