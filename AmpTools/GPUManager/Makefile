@@ -2,7 +2,7 @@ SRCFILES	:= $(wildcard *.cc)
 CUDAFILES	:= $(wildcard *.cu)
 
 .PHONY: default clean
-.PRECIOUS: %.o
+.PRECIOUS: .%$(SUFFIX).o
 
 default: $(LIB)
 

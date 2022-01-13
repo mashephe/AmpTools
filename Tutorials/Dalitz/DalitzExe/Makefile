@@ -52,7 +52,7 @@ endif
 #     AmpTools library
 ifdef MPI
 CXX_FLAGS += -DUSE_MPI
-ATSUFFIX += _MPI
+ATSUFFIX := $(ATSUFFIX)_MPI
 endif
 
 # need some linking information available
@@ -82,10 +82,14 @@ default: bin $(TARGET_EXE)
 bin:
 	$(Q)-mkdir $(INSTALL_BIN) >& /dev/null ||:
 
+# for the non-MPI executables we want to strip out the -DUSEMPI flag
+# from the compiler arguments and also be sure we link against the
+# non-MPI version of AmpTools
+
 .%$(SUFFIX)_nompiexe: .%$(SUFFIX).o
 	$(vecho) "--> Linking $*$(SUFFIX)"
-	$(Q)$(CXX) $(CXX_FLAGS) -o $(INSTALL_BIN)/$*$(SUFFIX) $< \
-	$(INC_DIR) $(LIB_DIR) $(LIBS)
+	$(Q)$(CXX) $(subst -DUSEMPI,,$(CXX_FLAGS)) -o $(INSTALL_BIN)/$*$(SUFFIX) $< \
+	$(INC_DIR) $(LIB_DIR) $(subst _MPI,,$(LIBS))
 
 .%$(SUFFIX)_mpiexe: .%$(SUFFIX)_mpi.o
 	$(vecho) "--> Linking $*$(SUFFIX)"
@@ -94,8 +98,8 @@ bin:
 
 .%$(SUFFIX).o: %.cc .%$(SUFFIX).d
 	$(vecho) "-> Compiling $<"
-	$(Q)$(CXX) $(CXX_FLAGS) -M -MP -MT $@ -o .$*$(SUFFIX).d $< $(INC_DIR)
-	$(Q)$(CXX) $(CXX_FLAGS) -c -o $@ $< $(INC_DIR)
+	$(Q)$(CXX) $(subst -DUSEMPI,,$(CXX_FLAGS)) -M -MP -MT $@ -o .$*$(SUFFIX).d $< $(INC_DIR)
+	$(Q)$(CXX) $(subst -DUSEMPI,,$(CXX_FLAGS)) -c -o $@ $< $(INC_DIR)
 
 .%$(SUFFIX)_mpi.o: %.cc .%$(SUFFIX).d
 	$(vecho) "-> Compiling $<"

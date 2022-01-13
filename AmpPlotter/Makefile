@@ -43,12 +43,12 @@ lib:
 	$(Q)mkdir lib
 
 lib%.a: 
-	$(Q)$(MAKE) -C $(subst lib,, $(subst .a,, $@ )) LIB=$@
-	$(Q)cp $(subst lib,, $(subst .a,, $@))/$@ lib/
+	$(Q)$(MAKE) -C $* LIB=$@
+	$(Q)cp $*/$@ lib/
 
 
 clean: $(addprefix clean_, $(SRCDIRS))
 	$(Q)-rm -f lib/*.a
 
 clean_%:
-	$(Q)-cd $(subst clean_,, $@) && $(MAKE) clean
+	$(Q)-cd $* && $(MAKE) clean

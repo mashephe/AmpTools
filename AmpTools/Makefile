@@ -50,7 +50,7 @@ ifdef MPI
 CXX := $(MPICXX)
 SRCDIRS += IUAmpToolsMPI
 CXX_FLAGS += -DUSE_MPI
-SUFFIX += _MPI
+SUFFIX := $(SUFFIX)_MPI
 endif
 
 # setup the targets
@@ -76,13 +76,13 @@ $(DEFAULT): $(TARGET_LIBS)
 
 # descend into the directory obtained by stripping lib and
 # $(SUFFIX).a and execute make with LIB set to the target
-lib%.a:
-	$(Q)$(MAKE) -C $(subst lib,, $(subst $(SUFFIX).a,, $@ )) LIB=$@
-	$(Q)cp $(subst lib,, $(subst $(SUFFIX).a,, $@))/$@ lib/
+lib%$(SUFFIX).a:
+	$(Q)$(MAKE) -C $* LIB=$@
+	$(Q)cp $*/$@ lib/
 
 # cleaning
 clean: $(addprefix clean_, $(ALLDIRS))
 	$(Q)-rm -f lib/*
 
 clean_%:
-	$(Q)-cd $(subst clean_,, $@) && $(MAKE) clean
+	$(Q)-cd $* && $(MAKE) clean
