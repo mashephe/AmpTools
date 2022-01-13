@@ -1,4 +1,4 @@
-\documentclass[11pt]{article}
+\documentclass[10pt]{article}
 %\documentclass[11pt]{revtex4}
 \usepackage{graphicx}
 \usepackage{amssymb}
@@ -23,7 +23,7 @@
 
 \title{Introduction to the {\tt AmpTools} Package\\ using the Dalitz Tutorial}
 \author{Ryan Mitchell}
-\date{\today}
+\date{Revised:  \today}
 \maketitle 
 
 \begin{abstract}
@@ -50,62 +50,59 @@ This tutorial could be used as a starting point for new analyses.  It is recomme
 
 \section{Preliminaries}
 
-Only one external package is required to run the Dalitz tutorial: {\tt ROOT}. Once {\tt ROOT} is installed (directions for installation can be found elsewhere), the following environment variable should be set:
+Only one external package is required to run the Dalitz tutorial: {\tt ROOT}. Once {\tt ROOT} is installed (directions for installation can be found elsewhere), the executable {\tt root-config} should be available in the path.  The make system will obtain information about the {\tt ROOT} installation using {\tt root-config}.
+
+The latest fixed release of the {\tt AmpTools} code, along with related packages and tutorials, can be cloned or downloaded as a tarball from {\tt https://github.com/mashephe/AmpTools}.  Once the source code is unpacked, it can be compiled from the top level with {\tt make}.  However, for compiling subsets of the tree it may be advantageous to set the following:
 \begin{verbatim}
-  > setenv ROOTSYS [top ROOT directory]
+  > setenv AMPTOOLS_HOME [top directory]
+  > setenv AMPTOOLS $AMPTOOLS_HOME/AmpTools
+  > setenv AMPPLOTTER $AMPTOOLS_HOME/AmpPlotter
+  > setenv DALITZ $AMPTOOLS_HOME/Tutorials/Dalitz
 \end{verbatim}
 
-The latest fixed release of the {\tt AmpTools} code, along with related packages and tutorials, can be cloned or downloaded as a tarball from {\tt https://github.com/mashephe/AmpTools}.  Once the source code is unpacked, set the following:
+The {\tt \$AMPTOOLS} directory contains the source code for the {\tt AmpTools} framework;  {\tt \$AMPPLOTTER} contains code for a GUI to view fit results; and {\tt \$DALITZ} contains the Dalitz tutorial to be discussed in this document.  Check the file {\tt \$AMPTOOLS\_HOME/Makefile.settings} to verify the compiler settings look reasonable.  To compile the entire package do:
 \begin{verbatim}
-  > setenv AMPTOOLS [top directory]/AmpTools
-  > setenv AMPPLOTTER [top directory]/AmpPlotter
-  > setenv DALITZ [top directory]/Tutorials/Dalitz
-\end{verbatim}
-
-The {\tt \$AMPTOOLS} directory contains the source code for the {\tt AmpTools} framework;  {\tt \$AMPPLOTTER} contains code for a GUI to view fit results; and {\tt \$DALITZ} contains the Dalitz tutorial to be discussed in this document.  To compile these, the following should work (after perhaps modifying Makefiles to account for different computing platforms):
-\begin{verbatim}
-  > cd $AMPTOOLS
-  > make
-  > cd $AMPPLOTTER
-  > make
-  > cd $DALITZ
+  > cd $AMPTOOLS_HOME
   > make
 \end{verbatim}
-
 
 \section{Directory Structure}
 
-The Dalitz tutorial package contains a number of subdirectories.  Three of these directories include class definitions that are derived from {\tt AmpTools} classes:
+The Dalitz tutorial package contains a number of subdirectories.  Three of these directories include class definitions that are derived from {\tt AmpTools} classes and will be compiled into a static library associated with this example:
 \begin{itemize}
-\item {\tt \bf DalitzDataIO}:  This directory holds custom classes to read and write data.  The {\tt DalitzDataWriter} class is derived from the {\tt DataWriter} class of {\tt AmpTools}, and the {\tt DalitzDataReader} class is derived from the {\tt DataReader} class.  They are used to read and write data in a custom {\tt ROOT} tree format.
-\item {\tt \bf DalitzAmp}: This directory holds user-defined amplitudes derived from the {\tt Amplitude} class of {\tt AmpTools}.  The {\tt BreitWigner} class is a simple example of such an amplitude.
-\item {\tt \bf DalitzPlot}:  This directory holds the {\tt DalitzPlotGenerator} class, which is derived from the {\tt PlotGenerator} class of {\tt AmpTools}.  This class holds instructions for making custom plots of fit results.
+\item {\tt DalitzLib/DalitzDataIO}:  This directory holds custom classes to read and write data.  The {\tt DalitzDataWriter} class is derived from the {\tt DataWriter} class of {\tt AmpTools}, and the {\tt DalitzDataReader} class is derived from the {\tt DataReader} class.  They are used to read and write data in a custom {\tt ROOT} tree format.
+\item {\tt DalitzLib/DalitzAmp}: This directory holds user-defined amplitudes derived from the {\tt Amplitude} class of {\tt AmpTools}.  The {\tt BreitWigner} class is a simple example of such an amplitude.
+\item {\tt DalitzLib/DalitzPlot}:  This directory holds the {\tt DalitzPlotGenerator} class, which is derived from the {\tt PlotGenerator} class of {\tt AmpTools}.  This class holds instructions for making custom plots of fit results.
 \end{itemize}
 
-Libraries are generated from these derived classes and placed in a {\tt lib} directory by using the {\tt Makefile} in the top directory (as above):
+Other directories contain examples of how to use libraries to build and run executables:
+\begin{itemize}
+\item {\tt DalitzExe}:  This directory holds example code that can be used to build executables from the libraries generated above.  Each executable is described in later sections.
+\item {\tt run}:  This directory is used to run executables.
+\end{itemize}
+
+Note that the {\tt DalitzExe} and {\tt run} directories could be separated from the other directories.  The directory {\tt run} contains no code to compile.  When compiling from the top level, the products of {\tt DalitzLib} are installed in {\tt lib} and {\tt DalitzExe} are installed in {\tt bin}.  To build the entire example one can run the following commands.
+
 \begin{verbatim}
   > cd $DALITZ
   > make
 \end{verbatim}
 
-Other directories include examples of how to use these libraries to build and run executables:
-\begin{itemize}
-\item {\tt \bf DalitzExe}:  This directory holds example code that can be used to build executables from the libraries generated above.  Each executable is described in later sections.
-\item {\tt \bf run}:  This directory is used to run executables.
-\end{itemize}
-Note that the {\tt DalitzExe} and {\tt run} directories could be separated from the other directories.  
-
-To build executables, for example the {\tt generatePhaseSpace} executable, the {\tt Makefile} in the {\tt DalitzExe} directory can be used:
+To build only the executables, for example the {\tt generatePhaseSpace} executable, the {\tt Makefile} in the {\tt DalitzExe} directory can be used:
 \begin{verbatim}
   > cd $DALITZ/DalitzExe
-  > make generatePhaseSpace_exe
+  > make generatePhaseSpace
 \end{verbatim}
 
-Alternatively, all of the executables can be built at once:
+Alternatively, all of the executables (only) can be built at once:
 \begin{verbatim}
   > cd $DALITZ/DalitzExe
   > make
 \end{verbatim}
+
+If the executables are built by invoking make from within {\tt \$DALITZ/DalitzExe} then the build products will remain in that directory.
+
+For executables that require MPI support, the name of the {\tt *.cc} file should include the case-insensitive string ``MPI".  All {\tt *.cc} files in the {\tt DalitzExe} directory that have ``MPI" somewhere in the name will be built as an executable with MPI support provided that {\tt MPI=1} is used as an argument to {\tt make}.
 
 \section{Setting up a Data Writer: \\ 
 {\tt DalitzDataIO/DalitzDataWriter}}
