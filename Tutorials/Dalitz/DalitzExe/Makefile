@@ -67,11 +67,11 @@ LIBS :=  -l$(PROJECT)$(SUFFIX) -lAmpPlotter -lAmpTools$(ATSUFFIX) \
 MPI_SRC := $(shell ls *.cc | grep -i mpi)
 NOMPI_SRC := $(shell ls *.cc | grep -vi mpi)
 
-TARGET_EXE := $(NOMPI_SRC:%.cc=.%$(SUFFIX)_nompiexe)
+TARGET_EXE := $(NOMPI_SRC:%.cc=%$(SUFFIX))
 
 # optionally if MPI is called for, we will build the MPI executables
 ifdef MPI
-TARGET_EXE += $(MPI_SRC:%.cc=.%$(SUFFIX)_mpiexe)
+TARGET_EXE += $(MPI_SRC:%.cc=%$(SUFFIX))
 endif
 
 .PHONY: default bin
@@ -86,12 +86,12 @@ bin:
 # from the compiler arguments and also be sure we link against the
 # non-MPI version of AmpTools
 
-.%$(SUFFIX)_nompiexe: .%$(SUFFIX).o
+$(NOMPI_SRC:%.cc=%$(SUFFIX)): %$(SUFFIX) : .%$(SUFFIX).o
 	$(vecho) "--> Linking $*$(SUFFIX)"
 	$(Q)$(CXX) $(subst -DUSEMPI,,$(CXX_FLAGS)) -o $(INSTALL_BIN)/$*$(SUFFIX) $< \
 	$(INC_DIR) $(LIB_DIR) $(subst _MPI,,$(LIBS))
 
-.%$(SUFFIX)_mpiexe: .%$(SUFFIX)_mpi.o
+$(MPI_SRC:%.cc=%$(SUFFIX)): %$(SUFFIX) : .%$(SUFFIX)_mpi.o
 	$(vecho) "--> Linking $*$(SUFFIX)"
 	$(Q)$(MPICXX) $(CXX_FLAGS) -o $(INSTALL_BIN)/$*$(SUFFIX) $< \
 	$(INC_DIR) $(LIB_DIR) $(LIBS)
@@ -113,6 +113,6 @@ endif
 $(DEPFILES):
 
 clean:
-	$(Q)rm -f .*.o .*.d .*bin
+	$(Q)rm -f .*.o .*.d $(TARGET_EXE)
 
 -include $(SRCFILES:.cc=.dep)
