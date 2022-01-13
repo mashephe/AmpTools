@@ -111,7 +111,7 @@ LikelihoodManagerMPI::deliverLikelihood()
         assert( false );
     }
     
-    MPI_Recv( &cmnd, 2, MPI_INT, 0, MPITag::kIntSend, 
+    MPI_Recv( (int*)&cmnd, 2, MPI_INT, 0, MPITag::kIntSend,
              MPI_COMM_WORLD, &status );
   }
 
