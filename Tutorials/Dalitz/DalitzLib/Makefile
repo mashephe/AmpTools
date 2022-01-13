@@ -35,14 +35,6 @@ CXX_FLAGS += $(shell root-config --cflags)
 
 SRCDIRS := $(PROJECT)DataIO $(PROJECT)Amp $(PROJECT)Plot
 
-# check verbose output
-ifdef VERBOSE
-	Q :=
-	vecho = @true
-else
-	Q := @
-	vecho = @echo
-endif
 
 # check if GPU build is requested
 ifdef GPU
@@ -58,15 +50,11 @@ TARGET_LIBS := $(SRCDIRS:%=lib%$(SUFFIX).a)
 export
 
 .PHONY: test default clean lib
-#$(addprefix clean_,$(SRCDIRS))
 
 default: lib $(DEFAULT)
 
 lib:
 	$(Q)-mkdir $(INSTALL_LIB) >& /dev/null ||:
-	
-#test:
-#	$(vecho) $(foreach exe,$(wildcard $(PROJECT)Exe/.*_bin),$(subst _bin,,$(subst $(PROJECT)Exe/.,bin/,$(exe))))
 
 $(DEFAULT): $(TARGET_LIBS)
 	$(foreach lib, $(TARGET_LIBS), $(shell cd $(INSTALL_LIB); ar -x $(lib) ) )
@@ -78,10 +66,10 @@ $(DEFAULT): $(TARGET_LIBS)
 
 # descend into the directory obtained by stripping lib and
 # $(SUFFIX).a and execute make with LIB set to the target
-lib%.a:
-	$(Q)$(MAKE) -C $(subst lib,, $(subst $(SUFFIX).a,, $@ )) LIB=$@
-	$(Q)cp $(subst lib,, $(subst $(SUFFIX).a,, $@))/$@ $(INSTALL_LIB)/
-	
+lib%$(SUFFIX).a:
+	$(Q)$(MAKE) -C $* LIB=$@
+	$(Q)cp $*/$@ $(INSTALL_LIB)/
+
 clean:
 	$(Q)-cd $(PROJECT)DataIO && $(MAKE) clean
 	$(Q)-cd $(PROJECT)Amp && $(MAKE) clean
