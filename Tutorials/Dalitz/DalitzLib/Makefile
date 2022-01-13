@@ -3,15 +3,15 @@ ifndef PROJECT
 PROJECT := Dalitz
 endif
 
-ifndef PROJECT_ROOT
-PROJECT_ROOT := ..
+ifndef PROJECT_HOME
+PROJECT_HOME := ..
 endif
 
-ifndef AMPTOOLS_ROOT
-$(error Please set AMPTOOLS_ROOT to point to the root of the AmpTools source tree. )
+ifndef AMPTOOLS_HOME
+$(error Please set AMPTOOLS_HOME to point to the root of the AmpTools source tree. )
 endif
 
-include $(AMPTOOLS_ROOT)/Makefile.settings
+include $(AMPTOOLS_HOME)/Makefile.settings
 
 ############################################################
 # Most things below here probably don't need to be changed
@@ -20,7 +20,7 @@ include $(AMPTOOLS_ROOT)/Makefile.settings
 # to build code instrumented for Vampir Trace use VTRACE=1
 
 ifndef INSTALL_LIB
-INSTALL_LIB = $(PROJECT_ROOT)/lib
+INSTALL_LIB = $(PROJECT_HOME)/lib
 endif
 
 ifdef VTRACE
@@ -30,7 +30,7 @@ NVCC := vtnvcc
 CXX_FLAGS += -DVTRACE
 endif
 
-INC_DIR :=  -I$(PROJECT_ROOT)/$(PROJECT)Lib -I$(shell root-config --incdir) -I$(AMPTOOLS)
+INC_DIR :=  -I$(PROJECT_HOME)/$(PROJECT)Lib -I$(shell root-config --incdir) -I$(AMPTOOLS)
 CXX_FLAGS += $(shell root-config --cflags)
 
 SRCDIRS := $(PROJECT)DataIO $(PROJECT)Amp $(PROJECT)Plot

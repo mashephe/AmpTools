@@ -9,9 +9,9 @@ ifdef GPU
 $(error Use the mpi target 'make gpu' rather than setting GPU=1.)
 endif
 
-AMPTOOLS_ROOT := $(shell pwd)
-AMPTOOLS := $(AMPTOOLS_ROOT)/AmpTools
-AMPPLOTTER := $(AMPTOOLS_ROOT)/AmpPlotter
+AMPTOOLS_HOME := $(shell pwd)
+AMPTOOLS := $(AMPTOOLS_HOME)/AmpTools
+AMPPLOTTER := $(AMPTOOLS_HOME)/AmpPlotter
 
 export
 

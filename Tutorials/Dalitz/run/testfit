@@ -7,7 +7,7 @@
       echo
       sleep 3
 
-cd $AMPTOOLS_ROOT
+cd $AMPTOOLS_HOME
 make
 
       sleep 1

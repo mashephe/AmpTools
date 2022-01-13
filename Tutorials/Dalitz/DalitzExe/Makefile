@@ -5,17 +5,17 @@ ifndef PROJECT
 PROJECT := Dalitz
 endif
 
-ifndef PROJECT_ROOT
-PROJECT_ROOT := ..
+ifndef PROJECT_HOME
+PROJECT_HOME := ..
 endif
 
 ifndef PROJECT_LIB
-PROJECT_LIB := $(PROJECT_ROOT)/$(PROJECT)Lib
+PROJECT_LIB := $(PROJECT_HOME)/$(PROJECT)Lib
 endif
 
 # if there are other libraries to include, the include path can be added here
 INC_DIR := -I$(PROJECT_LIB)
-LIB_DIR := -L$(PROJECT_ROOT)/lib
+LIB_DIR := -L$(PROJECT_HOME)/lib
 
 # add extra library linking flags here if they are needed -- be sure the locations
 # are specified in the LIB_DIR arugments above
@@ -23,11 +23,11 @@ LIB_DIR := -L$(PROJECT_ROOT)/lib
 
 ######  most things below probably don't need adjustment
 
-ifndef AMPTOOLS_ROOT
-$(error Please set AMPTOOLS_ROOT to point to the root of the AmpTools source tree. )
+ifndef AMPTOOLS_HOME
+$(error Please set AMPTOOLS_HOME to point to the root of the AmpTools source tree. )
 endif
 
-include $(AMPTOOLS_ROOT)/Makefile.settings
+include $(AMPTOOLS_HOME)/Makefile.settings
 
 # leave the binaries in this directory if the install directory hasn't been set
 ifndef INSTALL_BIN

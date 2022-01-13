@@ -1,9 +1,9 @@
 
 PROJECT := Dalitz
-PROJECT_ROOT := $(shell pwd)
+PROJECT_HOME := $(shell pwd)
 
-INSTALL_BIN := $(PROJECT_ROOT)/bin
-INSTALL_LIB := $(PROJECT_ROOT)/lib
+INSTALL_BIN := $(PROJECT_HOME)/bin
+INSTALL_LIB := $(PROJECT_HOME)/lib
 
 export
 

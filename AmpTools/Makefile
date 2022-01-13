@@ -1,9 +1,9 @@
 
-ifndef AMPTOOLS_ROOT
-$(error Please set AMPTOOLS_ROOT to point to the root of the AmpTools source tree. )
+ifndef AMPTOOLS_HOME
+$(error Please set AMPTOOLS_HOME to point to the root of the AmpTools source tree. )
 endif
 
-include $(AMPTOOLS_ROOT)/Makefile.settings
+include $(AMPTOOLS_HOME)/Makefile.settings
 
 ############################################################
 # Most things below here probably don't need to be changed
