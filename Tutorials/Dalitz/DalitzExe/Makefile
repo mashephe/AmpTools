@@ -58,7 +58,7 @@ endif
 # need some linking information available
 LIB_DIR += -L$(shell root-config --libdir) $(CUDA_LIBS) \
 	-L$(AMPTOOLS)/lib -L$(AMPPLOTTER)/lib
-	
+
 LIBS :=  -l$(PROJECT)$(SUFFIX) -lAmpPlotter -lAmpTools$(ATSUFFIX) \
 	$(EXTRA_LIBS) $(shell root-config --glibs) $(CUDA_LINK) -lstdc++
 
@@ -83,13 +83,13 @@ bin:
 	$(Q)-mkdir $(INSTALL_BIN) >& /dev/null ||:
 
 .%$(SUFFIX)_nompiexe: .%$(SUFFIX).o
-	$(vecho) "--> Linking $*"
-	$(Q)$(CXX) $(CXX_FLAGS) -o $(INSTALL_BIN)/$* $< \
+	$(vecho) "--> Linking $*$(SUFFIX)"
+	$(Q)$(CXX) $(CXX_FLAGS) -o $(INSTALL_BIN)/$*$(SUFFIX) $< \
 	$(INC_DIR) $(LIB_DIR) $(LIBS)
 
 .%$(SUFFIX)_mpiexe: .%$(SUFFIX)_mpi.o
-	$(vecho) "--> Linking $*"
-	$(Q)$(MPICXX) $(CXX_FLAGS) -o $(INSTALL_BIN)/$* $< \
+	$(vecho) "--> Linking $*$(SUFFIX)"
+	$(Q)$(MPICXX) $(CXX_FLAGS) -o $(INSTALL_BIN)/$*$(SUFFIX) $< \
 	$(INC_DIR) $(LIB_DIR) $(LIBS)
 
 .%$(SUFFIX).o: %.cc .%$(SUFFIX).d
