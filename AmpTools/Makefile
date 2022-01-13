@@ -28,15 +28,6 @@ CXX_FLAGS += $(shell root-config --cflags)
 SRCDIRS := UpRootMinuit MinuitInterface IUAmpTools
 ALLDIRS := $(SRCDIRS) IUAmpToolsMPI GPUManager
 
-# check verbose output
-ifdef VERBOSE
-	Q :=
-	vecho = @true
-else
-	Q := @
-	vecho = @echo
-endif
-
 # check if GPU build is requested
 ifdef GPU
 SRCDIRS += GPUManager
