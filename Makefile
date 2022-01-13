@@ -18,33 +18,33 @@ export
 .PHONY: default, all, mpi, gpu, mpigpu, clean
 
 default:
-	echo "=== Building AmpTools ==="
+	@echo "=== Building AmpTools ==="
 	@$(MAKE) -C AmpTools
-	echo "=== Building AmpPlotter ==="
+	@echo "=== Building AmpPlotter ==="
 	@$(MAKE) -C AmpPlotter
-	echo "=== Building Dalitz tutorial ==="
+	@echo "=== Building Dalitz tutorial ==="
 	@$(MAKE) -C Tutorials/Dalitz
 
 mpi:  default
-	echo "=== Building AmpTools with MPI ==="
+	@echo "=== Building AmpTools with MPI ==="
 	@$(MAKE) -C AmpTools MPI=1
-	echo "=== Building Dalitz tutorial with MPI ==="
+	@echo "=== Building Dalitz tutorial with MPI ==="
 	@$(MAKE) -C Tutorials/Dalitz MPI=1
 	
 gpu:
-	echo "=== Building AmpTools with GPU acceleration ==="
+	@echo "=== Building AmpTools with GPU acceleration ==="
 	@$(MAKE) -C AmpTools GPU=1
-	echo "=== Building AmpPlotter ==="
+	@echo "=== Building AmpPlotter ==="
 	@$(MAKE) -C AmpPlotter
-	echo "=== Building Dalitz tutorial with GPU acceleration ==="
+	@echo "=== Building Dalitz tutorial with GPU acceleration ==="
 	@$(MAKE) -C Tutorials/Dalitz GPU=1
 
 mpigpu: gpu
-	echo "=== Building AmpTools with MPI and GPU acceleration ==="
+	@echo "=== Building AmpTools with MPI and GPU acceleration ==="
 	@$(MAKE) -C AmpTools GPU=1 MPI=1
-	echo "=== Building AmpPlotter ==="
+	@echo "=== Building AmpPlotter ==="
 	@$(MAKE) -C AmpPlotter
-	echo "=== Building Dalitz tutorial with MPI and GPU acceleration ==="
+	@echo "=== Building Dalitz tutorial with MPI and GPU acceleration ==="
 	@$(MAKE) -C Tutorials/Dalitz MPI=1 GPU=1
 
 clean:
