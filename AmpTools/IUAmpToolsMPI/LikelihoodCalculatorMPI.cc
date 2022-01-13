@@ -172,7 +172,7 @@ LikelihoodCalculatorMPI::operator()()
   // collect the sums
   for( int i = 1; i < m_numProc; ++i ){
     
-    MPI_Recv( &data, 4, MPI_DOUBLE, i, MPITag::kDoubleSend,
+    MPI_Recv( (double*)&data, 4, MPI_DOUBLE, i, MPITag::kDoubleSend,
              MPI_COMM_WORLD, &status );
     
     lnL           += data[0];
@@ -271,7 +271,7 @@ LikelihoodCalculatorMPI::computeLikelihood()
   data[2] = numBkgEvents();
   data[3] = numDataEvents();
   
-  MPI_Send( &data, 4, MPI_DOUBLE, 0, MPITag::kDoubleSend, MPI_COMM_WORLD );
+  MPI_Send( (double*)&data, 4, MPI_DOUBLE, 0, MPITag::kDoubleSend, MPI_COMM_WORLD );
 }
 
 void
