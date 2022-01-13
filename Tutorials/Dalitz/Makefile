@@ -12,11 +12,11 @@ export
 default: library exe
 
 library:
-	echo "=== Building $(PROJECT) libraries ==="
+	@echo "=== Building $(PROJECT) libraries ==="
 	@$(MAKE) -C $(PROJECT)Lib
 	
 exe: library
-	echo "=== Building $(PROJECT) executables ==="
+	@echo "=== Building $(PROJECT) executables ==="
 	@$(MAKE) -C $(PROJECT)Exe
 
 clean:
