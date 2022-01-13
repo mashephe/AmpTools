@@ -30,7 +30,7 @@ mpi:  default
 	@$(MAKE) -C AmpTools MPI=1
 	echo "=== Building Dalitz tutorial with MPI ==="
 	@$(MAKE) -C Tutorials/Dalitz MPI=1
-	
+
 gpu:
 	echo "=== Building AmpTools with GPU acceleration ==="
 	@$(MAKE) -C AmpTools GPU=1
