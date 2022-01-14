@@ -124,10 +124,10 @@ private:
 template< class T >
 DataReaderMPI<T>::DataReaderMPI( const vector< string >& args ) : 
   T( args ),
-  m_ptrCache( 0 ),
-  m_ptrItr( m_ptrCache.begin() ),
   m_isDefault(false),
-  m_args(args)
+  m_args(args),
+  m_ptrCache( 0 ),
+  m_ptrItr( m_ptrCache.begin() )
 {
    
   MPI_Comm_rank( MPI_COMM_WORLD, &m_rank );
