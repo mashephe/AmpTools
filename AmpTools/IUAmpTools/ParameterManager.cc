@@ -232,19 +232,7 @@ ParameterManager::addAmplitudeParameter( const string& termName, const Parameter
     if( !(*intenManPtr)->hasTerm( termName ) ) continue;
     
     foundOne = true;
-    
-    if( parInfo->fixed() ){
-      
-      // if it is fixed just go ahead and set the parameter by value
-      // this prevents Amplitude class from thinking that is has
-      // a free parameter
-      
-      (**intenManPtr).setParValue( termName, parName, parInfo->value() );
-    }
-    else{
-      
-      (**intenManPtr).setParPtr( termName, parName, parPtr->constValuePtr() );
-    }
+    (**intenManPtr).setParPtr( termName, parName, parPtr->constValuePtr() );
   }
   
   if( !foundOne ){
