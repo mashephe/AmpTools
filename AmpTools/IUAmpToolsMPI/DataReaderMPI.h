@@ -124,10 +124,10 @@ private:
 template< class T >
 DataReaderMPI<T>::DataReaderMPI( const vector< string >& args ) : 
   T( args ),
-  m_ptrCache( 0 ),
-  m_ptrItr( m_ptrCache.begin() ),
   m_isDefault(false),
-  m_args(args)
+  m_args(args),
+  m_ptrCache( 0 ),
+  m_ptrItr( m_ptrCache.begin() )
 {
    
   MPI_Comm_rank( MPI_COMM_WORLD, &m_rank );
@@ -220,7 +220,9 @@ void DataReaderMPI<T>::distributeData()
   int remainder = totalEvents % ( m_numProc - 1 );
   
   KinStruct* kinArray = new KinStruct[stepSize+1];
-  
+ 
+  resetSource();
+ 
   for( int i = 1; i < m_numProc; ++i ){
     
     int nEvents = ( i > remainder ? stepSize : stepSize + 1 );
