@@ -1,12 +1,13 @@
 doc/html
 *.a
-*.dep
+*.d
 *.o
 *.DS_Store
 *.SYMDEF*
 *.goutputstream*
 Tutorials/Dalitz/DalitzExe/ampPlotter
 Tutorials/Dalitz/DalitzExe/fitAmplitudes
+Tutorials/Dalitz/DalitzExe/fitAmplitudesMPI
 Tutorials/Dalitz/DalitzExe/generateBackground
 Tutorials/Dalitz/DalitzExe/generatePhaseSpace
 Tutorials/Dalitz/DalitzExe/generatePhysics
@@ -19,6 +20,10 @@ Tutorials/Dalitz/run/*.fit
 Tutorials/Dalitz/run/*.ni
 Tutorials/Dalitz/run/*.root
 Tutorials/Dalitz/run/test.cfg
-
-
+Tutorials/Dalitz/lib/*
+Tutorials/Dalitz/bin/*
+Tutorials/Dalitz/doc/*.aux
+Tutorials/Dalitz/doc/*.log
+Tutorials/Dalitz/doc/*.toc
+Tutorials/Dalitz/doc/*.synctex.gz
 
