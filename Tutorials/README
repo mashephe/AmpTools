@@ -15,6 +15,15 @@ data set for fitting.  This example can also be compiled to use MPI and GPU acce
 
 RELEASE NOTES:
 
+v0.12.?? (??):
+
+Revised directory structure to relflect changes overall to the AmpTools build
+system.  Now DalitzLib and DalitzExe are distinct subdirectories.  The former
+is compiled into a single library while the latter contains executables.
+DalitzExe can be moved out the tree and the makefile can be altered to
+link additional libraries if needed.  Most (all?) code is functionally
+equivalent to previous versions.
+
 v0.12 (28-Jun-21):
 
 A new structure for MPI-based fitting is reflected in the fitAmplitudes

@@ -14,7 +14,15 @@ This depends on ROOT.  Be sure that your ROOT environment is configured
 properly.  The executable root-config should be in your path as this
 will be used by the make system.
 
-Typing 'make' will build the package and produce a single static library, 
+It is advisable to have AMPTOOLS_HOME set to the directory above this,
+which should be the root of the GitHub distribution of AmpTools.  Then
+check and tune the file:
+
+AMPTOOLS_HOME/Makefile.settings
+
+This file gets used in building all the components of AmpTools.
+
+Typing 'make' in this directory will build a single static library,
 libAmpTools.a, that can be linked by external packages.  To access the include 
 files, it is recommended one add the path to this top level directory in the
 -I flag to gcc.  Once this is done, files can be included in code by typing, 
@@ -23,14 +31,16 @@ for example, '#include "IUAmpTools/AmplitudeManager.h"'.
 Support for computing amplitudes on graphics cards can be enabled by
 typing 'make GPU=1'.  In this case CUDA_INSTALL_PATH should point to your
 installation of CUDA and you may need to adjust the CUDA_FLAGS variable in 
-the Makefile for your particular hardware.
+the Makefile for your particular hardware.  If the build is initiated from
+AMPTOOLS_HOME then GPU=1 is set for gpu targets.
+
+MPI support can be enabled when building from this directory by passing
+MPI=1 in as an argument to the make command.  (This happens automatically
+if the build is initiated from the parent directory and the mpi target
+is built.)  The resulting library will be libAmpTools_MPI.a or
+libAmpTools_GPU_MPI.a if GPU acceleration is also enabled.
 
 KNOWN ISSUES/FUTURE DEVELOPMENT:
-
-(0) Building can sometimes be cantankerous.  We are in need of a configure
-system.  Common mistakes are inadvertently mixing 32-bit and 64-bit code
-due to different complier options.  Check library paths in top-level Makefiles.  
-The GPU hardware versions also need to be hard coded in Makefiles.
 
 (1) Error propagation in some cases is unreliable.  Fit parameters and
 covariance matrices are correct, but computation of fit fractions that 
@@ -72,6 +82,18 @@ with parameters of interest emedded in the amplitude.  The amplitude returns
 the square root of the intensity computed from the parameters and the kinematics.
 
 RELEASE NOTES:
+
+v0.12.? (???):
+
+This includes an overhaul of the Makefile system.  All functionality remains
+very similar, but now the entire tree can be built from make from the top
+and the make system will keep MPI and GPU code separated.  There are some
+changes to the directory structure in the Dalitz tutorial.
+
+This version includes support for OpenMPI-4 which removed some deprecated
+function calls that were still being used in the MPI code.  These calls have
+been updated and should not cause any compatibility issues -- they were
+deprecated in MPI v2.
 
 v0.12.2 (20-Sep-2021):
 
