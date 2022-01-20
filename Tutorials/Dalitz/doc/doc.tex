@@ -117,7 +117,7 @@ The main purpose of a {\tt DataWriter} class in {\tt AmpTools} is to take a {\tt
 The {\tt generatePhaseSpace} application is an example of how to use the {\tt DalitzDataWriter} to write data to an output file.  It makes use of the {\tt TGenPhaseSpace} class from {\tt ROOT}.  A fictitious decay of a particle with mass $3.0~\gevcc$ to three $200~\mevcc$ particles is used for illustration.  To compile and run the example, use:
 \begin{verbatim}
   > cd $DALITZ/DalitzExe
-  > make generatePhaseSpace_exe
+  > make generatePhaseSpace
   > cd $DALITZ/run
   > $DALITZ/DalitzExe/generatePhaseSpace phasespace.gen.root 100000
 \end{verbatim}
@@ -136,7 +136,7 @@ The {\tt DataReader} class in {\tt AmpTools} is designed to read data from an in
 The {\tt plotData} executable is an example that uses the {\tt DalitzDataReader} to read events from an input file and then makes histograms of kinematic variables using {\tt ROOT}.  To compile and run, use:
 \begin{verbatim}
   > cd $DALITZ/DalitzExe
-  > make plotData_exe
+  > make plotData
   > cd $DALITZ/run
   > $DALITZ/DalitzExe/plotData phasespace.gen.root plots.phasespace.gen.root
 \end{verbatim}
@@ -164,7 +164,7 @@ The resulting histogram is shown in Figure~\ref{fig:dalitz}a.
 The {\tt toyAcceptance} example uses the {\tt DalitzDataReader} to read events from an input file, accepts or rejects events based on a toy efficiency function, then writes the accepted events to an output file using the {\tt DalitzDataWriter}.  Here is an example of how to compile and run:
 \begin{verbatim}
   > cd $DALITZ/DalitzExe
-  > make toyAcceptance_exe
+  > make toyAcceptance
   > cd $DALITZ/run
   > $DALITZ/DalitzExe/toyAcceptance phasespace.gen.root phasespace.acc.root
 \end{verbatim}
@@ -198,7 +198,7 @@ The {\tt AmpTools} package uses the {\tt AmplitudeManager} class to manage ampli
 The {\tt parseConfigFile} application is a simple example showing how to parse a configuration file using the {\tt ConfigFileParser} class, and then display the configuration information to the screen.  This is a useful way to make sure there are no mistakes in a configuration file.  To compile and run, use:
 \begin{verbatim}
   > cd $DALITZ/DalitzExe
-  > make parseConfigFile_exe
+  > make parseConfigFile
   > cd $DALITZ/run
   > $DALITZ/DalitzExe/parseConfigFile dalitz1.cfg
 \end{verbatim}
@@ -213,7 +213,7 @@ This parses and displays information from the {\tt dalitz1.cfg} file found in th
 The {\tt printAmplitudes} example parses a configuration file using the {\tt ConfigFileParser}, reads in events using the {\tt DalitzDataReader}, sets up an {\tt AmpToolsInterface}, calculates {\tt BreitWigner} amplitudes and total intensities, and then prints amplitude and intensity values to the screen. This can be a useful way to make sure amplitudes are coded correctly.  Compile and run in the usual way:
 \begin{verbatim}
   > cd $DALITZ/DalitzExe
-  > make printAmplitudes_exe
+  > make printAmplitudes
   > cd $DALITZ/run
   > $DALITZ/DalitzExe/printAmplitudes dalitz1.cfg phasespace.gen.root
 \end{verbatim}
@@ -226,7 +226,7 @@ This takes as input the {\tt dalitz1.cfg} configuration file~(Section~\ref{sec:c
 The {\tt generatePhysics} example generates events according to amplitudes specified in a configuration file.  To do so, it parses a configuration file using the {\tt ConfigFileParser}, sets up an {\tt AmpToolsInterface}, generates phase space events using the {\tt TGenPhaseSpace} class from {\tt ROOT}, calculates intensities from those events and uses an accept/reject method to mimic the desired physics distribution, then writes the resulting events to a data file using a {\tt DalitzDataWriter}.  To compile and run, use:
 \begin{verbatim}
   > cd $DALITZ/DalitzExe
-  > make generatePhysics_exe
+  > make generatePhysics
   > cd $DALITZ/run
   > $DALITZ/DalitzExe/generatePhysics dalitz1.cfg physics.gen.root 100000
 \end{verbatim}
@@ -250,7 +250,7 @@ The results are shown in Figures~\ref{fig:dalitz}c and~\ref{fig:dalitz}d, respec
 Amplitudes can be fit to data following the {\tt fitAmplitudes} example.  The example shows how to set up an {\tt AmpToolsInterface} class, perform a fit, and then output results to a text file:
 \begin{verbatim}
   > cd $DALITZ/DalitzExe
-  > make fitAmplitudes_exe
+  > make fitAmplitudes
   > cd $DALITZ/run
   > $DALITZ/DalitzExe/fitAmplitudes dalitz1.cfg
 \end{verbatim}
@@ -271,7 +271,7 @@ To use the results of a fit to make plots, a user can write a class that derives
 The {\tt plotResults} application uses the {\tt DalitzPlotGenerator} to make {\tt ROOT} histograms from fit results.  Compile and run it like this:
 \begin{verbatim}
   > cd $DALITZ/DalitzExe
-  > make plotResults_exe
+  > make plotResults
   > cd $DALITZ/run
   > $DALITZ/DalitzExe/plotResults dalitz1.fit dalitz1.root
 \end{verbatim}
