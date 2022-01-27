@@ -250,7 +250,7 @@ AmpVecs::loadData( DataReader* pDataReader ){
   // Loop over events and load each one individually
   
   Kinematics* pKinematics;
-  for(int iEvent = 0; iEvent < m_iNTrueEvents; iEvent++){ 
+  for(unsigned long long iEvent = 0; iEvent < m_iNTrueEvents; iEvent++){
     pKinematics = pDataReader->getEvent();
     loadEvent(pKinematics, iEvent, m_iNTrueEvents );
 
@@ -270,7 +270,7 @@ AmpVecs::loadData( DataReader* pDataReader ){
   
   // Fill any remaining space in the data array with the last event's kinematics
   
-  for (unsigned long long int iEvent = m_iNTrueEvents; iEvent < m_iNEvents; iEvent++){
+  for (unsigned long long iEvent = m_iNTrueEvents; iEvent < m_iNEvents; iEvent++){
     loadEvent(pKinematics, iEvent, m_iNTrueEvents );
   }
 

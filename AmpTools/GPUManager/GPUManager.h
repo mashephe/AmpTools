@@ -108,7 +108,7 @@ public:
     //Should be a power of 2 for reduction to work, also multiple of GPU_BLOCK_SIZE_SQ    
     int iPow = 0;
     while( ( 1 << iPow ) < iNEvents ) iPow++;
-    return 1 << iPow; 
+    return(  (1<<iPow) < GPU_BLOCK_SIZE_SQ ? GPU_BLOCK_SIZE_SQ : (1<<iPow) );
   }
   
 private:
