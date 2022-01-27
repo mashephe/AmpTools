@@ -1,24 +1,23 @@
-SRCFILES	:= $(wildcard *.cc)
+SRCFILES := $(wildcard *.cc)
 
 .PHONY: default clean
-.PRECIOUS: %.o
+.PRECIOUS: .%$(SUFFIX).o
 
 default: $(LIB)
 
-%.a: $(SRCFILES:.cc=.o) $(CUDAFILES:.cu=.o)
+%.a:  $(SRCFILES:%.cc=.%$(SUFFIX).o)
 	$(vecho) "--> Archiving $@"
 	$(Q)ar -rsc $@ $^
 
-%.o : %.cc
+.%$(SUFFIX).o: %.cc .%$(SUFFIX).d
 	$(vecho) "-> Compiling $<"
-	$(Q)$(MPICC) $(CXX_FLAGS) -M -o $*.d $< $(INC_DIR) ; \
-	cp $*.d $*.dep; \
-	sed -e 's/#.*//' -e 's/^[^:]*: *//' -e 's/ *\\$$//' \
-		-e '/^$$/ d' -e 's/$$/ :/' < $*.d >> $*.dep; \
-	rm -f $*.d $*.d.bak
-	$(Q)$(MPICC) $(CXX_FLAGS) -c -o $@ $< $(INC_DIR)
+	$(Q)$(CXX) $(CXX_FLAGS) -M -MP -MT $@ -o .$*$(SUFFIX).d $< $(INC_DIR)
+	$(Q)$(CXX) $(CXX_FLAGS) -c -o $@ $< $(INC_DIR)
+
+DEPFILES := $(SRCFILES:%.cc=.%$(SUFFIX).d)
+$(DEPFILES):
 
 clean:
-		$(Q)-rm -f *.o *.dep *.a
+	$(Q)-rm -f .*.o .*.d *.a
 
--include $(SRCFILES:.cc=.dep)
+-include $(DEPFILES)

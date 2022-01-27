@@ -1,12 +1,20 @@
-SRCFILES	:= $(wildcard *.cc)
-CUDAFILES	:= $(wildcard *.cu)
+
+SRCFILES := $(wildcard *.cc)
+
+ifdef GPU
+CUDAFILES := $(wildcard *cu)
+endif
+
+# Adam, did you put this here?
+FORTRAMPS := $(wildcard *.f)
+$(F77) := gfortran
 
 .PHONY: default clean
 .PRECIOUS: .%$(SUFFIX).o
 
 default: $(LIB)
 
-%.a:  $(SRCFILES:%.cc=.%$(SUFFIX).o) $(CUDAFILES:%.cu=.%$(SUFFIX).o)
+%.a:  $(SRCFILES:%.cc=.%$(SUFFIX).o) $(FORTRAMPS:%.f=.%$(SUFFIX).o) $(CUDAFILES:%.cu=.%$(SUFFIX).o)
 	$(vecho) "--> Archiving $@"
 	$(Q)ar -rsc $@ $^
 
@@ -19,6 +27,10 @@ default: $(LIB)
 	$(vecho) "-> Compiling $<"
 	$(Q)$(NVCC) $(NVCC_FLAGS) -M -MT $@ -o .$*$(SUFFIX).d $< $(INC_DIR)
 	$(Q)$(NVCC) $(NVCC_FLAGS) -c -o $@ $< $(INC_DIR)
+
+.%$(SUFFIX).o: %.f
+	$(vecho) "-> Compiling $<"
+	$(Q)$(F77) -c -O3 -o $@ $<
 
 DEPFILES := $(SRCFILES:%.cc=.%$(SUFFIX).d) $(CUDAFILES:%.cu=.%$(SUFFIX).d)
 $(DEPFILES):

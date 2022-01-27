@@ -1,0 +1,62 @@
+
+
+#########  DEFAULT COMPILER SETTINGS
+
+CXX := gcc
+CXX_FLAGS := -O3
+
+#########  END DEFAULT COMPILER SETTINGS
+
+
+#########  MPI COMPILER SETTINGS
+# to use MPI, an MPI compiler should be in the user path -- this will be used
+# to compile MPI executables.  In the project libraries (amplitudes, etc.)
+# there should be no MPI specific code.
+
+ifdef MPI
+MPICXX := mpicxx
+endif
+
+######### END MPI SETTINGS
+
+
+#########  GPU / CUDA COMPILER SETTINGS
+# to use CUDA the environment variable CUDA_INSTALL_PATH must be defined
+# and the proper architecture specified for the GPU.  In addition
+# the nvcc compiler (likely in $CUDA_INSTALL_PATH/bin) needs to be in
+# the user's path
+
+NVCC :=  nvcc
+NVCC_FLAGS := -m64
+
+ifndef GPU_ARCH
+GPU_ARCH := sm_20
+endif
+
+NVCC_FLAGS += -arch=$(GPU_ARCH)
+
+ifdef GPU  # otherwise these variables will be empty to avoid problems
+
+ifndef CUDA_INSTALL_PATH
+$(error GPU build requested but CUDA_INSTALL_PATH is not defined.)
+endif
+
+# the path to cuda specific libraries can vary with architecture
+CUDA_LIBS := -L$(CUDA_INSTALL_PATH)/lib64
+CUDA_LINK := -lcudart
+
+endif
+
+######### END GPU / CUDA SETTINGS
+
+
+######### GENERAL CHECKS
+
+# check for verbose output
+ifdef VERBOSE
+  Q :=
+  vecho = @true
+else
+  Q := @
+  vecho = @echo
+endif

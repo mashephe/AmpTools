@@ -1,82 +1,118 @@
 
-INC_DIR :=  -I.. -I$(shell root-config --incdir) \
-  -I$(AMPTOOLS) -I$(AMPPLOTTER) -I$(DALITZ)
+###### BUILDING PROJECT EXECUTABLES
 
-LIB_DIR := -L$(shell root-config --libdir) \
-	-L$(AMPTOOLS)/lib -L$(AMPPLOTTER)/lib -L$(DALITZ)/lib
-
-ROOTLIBS := $(shell root-config --glibs)
-
-CXX := gcc
-#CXX_FLAGS := -O3 -m32
-CXX_FLAGS := -O3 $(shell root-config --cflags)
-
-# for more detailed info, use VERBOSE=1
-ifdef VERBOSE
-	Q :=
-	vecho = @true
-else
-	Q := @
-	vecho = @echo
+ifndef PROJECT
+PROJECT := Dalitz
 endif
 
-ifdef MPI
-
-CXX := mpicxx -cc=$(CXX)
-CXX_FLAGS += -DUSEMPI
-
+ifndef PROJECT_HOME
+PROJECT_HOME := ..
 endif
 
-
-# To build code instrumented for Vampir Trace  VTRACE=1
-
-ifdef VTRACE
-
-CXX := vtcxx -vt:inst manual
-MPICC := vtcxx -vt:mpi -vt:inst manual
-
-CXX_FLAGS += -DVTRACE
-
+ifndef PROJECT_LIB
+PROJECT_LIB := $(PROJECT_HOME)/$(PROJECT)Lib
 endif
 
+# if there are other libraries to include, the include path can be added here
+INC_DIR := -I$(PROJECT_LIB)
+LIB_DIR := -L$(PROJECT_HOME)/lib
+
+# add extra library linking flags here if they are needed -- be sure the locations
+# are specified in the LIB_DIR arugments above
+#EXTRA_LIBS := -lOtherLibrary
+
+######  most things below probably don't need adjustment
+
+ifndef AMPTOOLS_HOME
+$(error Please set AMPTOOLS_HOME to point to the root of the AmpTools source tree. )
+endif
+
+include $(AMPTOOLS_HOME)/Makefile.settings
+
+# leave the binaries in this directory if the install directory hasn't been set
+ifndef INSTALL_BIN
+INSTALL_BIN = .
+endif
+
+INC_DIR += -I$(AMPPLOTTER) -I$(AMPTOOLS) -I$(shell root-config --incdir)
+CXX_FLAGS += $(shell root-config --cflags)
+
+# check if GPU build is requested
 ifdef GPU
-
 INC_DIR += -I$(CUDA_INSTALL_PATH)/include
-LIB_DIR += -L$(CUDA_INSTALL_PATH)/lib64
-
-LIBS :=  -lDalitz_GPU -lAmpPlotter -lAmpTools_GPU $(ROOTLIBS) -lcudart -lstdc++
 CXX_FLAGS += -DGPU_ACCELERATION
-
-else
-
-LIBS :=  -lDalitz -lAmpPlotter -lAmpTools $(ROOTLIBS) -lstdc++
-
+SUFFIX := _GPU
+ATSUFFIX := _GPU
 endif
 
-SRCFILES := $(wildcard *.cc)
-TARGET_EXE := $(subst .cc,_exe,$(SRCFILES))
+# check if MPI build is requested
+#   * unlike AmpTools Makefile, don't modify SUFFIX because the only thing
+#     this affects is the executables which will be handled separately
+#   * however, we do need the right suffix to link MPI enabled
+#     AmpTools library
+ifdef MPI
+CXX_FLAGS += -DUSE_MPI
+ATSUFFIX := $(ATSUFFIX)_MPI
+endif
 
-.PHONY: default
-.PRECIOUS: %.o
+# need some linking information available
+LIB_DIR += -L$(shell root-config --libdir) $(CUDA_LIBS) \
+	-L$(AMPTOOLS)/lib -L$(AMPPLOTTER)/lib
 
-default: $(TARGET_EXE)
+LIBS :=  -l$(PROJECT)$(SUFFIX) -lAmpPlotter -lAmpTools$(ATSUFFIX) \
+	$(EXTRA_LIBS) $(shell root-config --glibs) $(CUDA_LINK) -lstdc++
 
-# generic build rule (requires all libraries)
+# any source file falls into one of these two categories -- we'll
+# assume that anything that has MPI in the name is an MPI executable
+MPI_SRC := $(shell ls *.cc | grep -i mpi)
+NOMPI_SRC := $(shell ls *.cc | grep -vi mpi)
 
-%_exe: %.o
-	$(vecho) "--> Linking $(subst _exe,,$@)"
-	$(Q)$(CXX) $(CXX_FLAGS) -o $(subst _exe,,$@) $< -O3 $(INC_DIR) $(LIB_DIR) $(LIBS)
+TARGET_EXE := $(NOMPI_SRC:%.cc=%$(SUFFIX))
 
-%.o : %.cc
+# optionally if MPI is called for, we will build the MPI executables
+ifdef MPI
+TARGET_EXE += $(MPI_SRC:%.cc=%$(SUFFIX))
+endif
+
+.PHONY: default bin
+.PRECIOUS: .%$(SUFFIX).o .%$(SUFFIX)_mpi.o
+
+default: bin $(TARGET_EXE)
+
+bin:
+	$(Q)-mkdir $(INSTALL_BIN) >& /dev/null ||:
+
+# for the non-MPI executables we want to strip out the -DUSEMPI flag
+# from the compiler arguments and also be sure we link against the
+# non-MPI version of AmpTools
+
+$(NOMPI_SRC:%.cc=%$(SUFFIX)): %$(SUFFIX) : .%$(SUFFIX).o
+	$(vecho) "--> Linking $*$(SUFFIX)"
+	$(Q)$(CXX) $(subst -DUSEMPI,,$(CXX_FLAGS)) -o $(INSTALL_BIN)/$*$(SUFFIX) $< \
+	$(INC_DIR) $(LIB_DIR) $(subst _MPI,,$(LIBS))
+
+$(MPI_SRC:%.cc=%$(SUFFIX)): %$(SUFFIX) : .%$(SUFFIX)_mpi.o
+	$(vecho) "--> Linking $*$(SUFFIX)"
+	$(Q)$(MPICXX) $(CXX_FLAGS) -o $(INSTALL_BIN)/$*$(SUFFIX) $< \
+	$(INC_DIR) $(LIB_DIR) $(LIBS)
+
+.%$(SUFFIX).o: %.cc .%$(SUFFIX).d
 	$(vecho) "-> Compiling $<"
-	$(Q)$(CXX) $(CXX_FLAGS) -M -o $*.d $< $(INC_DIR) ; \
-	cp $*.d $*.dep; \
-	sed -e 's/#.*//' -e 's/^[^:]*: *//' -e 's/ *\\$$//' \
-		-e '/^$$/ d' -e 's/$$/ :/' < $*.d >> $*.dep; \
-	rm -f $*.d $*.d.bak
-	$(Q)$(CXX) $(CXX_FLAGS) -c -o $@ $< $(INC_DIR)
+	$(Q)$(CXX) $(subst -DUSEMPI,,$(CXX_FLAGS)) -M -MP -MT $@ -o .$*$(SUFFIX).d $< $(INC_DIR)
+	$(Q)$(CXX) $(subst -DUSEMPI,,$(CXX_FLAGS)) -c -o $@ $< $(INC_DIR)
+
+.%$(SUFFIX)_mpi.o: %.cc .%$(SUFFIX).d
+	$(vecho) "-> Compiling $<"
+	$(Q)$(MPICXX) $(CXX_FLAGS) -M -MP -MT $@ -o .$*$(SUFFIX).d $< $(INC_DIR)
+	$(Q)$(MPICXX) $(CXX_FLAGS) -c -o $@ $< $(INC_DIR)
+
+DEPFILES := $(NOMPI_SRC:%.cc=.%$(SUFFIX).d)
+ifdef MPI
+DEPFILES += $(MPI_SRC:%.cc=.%$(SUFFIX).d)
+endif
+$(DEPFILES):
 
 clean:
-	$(Q)rm -f *.o *.dep $(subst _exe,,$(TARGET_EXE))
+	$(Q)rm -f .*.o .*.d $(TARGET_EXE)
 
 -include $(SRCFILES:.cc=.dep)
