@@ -16,6 +16,11 @@ fits of experimental data to a coherent sum of amplitudes.  For
 additional documentation refer to the AmpTools_User_Guide.pdf file
 distributed with this code.
 
+If you use AmpTools for data analysis that results in a publication,
+please cite the source using the DOI specific to the version you used
+(see the badge at the top of this README file) or use the general DOI 
+that will resolve to the latest version:  doi.org/10.5281/zenodo.5039377
+
 Three modules are included with the distribution and individual README files,
 are contained within each module.  These README files should be
 referenced for details about various releases.
