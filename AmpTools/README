@@ -83,7 +83,7 @@ the square root of the intensity computed from the parameters and the kinematics
 
 RELEASE NOTES:
 
-v0.12.? (???):
+v0.13.0 (11-Feb-2022):
 
 This includes an overhaul of the Makefile system.  All functionality remains
 very similar, but now the entire tree can be built from make from the top
@@ -94,6 +94,12 @@ This version includes support for OpenMPI-4 which removed some deprecated
 function calls that were still being used in the MPI code.  These calls have
 been updated and should not cause any compatibility issues -- they were
 deprecated in MPI v2.
+
+A bug was fixed that resulted in incorrect four-vectors to be read from
+memory when using the AmpToolsInterface to get the Kinematics object for
+a single event.  This is not typically done in fitting (where GPU
+acceleration is often used) so many users may not have noticed this
+bug.
 
 v0.12.2 (20-Sep-2021):
 
