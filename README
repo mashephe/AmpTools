@@ -21,6 +21,11 @@ please cite the source using the DOI specific to the version you used
 (see the badge at the top of this README file) or use the general DOI 
 that will resolve to the latest version:  doi.org/10.5281/zenodo.5039377
 
+The entire source tree, including the Tutorial, should build from this
+top level directory by invoking make.  Prior to building, be sure
+that root-config is in your path and check/adjust the Makefile.settings
+as needed.
+
 Three modules are included with the distribution and individual README files,
 are contained within each module.  These README files should be
 referenced for details about various releases.
