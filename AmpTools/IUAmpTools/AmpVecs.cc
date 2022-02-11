@@ -177,37 +177,14 @@ AmpVecs::loadEvent( const Kinematics* pKinematics, unsigned long long iEvent,
   
   // check to be sure we won't exceed the bounds of the array
   assert( iEvent < m_iNEvents );
-  
-  // for cpu calculations, fill the m_pdData array in this order:
-  //    e(p1,ev1), px(p1,ev1), py(p1,ev1), pz(p1,ev1),
-  //    e(p2,ev1), px(p2,ev1), ...,
-  //    e(p1,ev2), px(p1,ev2), ...
-  // 
-  // for gpu calculations, fill the m_pdData array in this order:
-  //     e(p1,ev1),  e(p1,ev2),  e(p1,ev3), ...,
-  //    px(p1,ev1), px(p1,ev2), ...,
-  //     e(p2,ev1),  e(p2,ev2). ...
-  //
-  // where pn is particle n and evn is event n  
-  
-  //#ifndef GPU_ACCELERATION
-  
+    
   for (int iParticle = 0; iParticle < m_iNParticles; iParticle++){
     m_pdData[4*iEvent*m_iNParticles+4*iParticle+0]=pKinematics->particle(iParticle).E();
     m_pdData[4*iEvent*m_iNParticles+4*iParticle+1]=pKinematics->particle(iParticle).Px();
     m_pdData[4*iEvent*m_iNParticles+4*iParticle+2]=pKinematics->particle(iParticle).Py();
     m_pdData[4*iEvent*m_iNParticles+4*iParticle+3]=pKinematics->particle(iParticle).Pz();
   }
-  /*
-#else
-  for (int iParticle = 0; iParticle < m_iNParticles; iParticle++){
-    m_pdData[(4*iParticle+0)*m_iNEvents+iEvent] = pKinematics->particle(iParticle).E();
-    m_pdData[(4*iParticle+1)*m_iNEvents+iEvent] = pKinematics->particle(iParticle).Px();
-    m_pdData[(4*iParticle+2)*m_iNEvents+iEvent] = pKinematics->particle(iParticle).Py();
-    m_pdData[(4*iParticle+3)*m_iNEvents+iEvent] = pKinematics->particle(iParticle).Pz();
-  }
-#endif
-*/
+
   m_pdWeights[iEvent] = pKinematics->weight();
   
   m_termsValid = false;
@@ -368,21 +345,9 @@ AmpVecs::getEvent( int iEvent ){
   
   for( int iPart = 0; iPart < m_iNParticles; ++iPart ){
     
-    // packing is different for GPU and CPU
-    
-#ifndef GPU_ACCELERATION
-    
     int i = iEvent*4*m_iNParticles + 4*iPart;
     particleList.push_back( TLorentzVector( m_pdData[i+1], m_pdData[i+2],
-                                             m_pdData[i+3], m_pdData[i] ) );
-#else
-    
-    particleList.
-    push_back( TLorentzVector( m_pdData[(4*iPart+1)*m_iNEvents+iEvent],
-                                m_pdData[(4*iPart+2)*m_iNEvents+iEvent],
-                                m_pdData[(4*iPart+3)*m_iNEvents+iEvent],
-                                m_pdData[(4*iPart+0)*m_iNEvents+iEvent] ) );
-#endif // GPU_ACCELERATION
+                                            m_pdData[i+3], m_pdData[i] ) );
   }
   
   return new Kinematics( particleList, m_pdWeights[iEvent] );
