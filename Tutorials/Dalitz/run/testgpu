@@ -21,7 +21,7 @@ make gpu
       sleep 3
 
 cd $DALITZ/run
-$DALITZ/bin/generatePhaseSpace GPU.phasespace.gen.root 100000
+$DALITZ/bin/generatePhaseSpace_GPU GPU.phasespace.gen.root 100000
 
 
       sleep 1
@@ -35,7 +35,7 @@ $DALITZ/bin/generatePhaseSpace GPU.phasespace.gen.root 100000
       sleep 3
 
 cd $DALITZ/run
-$DALITZ/bin/plotData GPU.phasespace.gen.root GPU.plots.phasespace.gen.root
+$DALITZ/bin/plotData_GPU GPU.phasespace.gen.root GPU.plots.phasespace.gen.root
 
 
       sleep 1
@@ -50,7 +50,7 @@ $DALITZ/bin/plotData GPU.phasespace.gen.root GPU.plots.phasespace.gen.root
       sleep 3
 
 cd $DALITZ/run
-#root -l GPU.plots.phasespace.gen.root plotData.C
+root -l GPU.plots.phasespace.gen.root plotData.C
 
 
       sleep 1
@@ -64,7 +64,7 @@ cd $DALITZ/run
       sleep 3
 
 cd $DALITZ/run
-$DALITZ/bin/generatePhysics GPU.dalitz1.cfg GPU.physics.gen.root 100000
+$DALITZ/bin/generatePhysics_GPU GPU.dalitz1.cfg GPU.physics.gen.root 100000
 
 
       sleep 1
@@ -78,7 +78,7 @@ $DALITZ/bin/generatePhysics GPU.dalitz1.cfg GPU.physics.gen.root 100000
       sleep 3
 
 cd $DALITZ/run
-$DALITZ/bin/plotData GPU.physics.gen.root GPU.plots.physics.gen.root
+$DALITZ/bin/plotData_GPU GPU.physics.gen.root GPU.plots.physics.gen.root
 
 
       sleep 1
@@ -93,7 +93,7 @@ $DALITZ/bin/plotData GPU.physics.gen.root GPU.plots.physics.gen.root
       sleep 3
 
 cd $DALITZ/run
-#root -l GPU.plots.physics.gen.root plotData.C
+root -l GPU.plots.physics.gen.root plotData.C
 
 
       sleep 1
@@ -107,7 +107,7 @@ cd $DALITZ/run
       sleep 3
 
 cd $DALITZ/run
-$DALITZ/bin/toyAcceptance GPU.phasespace.gen.root GPU.phasespace.acc.root
+$DALITZ/bin/toyAcceptance_GPU GPU.phasespace.gen.root GPU.phasespace.acc.root
 
 
       sleep 1
@@ -121,7 +121,7 @@ $DALITZ/bin/toyAcceptance GPU.phasespace.gen.root GPU.phasespace.acc.root
       sleep 3
 
 cd $DALITZ/run
-$DALITZ/bin/plotData GPU.phasespace.acc.root GPU.plots.phasespace.acc.root
+$DALITZ/bin/plotData_GPU GPU.phasespace.acc.root GPU.plots.phasespace.acc.root
 
 
       sleep 1
@@ -150,7 +150,7 @@ root -l GPU.plots.phasespace.acc.root plotData.C
       sleep 3
 
 cd $DALITZ/run
-$DALITZ/bin/toyAcceptance GPU.physics.gen.root GPU.physics.acc.root
+$DALITZ/bin/toyAcceptance_GPU GPU.physics.gen.root GPU.physics.acc.root
 
 
       sleep 1
@@ -164,7 +164,7 @@ $DALITZ/bin/toyAcceptance GPU.physics.gen.root GPU.physics.acc.root
       sleep 3
 
 cd $DALITZ/run
-$DALITZ/bin/plotData GPU.physics.acc.root GPU.plots.physics.acc.root
+$DALITZ/bin/plotData_GPU GPU.physics.acc.root GPU.plots.physics.acc.root
 
 
       sleep 1
@@ -179,7 +179,7 @@ $DALITZ/bin/plotData GPU.physics.acc.root GPU.plots.physics.acc.root
       sleep 3
 
 cd $DALITZ/run
-#root -l GPU.plots.physics.acc.root plotData.C
+root -l GPU.plots.physics.acc.root plotData.C
 
 
       sleep 1
@@ -207,7 +207,7 @@ $DALITZ/bin/fitAmplitudes_GPU GPU.dalitz1.cfg
       sleep 3
 
 cd $DALITZ/run
-$DALITZ/bin/plotResults GPU.dalitz1.fit GPU.dalitz1.root
+$DALITZ/bin/plotResults_GPU GPU.dalitz1.fit GPU.dalitz1.root
 
 
       sleep 1
@@ -235,7 +235,7 @@ root -l GPU.plots.physics.acc.root GPU.dalitz1.root plotResult.C
       sleep 3
 
 cd $DALITZ/run
-$DALITZ/bin/ampPlotter GPU.dalitz1.fit
+$DALITZ/bin/ampPlotter_GPU GPU.dalitz1.fit
 
 
 
