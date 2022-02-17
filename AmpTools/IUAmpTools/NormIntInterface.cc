@@ -496,7 +496,7 @@ NormIntInterface::setAmpIntMatrix( const GDouble* input ) const {
 }
 
 void
-NormIntInterface::setNormIntMatrix( const double* input ) const {
+NormIntInterface::setNormIntMatrix( const GDouble* input ) const {
   
   memcpy( m_normIntCache, input, m_cacheSize * sizeof( GDouble ) );
   m_emptyNormIntCache = false;
