@@ -115,4 +115,4 @@ $(DEPFILES):
 clean:
 	$(Q)rm -f .*.o .*.d $(TARGET_EXE)
 
--include $(SRCFILES:.cc=.dep)
+-include $(DEPFILES)
