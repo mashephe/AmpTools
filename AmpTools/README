@@ -83,6 +83,14 @@ the square root of the intensity computed from the parameters and the kinematics
 
 RELEASE NOTES:
 
+v0.13.1 (17-Feb-2022):
+
+This release includes a few bug fixes.  The dependency checking in the Makefile
+that builds the Dalitz tutorial was incorrect.  The testgpu script in the
+Dalitz tutorial did not function properly.  And there are a few data type
+changes needed to avoid compiler errors when trying to compile in single
+precision.
+
 v0.13.0 (11-Feb-2022):
 
 This includes an overhaul of the Makefile system.  All functionality remains
