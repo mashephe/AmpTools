@@ -8,10 +8,8 @@
 static __device__ WCUComplex wignerD( int l, int m, int n, GDouble cosTheta, GDouble phi );
 static __device__ GDouble    wignerDSmall( GDouble aj, GDouble am, GDouble an, GDouble beta );
 static __device__ WCUComplex Y( int l, int m, GDouble cosTheta, GDouble phi );
-
-__device__ __constant__ GDouble f = 8.72664625997164788e-3;
   
-__device__ __constant__ GDouble fcl[51] = { 0 , 0 ,
+__device__ __constant__ GDouble wignerd_fcl[51] = { 0 , 0 ,
     6.93147180559945309e-1 ,1.79175946922805500e00,
     3.17805383034794562e00 ,4.78749174278204599e00,
     6.57925121201010100e00 ,8.52516136106541430e00,
@@ -83,7 +81,7 @@ wignerDSmall( GDouble aj, GDouble am, GDouble an, GDouble beta ){
 		GDouble b  = f*beta;
 		GDouble s  = G_LOG(G_SIN(b));
 		GDouble c  = G_LOG(G_FABS(G_COS(b)));
-		GDouble rt = 0.5*(fcl[jpm]+fcl[jmm]+fcl[jpn]+fcl[jmn]);
+		GDouble rt = 0.5*(wignerd_fcl[jpm]+wignerd_fcl[jmm]+wignerd_fcl[jpn]+wignerd_fcl[jmn]);
 		int k0    = ( 0 > mpn ? 0 : mpn ); //max( 0 , mpn )
 		int kq    = k0+jpm;
 		if (beta > 180) kq += mpn;
@@ -94,7 +92,7 @@ wignerDSmall( GDouble aj, GDouble am, GDouble an, GDouble beta ){
 		GDouble sx = jpm+jpn-kq;
 		for( int k = k0 ; k <= ( jpm < jpn ? jpm : jpn ); k++ ) 
 		{
-			r  += q*G_EXP(rt-fcl[k]-fcl[jpm-k]-fcl[jpn-k]-fcl[k-mpn]+ cx*c+sx*s);
+			r  += q*G_EXP(rt-wignerd_fcl[k]-wignerd_fcl[jpm-k]-wignerd_fcl[jpn-k]-wignerd_fcl[k-mpn]+ cx*c+sx*s);
 			cx += 2;
 			sx -= 2;
 			q   = -q;
