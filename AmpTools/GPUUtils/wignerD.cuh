@@ -8,7 +8,9 @@
 static __device__ WCUComplex wignerD( int l, int m, int n, GDouble cosTheta, GDouble phi );
 static __device__ GDouble    wignerDSmall( GDouble aj, GDouble am, GDouble an, GDouble beta );
 static __device__ WCUComplex Y( int l, int m, GDouble cosTheta, GDouble phi );
-  
+
+__device__ __constant__ GDouble wignerd_f = 8.72664625997164788e-3;
+
 __device__ __constant__ GDouble wignerd_fcl[51] = { 0 , 0 ,
     6.93147180559945309e-1 ,1.79175946922805500e00,
     3.17805383034794562e00 ,4.78749174278204599e00,
@@ -78,7 +80,7 @@ wignerDSmall( GDouble aj, GDouble am, GDouble an, GDouble beta ){
   } 
 	else
 	{
-		GDouble b  = f*beta;
+		GDouble b  = wignerd_f*beta;
 		GDouble s  = G_LOG(G_SIN(b));
 		GDouble c  = G_LOG(G_FABS(G_COS(b)));
 		GDouble rt = 0.5*(wignerd_fcl[jpm]+wignerd_fcl[jmm]+wignerd_fcl[jpn]+wignerd_fcl[jmn]);
