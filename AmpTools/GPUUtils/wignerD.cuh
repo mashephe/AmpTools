@@ -9,9 +9,9 @@ static __device__ WCUComplex wignerD( int l, int m, int n, GDouble cosTheta, GDo
 static __device__ GDouble    wignerDSmall( GDouble aj, GDouble am, GDouble an, GDouble beta );
 static __device__ WCUComplex Y( int l, int m, GDouble cosTheta, GDouble phi );
 
-static __device__ __constant__ GDouble f = 8.72664625997164788e-3;
+__device__ __constant__ GDouble f = 8.72664625997164788e-3;
   
-static __device__ __constant__ GDouble fcl[51] = { 0 , 0 ,
+__device__ __constant__ GDouble fcl[51] = { 0 , 0 ,
     6.93147180559945309e-1 ,1.79175946922805500e00,
     3.17805383034794562e00 ,4.78749174278204599e00,
     6.57925121201010100e00 ,8.52516136106541430e00,
