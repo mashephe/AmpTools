@@ -224,6 +224,14 @@ class AmpToolsInterface{
 
     double likelihood(const string& reactionName) const;
 
+  /** Reinitialize production and amplitude parameters to the values from 
+   * ConfigurationInfo.  This is useful for repeated fits where most parameters
+   * should be seeded with the same values, for example in a likelihood 
+   * scan over a single parameter.
+   */
+
+  void reinitializePars( );
+
   /** This function will randomly set the production parameters in
    * the likelihood calculator.  It is useful when searching for multiple
    * ambiguous solutions.  Production parameters will be set such that
