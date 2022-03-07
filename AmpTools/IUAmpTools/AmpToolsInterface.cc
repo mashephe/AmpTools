@@ -269,6 +269,40 @@ AmpToolsInterface::likelihood () const {
 }
 
 void
+AmpToolsInterface::reinitializePars(){
+  
+  // shouldn't be callin' unless you're fittin'
+  if( m_functionality != kFull ) return;
+
+  // reinitialize production parameters
+  vector< AmplitudeInfo* > amps = m_configurationInfo->amplitudeList();
+  for( vector< AmplitudeInfo* >::iterator ampItr = amps.begin();
+      ampItr != amps.end();
+      ++ampItr ){
+   
+    if( (**ampItr).fixed() ) continue;
+    
+    string ampName = (**ampItr).fullName();
+    complex< double > prodPar = (**ampItr).value();
+
+    m_parameterManager->setProductionParameter( ampName, prodPar );
+  }
+
+  // reinitialize amplitude parameters
+  vector<ParameterInfo*> parInfoVec = m_configurationInfo->parameterList();
+  for ( vector< ParameterInfo* >::iterator parItr = parInfoVec.begin(); parItr != parInfoVec.end(); ++parItr ){
+
+    if( (**parItr).fixed() ) continue;
+ 
+    string parName = (**parItr).parName();
+    double value = (**parItr).value();
+
+    m_parameterManager->setAmpParameter( parName, value );
+  }
+
+}
+
+void
 AmpToolsInterface::randomizeProductionPars( float maxFitFraction ){
   
   // shouldn't be callin' unless you're fittin'
