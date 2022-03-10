@@ -64,7 +64,7 @@ public:
   istream& loadNormIntCache( istream& in );
   void operator+=( const NormIntInterface& nii );
 
-  int numGenEvents() const { return m_nGenEvents; }
+  unsigned long int numGenEvents() const { return m_nGenEvents; }
   double numAccEvents() const { return m_sumAccWeights; }
   
   // does this interface have the ability to recalculate integrals?
@@ -90,7 +90,7 @@ public:
   const GDouble* ampIntMatrix() const  { return m_ampIntCache;  }
   const GDouble* normIntMatrix() const { return m_normIntCache; }
   
-  void setGenEvents( int events ) { m_nGenEvents = events; }
+  void setGenEvents( unsigned long int events ) { m_nGenEvents = events; }
   void setAccEvents( double sumWeights ) { m_sumAccWeights = sumWeights; }
   
 protected:
@@ -112,8 +112,8 @@ private:
   DataReader* m_accMCReader;
   DataReader* m_genMCReader;
   
-  int m_nGenEvents;
-  mutable double m_sumAccWeights; // mutable enables lazy evaluation
+  unsigned long int m_nGenEvents;
+  double m_sumAccWeights;
   
   vector< string > m_termNames;
   map< string, int > m_termIndex;
@@ -121,9 +121,10 @@ private:
   mutable bool m_emptyNormIntCache;
   mutable bool m_emptyAmpIntCache;
   
-  // needed to cache accepted MC data for NI recalculation
-  mutable AmpVecs m_mcVecs;
-
+  // caches for MC
+  mutable AmpVecs m_accMCVecs;
+  mutable AmpVecs m_genMCVecs;
+  
   int m_cacheSize;
 
   mutable GDouble* m_normIntCache;
