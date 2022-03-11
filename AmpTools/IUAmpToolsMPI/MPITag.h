@@ -56,6 +56,7 @@ class MPITag {
    */
   
   enum { kIntSend = 1,
+    kLongIntSend,
     kDoubleSend,
     kCharSend,
     kDataSend,

@@ -70,14 +70,14 @@ struct AmpVecs
   /**
    * An integer that stores the number of events.
    */
-  unsigned long long m_iNEvents;
+  unsigned long m_iNEvents;
   
   /**
    * An integer that stores the true number of events.  For GPU calculations
    * it is necessary to pad iNEvents up to the next power of 2.  This integer
    * stores the actual number of unique events.
    */
-  unsigned long long m_iNTrueEvents;
+  unsigned long m_iNTrueEvents;
   
   /**
    * A double that stores the absolute value of the sum of the weights.  (For
