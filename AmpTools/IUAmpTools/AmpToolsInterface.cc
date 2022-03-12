@@ -172,6 +172,11 @@ AmpToolsInterface::resetConfigurationInfo(ConfigurationInfo* configurationInfo){
       DataReader* genMCRdr = genMCReader(reactionName);
       DataReader* accMCRdr = accMCReader(reactionName);
       
+      m_uniqueDataSets.insert( dataRdr );
+      m_uniqueDataSets.insert( bkgndRdr );
+      m_uniqueDataSets.insert( genMCRdr );
+      m_uniqueDataSets.insert( accMCRdr );
+      
       if (!dataRdr)
         cout << "AmpToolsInterface WARNING:  not creating a DataReader for data associated with reaction "
         << reactionName << endl;
@@ -483,9 +488,6 @@ AmpToolsInterface::clear(){
       string reactionName(reaction->reactionName());
       
       if (likelihoodCalculator(reactionName)) delete m_likCalcMap[reactionName];
-      if (dataReader(reactionName)) delete dataReader(reactionName);
-      if (accMCReader(reactionName)) delete accMCReader(reactionName);
-      if (genMCReader(reactionName)) delete genMCReader(reactionName);
       if (normIntInterface(reactionName)) delete normIntInterface(reactionName);
     }
 
@@ -494,12 +496,21 @@ AmpToolsInterface::clear(){
     for (unsigned int i = 0; i < m_intensityManagers.size(); i++){
       delete m_intensityManagers[i];
     }
+
+    for( auto dataReader = m_uniqueDataSets.begin();
+        dataReader != m_uniqueDataSets.end(); ++dataReader ){
+      
+      if( *dataReader ) delete *dataReader;
+    }
   }
+  
   
   m_intensityManagers.clear();
   m_dataReaderMap.clear();
   m_genMCReaderMap.clear();
   m_accMCReaderMap.clear();
+  m_bkgndReaderMap.clear();
+  m_uniqueDataSets.clear();
   m_normIntMap.clear();
   m_likCalcMap.clear();
   

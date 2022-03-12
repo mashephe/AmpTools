@@ -449,6 +449,10 @@ class AmpToolsInterface{
     map<string,DataReader*> m_bkgndReaderMap;
     map<string,DataReader*> m_genMCReaderMap;
     map<string,DataReader*> m_accMCReaderMap;
+  
+    // use a set here because entries can't be duplicated and
+    // this makes it easy to avoid a double-delete at cleanup time
+    set<DataReader*> m_uniqueDataSets;
 
     map<string,NormIntInterface*>     m_normIntMap;
     map<string,LikelihoodCalculator*> m_likCalcMap;
