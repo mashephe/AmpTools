@@ -206,7 +206,7 @@ public:
  virtual Int_urt  GetParameter( Int_urt parNo, Double_urt &currentValue, Double_urt &currentError ) const;
  Int_urt          GetStatus() const {return fStatus;}
  const std::vector<Double_urt>& GetParameterList() const {return m_userParameterValue;}
- virtual Int_urt  Migrad();
+ virtual Int_urt  Migrad( Double_urt tolerance );
  virtual Int_urt  Minos();
  virtual Int_urt  Hesse();
  void             SetLogStream( std::ostream& aStream ) { m_logStream = &aStream; }

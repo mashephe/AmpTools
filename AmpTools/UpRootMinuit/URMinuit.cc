@@ -483,14 +483,14 @@ Int_urt URMinuit::GetNumPars() const
 }
 
 //______________________________________________________________________________
-Int_urt URMinuit::Migrad()
+Int_urt URMinuit::Migrad(Double_urt tolerance = 0.1)
 {
 // invokes the MIGRAD minimizer
      Int_urt err;
   
 // configure command arguments here
-     Double_urt plist[] = { static_cast<Double_urt>(fMaxIterations) };
-     Int_urt npar = 1;
+     Double_urt plist[] = { static_cast<Double_urt>(fMaxIterations), tolerance };
+     Int_urt npar = 2;
 
      mnexcm( "MIGRAD", plist, npar, err );
 

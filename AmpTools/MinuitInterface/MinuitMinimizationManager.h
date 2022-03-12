@@ -151,7 +151,12 @@ public:
 
    void setStrategy( int strategy );
    int strategy() const;
-  
+
+   // change the tolerance for convergence -- from the MINUIT manual:
+   //   The optional argument [tolerance] specifies required tolerance on the function value at the minimum. The default tolerance is 0.1 and the minimization will stop when the estimated vertical distance to the minimum (EDM) is less than 0.001*[tolerance]*UP (see SET ERR). 
+   void setTolerance( double tolerance ) { m_tolerance = tolerance; }
+   double tolerance() const { return m_tolerance; }
+ 
    // serve up the parameterManager for the user to define/delete minuit parameters
    MinuitParameterManager& parameterManager() { return m_parameterManager; }
 
@@ -197,7 +202,8 @@ private:
    int m_strategy;
   
    double m_precision;
-  
+   double m_tolerance; 
+ 
    double m_bestMin;
    double m_estDistToMin;
  
