@@ -69,10 +69,27 @@ public:
   /**
    * This method can create a new data reader (of the derived type).
    */
-  virtual DataReader* newDataReader( const vector< string >& args ) const{
-    return new DataReaderMPI<T>( args );
-  }
 
+  virtual DataReader* newDataReader( const vector< string >& args ) const{
+
+    // we need the identifier of the new amplitude first:
+    DataReaderMPI<T>* newReader = new DataReaderMPI<T>( args );
+    
+    string ident = newReader->identifier();
+    
+    if( m_dataReaderInstances.find( ident ) ==
+        m_dataReaderInstances.end() ){
+      
+      m_dataReaderInstances[ident] = newReader;
+    }
+    else{
+      
+      // already have a functional instance, so delete this one
+      delete newReader;
+    }
+    
+    return m_dataReaderInstances[ident];
+  }
 
   /**
    * This method can create a clone of a data reader (of the derived type).
@@ -118,6 +135,7 @@ private:
   
   unsigned int m_numEvents;
   
+  mutable map< string, DataReaderMPI<T>* > m_dataReaderInstances;
 };
 
 
