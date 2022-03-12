@@ -94,21 +94,69 @@ m_termNames( intenManager.getTermNames() )
   
   m_termNames = intenManager.getTermNames();
   
-  cout << "Loading generated Monte Carlo..." << endl;
-  m_genMCVecs.loadData( m_genMCReader );
-  m_nGenEvents = m_genMCVecs.m_iNTrueEvents;
+  auto genVecs = m_uniqueDataSets.find( m_genMCReader );
+  if( genVecs == m_uniqueDataSets.end() ){
+  
+    cout << "Loading generated Monte Carlo from file..." << endl;
+    m_genMCVecs.loadData( m_genMCReader );
+    m_nGenEvents = m_genMCVecs.m_iNTrueEvents;
+    cout << "\tDone.\n" << flush;
+    
+    m_uniqueDataSets[m_genMCReader] = &m_genMCVecs;
+  }
+  else{
+    
+    cout << "NOTICE:  Duplicated Monte Carlo set detected, "
+         << "using previously loaded version" << endl;
+    
+    genVecs->second->shareDataWith( &m_genMCVecs );
+  }
   m_genMCVecs.allocateTerms( *m_pIntenManager );
-  cout << "\tDone.\n" << flush;
 
-  cout << "Loading acccepted Monte Carlo..." << endl;
-  m_accMCVecs.loadData( m_accMCReader );
-  m_sumAccWeights = m_accMCVecs.m_dSumWeights;
+  auto accVecs = m_uniqueDataSets.find( m_accMCReader );
+  if( accVecs == m_uniqueDataSets.end() ){
+  
+    cout << "Loading accepted Monte Carlo from file..." << endl;
+    m_accMCVecs.loadData( m_accMCReader );
+    m_sumAccWeights = m_accMCVecs.m_dSumWeights;
+    cout << "\tDone.\n" << flush;
+    
+    m_uniqueDataSets[m_accMCReader] = &m_accMCVecs;
+  }
+  else{
+    
+    cout << "NOTICE:  Duplicated Monte Carlo set detected, "
+         << "using previously loaded version" << endl;
+    
+    accVecs->second->shareDataWith( &m_accMCVecs );
+  }
   m_accMCVecs.allocateTerms( *m_pIntenManager );
-  cout << "\tDone." << endl;
   
   initializeCache();
 }
 
+NormIntInterface::~NormIntInterface(){
+
+  // Find if this interface's AmpVecs are being used
+  // in the unique data set map and delete them from the
+  // map if they are.  When the objects go out of scope
+  // the destructor of AmpVecs will properly transfer
+  // ownership of the data to one of the shared objects.
+  
+  auto genVecs = m_uniqueDataSets.find( m_genMCReader );
+  if( genVecs != m_uniqueDataSets.end() &&
+     genVecs->second == &m_genMCVecs ){
+    
+    m_uniqueDataSets.erase( genVecs );
+  }
+
+  auto accVecs = m_uniqueDataSets.find( m_accMCReader );
+  if( accVecs != m_uniqueDataSets.end() &&
+     accVecs->second == &m_accMCVecs ){
+    
+    m_uniqueDataSets.erase( accVecs );
+  }
+}
 
 istream&
 NormIntInterface::loadNormIntCache( istream& input )
@@ -368,7 +416,7 @@ NormIntInterface::forceCacheUpdate( bool normIntOnly ) const
   if( ( m_accMCReader == m_genMCReader ) && !m_emptyAmpIntCache ) {
     
     // optimization for perfect acceptance  
-    cout << "Perfect acceptance -- using integrals from generated MC" << endl;
+    cout << "NOTICE:  perfect acceptance -- generated and accepted are the same" << endl;
     
     setNormIntMatrix( m_ampIntCache );
   }
@@ -488,3 +536,5 @@ NormIntInterface::setNormIntMatrix( const GDouble* input ) const {
   memcpy( m_normIntCache, input, m_cacheSize * sizeof( GDouble ) );
   m_emptyNormIntCache = false;
 }
+
+map< DataReader*, AmpVecs* > NormIntInterface::m_uniqueDataSets;

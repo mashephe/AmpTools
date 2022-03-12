@@ -61,6 +61,8 @@ public:
   NormIntInterface( DataReader* genMCData, DataReader* accMCData, 
                     const IntensityManager& ampManager );
   
+  ~NormIntInterface();
+  
   istream& loadNormIntCache( istream& in );
   void operator+=( const NormIntInterface& nii );
 
@@ -129,6 +131,8 @@ private:
 
   mutable GDouble* m_normIntCache;
   mutable GDouble* m_ampIntCache;
+  
+  static map< DataReader*, AmpVecs* > m_uniqueDataSets;
 };
 
 inline istream& operator>>( istream& input, NormIntInterface& normInt ){
