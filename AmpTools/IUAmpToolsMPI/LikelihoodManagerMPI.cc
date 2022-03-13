@@ -71,8 +71,7 @@ LikelihoodManagerMPI::deliverLikelihood()
   LikelihoodCalculatorMPI* likCalc;
   map< int, LikelihoodCalculatorMPI* >::iterator mapItr;
   
-  MPI_Recv( cmnd, 2, MPI_INT, 0, MPITag::kIntSend, MPI_COMM_WORLD, &status );
-  
+  MPI_Bcast( cmnd, 2, MPI_INT, 0, MPI_COMM_WORLD );
   
   while( ( *fitFlag != kExit ) && ( *fitFlag != kFinalizeFit ) ){
     
@@ -111,8 +110,7 @@ LikelihoodManagerMPI::deliverLikelihood()
         assert( false );
     }
     
-    MPI_Recv( (int*)&cmnd, 2, MPI_INT, 0, MPITag::kIntSend,
-             MPI_COMM_WORLD, &status );
+    MPI_Bcast( cmnd, 2, MPI_INT, 0, MPI_COMM_WORLD );
   }
 
   m_lastCommand = static_cast<LikelihoodManagerMPI::FitCommand>(*fitFlag);
@@ -144,10 +142,7 @@ LikelihoodManagerMPI::broadcastToFirst( FitCommand command ){
   cmnd[0] = mapItr->first;    
    
   // this will send a command to just the first registered calculator
-  for( int i = 1; i < m_numProc; ++i ){
-      
-    MPI_Send( cmnd, 2, MPI_INT, i, MPITag::kIntSend, MPI_COMM_WORLD );
-  }
+  MPI_Bcast( cmnd, 2, MPI_INT, 0, MPI_COMM_WORLD );
 }
 
 void
