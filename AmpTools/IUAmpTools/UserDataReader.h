@@ -39,6 +39,7 @@
 
 #include <string>
 #include <vector>
+#include <map>
 #include "IUAmpTools/DataReader.h"
 
 using namespace std;
