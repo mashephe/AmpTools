@@ -57,7 +57,8 @@ MinuitMinimizationManager::MinuitMinimizationManager( int maxParameters ) :
    m_estDistToMin( 0 ),
    m_eMatrixStat( 0 ),
    m_strategy( 1 ),
-   m_precision( 0 ) // MINUIT determines automatically
+   m_precision( 0 ), // MINUIT determines automatically
+   m_tolerance( 0.1 )
 {
 //   m_parameterManager = new MinuitParameterManager( *this );
    // tell the fitter that this object is the function to evaluate
@@ -213,7 +214,7 @@ MinuitMinimizationManager::migradMinimization() {
    m_lastCommand = kMigrad;
    m_parameterManager.synchronizeMinuit();
    m_parameterManager.fitInProgress();
-   m_status = m_fitter.Migrad();
+   m_status = m_fitter.Migrad( m_tolerance );
    m_fitter.mnstat( m_bestMin, m_estDistToMin, dummyD, dummyI, dummyI, m_eMatrixStat );
    // minuit doesn't make a final function call after evaluation of
    // errors.  This ensures that final parameter and function values
