@@ -138,7 +138,7 @@ public:
    *
    * \see UserDataReader
    */
-  virtual DataReader* newDataReader( const vector< string >& args ) const = 0;
+  virtual DataReader* newDataReader( const vector< string >& args, string name = "" ) const = 0;
   
   /**
    * This method is overridden by the UserDataReader class and does not

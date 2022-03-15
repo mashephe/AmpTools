@@ -85,23 +85,38 @@ public:
   /**
    * This method can create a new data reader (of the derived type).
    */
-        virtual DataReader* newDataReader( const vector< string >& args ) const{
+        virtual DataReader* newDataReader( const vector< string >& args, string name = "" ) const{
 
-          // we need the identifier of the new amplitude first:
-          T* newReader = new T( args );
-          
-          string ident = newReader->identifier();
-          
-          if( m_dataReaderInstances.find( ident ) ==
-              m_dataReaderInstances.end() ){
-            
-            m_dataReaderInstances[ident] = newReader;
-          }
-          else{
-            
-            // already have a functional instance, so delete this one
-            delete newReader;
-          }
+	  // we need the identifier of the new data reader first:
+	  string ident = "";
+	  T* newReader;
+
+	  // if data reader name provided, create identifier without constructor
+	  if(name != "") { 
+	    ident = name;
+	    ident += "%%";
+
+	    for( vector< string >::const_iterator myarg = args.begin(); myarg != args.end(); ++myarg ){
+	      ident += *myarg;
+	      ident += " ";
+	    }
+
+	    if( m_dataReaderInstances.find( ident ) == m_dataReaderInstances.end() ){  
+	      newReader = new T( args );
+	      m_dataReaderInstances[ident] = newReader;
+	    }      
+	  }
+	  else { // construct data reader if name not provided
+	    newReader = new T( args );
+	    ident = newReader->identifier();
+
+	    if( m_dataReaderInstances.find( ident ) == m_dataReaderInstances.end() ){  
+	      m_dataReaderInstances[ident] = newReader;
+	    }
+	    else {
+	      delete newReader;
+	    }  
+	  }
           
           return m_dataReaderInstances[ident];
         }

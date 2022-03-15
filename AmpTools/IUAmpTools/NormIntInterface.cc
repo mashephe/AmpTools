@@ -110,6 +110,7 @@ m_termNames( intenManager.getTermNames() )
          << "using previously loaded version" << endl;
     
     genVecs->second->shareDataWith( &m_genMCVecs );
+    m_nGenEvents = m_genMCVecs.m_iNTrueEvents;
   }
   m_genMCVecs.allocateTerms( *m_pIntenManager );
 
@@ -129,6 +130,7 @@ m_termNames( intenManager.getTermNames() )
          << "using previously loaded version" << endl;
     
     accVecs->second->shareDataWith( &m_accMCVecs );
+    m_sumAccWeights = m_accMCVecs.m_dSumWeights;
   }
   m_accMCVecs.allocateTerms( *m_pIntenManager );
   
