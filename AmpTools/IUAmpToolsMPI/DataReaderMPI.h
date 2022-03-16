@@ -80,7 +80,6 @@ public:
     if( m_dataReaderInstances.find( ident ) ==
         m_dataReaderInstances.end() ){
 
-      //cout<<"newReader "<<ident.data()<<" "<<m_dataReaderInstances.size()<<endl;
       newReader->provideData();
       m_dataReaderInstances[ident] = newReader;
     }
@@ -159,7 +158,6 @@ DataReaderMPI<T>::DataReaderMPI( const vector< string >& args ) :
   defineMPIType();
 
   string ident = T::identifier();
-  cout<<"constructor "<<ident.data()<<endl;
 }
 
 template< class T >
