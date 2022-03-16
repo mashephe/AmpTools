@@ -79,11 +79,13 @@ public:
     
     if( m_dataReaderInstances.find( ident ) ==
         m_dataReaderInstances.end() ){
-      
+
+      //cout<<"newReader "<<ident.data()<<" "<<m_dataReaderInstances.size()<<endl;
+      newReader->provideData();
       m_dataReaderInstances[ident] = newReader;
     }
     else{
-      
+
       // already have a functional instance, so delete this one
       delete newReader;
     }
@@ -118,6 +120,7 @@ private:
   // some helper functions:
   
   void defineMPIType();
+  void provideData();
   void distributeData();
   void receiveData();
   
@@ -154,9 +157,9 @@ DataReaderMPI<T>::DataReaderMPI( const vector< string >& args ) :
   m_isLeader = ( m_rank == 0 );
   
   defineMPIType();
-  
-  if( m_isLeader ) distributeData();
-  else receiveData();  
+
+  string ident = T::identifier();
+  cout<<"constructor "<<ident.data()<<endl;
 }
 
 template< class T >
@@ -223,6 +226,13 @@ void DataReaderMPI<T>::resetSource()
     
     m_ptrItr = m_ptrCache.begin();
   }
+}
+
+template< class T >
+void DataReaderMPI<T>::provideData()
+{
+  if( m_isLeader ) distributeData();
+  else receiveData();   
 }
 
 template< class T >

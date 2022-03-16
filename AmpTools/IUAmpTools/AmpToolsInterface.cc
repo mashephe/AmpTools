@@ -156,16 +156,16 @@ AmpToolsInterface::resetConfigurationInfo(ConfigurationInfo* configurationInfo){
       for (unsigned int i = 0; i < m_userDataReaders.size(); i++){
         if (reaction->data().first == m_userDataReaders[i]->name())
           m_dataReaderMap[reactionName]
-	  = m_userDataReaders[i]->newDataReader(reaction->data().second, reaction->data().first);
+	  = m_userDataReaders[i]->newDataReader(reaction->data().second);
         if (reaction->bkgnd().first == m_userDataReaders[i]->name())
           m_bkgndReaderMap[reactionName]
-          = m_userDataReaders[i]->newDataReader(reaction->bkgnd().second, reaction->bkgnd().first);
+          = m_userDataReaders[i]->newDataReader(reaction->bkgnd().second);
         if (reaction->genMC().first == m_userDataReaders[i]->name())
           m_genMCReaderMap[reactionName]
-          = m_userDataReaders[i]->newDataReader(reaction->genMC().second, reaction->genMC().first);
+          = m_userDataReaders[i]->newDataReader(reaction->genMC().second);
         if (reaction->accMC().first == m_userDataReaders[i]->name())
           m_accMCReaderMap[reactionName]
-          = m_userDataReaders[i]->newDataReader(reaction->accMC().second, reaction->accMC().first);
+          = m_userDataReaders[i]->newDataReader(reaction->accMC().second);
       }
       DataReader* dataRdr  =  dataReader(reactionName);
       DataReader* bkgndRdr = bkgndReader(reactionName);

@@ -85,41 +85,26 @@ public:
   /**
    * This method can create a new data reader (of the derived type).
    */
-        virtual DataReader* newDataReader( const vector< string >& args, string name = "" ) const{
+        virtual DataReader* newDataReader( const vector< string >& args ) const{
 
 	  // we need the identifier of the new data reader first:
-	  string ident = "";
-	  T* newReader;
+	  T* newReader = new T( args );
+	  
+	  string ident = newReader->identifier();
 
-	  // if data reader name provided, create identifier without constructor
-	  if(name != "") { 
-	    ident = name;
-	    ident += "%%";
+	  if( m_dataReaderInstances.find( ident ) ==
+	      m_dataReaderInstances.end() ){
 
-	    for( vector< string >::const_iterator myarg = args.begin(); myarg != args.end(); ++myarg ){
-	      ident += *myarg;
-	      ident += " ";
-	    }
-
-	    if( m_dataReaderInstances.find( ident ) == m_dataReaderInstances.end() ){  
-	      newReader = new T( args );
-	      m_dataReaderInstances[ident] = newReader;
-	    }      
+	    m_dataReaderInstances[ident] = newReader;
 	  }
-	  else { // construct data reader if name not provided
-	    newReader = new T( args );
-	    ident = newReader->identifier();
-
-	    if( m_dataReaderInstances.find( ident ) == m_dataReaderInstances.end() ){  
-	      m_dataReaderInstances[ident] = newReader;
-	    }
-	    else {
-	      delete newReader;
-	    }  
+	  else{
+		  
+	    // already have a functional instance, so delete this one
+	    delete newReader;
 	  }
-          
+
           return m_dataReaderInstances[ident];
-        }
+	}
 
   /**
    * This method can create a clone of a data reader (of the derived type).
