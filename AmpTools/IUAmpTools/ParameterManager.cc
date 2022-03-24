@@ -172,10 +172,18 @@ ParameterManager::setAmpParameter( const string& parName,
   }
   
   // the "false" here disables notifications that
-  // parameters have changed -- this avoids undesirable
-  // behavior when trying to setup a fit, which is what
-  // this member function is used for
+  // parameters have changed -- this avoids a crash in
+  // trying to update the covariance matrix when
+  // setting up a fit which is what this member
+  // function is used for
   ampParItr->second->setValue( value, false );
+
+  // but we should notify the intensity managers
+  // that the parameter has been updated so that
+  // things like likelihood scans (when there is
+  // no cov matrix being maintained) will work
+  // appropriately
+  update( parName );
 }
 
 void
