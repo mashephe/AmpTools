@@ -49,9 +49,7 @@
 #include "MinuitInterface/MinuitParameterManager.h"
 #include "MinuitInterface/MinuitParameter.h"
 
-#ifdef VTRACE
-#include "vt_user.h"
-#endif
+#include <scorep/SCOREP_User.h>
 
 LikelihoodCalculator::LikelihoodCalculator( const IntensityManager& intenManager,
                                             const NormIntInterface& normInt,
@@ -106,10 +104,8 @@ LikelihoodCalculator::numSignalEvents(){
 
 double
 LikelihoodCalculator::normIntTerm(){
-  
-#ifdef VTRACE
-  VT_TRACER( "LikelihoodCalculator::normIntTerm" );
-#endif
+SCOREP_USER_REGION_DEFINE( scorep_normIntTerm )                                                                                    
+SCOREP_USER_REGION_BEGIN( scorep_normIntTerm, "scorep_normIntTerm", SCOREP_USER_REGION_TYPE_COMMON )                           
   
   // check to be sure we can actually perform a computation of the
   // normalization integrals in case we have floating parameters
@@ -181,6 +177,8 @@ LikelihoodCalculator::normIntTerm(){
   }
   
   m_firstNormIntCalc = false;
+
+  SCOREP_USER_REGION_END( scorep_normIntTerm ) 
   
   if( m_hasBackground ){
     
@@ -203,14 +201,13 @@ LikelihoodCalculator::normIntTerm(){
     
     return normTerm;
   }
+
 }
 
 double
 LikelihoodCalculator::dataTerm( bool suppressError ){
-  
-#ifdef VTRACE
-  VT_TRACER( "LikelihoodCalculator::dataTerm" );
-#endif
+SCOREP_USER_REGION_DEFINE( scorep_dataTerm )                                                                                    
+SCOREP_USER_REGION_BEGIN( scorep_dataTerm, "scorep_dataTerm", SCOREP_USER_REGION_TYPE_COMMON )                           
 
   if( m_firstDataCalc ) {
     
@@ -289,6 +286,8 @@ LikelihoodCalculator::dataTerm( bool suppressError ){
   }
   
   m_firstDataCalc = false;
+
+SCOREP_USER_REGION_END( scorep_dataTerm )  
   
   return sumLnI;
 }
