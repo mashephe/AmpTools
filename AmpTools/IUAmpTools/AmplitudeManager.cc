@@ -45,7 +45,9 @@ using namespace std;
 #include "IUAmpTools/AmplitudeManager.h"
 #include "IUAmpTools/NormIntInterface.h"
 
+#ifdef SCOREP
 #include <scorep/SCOREP_User.h>
+#endif
 
 AmplitudeManager::AmplitudeManager( const vector< string >& reaction,
                                     const string& reactionName) :
@@ -245,8 +247,10 @@ void
 AmplitudeManager::calcUserVars( AmpVecs& a ) const
 {
 
+#ifdef SCOREP
 SCOREP_USER_REGION_DEFINE( scorep_calcUserVars )
 SCOREP_USER_REGION_BEGIN( scorep_calcUserVars, "scorep_calcUserVars", SCOREP_USER_REGION_TYPE_COMMON )
+#endif
 
   const vector< string >& ampNames = getTermNames();
   
@@ -390,7 +394,9 @@ SCOREP_USER_REGION_BEGIN( scorep_calcUserVars, "scorep_calcUserVars", SCOREP_USE
   a.m_gpuMan.copyUserVarsToGPU( a );
 #endif //GPU_ACCELERATION
 
+#ifdef SCOREP
 SCOREP_USER_REGION_END( scorep_calcUserVars )
+#endif
 
   return;
 }
@@ -399,8 +405,10 @@ SCOREP_USER_REGION_END( scorep_calcUserVars )
 bool
 AmplitudeManager::calcTerms( AmpVecs& a ) const
 {
+#ifdef SCOREP
 SCOREP_USER_REGION_DEFINE( scorep_calcTerms )
 SCOREP_USER_REGION_BEGIN( scorep_calcTerms, "scorep_calcTerms", SCOREP_USER_REGION_TYPE_COMMON )                           
+#endif
   
   // on the first pass through this data set be sure to calculate
   // the user data first, if needed, before doing term calculations
@@ -582,7 +590,9 @@ SCOREP_USER_REGION_BEGIN( scorep_calcTerms, "scorep_calcTerms", SCOREP_USER_REGI
     }
   }
 
+#ifdef SCOREP
 SCOREP_USER_REGION_END( scorep_calcTerms ) 
+#endif
 
   return modifiedTerm;
 }
@@ -590,8 +600,10 @@ SCOREP_USER_REGION_END( scorep_calcTerms )
 double
 AmplitudeManager::calcIntensities( AmpVecs& a ) const
 {
+#ifdef SCOREP
 SCOREP_USER_REGION_DEFINE( scorep_calcIntensities )                                                                                    
-SCOREP_USER_REGION_BEGIN( scorep_calcIntensities, "scorep_calcIntensities", SCOREP_USER_REGION_TYPE_COMMON )                           
+SCOREP_USER_REGION_BEGIN( scorep_calcIntensities, "scorep_calcIntensities", SCOREP_USER_REGION_TYPE_COMMON )
+#endif
 
   // check to be sure destination memory has been allocated
   assert( a.m_pdIntensity );
@@ -687,7 +699,9 @@ SCOREP_USER_REGION_BEGIN( scorep_calcIntensities, "scorep_calcIntensities", SCOR
   delete[] pdViVjRe;
   delete[] pdViVjIm;
 
+#ifdef SCOREP
 SCOREP_USER_REGION_END( scorep_calcIntensities )
+#endif
   
   return maxInten;
 }
@@ -696,8 +710,10 @@ SCOREP_USER_REGION_END( scorep_calcIntensities )
 double
 AmplitudeManager::calcSumLogIntensity( AmpVecs& a ) const
 {
+#ifdef SCOREP
 SCOREP_USER_REGION_DEFINE( scorep_calcSumLogIntensity )                                                                                    
-SCOREP_USER_REGION_BEGIN( scorep_calcSumLogIntensity, "scorep_calcSumLogIntensity", SCOREP_USER_REGION_TYPE_COMMON )                           
+SCOREP_USER_REGION_BEGIN( scorep_calcSumLogIntensity, "scorep_calcSumLogIntensity", SCOREP_USER_REGION_TYPE_COMMON )
+#endif
 
   // this may be inefficienct since there are two
   // loops over events, one here and one in the
@@ -753,7 +769,9 @@ SCOREP_USER_REGION_BEGIN( scorep_calcSumLogIntensity, "scorep_calcSumLogIntensit
   
 #endif
 
-SCOREP_USER_REGION_END( scorep_calcSumLogIntensity )  
+#ifdef SCOREP
+SCOREP_USER_REGION_END( scorep_calcSumLogIntensity )
+#endif
   
   return( dSumLogI );
 }
@@ -762,9 +780,11 @@ SCOREP_USER_REGION_END( scorep_calcSumLogIntensity )
 void
 AmplitudeManager::calcIntegrals( AmpVecs& a, int iNGenEvents ) const
 {
+#ifdef SCOREP
 SCOREP_USER_REGION_DEFINE( scorep_calcIntegralsA )                                                                                    
 SCOREP_USER_REGION_DEFINE( scorep_calcIntegralsB )
-SCOREP_USER_REGION_BEGIN( scorep_calcIntegralsA, "scorep_calcIntegralsA", SCOREP_USER_REGION_TYPE_COMMON )                           
+SCOREP_USER_REGION_BEGIN( scorep_calcIntegralsA, "scorep_calcIntegralsA", SCOREP_USER_REGION_TYPE_COMMON )
+#endif
 
   GDouble* integralMatrix = a.m_pdIntegralMatrix;
   
@@ -778,10 +798,14 @@ SCOREP_USER_REGION_BEGIN( scorep_calcIntegralsA, "scorep_calcIntegralsA", SCOREP
   bool termChanged = calcTerms( a );
   
   // if nothing changed and it isn't the first pass, return
+#ifdef SCOREP
   SCOREP_USER_REGION_END( scorep_calcIntegralsA )
+#endif
   if( !termChanged && a.m_integralValid ) return;
     
-  SCOREP_USER_REGION_BEGIN( scorep_calcIntegralsB, "scorep_calcIntegralsB", SCOREP_USER_REGION_TYPE_COMMON )                           
+#ifdef SCOREP
+  SCOREP_USER_REGION_BEGIN( scorep_calcIntegralsB, "scorep_calcIntegralsB", SCOREP_USER_REGION_TYPE_COMMON )
+#endif
   int iNAmps = a.m_iNTerms;
   
   int i, j, iEvent;
@@ -845,7 +869,9 @@ SCOREP_USER_REGION_BEGIN( scorep_calcIntegralsA, "scorep_calcIntegralsA", SCOREP
   
   a.m_integralValid = true;
 
+#ifdef SCOREP
 SCOREP_USER_REGION_END( scorep_calcIntegralsB )
+#endif
 }
 
 const vector< vector< int > >&

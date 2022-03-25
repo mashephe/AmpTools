@@ -49,7 +49,9 @@
 #include "MinuitInterface/MinuitParameterManager.h"
 #include "MinuitInterface/MinuitParameter.h"
 
+#ifdef SCOREP
 #include <scorep/SCOREP_User.h>
+#endif
 
 LikelihoodCalculator::LikelihoodCalculator( const IntensityManager& intenManager,
                                             const NormIntInterface& normInt,
@@ -104,8 +106,10 @@ LikelihoodCalculator::numSignalEvents(){
 
 double
 LikelihoodCalculator::normIntTerm(){
+#ifdef SCOREP
 SCOREP_USER_REGION_DEFINE( scorep_normIntTerm )                                                                                    
-SCOREP_USER_REGION_BEGIN( scorep_normIntTerm, "scorep_normIntTerm", SCOREP_USER_REGION_TYPE_COMMON )                           
+SCOREP_USER_REGION_BEGIN( scorep_normIntTerm, "scorep_normIntTerm", SCOREP_USER_REGION_TYPE_COMMON )
+#endif
   
   // check to be sure we can actually perform a computation of the
   // normalization integrals in case we have floating parameters
@@ -178,7 +182,9 @@ SCOREP_USER_REGION_BEGIN( scorep_normIntTerm, "scorep_normIntTerm", SCOREP_USER_
   
   m_firstNormIntCalc = false;
 
-  SCOREP_USER_REGION_END( scorep_normIntTerm ) 
+#ifdef SCOREP
+  SCOREP_USER_REGION_END( scorep_normIntTerm )
+#endif
   
   if( m_hasBackground ){
     
@@ -206,8 +212,10 @@ SCOREP_USER_REGION_BEGIN( scorep_normIntTerm, "scorep_normIntTerm", SCOREP_USER_
 
 double
 LikelihoodCalculator::dataTerm( bool suppressError ){
+#ifdef SCOREP
 SCOREP_USER_REGION_DEFINE( scorep_dataTerm )                                                                                    
-SCOREP_USER_REGION_BEGIN( scorep_dataTerm, "scorep_dataTerm", SCOREP_USER_REGION_TYPE_COMMON )                           
+SCOREP_USER_REGION_BEGIN( scorep_dataTerm, "scorep_dataTerm", SCOREP_USER_REGION_TYPE_COMMON )
+#endif
 
   if( m_firstDataCalc ) {
     
@@ -287,7 +295,9 @@ SCOREP_USER_REGION_BEGIN( scorep_dataTerm, "scorep_dataTerm", SCOREP_USER_REGION
   
   m_firstDataCalc = false;
 
-SCOREP_USER_REGION_END( scorep_dataTerm )  
+#ifdef SCOREP
+SCOREP_USER_REGION_END( scorep_dataTerm )
+#endif
   
   return sumLnI;
 }
