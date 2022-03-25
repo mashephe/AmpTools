@@ -44,8 +44,8 @@
 #include "IUAmpTools/AmpParameter.h"
 #include "IUAmpTools/Kinematics.h"
 
-#ifdef VTRACE
-#include "vt_user.h"
+#ifdef SCOREP
+#include <scorep/SCOREP_User.h>
 #endif
 
 string
@@ -71,11 +71,11 @@ Amplitude::calcUserVarsAll( GDouble* pdData, GDouble* pdUserVars, int iNEvents,
                             const vector< vector< int > >* pvPermutations ) const
 {
   
-#ifdef VTRACE
-  string info = name();
-  info += "::calcUserVarsAll";
-  VT_TRACER( info.c_str() );
+#ifdef SCOREP
+SCOREP_USER_REGION_DEFINE( scorep_calcUserVarsAll )
 #endif
+
+
   
 //  cout << "Caculating user data for " << name() << endl;
   
@@ -84,6 +84,10 @@ Amplitude::calcUserVarsAll( GDouble* pdData, GDouble* pdUserVars, int iNEvents,
   // exit immediately if there is nothing to compute
   if( !numVars ) return;
   
+#ifdef SCOREP
+SCOREP_USER_REGION_BEGIN( scorep_calcUserVarsAll, "scorep_calcUserVarsAll", SCOREP_USER_REGION_TYPE_COMMON )
+#endif
+
   int iPermutation, iNPermutations = pvPermutations->size();
   assert( iNPermutations );
   
@@ -116,6 +120,10 @@ Amplitude::calcUserVarsAll( GDouble* pdData, GDouble* pdUserVars, int iNEvents,
     }
   }
   
+#ifdef SCOREP
+SCOREP_USER_REGION_END( scorep_calcUserVarsAll )
+#endif
+  
   delete[] pKin;
 }
 
@@ -124,13 +132,12 @@ Amplitude::calcAmplitudeAll( GDouble* pdData, GDouble* pdAmps, int iNEvents,
                             const vector< vector< int > >* pvPermutations,
                              GDouble* pdUserVars ) const
 {
-  
-#ifdef VTRACE
-  string info = name();
-  info += "::calcAmplitudeAll";
-  VT_TRACER( info.c_str() );
-#endif
 
+#ifdef SCOREP
+SCOREP_USER_REGION_DEFINE( scorep_calcAmplitudeAll )
+SCOREP_USER_REGION_BEGIN( scorep_calcAmplitudeAll, "scorep_calcAmplitudeAll", SCOREP_USER_REGION_TYPE_COMMON )
+#endif
+  
   complex< GDouble > cRes;
   
   unsigned int numVars = numUserVars();
@@ -176,6 +183,10 @@ Amplitude::calcAmplitudeAll( GDouble* pdData, GDouble* pdAmps, int iNEvents,
       pdAmps[2*iNEvents*iPermutation+2*iEvent+1] = cRes.imag();
     }
   }
+
+#ifdef SCOREP
+SCOREP_USER_REGION_END( scorep_calcAmplitudeAll )
+#endif
   
   delete[] pKin;
 }
@@ -243,10 +254,9 @@ Amplitude::calcAmplitude( const Kinematics* pKin,
                           const vector< int >& permutation,
                           GDouble* userVars ) const {
 
-#ifdef VTRACE
-  string info = name();
-  info += "::calcAmplitude";
-  VT_TRACER( info.c_str() );
+#ifdef SCOREP
+SCOREP_USER_REGION_DEFINE( scorep_calcAmplitude )
+SCOREP_USER_REGION_BEGIN( scorep_calcAmplitude, "scorep_calcAmplitude", SCOREP_USER_REGION_TYPE_COMMON )
 #endif
 
   vector<TLorentzVector> particleList = pKin->particleList();
@@ -280,6 +290,11 @@ Amplitude::calcAmplitude( const Kinematics* pKin,
   for (int i = 0; i < particleList.size(); i++){
     delete[] pData[i];
   }
+
+#ifdef SCOREP
+SCOREP_USER_REGION_END( scorep_calcAmplitude )
+#endif
+
   delete[] pData;
   
   return value;
@@ -291,14 +306,17 @@ Amplitude::calcAmplitude( const Kinematics* pKin,
 void
 Amplitude::calcAmplitudeGPU( dim3 dimGrid, dim3 dimBlock, GPU_AMP_PROTO,
                             const vector< int >& perm ) const {
-#ifdef VTRACE
-  string info = name();
-  info += "::calcAmplitudeGPU";
-  VT_TRACER( info.c_str() );
+#ifdef SCOREP
+  SCOREP_USER_REGION_DEFINE( scorep_calcAmplitudeGPU )
+  SCOREP_USER_REGION_BEGIN( scorep_calcAmplitudeGPU, "calcAmplitudeGPU", SCOREP_USER_REGION_TYPE_COMMON )
 #endif
 
-  m_currentPermutation = perm;
-  launchGPUKernel( dimGrid, dimBlock, GPU_AMP_ARGS );
+  	m_currentPermutation = perm;
+	launchGPUKernel( dimGrid, dimBlock, GPU_AMP_ARGS );
+  
+#ifdef SCOREP
+  SCOREP_USER_REGION_END( scorep_calcAmplitudeGPU )
+#endif
 }
 #endif
 
@@ -369,12 +387,9 @@ Amplitude::setParValue( const string& name, double val ) const {
 bool
 Amplitude::updatePar( const string& name ) const {
   
-#ifdef VTRACE
-  string info = (*this).name();
-  info += "::updatePar [";
-  info += name.c_str();
-  info += "]";
-  VT_TRACER( info.c_str() );
+#ifdef SCOREP
+SCOREP_USER_REGION_DEFINE( scorep_updatePar )
+SCOREP_USER_REGION_BEGIN( scorep_updatePar, "scorep_updatePar", SCOREP_USER_REGION_TYPE_COMMON )
 #endif
 
   
@@ -397,6 +412,9 @@ Amplitude::updatePar( const string& name ) const {
     }
   }
   
+#ifdef SCOREP
+SCOREP_USER_REGION_END( scorep_updatePar )
+#endif
   return foundPar;
 }
 
