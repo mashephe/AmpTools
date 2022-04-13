@@ -99,7 +99,6 @@ m_termNames( intenManager.getTermNames() )
   
     cout << "Loading generated Monte Carlo from file..." << endl;
     m_genMCVecs.loadData( m_genMCReader );
-    m_nGenEvents = m_genMCVecs.m_iNTrueEvents;
     cout << "\tDone.\n" << flush;
     
     m_uniqueDataSets[m_genMCReader] = &m_genMCVecs;
@@ -110,8 +109,8 @@ m_termNames( intenManager.getTermNames() )
          << "using previously loaded version" << endl;
     
     genVecs->second->shareDataWith( &m_genMCVecs );
-    m_nGenEvents = m_genMCVecs.m_iNTrueEvents;
   }
+  m_nGenEvents = m_genMCVecs.m_iNTrueEvents;
   m_genMCVecs.allocateTerms( *m_pIntenManager );
 
   auto accVecs = m_uniqueDataSets.find( m_accMCReader );
@@ -119,7 +118,6 @@ m_termNames( intenManager.getTermNames() )
   
     cout << "Loading accepted Monte Carlo from file..." << endl;
     m_accMCVecs.loadData( m_accMCReader );
-    m_sumAccWeights = m_accMCVecs.m_dSumWeights;
     cout << "\tDone.\n" << flush;
     
     m_uniqueDataSets[m_accMCReader] = &m_accMCVecs;
@@ -130,8 +128,8 @@ m_termNames( intenManager.getTermNames() )
          << "using previously loaded version" << endl;
     
     accVecs->second->shareDataWith( &m_accMCVecs );
-    m_sumAccWeights = m_accMCVecs.m_dSumWeights;
   }
+  m_sumAccWeights = m_accMCVecs.m_dSumWeights;
   m_accMCVecs.allocateTerms( *m_pIntenManager );
   
   initializeCache();
