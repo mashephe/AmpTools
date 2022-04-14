@@ -96,10 +96,7 @@ LikelihoodCalculatorMPI::~LikelihoodCalculatorMPI(){
     
     // break the likelihood manager out of its loop on the followers
     cmnd[1] = LikelihoodManagerMPI::kExit;
-    for( int i = 1; i < m_numProc; ++i ){
-      
-      MPI_Send( cmnd, 2, MPI_INT, i, MPITag::kIntSend, MPI_COMM_WORLD );
-    }
+    MPI_Bcast( cmnd, 2, MPI_INT, 0, MPI_COMM_WORLD );
   }
 }
 
@@ -123,10 +120,7 @@ LikelihoodCalculatorMPI::finalizeFit(){
     
     // break the likelihood manager out of its loop on the followers
     cmnd[1] = LikelihoodManagerMPI::kFinalizeFit;
-    for( int i = 1; i < m_numProc; ++i ){
-      
-      MPI_Send( cmnd, 2, MPI_INT, i, MPITag::kIntSend, MPI_COMM_WORLD );
-    }
+    MPI_Bcast( cmnd, 2, MPI_INT, 0, MPI_COMM_WORLD );
   }
 }
 
@@ -148,20 +142,14 @@ LikelihoodCalculatorMPI::operator()()
   // likelihood calculator share the same parameter manager -- this
   // cause a little extra overhead in multiple final-state fits
   cmnd[1] = LikelihoodManagerMPI::kUpdateParameters;
-  for( int i = 1; i < m_numProc; ++i ){
-    
-    MPI_Send( cmnd, 2, MPI_INT, i, MPITag::kIntSend, MPI_COMM_WORLD );
-  }
+  MPI_Bcast( cmnd, 2, MPI_INT, 0, MPI_COMM_WORLD );
   
   // tell the leader to do parameter update
   m_parManager.updateParameters();
   
   // tell all of the followers to send the partial sums
   cmnd[1] = LikelihoodManagerMPI::kComputeLikelihood;
-  for( int i = 1; i < m_numProc; ++i ){
-    
-    MPI_Send( cmnd, 2, MPI_INT, i, MPITag::kIntSend, MPI_COMM_WORLD );
-  }
+  MPI_Bcast( cmnd, 2, MPI_INT, 0, MPI_COMM_WORLD );
   
   double lnL = 0;
   double sumBkgWeights = 0;
@@ -203,10 +191,7 @@ LikelihoodCalculatorMPI::operator()()
   if( m_intenManager.hasTermWithFreeParam() || m_firstPass ){
     
     cmnd[1] = LikelihoodManagerMPI::kComputeIntegrals;
-    for( int i = 1; i < m_numProc; ++i ){
-      
-      MPI_Send( cmnd, 2, MPI_INT, i, MPITag::kIntSend, MPI_COMM_WORLD );
-    }
+    MPI_Bcast( cmnd, 2, MPI_INT, 0, MPI_COMM_WORLD );
   }
   
   // this call will utilize the NormIntInterface on the leader which
