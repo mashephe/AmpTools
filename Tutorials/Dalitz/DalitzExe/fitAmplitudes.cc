@@ -58,7 +58,8 @@ int main( int argc, char* argv[] ){
 
   AmpToolsInterface ATI(cfgInfo);
 
-  cout << "LIKELIHOOD BEFORE MINIMIZATION:  " << ATI.likelihood() << endl;
+  double neg2LL = ATI.likelihood();
+  cout << "-2 ln(L) BEFORE MINIMIZATION:  " << neg2LL << endl;
 
   MinuitMinimizationManager* fitManager = ATI.minuitMinimizationManager();
   fitManager->setStrategy(1);
@@ -69,7 +70,7 @@ int main( int argc, char* argv[] ){
     cout << "ERROR: fit failed..." << endl;
   }
 
-  cout << "LIKELIHOOD AFTER MINIMIZATION:  " << ATI.likelihood() << endl;
+  cout << "-2 ln(L) AFTER MINIMIZATION:  " << ATI.likelihood() << endl;
 
   ATI.finalizeFit();
 

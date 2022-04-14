@@ -40,6 +40,7 @@
 #include "GPUManager/GPUCustomTypes.h"
 
 #include <map>
+#include <set>
 #include <string>
 
 #ifdef GPU_ACCELERATION
@@ -293,11 +294,26 @@ struct AmpVecs
    * in the case all amplitudes depend only on user data.
    */
   void clearFourVecs();
+  
+  /**
+   * This function will share this classes data four vectors with the
+   * with the targetAmpVecs object specified by the argument.
+   */
+  void shareDataWith( AmpVecs* targetAmpVecs );
+
+  /**
+   * This function will allow this class to take ownership of the
+   * the data blocks and will maintain the data for the friend
+   * data containers specified by the argument.
+   */
+  void claimDataOwnership( set< AmpVecs* > sharedFriends );
+  
+  bool m_usesSharedData;
 
 private:
   
   int m_lastWeightSign;
+  set< AmpVecs* > m_sharedDataFriends;
 };
 
 #endif 
-

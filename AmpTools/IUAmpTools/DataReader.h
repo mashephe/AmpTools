@@ -125,6 +125,14 @@ public:
   virtual string name() const = 0;
   
   /**
+   * This method returns a string that uniquely identifies the instance
+   * of the data reader.  It is the data reader name and all the arguments
+   * concatenated together.  Every data reader with the same identifier
+   * should behave the same way.
+   */
+  string identifier() const;
+  
+  /**
    * This method is overridden by the UserDataReader class and does not
    * need to be defined (or used) by the user.
    *

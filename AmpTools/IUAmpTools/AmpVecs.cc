@@ -69,12 +69,12 @@ AmpVecs::AmpVecs(){
   m_termsValid    = false ;
   m_integralValid = false ;
   m_dataLoaded = false;
+  m_usesSharedData = false;
     
   m_hasNonUnityWeights = false;
   m_hasMixedSignWeights = false;
   m_lastWeightSign = 0;
 }
-
 
 void 
 AmpVecs::deallocAmpVecs()
@@ -96,13 +96,34 @@ AmpVecs::deallocAmpVecs()
   m_hasMixedSignWeights = false;
   m_lastWeightSign = 0;
  
-  if(m_pdData)
-    delete[] m_pdData;
-  m_pdData=0;
+  if( m_sharedDataFriends.empty() && !m_usesSharedData ) {
+
+    // proceed as normal if the data aren't
+    // shared with other AmpVecs classes -- or
+    // this class isn't looking at another class
+    // for data
+
+    if(m_pdData)
+      delete[] m_pdData;
+    m_pdData=0;
   
-  if(m_pdWeights)
-    delete[] m_pdWeights;
-  m_pdWeights=0;
+    if(m_pdWeights)
+      delete[] m_pdWeights;
+    m_pdWeights=0;
+  }
+  else{
+    
+    // transfer the ownership of the data
+    // to the first member of the set of
+    // objects that are sharing this data
+    
+    auto avItr = m_sharedDataFriends.begin();
+    
+    AmpVecs* newDataOwner = *avItr;
+    m_sharedDataFriends.erase( avItr );
+    
+    newDataOwner->claimDataOwnership( m_sharedDataFriends );
+  }
   
   if(m_pdIntensity)
     delete[] m_pdIntensity;
@@ -146,7 +167,7 @@ AmpVecs::deallocAmpVecs()
 void
 AmpVecs::clearFourVecs(){
   
-  if(m_pdData)
+  if( m_pdData && m_sharedDataFriends.empty() )
     delete[] m_pdData;
   m_pdData=0;
 }
@@ -351,4 +372,30 @@ AmpVecs::getEvent( int iEvent ){
   }
   
   return new Kinematics( particleList, m_pdWeights[iEvent] );
+}
+
+void
+AmpVecs::shareDataWith( AmpVecs* targetAmpVecs ){
+  
+  targetAmpVecs->m_iNEvents = m_iNEvents;
+  targetAmpVecs->m_iNTrueEvents = m_iNTrueEvents;
+  targetAmpVecs->m_dSumWeights = m_dSumWeights;
+  targetAmpVecs->m_iNParticles = m_iNParticles;
+  
+  targetAmpVecs->m_pdData = m_pdData;
+  targetAmpVecs->m_pdWeights = m_pdWeights;
+  
+  targetAmpVecs->m_dataLoaded = true;
+  targetAmpVecs->m_hasNonUnityWeights = m_hasNonUnityWeights;
+  targetAmpVecs->m_hasMixedSignWeights = m_hasMixedSignWeights;
+  
+  m_sharedDataFriends.insert( targetAmpVecs );
+  targetAmpVecs->m_usesSharedData = true;
+}
+
+void
+AmpVecs::claimDataOwnership( set< AmpVecs* > sharedFriends ){
+  
+  m_usesSharedData = false;
+  m_sharedDataFriends = sharedFriends;
 }
