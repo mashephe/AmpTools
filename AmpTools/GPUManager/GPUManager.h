@@ -100,7 +100,8 @@ public:
   double calcSumLogIntensity( const vector< complex< double > >& prodCoef,
                               const vector< vector< bool > >& cohMtx );
 
-  void calcIntegral( GDouble* result, int iAmp, int jAmp, int iNGenEvents );
+  void calcIntegrals( GDouble* result, int nElements, const vector<int>& iIndex,
+                     const vector<int>& jIndex );
   
   // General utils:
   static int calcNEventsGPU( int iNEvents ){
@@ -143,10 +144,9 @@ private:
   
   GDouble* m_pfDevAmps;
   GDouble* m_pfDevVVStar;
-  GDouble* m_pfDevNIRes;
+  GDouble* m_pfDevNICalc;
   
-  GDouble* m_pfDevResRe;
-  GDouble* m_pfDevResIm;
+  GDouble* m_pfDevRes;
   GDouble* m_pfDevREDUCE;
   
   // CUDA Thread and Grid sizes
