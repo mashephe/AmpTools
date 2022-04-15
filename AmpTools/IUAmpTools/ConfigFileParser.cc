@@ -479,7 +479,7 @@ void
 ConfigFileParser::checkSyntax() const{
 
   map<string, pair<int,int> > keywordParameters;
-  keywordParameters["define"]        = pair<int,int>(1,100);
+  keywordParameters["define"]        = pair<int,int>(1,500);
   keywordParameters["loop"]          = pair<int,int>(3,100);
   keywordParameters["keyword"]       = pair<int,int>(3,3);
   keywordParameters["fit"]           = pair<int,int>(1,1);
@@ -490,7 +490,7 @@ ConfigFileParser::checkSyntax() const{
   keywordParameters["accmc"]         = pair<int,int>(2,100);
   keywordParameters["normintfile"]   = pair<int,int>(2,3);
   keywordParameters["sum"]           = pair<int,int>(2,100);
-  keywordParameters["amplitude"]     = pair<int,int>(4,100);
+  keywordParameters["amplitude"]     = pair<int,int>(4,500);
   keywordParameters["initialize"]    = pair<int,int>(6,8);
   keywordParameters["constrain"]     = pair<int,int>(6,100);
   keywordParameters["permute"]       = pair<int,int>(5,100);

@@ -54,7 +54,7 @@ extern "C" void GPU_ExecIntElementKernel(dim3 dimGrid, dim3 dimBlock, int iA, in
                                          int nEvents);
 */
 
-extern "C" void GPU_ExecNICalcKernel( dim3 dimGrid, dim3 dimBlock, int sharedSize,
+extern "C" void GPU_ExecNICalcKernel( dim3 dimGrid, dim3 dimBlock, unsigned int sharedSize,
                                       int nElements, GDouble* pfDevNICalc,
                                       GDouble* pfDevAmps, GDouble* pfDevWeights,
                                       int nEvents );

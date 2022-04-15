@@ -37,27 +37,27 @@
 #include "GPUCustomTypes.h"
 
 __global__ void
-int_element_kernel( int nElements, GDouble* pfDevNICalc,
+ni_calc_kernel( int nElements, GDouble* pfDevNICalc,
                     GDouble* pfDevAmps, GDouble* pfDevWeights,
                     int nEvents )
 {
 
   // used shared memory block for amplitude indices and results
-  __extern__ shared int s[];
+  extern __shared__ int s[];
   
-  int resultSize = 2*sizeof(GDouble)*nElements;
-  int indexSize = 2*sizeof(int)*nElements;
+  unsigned int resultSize = 2*sizeof(GDouble)*nElements;
+  unsigned int indexSize = 2*sizeof(int)*nElements;
   
   // the first thread of the block should copy the indices to
   // shared memory for other blocks to use and zero the result
   if( ( threadIdx.x + threadIdx.y ) == 0 ){
   
-    cudaMemcpy( s + resultSize, pfDevNICalc + resultSize,
-                indexSize, cudaMemcpyDeviceToDevice );
-    cudaMemset( s, 0, resultSize );
+    memcpy( s + resultSize, pfDevNICalc + resultSize,
+                indexSize );
+    memset( s, 0, resultSize );
   }
   
-  __syncThreads();
+  __syncthreads();
   
   // get addresses of arrays for the two indices in shared memory
   // and also the result
@@ -71,8 +71,8 @@ int_element_kernel( int nElements, GDouble* pfDevNICalc,
   for( int i = 0; i < nElements; ++i ){
   
     // these are the indices to the relevant amplitudes in the amplitude array
-    int aAmpInd = 2*iEvt + 2*nEvents*iIndex[i];
-    int bAmpInd = 2*iEvt + 2*nEvents*jIndex[i];
+    int aInd = 2*iEvt + 2*nEvents*iIndex[i];
+    int bInd = 2*iEvt + 2*nEvents*jIndex[i];
 
     result[2*i] += pfDevWeights[iEvt] * (
                      pfDevAmps[aInd]   * pfDevAmps[bInd]  +
@@ -84,7 +84,7 @@ int_element_kernel( int nElements, GDouble* pfDevNICalc,
                     
   }
   
-  __syncThreads();
+  __syncthreads();
   
   // now the first thread should accumulate global device memory
   // this can be made much faster by having each thread add one
@@ -100,7 +100,7 @@ int_element_kernel( int nElements, GDouble* pfDevNICalc,
 }
 
 
-extern "C" void GPU_ExecNICalcKernel( dim3 dimGrid, dim3 dimBlock, int sharedSize,
+extern "C" void GPU_ExecNICalcKernel( dim3 dimGrid, dim3 dimBlock, unsigned int sharedSize,
                                       int nElements, GDouble* pfDevNICalc,
                                       GDouble* pfDevAmps, GDouble* pfDevWeights,
                                       int nEvents  )

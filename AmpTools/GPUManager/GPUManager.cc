@@ -70,6 +70,7 @@ GPUManager::GPUManager()
   m_iEventArrSize=0;
   m_iAmpArrSize=0;
   m_iVArrSize=0;
+  m_iNICalcSize=0;
   
   //Host Arrays
   m_pfVVStar=0;
@@ -185,7 +186,7 @@ GPUManager::init( const AmpVecs& a, bool use4Vectors )
   // size of NI calculation memory bank -- we need the upper half of
   // the ViVj* matrix for the result and two arrays of integers to
   // hold the amplitude indices of each element
-  m_iNICalcSize = m_iVarraSize + 2*sizeof(int)*m_iNAmps*( m_iNAmps + 1 )/2;
+  m_iNICalcSize = m_iVArrSize + 2*sizeof(int)*m_iNAmps*( m_iNAmps + 1 )/2;
   
   // host memory needed for intensity or integral calculation
   cudaMallocHost( (void**)&m_pfVVStar , m_iVArrSize     );
@@ -210,8 +211,7 @@ GPUManager::init( const AmpVecs& a, bool use4Vectors )
   gpuErrChk( cudaMalloc( (void**)&m_pfDevVVStar  , m_iVArrSize       ) ) ;
   gpuErrChk( cudaMalloc( (void**)&m_pfDevNICalc  , m_iNICalcSize     ) ) ;
   gpuErrChk( cudaMalloc( (void**)&m_pfDevWeights , m_iEventArrSize   ) ) ;
-  gpuErrChk( cudaMalloc( (void**)&m_pfDevRes   , m_iEventArrSize   ) ) ;
-  gpuErrChk( cudaMalloc( (void**)&m_pfDevResIm   , m_iEventArrSize   ) ) ;
+  gpuErrChk( cudaMalloc( (void**)&m_pfDevRes     , m_iEventArrSize   ) ) ;
   gpuErrChk( cudaMalloc( (void**)&m_pfDevREDUCE  , m_iEventArrSize   ) ) ;
   
   // allocate device memory needed for amplitude calculations
@@ -490,26 +490,29 @@ void
 GPUManager::calcIntegrals( GDouble* result, int nElements, const vector<int>& iIndex,
                            const vector<int>& jIndex ){
 
-  int resultSize = 2*sizeof(GDouble)*nElements;
-  int indexSize = sizeof(int)*nElements;
-  int totalSize = resultSize + 2*indexSize;
+  unsigned int resultSize = 2*sizeof(GDouble)*nElements;
+  unsigned int indexSize = sizeof(int)*nElements;
+  unsigned int totalSize = resultSize + 2*indexSize;
 
   dim3 dimBlock( m_iDimThreadX, m_iDimThreadY );
   dim3 dimGrid( m_iDimGridX, m_iDimGridY );
+
+  // this is where the index arrays start on the device
+  int* piDevIndex = (int*)&(m_pfDevNICalc[2*nElements]);
   
   // first zero out device memory that will hold the final result and also the
   // amplitude indicies of the NI elements
-  gpuErrChk( cudaMemset( m_pDevNICalc, 0, resultSize ) );
+  gpuErrChk( cudaMemset( m_pfDevNICalc, 0, resultSize ) );
 
   // now copy the indicies to device memory immediately after where the result
   // will end up in device memory
-  gpuErrChk( cudaMemcpy( m_pfDevNICalc + resultSize, &(iIndex[0]),
+  gpuErrChk( cudaMemcpy( piDevIndex, &(iIndex[0]),
                         indexSize, cudaMemcpyHostToDevice ) );
-  gpuErrChk( cudaMemcpy( m_pfDevNICalc + resultSize + indexSize, &(jIndex[0]),
+  gpuErrChk( cudaMemcpy( &(piDevIndex[nElements]), &(jIndex[0]),
                         indexSize, cudaMemcpyHostToDevice ) );
-
+  
   GPU_ExecNICalcKernel( dimGrid, dimBlock, totalSize, nElements,
-                        m_pfDevNICalc, m_pfDevAmps, m_pfDevWeights );
+                        m_pfDevNICalc, m_pfDevAmps, m_pfDevWeights, m_iNEvents );
   
   gpuErrChk( cudaMemcpy( result, m_pfDevNICalc, resultSize, cudaMemcpyDeviceToHost ) );
 }

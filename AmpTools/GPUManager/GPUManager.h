@@ -128,6 +128,7 @@ private:
   unsigned long long m_iTrueEventArrSize;
   unsigned long long m_iAmpArrSize;
   unsigned int m_iVArrSize;
+  unsigned int m_iNICalcSize;
   
   //Host Arrays
   GDouble* m_pcCalcAmp;

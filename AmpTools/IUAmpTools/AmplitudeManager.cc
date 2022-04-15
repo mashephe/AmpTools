@@ -876,10 +876,11 @@ AmplitudeManager::calcIntegrals( AmpVecs& a, int iNGenEvents ) const
        a.m_pdAmps[2*a.m_iNEvents*j+2*iEvent] );
     }
   }
+
 #else
   
   // use the GPU manager to compute the result
-  m_gpuMan.calcIntegrals( &(result[0]), nCompute, iIndex, jIndex );
+  a.m_gpuMan.calcIntegrals( &(result[0]), nCompute, iIndex, jIndex );
   
 #endif
     
