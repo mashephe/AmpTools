@@ -143,6 +143,7 @@ private:
   
   GDouble* m_pfDevAmps;
   GDouble* m_pfDevVVStar;
+  GDouble* m_pfDevNIRes;
   
   GDouble* m_pfDevResRe;
   GDouble* m_pfDevResIm;

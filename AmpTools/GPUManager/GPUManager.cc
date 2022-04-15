@@ -188,7 +188,7 @@ GPUManager::init( const AmpVecs& a, bool use4Vectors )
   
   double totalMemory = 0;
   
-  totalMemory += m_iVArrSize;
+  totalMemory += 2 * m_iVArrSize;
   totalMemory += 4 * m_iEventArrSize;
   totalMemory += m_iNUserVars * m_iEventArrSize;
   if( use4Vectors ) totalMemory += 4 * m_iNParticles * m_iEventArrSize;
@@ -202,6 +202,7 @@ GPUManager::init( const AmpVecs& a, bool use4Vectors )
   
   // device memory needed for intensity or integral calculation and sum
   gpuErrChk( cudaMalloc( (void**)&m_pfDevVVStar  , m_iVArrSize       ) ) ;
+  gpuErrChk( cudaMalloc( (void**)&m_pfDevNIRes   , m_iVArrSize       ) ) ;
   gpuErrChk( cudaMalloc( (void**)&m_pfDevWeights , m_iEventArrSize   ) ) ;
   gpuErrChk( cudaMalloc( (void**)&m_pfDevResRe   , m_iEventArrSize   ) ) ;
   gpuErrChk( cudaMalloc( (void**)&m_pfDevResIm   , m_iEventArrSize   ) ) ;
@@ -477,6 +478,17 @@ GPUManager::calcSumLogIntensity( const vector< complex< double > >& prodCoef,
       dGPUResult += m_pfRes[i];
   }
   return dGPUResult;
+}
+
+void
+GPUManager::calcIntegrals( GDouble* result, int nCompute, const vector<int>& iIndex,
+                          const vector<int>& jIndex ){
+    
+  // first zero out device memory that will hold the final result
+  gpuErrChk( cudaMemset( m_pfDevNIRes, 0, 2*sizeof(GDouble)*nCompute ) );
+
+  // now copy 
+  
 }
 
 void
