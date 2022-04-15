@@ -379,7 +379,7 @@ NormIntInterface::forceCacheUpdate( bool normIntOnly ) const
   // do "lazy" allocation of memory here -- this is important for MPI jobs
   // where forceCacheUpdate is only called on follower nodes, as it
   // avoids big memory allocations on the lead nodes
-  if( m_accMCVecs.m_pdAmps == 0 ) m_accMCVecs.allocateTerms( *m_pIntenManager );
+  if( m_accMCVecs.m_iNTerms == 0 ) m_accMCVecs.allocateTerms( *m_pIntenManager );
   
   // we won't enter here if the cache is empty, which can happen
   // on the first pass through the data -- for subsequent passes
@@ -410,7 +410,7 @@ NormIntInterface::forceCacheUpdate( bool normIntOnly ) const
     // do "lazy" allocation of memory here -- this is important for MPI jobs
     // where forceCacheUpdate is only called on follower nodes, as it
     // avoids big memory allocations on the lead nodes
-    if( m_genMCVecs.m_pdAmps == 0 ) m_genMCVecs.allocateTerms( *m_pIntenManager );
+    if( m_genMCVecs.m_iNTerms == 0 ) m_genMCVecs.allocateTerms( *m_pIntenManager );
     
     m_pIntenManager->calcIntegrals( m_genMCVecs, m_nGenEvents );
     setAmpIntMatrix( m_genMCVecs.m_pdIntegralMatrix );
