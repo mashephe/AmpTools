@@ -229,6 +229,24 @@ AmplitudeManager::userVarsPerEvent() const {
   return userStorage;
 }
 
+unsigned int
+AmplitudeManager::uniqueNIElements() const {
+
+  // find the number of nontrival amplitude products
+  // in the expression for the intensity
+  
+  unsigned int num = 0;
+  int N = m_sumCoherently.size();
+  for( int i = 0; i < N; ++i ){
+    for( int j = 0; j <= i; ++j ){
+      
+      if( m_sumCoherently[i][j] ) ++num;
+    }
+  }
+  
+  return num;
+}
+
 
 bool
 AmplitudeManager::hasTermWithFreeParam() const {
@@ -784,62 +802,101 @@ AmplitudeManager::calcIntegrals( AmpVecs& a, int iNGenEvents ) const
     
   int iNAmps = a.m_iNTerms;
   
-  int i, j, iEvent;
+  // this must match the dimension of the coherence matrix or
+  // else there is a coding mistake somewhere
+  assert( iNAmps == m_sumCoherently.size() );
+
+  int maxNIElements = uniqueNIElements();
+  
+  // use these vectors to store the amp indices of unique terms
+  // in the NI matrix
+  vector<int> iIndex(maxNIElements);
+  vector<int> jIndex(maxNIElements);
+  
+  // this stores the real and imaginary parts of the term calculations
+  vector<GDouble> result(maxNIElements*2);
+  
+  // now figure out which elements of the NI matrix need to be computed
+  int i, j;
+  int nCompute = 0;
   for( i = 0; i < iNAmps;i++ ) {
     for( j = 0; j <= i; j++ ) {
-     
+      
+      // if the two amplitudes do not interfere then set the integral to zero
+      // and move on to the next pair of amplitudes
+      if( !m_sumCoherently[i][j] ){
+        
+        integralMatrix[2*i*iNAmps+2*j] = 0;
+        integralMatrix[2*i*iNAmps+2*j+1] = 0;
+        
+        continue;
+      }
+        
       // if the amplitude isn't floating and it isn't the first pass
       // through these data, then its integral can't change
       if( a.m_integralValid && m_vbIsAmpFixed[i] && m_vbIsAmpFixed[j] ){
         
         // if the amplitude isn't floating and it isn't the first pass
         // through these data, then its integral can't change
-        
+      
         continue;
       }
       else{
         
-        // otherwise zero it out and recalculate it
+        // if we get to this point, we need to compute a value
+        // for the integral matrix
         
-        integralMatrix[2*i*iNAmps+2*j] = 0;
-        integralMatrix[2*i*iNAmps+2*j+1] = 0;
+        iIndex[nCompute] = i;
+        jIndex[nCompute] = j;
+        
+        ++nCompute;
       }
-      
-      // if two amps don't interfere the relevant integral is zero
-      if( m_sumCoherently[i][j] ){
-	        
+    }
+  }
+  
 #ifndef GPU_ACCELERATION
-	
-        for( iEvent = 0; iEvent < a.m_iNTrueEvents; iEvent++ )
-        {
-          //AiAj*
-          integralMatrix[2*i*iNAmps+2*j] += a.m_pdWeights[iEvent] *
-          ( a.m_pdAmps[2*a.m_iNEvents*i+2*iEvent] *
-           a.m_pdAmps[2*a.m_iNEvents*j+2*iEvent] +
-           a.m_pdAmps[2*a.m_iNEvents*i+2*iEvent+1] *
-           a.m_pdAmps[2*a.m_iNEvents*j+2*iEvent+1] );
-          
-          integralMatrix[2*i*iNAmps+2*j+1] += a.m_pdWeights[iEvent] *
-          ( -a.m_pdAmps[2*a.m_iNEvents*i+2*iEvent] *
-           a.m_pdAmps[2*a.m_iNEvents*j+2*iEvent+1] +
-           a.m_pdAmps[2*a.m_iNEvents*i+2*iEvent+1] *
-           a.m_pdAmps[2*a.m_iNEvents*j+2*iEvent] );
-        }
-        // normalize
-        integralMatrix[2*i*iNAmps+2*j] /= static_cast< GDouble >( iNGenEvents );
-        integralMatrix[2*i*iNAmps+2*j+1] /= static_cast< GDouble >( iNGenEvents );	
+  for( int iTerm = 0; iTerm < nCompute; ++iTerm ){
+    
+    int i = iIndex[iTerm];
+    int j = jIndex[iTerm];
+    
+    for( int iEvent = 0; iEvent < a.m_iNTrueEvents; iEvent++ ) {
 
-#else
-        a.m_gpuMan.calcIntegral( &(integralMatrix[2*i*iNAmps+2*j]), i, j, iNGenEvents );
-#endif
-      }
+      //AiAj*
+      result[2*iTerm] += a.m_pdWeights[iEvent] *
+      ( a.m_pdAmps[2*a.m_iNEvents*i+2*iEvent] *
+       a.m_pdAmps[2*a.m_iNEvents*j+2*iEvent] +
+       a.m_pdAmps[2*a.m_iNEvents*i+2*iEvent+1] *
+       a.m_pdAmps[2*a.m_iNEvents*j+2*iEvent+1] );
       
-      // complex conjugate
-      if( i != j ) {
-        
-        integralMatrix[2*j*iNAmps+2*i] = integralMatrix[2*i*iNAmps+2*j];
-        integralMatrix[2*j*iNAmps+2*i+1] = -integralMatrix[2*i*iNAmps+2*j+1];
-      }
+      result[2*iTerm+1] += a.m_pdWeights[iEvent] *
+      ( -a.m_pdAmps[2*a.m_iNEvents*i+2*iEvent] *
+       a.m_pdAmps[2*a.m_iNEvents*j+2*iEvent+1] +
+       a.m_pdAmps[2*a.m_iNEvents*i+2*iEvent+1] *
+       a.m_pdAmps[2*a.m_iNEvents*j+2*iEvent] );
+    }
+  }
+#else
+  
+  // use the GPU manager to compute the result
+  m_gpuMan.calcIntegrals( &(result[0]), nCompute, iIndex, jIndex );
+  
+#endif
+    
+  // now we want to renormalize and complex congugate while
+  // filling the integral matrix data structure
+  for( int iTerm = 0; iTerm < nCompute; ++iTerm ){
+    
+    int i = iIndex[iTerm];
+    int j = jIndex[iTerm];
+
+    integralMatrix[2*i*iNAmps+2*j] = result[2*iTerm] / static_cast< GDouble >( iNGenEvents );
+    integralMatrix[2*i*iNAmps+2*j+1] = result[2*iTerm+1] / static_cast< GDouble >( iNGenEvents );
+    
+    if( i != j ) {
+      
+      integralMatrix[2*j*iNAmps+2*i] = integralMatrix[2*i*iNAmps+2*j];
+      integralMatrix[2*j*iNAmps+2*i+1] = -integralMatrix[2*i*iNAmps+2*j+1];
     }
   }
   
@@ -940,7 +997,7 @@ AmplitudeManager::addAmpFactor( const string& name,
     lastRow.push_back( true );
     m_sumCoherently.push_back( lastRow );
   }
-
+  
   m_mapNameToAmps[name].push_back( newAmp );
   
   m_needsUserVarsOnly = m_needsUserVarsOnly && newAmp->needsUserVarsOnly();
