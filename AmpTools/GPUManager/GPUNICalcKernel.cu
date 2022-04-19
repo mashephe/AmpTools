@@ -45,31 +45,39 @@ ni_calc_kernel( int nElements, GDouble* pfDevNICalc,
 
   // used shared memory block for amplitude indices and results
   extern __shared__ int s[];
-  
-  unsigned int resultSize = 2*sizeof(GDouble)*nElements;
-  unsigned int indexSize = 2*sizeof(int)*nElements;
-  
-  // the first thread of the block should copy the indices to
-  // shared memory for other blocks to use and zero the result
-  if( ( threadIdx.x + threadIdx.y ) == 0 ){
 
-    memcpy( &s[2*nElements], &pfDevNICalc[2*nElements], indexSize );
-    memset( s, 0, resultSize );
-  }
+  // get addresses of arrays for the two indices in shared memory
+  // and also the result
+  GDouble* result = (GDouble*)s;
+  int* iIndex = (int*)&result[2*nElements];
+  int* jIndex = &(iIndex[nElements]);
+
+  // this is the integer array of indices on the device
+  int* piIndexDev = (int*)&pfDevNICalc[2*nElements];
+
+  // this is the thread index in the block -- use to try
+  // to parallelize block-level operations:
+  int iThread = threadIdx.x + GPU_BLOCK_SIZE_X * threadIdx.y;
+
+  // have each thread copy a portion of the index array from
+  // device memory to shared memory and zero out the place for
+  // the result in shared memory
+  // (for nElements large, this paralellizes the setup)
+  int i = iThread;
+  while( i < 2*nElements ){
+
+     iIndex[i] = piIndexDev[i];
+     result[i] = 0;
+     i += GPU_BLOCK_SIZE_SQ;
+  } 
   
   __syncthreads();
   
-  // get addresses of arrays for the two indices in shared memory
-  // and also the result
-  int* iIndex = (int*)&pfDevNICalc[2*nElements];
-  int* jIndex = &(iIndex[nElements]);
-  GDouble* result = (GDouble*)s;
-
-  int iEvt = threadIdx.x + GPU_BLOCK_SIZE_X * threadIdx.y +
+  // this is the overall event index
+  int iEvt = iThread +
             ( blockIdx.x + blockIdx.y * gridDim.x ) * GPU_BLOCK_SIZE_SQ;
 
-
-  if( iEvt < nTrueEvents )
+  if( iEvt < nTrueEvents ) // do not compute for the padding events
   for( int i = 0; i < nElements; ++i ){
   
     // these are the indices to the relevant amplitudes in the amplitude array
@@ -82,7 +90,7 @@ ni_calc_kernel( int nElements, GDouble* pfDevNICalc,
                      pfDevAmps[aInd]   * pfDevAmps[bInd]  +
                      pfDevAmps[aInd+1] * pfDevAmps[bInd+1] );
 
-    atomicAdd( &result[2*i], thisRe );
+    atomicAdd_block( &result[2*i], thisRe );
 
     if( aInd == bInd ) continue; // diagonal elements are real
 
@@ -90,22 +98,22 @@ ni_calc_kernel( int nElements, GDouble* pfDevNICalc,
                        pfDevAmps[aInd+1] * pfDevAmps[bInd] -
                        pfDevAmps[aInd]   * pfDevAmps[bInd+1] );
 
-    atomicAdd( &result[2*i+1], thisIm );
+    atomicAdd_block( &result[2*i+1], thisIm );
   }
   
   __syncthreads();
   
-  // now the first thread should accumulate global device memory
-  // this can be made much faster by having each thread add one
-  // element in shared memory to one element in device memory...
-  // ... but let's try a simple approach to get it to work
-  if( ( threadIdx.x + threadIdx.y ) == 0 ){
+  // now accumulate global device memory with the result...
+  // again this is done in parallel with each thread adding
+  // the real or imaginary part of a term in the array of
+  // nElements
 
-    for( int i = 0; i < 2*nElements; ++i ){
+  i = iThread;
+  while( i < 2*nElements ){
 
-      atomicAdd( &pfDevNICalc[i], result[i] );
-    }
-  }
+     atomicAdd( &pfDevNICalc[i], result[i] );
+     i += GPU_BLOCK_SIZE_SQ;
+  }   
 }
 
 
