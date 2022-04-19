@@ -788,14 +788,15 @@ AmplitudeManager::calcIntegrals( AmpVecs& a, int iNGenEvents ) const
 
   GDouble* integralMatrix = a.m_pdIntegralMatrix;
   
-  // this method could be made more efficient by caching a table of
-  // integrals associated with each AmpVecs object and then, based on the
-  // variables bIsFirstPass and m_vbIsAmpFixed data compute only
-  // those terms that could have changed
-  
   // amp -> amp* -> value
   assert( iNGenEvents );
   bool termChanged = calcTerms( a );
+
+  // ####  NOTE ####
+  // might be able to speed this up more by noting
+  // exactly which terms changed -- the loop structure
+  // below is much better suited for this than it was
+  // in older versions of the code.
   
   // if nothing changed and it isn't the first pass, return
   if( !termChanged && a.m_integralValid ) return;
@@ -868,6 +869,8 @@ AmplitudeManager::calcIntegrals( AmpVecs& a, int iNGenEvents ) const
        a.m_pdAmps[2*a.m_iNEvents*j+2*iEvent] +
        a.m_pdAmps[2*a.m_iNEvents*i+2*iEvent+1] *
        a.m_pdAmps[2*a.m_iNEvents*j+2*iEvent+1] );
+
+      if( i == j ) continue;  // diagonal elements are real
       
       result[2*iTerm+1] += a.m_pdWeights[iEvent] *
       ( -a.m_pdAmps[2*a.m_iNEvents*i+2*iEvent] *
@@ -890,9 +893,11 @@ AmplitudeManager::calcIntegrals( AmpVecs& a, int iNGenEvents ) const
     
     int i = iIndex[iTerm];
     int j = jIndex[iTerm];
-
-    integralMatrix[2*i*iNAmps+2*j] = result[2*iTerm] / static_cast< GDouble >( iNGenEvents );
-    integralMatrix[2*i*iNAmps+2*j+1] = result[2*iTerm+1] / static_cast< GDouble >( iNGenEvents );
+	
+    integralMatrix[2*i*iNAmps+2*j] = result[2*iTerm] /
+      static_cast< GDouble >( iNGenEvents );
+    integralMatrix[2*i*iNAmps+2*j+1] = result[2*iTerm+1] /
+      static_cast< GDouble >( iNGenEvents );
     
     if( i != j ) {
       

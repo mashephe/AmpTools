@@ -436,7 +436,8 @@ GPUManager::calcSumLogIntensity( const vector< complex< double > >& prodCoef,
   // compute the logs of the intensities
   dim3 dimBlock( m_iDimThreadX, m_iDimThreadY );
   dim3 dimGrid( m_iDimGridX, m_iDimGridY );
-  GPU_ExecAmpKernel( dimGrid, dimBlock, m_pfDevAmps, m_pfDevVVStar, m_pfDevWeights,
+  GPU_ExecAmpKernel( dimGrid, dimBlock, m_pfDevAmps,
+		     m_pfDevVVStar, m_pfDevWeights,
                      m_iNAmps, m_iNEvents, m_pfDevRes );
 
   cudaError_t cerrKernel=cudaGetLastError();
@@ -467,7 +468,8 @@ GPUManager::calcSumLogIntensity( const vector< complex< double > >& prodCoef,
     gpuErrChk( cudaMemset( m_pfDevRes+m_iNTrueEvents,0,
                            sizeof(GDouble)*(m_iNEvents-m_iNTrueEvents)) );
     // execute the kernel to sum partial sums from each block on CPU
-    reduce<GDouble>(m_iNEvents, m_iNThreads, m_iNBlocks, m_pfDevRes, m_pfDevREDUCE);
+    reduce<GDouble>( m_iNEvents, m_iNThreads, m_iNBlocks,
+		     m_pfDevRes, m_pfDevREDUCE );
 
     cerrKernel=cudaGetLastError();
     if( cerrKernel!= cudaSuccess  ){
@@ -477,7 +479,7 @@ GPUManager::calcSumLogIntensity( const vector< complex< double > >& prodCoef,
       assert( false );
     }
   
-    // copy result from device to host
+    // Copy result from device to host
     gpuErrChk( cudaMemcpy( m_pfRes, m_pfDevREDUCE, m_iNBlocks*sizeof(GDouble),
                            cudaMemcpyDeviceToHost) );
     for(i=0; i<m_iNBlocks; i++)
@@ -487,7 +489,8 @@ GPUManager::calcSumLogIntensity( const vector< complex< double > >& prodCoef,
 }
 
 void
-GPUManager::calcIntegrals( GDouble* result, int nElements, const vector<int>& iIndex,
+GPUManager::calcIntegrals( GDouble* result, int nElements,
+			   const vector<int>& iIndex,
                            const vector<int>& jIndex ){
 
   unsigned int resultSize = 2*sizeof(GDouble)*nElements;
@@ -498,7 +501,7 @@ GPUManager::calcIntegrals( GDouble* result, int nElements, const vector<int>& iI
   dim3 dimGrid( m_iDimGridX, m_iDimGridY );
 
   // this is where the index arrays start on the device
-  int* piDevIndex = (int*)&(m_pfDevNICalc[2*nElements]);
+  int* piDevIndex = (int*)&m_pfDevNICalc[2*nElements];
   
   // first zero out device memory that will hold the final result and also the
   // amplitude indicies of the NI elements
@@ -512,9 +515,11 @@ GPUManager::calcIntegrals( GDouble* result, int nElements, const vector<int>& iI
                         indexSize, cudaMemcpyHostToDevice ) );
   
   GPU_ExecNICalcKernel( dimGrid, dimBlock, totalSize, nElements,
-                        m_pfDevNICalc, m_pfDevAmps, m_pfDevWeights, m_iNEvents );
+                        m_pfDevNICalc, m_pfDevAmps, m_pfDevWeights,
+			m_iNEvents, m_iNTrueEvents );
   
-  gpuErrChk( cudaMemcpy( result, m_pfDevNICalc, resultSize, cudaMemcpyDeviceToHost ) );
+  gpuErrChk( cudaMemcpy( result, m_pfDevNICalc,
+  			 resultSize, cudaMemcpyDeviceToHost ) );
 }
 
 // Methods to clear memory:
@@ -527,12 +532,7 @@ void GPUManager::clearAll()
   m_iEventArrSize=0;
   m_iTrueEventArrSize=0;
 
-  m_iNEvents=0;
-  m_iNTrueEvents=0;
-  m_iNAmps=0;
-  
-  m_iEventArrSize=0;
-  m_iTrueEventArrSize=0;
+  m_iNAmps=0;  
   m_iAmpArrSize=0;
   m_iVArrSize=0;
   

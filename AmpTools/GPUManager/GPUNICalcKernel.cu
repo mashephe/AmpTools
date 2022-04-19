@@ -35,11 +35,12 @@
 //******************************************************************************
 
 #include "GPUCustomTypes.h"
+#include "stdio.h"
 
 __global__ void
 ni_calc_kernel( int nElements, GDouble* pfDevNICalc,
-                    GDouble* pfDevAmps, GDouble* pfDevWeights,
-                    int nEvents )
+                GDouble* pfDevAmps, GDouble* pfDevWeights,
+                int nEvents, int nTrueEvents )
 {
 
   // used shared memory block for amplitude indices and results
@@ -51,9 +52,8 @@ ni_calc_kernel( int nElements, GDouble* pfDevNICalc,
   // the first thread of the block should copy the indices to
   // shared memory for other blocks to use and zero the result
   if( ( threadIdx.x + threadIdx.y ) == 0 ){
-  
-    memcpy( s + resultSize, pfDevNICalc + resultSize,
-                indexSize );
+
+    memcpy( &s[2*nElements], &pfDevNICalc[2*nElements], indexSize );
     memset( s, 0, resultSize );
   }
   
@@ -61,27 +61,36 @@ ni_calc_kernel( int nElements, GDouble* pfDevNICalc,
   
   // get addresses of arrays for the two indices in shared memory
   // and also the result
-  int* iIndex = s + resultSize;
+  int* iIndex = (int*)&pfDevNICalc[2*nElements];
   int* jIndex = &(iIndex[nElements]);
   GDouble* result = (GDouble*)s;
 
   int iEvt = threadIdx.x + GPU_BLOCK_SIZE_X * threadIdx.y +
             ( blockIdx.x + blockIdx.y * gridDim.x ) * GPU_BLOCK_SIZE_SQ;
 
+
+  if( iEvt < nTrueEvents )
   for( int i = 0; i < nElements; ++i ){
   
     // these are the indices to the relevant amplitudes in the amplitude array
     int aInd = 2*iEvt + 2*nEvents*iIndex[i];
     int bInd = 2*iEvt + 2*nEvents*jIndex[i];
 
-    result[2*i] += pfDevWeights[iEvt] * (
+    GDouble thisRe, thisIm = 0;
+
+    thisRe = pfDevWeights[iEvt] * (
                      pfDevAmps[aInd]   * pfDevAmps[bInd]  +
                      pfDevAmps[aInd+1] * pfDevAmps[bInd+1] );
-  
-    result[2*i+1] += pfDevWeights[iEvt] * (
+
+    atomicAdd( &result[2*i], thisRe );
+
+    if( aInd == bInd ) continue; // diagonal elements are real
+
+    thisIm = pfDevWeights[iEvt] * (
                        pfDevAmps[aInd+1] * pfDevAmps[bInd] -
                        pfDevAmps[aInd]   * pfDevAmps[bInd+1] );
-                    
+
+    atomicAdd( &result[2*i+1], thisIm );
   }
   
   __syncthreads();
@@ -94,17 +103,18 @@ ni_calc_kernel( int nElements, GDouble* pfDevNICalc,
 
     for( int i = 0; i < 2*nElements; ++i ){
 
-      pfDevNICalc[i] += result[i];
+      atomicAdd( &pfDevNICalc[i], result[i] );
     }
   }
 }
 
 
-extern "C" void GPU_ExecNICalcKernel( dim3 dimGrid, dim3 dimBlock, unsigned int sharedSize,
+extern "C" void GPU_ExecNICalcKernel( dim3 dimGrid, dim3 dimBlock,
+       	   			      unsigned int sharedSize,
                                       int nElements, GDouble* pfDevNICalc,
                                       GDouble* pfDevAmps, GDouble* pfDevWeights,
-                                      int nEvents  )
+                                      int nEvents, int nTrueEvents )
 {
   ni_calc_kernel<<< dimGrid, dimBlock, sharedSize >>>
-     ( nElements, pfDevNICalc, pfDevAmps, pfDevWeights, nEvents );
+     ( nElements, pfDevNICalc, pfDevAmps, pfDevWeights, nEvents, nTrueEvents );
 }
