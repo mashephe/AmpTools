@@ -415,7 +415,7 @@ AmplitudeManager::calcUserVars( AmpVecs& a ) const
 }
 
 
-bool
+vector<bool>
 AmplitudeManager::calcTerms( AmpVecs& a ) const
 {
   
@@ -430,13 +430,12 @@ AmplitudeManager::calcTerms( AmpVecs& a ) const
     calcUserVars( a );
     if( m_needsUserVarsOnly && m_flushFourVecsIfPossible ) a.clearFourVecs();
   }
-  
-  bool modifiedTerm = false;
-  
+
   const vector< string >& ampNames = getTermNames();
-  
   int iNAmps = ampNames.size();
 
+  vector<bool> modifiedTerm( iNAmps, false );
+  
 #ifndef GPU_ACCELERATION
   assert( a.m_pdAmps && a.m_pdAmpFactors);
 #endif
@@ -492,7 +491,7 @@ AmplitudeManager::calcTerms( AmpVecs& a ) const
     // if we get to here, we are changing the stored factors of the
     // amplitude
     
-    modifiedTerm = true;
+    modifiedTerm[iAmpIndex] = true;
     
     // calculate all the factors that make up an amplitude for
     // for all events serially on CPU or in parallel on GPU
@@ -790,8 +789,11 @@ AmplitudeManager::calcIntegrals( AmpVecs& a, int iNGenEvents ) const
   
   // amp -> amp* -> value
   assert( iNGenEvents );
-  bool termChanged = calcTerms( a );
-
+  const vector<bool>& termChanged = calcTerms( a );
+  
+  bool anyTermChanged =
+  ( find( termChanged.begin(), termChanged.end(), true ) != termChanged.end() );
+  
   // ####  NOTE ####
   // might be able to speed this up more by noting
   // exactly which terms changed -- the loop structure
@@ -799,13 +801,14 @@ AmplitudeManager::calcIntegrals( AmpVecs& a, int iNGenEvents ) const
   // in older versions of the code.
   
   // if nothing changed and it isn't the first pass, return
-  if( !termChanged && a.m_integralValid ) return;
+  if( !anyTermChanged && a.m_integralValid ) return;
     
   int iNAmps = a.m_iNTerms;
   
   // this must match the dimension of the coherence matrix or
   // else there is a coding mistake somewhere
   assert( iNAmps == m_sumCoherently.size() );
+  assert( iNAmps == termChanged.size() );
 
   int maxNIElements = uniqueNIElements();
   
@@ -833,13 +836,11 @@ AmplitudeManager::calcIntegrals( AmpVecs& a, int iNGenEvents ) const
         continue;
       }
         
-      // if the amplitude isn't floating and it isn't the first pass
-      // through these data, then its integral can't change
-      if( a.m_integralValid && m_vbIsAmpFixed[i] && m_vbIsAmpFixed[j] ){
-        
-        // if the amplitude isn't floating and it isn't the first pass
+      if( a.m_integralValid && !termChanged.at(i) && !termChanged.at(j) ){
+                      
+        // if the amplitude hasn't changed and it isn't the first pass
         // through these data, then its integral can't change
-      
+
         continue;
       }
       else{

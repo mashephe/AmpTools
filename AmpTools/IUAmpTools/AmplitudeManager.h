@@ -169,7 +169,7 @@ public:
    * \see calcSumLogIntensity
    * \see calcIntegrals
    */
-  bool calcTerms( AmpVecs& ampVecs ) const;
+  vector<bool> calcTerms( AmpVecs& ampVecs ) const;
   
   /**
    * This function calculates the intensity (one number) for all events and
