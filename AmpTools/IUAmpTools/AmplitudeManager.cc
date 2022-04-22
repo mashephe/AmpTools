@@ -45,8 +45,8 @@ using namespace std;
 #include "IUAmpTools/AmplitudeManager.h"
 #include "IUAmpTools/NormIntInterface.h"
 
-#ifdef VTRACE
-#include "vt_user.h"
+#ifdef SCOREP
+#include <scorep/SCOREP_User.h>
 #endif
 
 AmplitudeManager::AmplitudeManager( const vector< string >& reaction,
@@ -247,8 +247,9 @@ void
 AmplitudeManager::calcUserVars( AmpVecs& a ) const
 {
 
-#ifdef VTRACE
-  VT_TRACER( "AmplitudeManager::calcUserVars" );
+#ifdef SCOREP
+SCOREP_USER_REGION_DEFINE( calcUserVars )
+SCOREP_USER_REGION_BEGIN( calcUserVars, "calcUserVars", SCOREP_USER_REGION_TYPE_COMMON )
 #endif
 
   const vector< string >& ampNames = getTermNames();
@@ -393,6 +394,10 @@ AmplitudeManager::calcUserVars( AmpVecs& a ) const
   a.m_gpuMan.copyUserVarsToGPU( a );
 #endif //GPU_ACCELERATION
 
+#ifdef SCOREP
+SCOREP_USER_REGION_END( calcUserVars )
+#endif
+
   return;
 }
 
@@ -400,9 +405,9 @@ AmplitudeManager::calcUserVars( AmpVecs& a ) const
 bool
 AmplitudeManager::calcTerms( AmpVecs& a ) const
 {
-  
-#ifdef VTRACE
-  VT_TRACER( "AmplitudeManager::calcTerms" );
+#ifdef SCOREP
+SCOREP_USER_REGION_DEFINE( calcTerms )
+SCOREP_USER_REGION_BEGIN( calcTerms, "calcTerms", SCOREP_USER_REGION_TYPE_COMMON )                           
 #endif
   
   // on the first pass through this data set be sure to calculate
@@ -585,15 +590,19 @@ AmplitudeManager::calcTerms( AmpVecs& a ) const
     }
   }
 
+#ifdef SCOREP
+SCOREP_USER_REGION_END( calcTerms ) 
+#endif
+
   return modifiedTerm;
 }
 
 double
 AmplitudeManager::calcIntensities( AmpVecs& a ) const
 {
-
-#ifdef VTRACE
-  VT_TRACER( "AmplitudeManager::calcIntensities" );
+#ifdef SCOREP
+SCOREP_USER_REGION_DEFINE( calcIntensities )                                                                                    
+SCOREP_USER_REGION_BEGIN( calcIntensities, "calcIntensities", SCOREP_USER_REGION_TYPE_COMMON )
 #endif
 
   // check to be sure destination memory has been allocated
@@ -689,6 +698,10 @@ AmplitudeManager::calcIntensities( AmpVecs& a ) const
   
   delete[] pdViVjRe;
   delete[] pdViVjIm;
+
+#ifdef SCOREP
+SCOREP_USER_REGION_END( calcIntensities )
+#endif
   
   return maxInten;
 }
@@ -697,9 +710,9 @@ AmplitudeManager::calcIntensities( AmpVecs& a ) const
 double
 AmplitudeManager::calcSumLogIntensity( AmpVecs& a ) const
 {
-  
-#ifdef VTRACE
-  VT_TRACER( "AmplitudeManager::calcSumLogIntensity" );
+#ifdef SCOREP
+SCOREP_USER_REGION_DEFINE( calcSumLogIntensity )                                                                                    
+SCOREP_USER_REGION_BEGIN( calcSumLogIntensity, "calcSumLogIntensity", SCOREP_USER_REGION_TYPE_COMMON )
 #endif
 
   // this may be inefficienct since there are two
@@ -755,6 +768,10 @@ AmplitudeManager::calcSumLogIntensity( AmpVecs& a ) const
   dSumLogI = a.m_gpuMan.calcSumLogIntensity( gpuProdPars, m_sumCoherently );
   
 #endif
+
+#ifdef SCOREP
+SCOREP_USER_REGION_END( calcSumLogIntensity )
+#endif
   
   return( dSumLogI );
 }
@@ -763,9 +780,10 @@ AmplitudeManager::calcSumLogIntensity( AmpVecs& a ) const
 void
 AmplitudeManager::calcIntegrals( AmpVecs& a, int iNGenEvents ) const
 {
-
-#ifdef VTRACE
-  VT_TRACER( "AmplitudeManager::calcIntegrals" );
+#ifdef SCOREP
+SCOREP_USER_REGION_DEFINE( calcIntegralsA )                                                                                    
+SCOREP_USER_REGION_DEFINE( calcIntegralsB )
+SCOREP_USER_REGION_BEGIN( calcIntegralsA, "calcIntegralsA", SCOREP_USER_REGION_TYPE_COMMON )
 #endif
 
   GDouble* integralMatrix = a.m_pdIntegralMatrix;
@@ -780,8 +798,14 @@ AmplitudeManager::calcIntegrals( AmpVecs& a, int iNGenEvents ) const
   bool termChanged = calcTerms( a );
   
   // if nothing changed and it isn't the first pass, return
+#ifdef SCOREP
+  SCOREP_USER_REGION_END( calcIntegralsA )
+#endif
   if( !termChanged && a.m_integralValid ) return;
     
+#ifdef SCOREP
+  SCOREP_USER_REGION_BEGIN( calcIntegralsB, "calcIntegralsB", SCOREP_USER_REGION_TYPE_COMMON )
+#endif
   int iNAmps = a.m_iNTerms;
   
   int i, j, iEvent;
@@ -844,6 +868,10 @@ AmplitudeManager::calcIntegrals( AmpVecs& a, int iNGenEvents ) const
   }
   
   a.m_integralValid = true;
+
+#ifdef SCOREP
+SCOREP_USER_REGION_END( calcIntegralsB )
+#endif
 }
 
 const vector< vector< int > >&

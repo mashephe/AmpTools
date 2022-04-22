@@ -30,7 +30,7 @@ NVCC :=  nvcc
 NVCC_FLAGS := -m64
 
 ifndef GPU_ARCH
-GPU_ARCH := sm_20
+GPU_ARCH := sm_70
 endif
 
 NVCC_FLAGS += -arch=$(GPU_ARCH)
