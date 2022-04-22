@@ -72,7 +72,7 @@ Amplitude::calcUserVarsAll( GDouble* pdData, GDouble* pdUserVars, int iNEvents,
 {
   
 #ifdef SCOREP
-SCOREP_USER_REGION_DEFINE( scorep_calcUserVarsAll )
+SCOREP_USER_REGION_DEFINE( calcUserVarsAll )
 #endif
 
 
@@ -85,7 +85,7 @@ SCOREP_USER_REGION_DEFINE( scorep_calcUserVarsAll )
   if( !numVars ) return;
   
 #ifdef SCOREP
-SCOREP_USER_REGION_BEGIN( scorep_calcUserVarsAll, "scorep_calcUserVarsAll", SCOREP_USER_REGION_TYPE_COMMON )
+SCOREP_USER_REGION_BEGIN( calcUserVarsAll, "calcUserVarsAll", SCOREP_USER_REGION_TYPE_COMMON )
 #endif
 
   int iPermutation, iNPermutations = pvPermutations->size();
@@ -121,7 +121,7 @@ SCOREP_USER_REGION_BEGIN( scorep_calcUserVarsAll, "scorep_calcUserVarsAll", SCOR
   }
   
 #ifdef SCOREP
-SCOREP_USER_REGION_END( scorep_calcUserVarsAll )
+SCOREP_USER_REGION_END( calcUserVarsAll )
 #endif
   
   delete[] pKin;
@@ -134,8 +134,8 @@ Amplitude::calcAmplitudeAll( GDouble* pdData, GDouble* pdAmps, int iNEvents,
 {
 
 #ifdef SCOREP
-SCOREP_USER_REGION_DEFINE( scorep_calcAmplitudeAll )
-SCOREP_USER_REGION_BEGIN( scorep_calcAmplitudeAll, "scorep_calcAmplitudeAll", SCOREP_USER_REGION_TYPE_COMMON )
+SCOREP_USER_REGION_DEFINE( calcAmplitudeAll )
+SCOREP_USER_REGION_BEGIN( calcAmplitudeAll, "calcAmplitudeAll", SCOREP_USER_REGION_TYPE_COMMON )
 #endif
   
   complex< GDouble > cRes;
@@ -185,7 +185,7 @@ SCOREP_USER_REGION_BEGIN( scorep_calcAmplitudeAll, "scorep_calcAmplitudeAll", SC
   }
 
 #ifdef SCOREP
-SCOREP_USER_REGION_END( scorep_calcAmplitudeAll )
+SCOREP_USER_REGION_END( calcAmplitudeAll )
 #endif
   
   delete[] pKin;
@@ -255,8 +255,8 @@ Amplitude::calcAmplitude( const Kinematics* pKin,
                           GDouble* userVars ) const {
 
 #ifdef SCOREP
-SCOREP_USER_REGION_DEFINE( scorep_calcAmplitude )
-SCOREP_USER_REGION_BEGIN( scorep_calcAmplitude, "scorep_calcAmplitude", SCOREP_USER_REGION_TYPE_COMMON )
+SCOREP_USER_REGION_DEFINE( calcAmplitude )
+SCOREP_USER_REGION_BEGIN( calcAmplitude, "calcAmplitude", SCOREP_USER_REGION_TYPE_COMMON )
 #endif
 
   vector<TLorentzVector> particleList = pKin->particleList();
@@ -292,7 +292,7 @@ SCOREP_USER_REGION_BEGIN( scorep_calcAmplitude, "scorep_calcAmplitude", SCOREP_U
   }
 
 #ifdef SCOREP
-SCOREP_USER_REGION_END( scorep_calcAmplitude )
+SCOREP_USER_REGION_END( calcAmplitude )
 #endif
 
   delete[] pData;
@@ -307,15 +307,15 @@ void
 Amplitude::calcAmplitudeGPU( dim3 dimGrid, dim3 dimBlock, GPU_AMP_PROTO,
                             const vector< int >& perm ) const {
 #ifdef SCOREP
-  SCOREP_USER_REGION_DEFINE( scorep_calcAmplitudeGPU )
-  SCOREP_USER_REGION_BEGIN( scorep_calcAmplitudeGPU, "calcAmplitudeGPU", SCOREP_USER_REGION_TYPE_COMMON )
+  SCOREP_USER_REGION_DEFINE( calcAmplitudeGPU )
+  SCOREP_USER_REGION_BEGIN( calcAmplitudeGPU, "calcAmplitudeGPU", SCOREP_USER_REGION_TYPE_COMMON )
 #endif
 
   	m_currentPermutation = perm;
 	launchGPUKernel( dimGrid, dimBlock, GPU_AMP_ARGS );
   
 #ifdef SCOREP
-  SCOREP_USER_REGION_END( scorep_calcAmplitudeGPU )
+  SCOREP_USER_REGION_END( calcAmplitudeGPU )
 #endif
 }
 #endif
@@ -388,8 +388,8 @@ bool
 Amplitude::updatePar( const string& name ) const {
   
 #ifdef SCOREP
-SCOREP_USER_REGION_DEFINE( scorep_updatePar )
-SCOREP_USER_REGION_BEGIN( scorep_updatePar, "scorep_updatePar", SCOREP_USER_REGION_TYPE_COMMON )
+SCOREP_USER_REGION_DEFINE( updatePar )
+SCOREP_USER_REGION_BEGIN( updatePar, "updatePar", SCOREP_USER_REGION_TYPE_COMMON )
 #endif
 
   
@@ -413,7 +413,7 @@ SCOREP_USER_REGION_BEGIN( scorep_updatePar, "scorep_updatePar", SCOREP_USER_REGI
   }
   
 #ifdef SCOREP
-SCOREP_USER_REGION_END( scorep_updatePar )
+SCOREP_USER_REGION_END( updatePar )
 #endif
   return foundPar;
 }
