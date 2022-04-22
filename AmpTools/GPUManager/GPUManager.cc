@@ -227,8 +227,8 @@ void
 GPUManager::copyDataToGPU( const AmpVecs& a, bool use4Vectors )
 {  
   #ifdef SCOREP
-  SCOREP_USER_REGION_DEFINE( scorep_copyDataToGPU )                                                                                    
-  SCOREP_USER_REGION_BEGIN( scorep_copyDataToGPU, "scorep_copyDataToGPU", SCOREP_USER_REGION_TYPE_COMMON )
+  SCOREP_USER_REGION_DEFINE( copyDataToGPU )                                                                                    
+  SCOREP_USER_REGION_BEGIN( copyDataToGPU, "copyDataToGPU", SCOREP_USER_REGION_TYPE_COMMON )
   #endif
   
   // copy the weights to the GPU
@@ -284,7 +284,7 @@ GPUManager::copyDataToGPU( const AmpVecs& a, bool use4Vectors )
     delete tmpStorage;
   }
   #ifdef SCOREP
-  SCOREP_USER_REGION_END( scorep_copyDataToGPU )
+  SCOREP_USER_REGION_END( copyDataToGPU )
   #endif
 }
 
@@ -292,8 +292,8 @@ void
 GPUManager::copyUserVarsToGPU( const AmpVecs& a )
 {
   #ifdef SCOREP
-  SCOREP_USER_REGION_DEFINE( scorep_copyUserVarsToGPU )                                                                                    
-  SCOREP_USER_REGION_BEGIN( scorep_copyUserVarsToGPU, "scorep_copyUserVarsToGPU", SCOREP_USER_REGION_TYPE_COMMON )                           
+  SCOREP_USER_REGION_DEFINE( copyUserVarsToGPU )                                                                                    
+  SCOREP_USER_REGION_BEGIN( copyUserVarsToGPU, "copyUserVarsToGPU", SCOREP_USER_REGION_TYPE_COMMON )                           
   #endif
   
   // make sure AmpVecs has been loaded with data
@@ -304,7 +304,7 @@ GPUManager::copyUserVarsToGPU( const AmpVecs& a )
                         m_iNUserVars * m_iEventArrSize,
                         cudaMemcpyHostToDevice ) );
   #ifdef SCOREP
-  SCOREP_USER_REGION_END( scorep_copyUserVarsToGPU ) 
+  SCOREP_USER_REGION_END( copyUserVarsToGPU ) 
   #endif
 }
 
@@ -313,8 +313,8 @@ void
 GPUManager::copyAmpsFromGPU( AmpVecs& a )
 {
   #ifdef SCOREP
-  SCOREP_USER_REGION_DEFINE( scorep_copyAmpsFromGPU )                                                                                    
-  SCOREP_USER_REGION_BEGIN( scorep_copyAmpsFromGPU, "scorep_copyAmpsFromGPU", SCOREP_USER_REGION_TYPE_COMMON )                           
+  SCOREP_USER_REGION_DEFINE( copyAmpsFromGPU )                                                                                    
+  SCOREP_USER_REGION_BEGIN( copyAmpsFromGPU, "copyAmpsFromGPU", SCOREP_USER_REGION_TYPE_COMMON )                           
   #endif
   
   // this array is not allocated by default on GPU enabled code
@@ -329,7 +329,7 @@ GPUManager::copyAmpsFromGPU( AmpVecs& a )
                          a.m_maxFactPerEvent * m_iEventArrSize,
                          cudaMemcpyDeviceToHost ) );
   #ifdef SCOREP
-  SCOREP_USER_REGION_END( scorep_copyAmpsFromGPU )
+  SCOREP_USER_REGION_END( copyAmpsFromGPU )
   #endif
 }
 
@@ -339,8 +339,8 @@ GPUManager::calcAmplitudeAll( const Amplitude* amp, unsigned long long offset,
                               unsigned long long iUserVarsOffset )
 {
   #ifdef SCOREP
-  SCOREP_USER_REGION_DEFINE( scorep_calcAmplitudeAll_gpuMgr )                                                                                    
-  SCOREP_USER_REGION_BEGIN( scorep_calcAmplitudeAll_gpuMgr, "scorep_calcAmplitudeAll_gpuMgr", SCOREP_USER_REGION_TYPE_COMMON )                           
+  SCOREP_USER_REGION_DEFINE( calcAmplitudeAll_gpuMgr )                                                                                    
+  SCOREP_USER_REGION_BEGIN( calcAmplitudeAll_gpuMgr, "calcAmplitudeAll_gpuMgr", SCOREP_USER_REGION_TYPE_COMMON )                           
   #endif
   
   dim3 dimBlock( m_iDimThreadX, m_iDimThreadY );
@@ -387,15 +387,15 @@ GPUManager::calcAmplitudeAll( const Amplitude* amp, unsigned long long offset,
     udLocalOffset += amp->numUserVars() * m_iNEvents;
   }    
   #ifdef SCOREP
-  SCOREP_USER_REGION_END( scorep_calcAmplitudeAll_gpuMgr )
+  SCOREP_USER_REGION_END( calcAmplitudeAll_gpuMgr )
   #endif
 }
 
 void
 GPUManager::assembleTerms( int iAmpInd, int nFact, int nPerm ){
   #ifdef SCOREP
-  SCOREP_USER_REGION_DEFINE( scorep_assembleTerms )                                                                                    
-  SCOREP_USER_REGION_BEGIN( scorep_assembleTerms, "scorep_assembleTerms", SCOREP_USER_REGION_TYPE_COMMON )                           
+  SCOREP_USER_REGION_DEFINE( assembleTerms )                                                                                    
+  SCOREP_USER_REGION_BEGIN( assembleTerms, "assembleTerms", SCOREP_USER_REGION_TYPE_COMMON )                           
   #endif
 
   dim3 dimBlock( m_iDimThreadX, m_iDimThreadY );
@@ -407,7 +407,7 @@ GPUManager::assembleTerms( int iAmpInd, int nFact, int nPerm ){
   GPU_ExecFactPermKernel( dimGrid, dimBlock, &(m_pfDevAmps[2*m_iNEvents*iAmpInd]),
                           m_pcDevCalcAmp, nFact, nPerm, m_iNEvents );
   #ifdef SCOREP
-  SCOREP_USER_REGION_END( scorep_assembleTerms ) 
+  SCOREP_USER_REGION_END( assembleTerms ) 
   #endif
 }
 
@@ -416,8 +416,8 @@ GPUManager::calcSumLogIntensity( const vector< complex< double > >& prodCoef,
                                 const vector< vector< bool > >& cohMtx )
 {
   #ifdef SCOREP
-  SCOREP_USER_REGION_DEFINE( scorep_calcSumLogIntensity_gpuMgr )                                                                                    
-  SCOREP_USER_REGION_BEGIN( scorep_calcSumLogIntensity_gpuMgr, "scorep_calcSumLogIntensity_gpuMgr", SCOREP_USER_REGION_TYPE_COMMON )                           
+  SCOREP_USER_REGION_DEFINE( calcSumLogIntensity_gpuMgr )                                                                                    
+  SCOREP_USER_REGION_BEGIN( calcSumLogIntensity_gpuMgr, "calcSumLogIntensity_gpuMgr", SCOREP_USER_REGION_TYPE_COMMON )                           
   #endif
 
   unsigned int i,j;
@@ -493,7 +493,7 @@ GPUManager::calcSumLogIntensity( const vector< complex< double > >& prodCoef,
       dGPUResult += m_pfRes[i];
   }
   #ifdef SCOREP
-  SCOREP_USER_REGION_END( scorep_calcSumLogIntensity_gpuMgr )
+  SCOREP_USER_REGION_END( calcSumLogIntensity_gpuMgr )
   #endif
   return dGPUResult;
 }
@@ -501,8 +501,8 @@ GPUManager::calcSumLogIntensity( const vector< complex< double > >& prodCoef,
 void
 GPUManager::calcIntegral( GDouble* result, int iAmp, int jAmp, int iNGenEvents ){
   #ifdef SCOREP
-  SCOREP_USER_REGION_DEFINE( scorep_calcIntegral )                                                                                    
-  SCOREP_USER_REGION_BEGIN( scorep_calcIntegral, "scorep_calcIntegral", SCOREP_USER_REGION_TYPE_COMMON )                           
+  SCOREP_USER_REGION_DEFINE( calcIntegral )                                                                                    
+  SCOREP_USER_REGION_BEGIN( calcIntegral, "calcIntegral", SCOREP_USER_REGION_TYPE_COMMON )                           
   #endif
 
   dim3 dimBlock( m_iDimThreadX, m_iDimThreadY );
@@ -581,7 +581,7 @@ GPUManager::calcIntegral( GDouble* result, int iAmp, int jAmp, int iNGenEvents )
     result[1] /= static_cast< GDouble >( iNGenEvents );
   }
   #ifdef SCOREP
-  SCOREP_USER_REGION_END( scorep_calcIntegral ) 
+  SCOREP_USER_REGION_END( calcIntegral ) 
   #endif
 }
 
