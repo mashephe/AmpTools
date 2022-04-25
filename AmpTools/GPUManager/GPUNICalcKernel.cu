@@ -77,28 +77,34 @@ ni_calc_kernel( int nElements, GDouble* pfDevNICalc,
   int iEvt = iThread +
             ( blockIdx.x + blockIdx.y * gridDim.x ) * GPU_BLOCK_SIZE_SQ;
 
-  if( iEvt < nTrueEvents ) // do not compute for the padding events
-  for( int i = 0; i < nElements; ++i ){
+  if( iEvt < nTrueEvents ){ // do not compute for the padding events
+
+    GDouble wt = pfDevWeights[iEvt];
+
+    for( int i = 0; i < nElements; ++i ){
   
-    // these are the indices to the relevant amplitudes in the amplitude array
-    int aInd = 2*iEvt + 2*nEvents*iIndex[i];
-    int bInd = 2*iEvt + 2*nEvents*jIndex[i];
+      // these are the indices to the
+      // relevant amplitudes in the amplitude array
+      int aInd = 2*iEvt + 2*nEvents*iIndex[i];
+      int bInd = 2*iEvt + 2*nEvents*jIndex[i];
 
-    GDouble thisRe, thisIm = 0;
+      GDouble aRe = pfDevAmps[aInd];
+      GDouble aIm = pfDevAmps[aInd+1];
+      GDouble bRe = pfDevAmps[bInd];
+      GDouble bIm = pfDevAmps[bInd+1];
 
-    thisRe = pfDevWeights[iEvt] * (
-                     pfDevAmps[aInd]   * pfDevAmps[bInd]  +
-                     pfDevAmps[aInd+1] * pfDevAmps[bInd+1] );
+      GDouble thisRe, thisIm = 0;
 
-    atomicAdd_block( &result[2*i], thisRe );
+      thisRe = wt * ( aRe * bRe + aIm * bIm );
 
-    if( aInd == bInd ) continue; // diagonal elements are real
+      atomicAdd_block( &result[2*i], thisRe );
 
-    thisIm = pfDevWeights[iEvt] * (
-                       pfDevAmps[aInd+1] * pfDevAmps[bInd] -
-                       pfDevAmps[aInd]   * pfDevAmps[bInd+1] );
+      if( aInd == bInd ) continue; // diagonal elements are real
 
-    atomicAdd_block( &result[2*i+1], thisIm );
+      thisIm = wt * ( aIm * bRe - aRe * bIm );
+
+      atomicAdd_block( &result[2*i+1], thisIm );
+    }
   }
   
   __syncthreads();
