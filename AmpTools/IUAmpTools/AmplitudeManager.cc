@@ -807,6 +807,7 @@ SCOREP_USER_REGION_BEGIN( calcIntegralsA, "calcIntegralsA", SCOREP_USER_REGION_T
   
   // amp -> amp* -> value
   assert( iNGenEvents );
+  // this returns a vector indicating which terms have changed
   const vector<bool>& termChanged = calcTerms( a );
   
 #ifdef SCOREP
