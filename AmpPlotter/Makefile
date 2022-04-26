@@ -9,11 +9,11 @@ include $(AMPTOOLS_HOME)/Makefile.settings
 # Most things below here probably don't need to be changed
 #
 # (expert option for profile and tracing)
-# to build code instrumented for Vampir Trace use VTRACE=1
+# to build code instrumented for Vampir Trace use SCOREP=1
 
-ifdef VTRACE
-CXX := vtcxx -vt:inst manual
-CXX_FLAGS += -DVTRACE
+ifdef SCOREP
+CXX := scorep-g++ --user
+CXX_FLAGS += -DSCOREP_USER_ENABLE
 endif
 
 INC_DIR :=  -I.. -I$(shell root-config --incdir) -I$(AMPTOOLS)

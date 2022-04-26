@@ -9,20 +9,20 @@ include $(AMPTOOLS_HOME)/Makefile.settings
 # Most things below here probably don't need to be changed
 #
 # (expert option for profile and tracing)
-# to build code instrumented for Vampir Trace use VTRACE=1
+# to build code instrumented for Score-P use SCOREP=1
 
-ifdef VTRACE
-CXX := vtcxx -vt:inst manual
+ifdef SCOREP
+CXX := scorep-g++ --user
 
-ifdef MPI
-CXX += -vt:mpi
-endif
-
-NVCC := vtnvcc
-CXX_FLAGS += -DVTRACE
+CXX_FLAGS += -DSCOREP_USER_ENABLE
 endif
 
 INC_DIR :=  -I.. -I$(shell root-config --incdir)
+ifdef SCOREP
+INC_DIR += -I$(SCOREP_INC)
+endif
+
+
 CXX_FLAGS += $(shell root-config --cflags)
 
 SRCDIRS := UpRootMinuit MinuitInterface IUAmpTools
@@ -39,6 +39,9 @@ endif
 # check if MPI build is requested
 ifdef MPI
 CXX := $(MPICXX)
+ifdef SCOREP
+CXX := scorep --mpp=mpi --user mpicxx
+endif
 SRCDIRS += IUAmpToolsMPI
 CXX_FLAGS += -DUSE_MPI
 SUFFIX := $(SUFFIX)_MPI
