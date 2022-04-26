@@ -135,6 +135,13 @@ public:
   
   unsigned int userVarsPerEvent() const;
   
+  /**
+   * This function returns the total number of unique (up to complex
+   *  conjugation) amplitude products in the intensity.  It is useful
+   *  to index functions useds for NI calculation.
+   */
+  
+  unsigned int uniqueNIElements() const;
   
   /**
    * This function triggers the calculation of optional user data that
@@ -162,7 +169,7 @@ public:
    * \see calcSumLogIntensity
    * \see calcIntegrals
    */
-  bool calcTerms( AmpVecs& ampVecs ) const;
+  vector<bool> calcTerms( AmpVecs& ampVecs ) const;
   
   /**
    * This function calculates the intensity (one number) for all events and
