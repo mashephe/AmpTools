@@ -17,7 +17,12 @@ CXX := scorep-g++ --user
 CXX_FLAGS += -DSCOREP_USER_ENABLE
 endif
 
-INC_DIR :=  -I.. -I$(shell root-config --incdir) -I$(SCOREP_INC)
+INC_DIR :=  -I.. -I$(shell root-config --incdir)
+ifdef SCOREP
+INC_DIR += -I$(SCOREP_INC)
+endif
+
+
 CXX_FLAGS += $(shell root-config --cflags)
 
 SRCDIRS := UpRootMinuit MinuitInterface IUAmpTools
