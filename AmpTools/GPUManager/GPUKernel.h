@@ -41,7 +41,7 @@
 
 extern "C" void GPU_ExecAmpKernel(dim3 dimGrid,dim3 dimBlock,GDouble* pfDevAmps,
                                   GDouble* pfDevVVStar, GDouble* pfDevWeights,
-                                  int nAmps, int nEvents, GDouble* pfDevRes);
+                                  int nAmps, int nEvents, double* pfDevRes);
 
 extern "C" void GPU_ExecFactPermKernel( dim3 dimGrid, dim3 dimBlock,
                                         GDouble* pfDevAmps, GDouble* pcDevCalcAmp,

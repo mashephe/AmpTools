@@ -86,7 +86,7 @@ using namespace std;
 // cancellation in terms which is difficult to 
 // achieve numerically with single precision
 
-#define USE_DOUBLE_PRECISION
+//#define USE_DOUBLE_PRECISION
 
 #ifdef USE_DOUBLE_PRECISION  // double precision:
 

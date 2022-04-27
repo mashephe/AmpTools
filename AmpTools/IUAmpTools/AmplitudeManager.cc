@@ -803,7 +803,7 @@ SCOREP_USER_REGION_DEFINE( calcIntegralsB )
 SCOREP_USER_REGION_BEGIN( calcIntegralsA, "calcIntegralsA", SCOREP_USER_REGION_TYPE_COMMON )
 #endif
 
-  GDouble* integralMatrix = a.m_pdIntegralMatrix;
+  double* integralMatrix = a.m_pdIntegralMatrix;
   
   // amp -> amp* -> value
   assert( iNGenEvents );
@@ -839,7 +839,7 @@ SCOREP_USER_REGION_BEGIN( calcIntegralsA, "calcIntegralsA", SCOREP_USER_REGION_T
   vector<int> jIndex(maxNIElements);
   
   // this stores the real and imaginary parts of the term calculations
-  vector<GDouble> result(maxNIElements*2);
+  vector<double> result(maxNIElements*2);
   
   // now figure out which elements of the NI matrix need to be computed
   int i, j;
@@ -917,9 +917,9 @@ SCOREP_USER_REGION_BEGIN( calcIntegralsA, "calcIntegralsA", SCOREP_USER_REGION_T
     int j = jIndex[iTerm];
 	
     integralMatrix[2*i*iNAmps+2*j] = result[2*iTerm] /
-      static_cast< GDouble >( iNGenEvents );
+      static_cast< double >( iNGenEvents );
     integralMatrix[2*i*iNAmps+2*j+1] = result[2*iTerm+1] /
-      static_cast< GDouble >( iNGenEvents );
+      static_cast< double >( iNGenEvents );
     
     if( i != j ) {
       

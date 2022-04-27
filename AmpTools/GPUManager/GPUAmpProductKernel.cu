@@ -38,7 +38,7 @@
 
 __global__ void
 amp_kernel( GDouble* pfDevAmps, GDouble* pfDevVVStar, GDouble* pfDevWeights, 
-            int nAmps, int nEvents, GDouble* pfDevRes )
+            int nAmps, int nEvents, double* pdDevRes )
 {
 	int i = threadIdx.x + GPU_BLOCK_SIZE_X * threadIdx.y + 
             ( blockIdx.x + blockIdx.y * gridDim.x ) * GPU_BLOCK_SIZE_SQ;
@@ -93,14 +93,14 @@ amp_kernel( GDouble* pfDevAmps, GDouble* pfDevVVStar, GDouble* pfDevWeights,
     aIndA += 2*nEvents;
 	}
 	
-	pfDevRes[i] = pfDevWeights[i] * G_LOG( fSumRe );
+	pdDevRes[i] = (double)(pfDevWeights[i] * G_LOG( fSumRe ));
 }
 
 extern "C" void GPU_ExecAmpKernel( dim3 dimGrid, dim3 dimBlock, 
      GDouble* pfDevAmps, GDouble* pfDevVVStar, GDouble* pfDevWeights,
-     int nAmps, int nEvents, GDouble* pfDevRes )
+     int nAmps, int nEvents, double* pdDevRes )
 {
 	amp_kernel<<< dimGrid, dimBlock >>>( pfDevAmps, pfDevVVStar, pfDevWeights, 
-                                       nAmps, nEvents, pfDevRes );
+                                       nAmps, nEvents, pdDevRes );
 }
 

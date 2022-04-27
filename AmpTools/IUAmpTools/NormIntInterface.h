@@ -89,8 +89,8 @@ public:
   
   // allow direct access to raw data matrix in memory, which is useful
   // for high-speed implementations, but not user friendly
-  const GDouble* ampIntMatrix() const  { return m_ampIntCache;  }
-  const GDouble* normIntMatrix() const { return m_normIntCache; }
+  const double* ampIntMatrix() const  { return m_ampIntCache;  }
+  const double* normIntMatrix() const { return m_normIntCache; }
   
   void setGenEvents( unsigned long int events ) { m_nGenEvents = events; }
   void setAccEvents( double sumWeights ) { m_sumAccWeights = sumWeights; }
@@ -102,8 +102,8 @@ protected:
   const IntensityManager* intenManager() const { return m_pIntenManager; }
   inline int cacheSize() const { return m_cacheSize; }
   
-  void setAmpIntMatrix( const GDouble* input ) const;
-  void setNormIntMatrix( const GDouble* input ) const;
+  void setAmpIntMatrix( const double* input ) const;
+  void setNormIntMatrix( const double* input ) const;
   
 private:
   
@@ -129,8 +129,8 @@ private:
   
   int m_cacheSize;
 
-  mutable GDouble* m_normIntCache;
-  mutable GDouble* m_ampIntCache;
+  mutable double* m_normIntCache;
+  mutable double* m_ampIntCache;
   
   static map< DataReader*, AmpVecs* > m_uniqueDataSets;
 };

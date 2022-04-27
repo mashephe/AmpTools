@@ -161,24 +161,22 @@ NormIntInterfaceMPI::sumIntegrals( IntType type ) const
   // but we're going to reset the memory in the NormIntInterface
   // at the end of this routine.  This avoids copying.
   
-  GDouble* integrals =
-    const_cast< GDouble* >( type == kNormInt ? normIntMatrix() : ampIntMatrix() );
+  double* integrals =
+    const_cast< double* >( type == kNormInt ? normIntMatrix() : ampIntMatrix() );
   
   // scale up the integrals
   for( int i = 0; i < cacheSize(); ++i ) integrals[i] *= numGenEvents();
   
-  GDouble* result = new GDouble[cacheSize()];
+  double* result = new double[cacheSize()];
   
   // zero out the result array
-  if( m_isLeader ) memset( integrals, 0, cacheSize() * sizeof( GDouble ) );
+  if( m_isLeader ) memset( integrals, 0, cacheSize() * sizeof( double ) );
   
   // at this point, the leader should be holding an array full of zeroes
   // and other nodes will hold integrals for their subsets of data
   
   // sum over all nodes and distribute results to each
-  MPI_Datatype t =
-    ( sizeof( GDouble ) == sizeof( double ) ? MPI_DOUBLE : MPI_FLOAT );  
-  MPI_Allreduce( integrals, result, cacheSize(), t, MPI_SUM, MPI_COMM_WORLD );
+  MPI_Allreduce( integrals, result, cacheSize(), MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD );
 
   // now broadcast the total number of events from the leader to the
   // followers so that they may renormalize the sum properly

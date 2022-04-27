@@ -524,24 +524,24 @@ NormIntInterface::initializeCache() {
   // complex conjugation so that memory lookups are easier
   m_cacheSize = 2*n*n;
   
-  m_normIntCache = new GDouble[m_cacheSize];
-  m_ampIntCache = new GDouble[m_cacheSize];
+  m_normIntCache = new double[m_cacheSize];
+  m_ampIntCache = new double[m_cacheSize];
   
-  memset( m_normIntCache, 0, m_cacheSize * sizeof( GDouble ) );
-  memset( m_ampIntCache, 0, m_cacheSize * sizeof( GDouble ) );
+  memset( m_normIntCache, 0, m_cacheSize * sizeof( double ) );
+  memset( m_ampIntCache, 0, m_cacheSize * sizeof( double ) );
 }
 
 void
-NormIntInterface::setAmpIntMatrix( const GDouble* input ) const {
+NormIntInterface::setAmpIntMatrix( const double* input ) const {
   
-  memcpy( m_ampIntCache, input, m_cacheSize * sizeof( GDouble ) );
+  memcpy( m_ampIntCache, input, m_cacheSize * sizeof( double ) );
   m_emptyAmpIntCache = false;
 }
 
 void
-NormIntInterface::setNormIntMatrix( const GDouble* input ) const {
+NormIntInterface::setNormIntMatrix( const double* input ) const {
   
-  memcpy( m_normIntCache, input, m_cacheSize * sizeof( GDouble ) );
+  memcpy( m_normIntCache, input, m_cacheSize * sizeof( double ) );
   m_emptyNormIntCache = false;
 }
 

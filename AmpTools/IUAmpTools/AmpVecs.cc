@@ -303,7 +303,7 @@ AmpVecs::allocateTerms( const IntensityManager& intenMan, bool bAllocIntensity )
     assert(false);
   }
   
-  m_pdIntegralMatrix = new GDouble[2*m_iNTerms*m_iNTerms];
+  m_pdIntegralMatrix = new double[2*m_iNTerms*m_iNTerms];
   
   //Allocate the Intensity only when needed
   if( bAllocIntensity )

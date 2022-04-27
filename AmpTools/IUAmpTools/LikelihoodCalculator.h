@@ -119,8 +119,8 @@ private:
   bool m_firstDataCalc;
   
   double* m_prodFactorArray;
-  const GDouble* m_normIntArray;
-  const GDouble* m_ampIntArray;
+  const double* m_normIntArray;
+  const double* m_ampIntArray;
   
   // The flat array of kinematics and amplitudes 
   AmpVecs m_ampVecsSignal;
