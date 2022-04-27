@@ -38,7 +38,7 @@
 #include "stdio.h"
 
 __global__ void
-ni_calc_kernel( int nElements, GDouble* pfDevNICalc,
+ni_calc_kernel( int nElements, double* pdDevNICalc,
                 GDouble* pfDevAmps, GDouble* pfDevWeights,
                 int nEvents, int nTrueEvents )
 {
@@ -48,12 +48,12 @@ ni_calc_kernel( int nElements, GDouble* pfDevNICalc,
 
   // get addresses of arrays for the two indices in shared memory
   // and also the result
-  GDouble* result = (GDouble*)s;
+  double* result = (double*)s;
   int* iIndex = (int*)&result[2*nElements];
   int* jIndex = &(iIndex[nElements]);
 
   // this is the integer array of indices on the device
-  int* piIndexDev = (int*)&pfDevNICalc[2*nElements];
+  int* piIndexDev = (int*)&pdDevNICalc[2*nElements];
 
   // this is the thread index in the block -- use to try
   // to parallelize block-level operations:
@@ -97,13 +97,13 @@ ni_calc_kernel( int nElements, GDouble* pfDevNICalc,
 
       thisRe = wt * ( aRe * bRe + aIm * bIm );
 
-      atomicAdd_block( &result[2*i], thisRe );
+      atomicAdd_block( &result[2*i], (double)thisRe );
 
       if( aInd == bInd ) continue; // diagonal elements are real
 
       thisIm = wt * ( aIm * bRe - aRe * bIm );
 
-      atomicAdd_block( &result[2*i+1], thisIm );
+      atomicAdd_block( &result[2*i+1], (double)thisIm );
     }
   }
   
@@ -117,7 +117,7 @@ ni_calc_kernel( int nElements, GDouble* pfDevNICalc,
   i = iThread;
   while( i < 2*nElements ){
 
-     atomicAdd( &pfDevNICalc[i], result[i] );
+     atomicAdd( &pdDevNICalc[i], result[i] );
      i += GPU_BLOCK_SIZE_SQ;
   }   
 }
@@ -125,10 +125,10 @@ ni_calc_kernel( int nElements, GDouble* pfDevNICalc,
 
 extern "C" void GPU_ExecNICalcKernel( dim3 dimGrid, dim3 dimBlock,
        	   			      unsigned int sharedSize,
-                                      int nElements, GDouble* pfDevNICalc,
+                                      int nElements, double* pdDevNICalc,
                                       GDouble* pfDevAmps, GDouble* pfDevWeights,
                                       int nEvents, int nTrueEvents )
 {
   ni_calc_kernel<<< dimGrid, dimBlock, sharedSize >>>
-     ( nElements, pfDevNICalc, pfDevAmps, pfDevWeights, nEvents, nTrueEvents );
+     ( nElements, pdDevNICalc, pfDevAmps, pfDevWeights, nEvents, nTrueEvents );
 }

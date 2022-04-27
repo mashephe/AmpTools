@@ -57,6 +57,7 @@ amp_kernel( GDouble* pfDevAmps, GDouble* pfDevVVStar, GDouble* pfDevWeights,
 
     // index in the array of V_alpha * conj( V_beta )
     int vInd = iA*(iA+1)/2;
+
     
     // index to amplitude A_beta for the ith event
     int aIndB = 2*i;
@@ -69,6 +70,7 @@ amp_kernel( GDouble* pfDevAmps, GDouble* pfDevVVStar, GDouble* pfDevWeights,
 	    // index to amplitude A_beta for the ith event
       // (reduce computations by incrementing at end of loop)
       //     int aIndB = i + 2*nEvents*iB;
+
 
       // only compute the real part of the intensity since
       // the imaginary part should sum to zero
@@ -92,7 +94,7 @@ amp_kernel( GDouble* pfDevAmps, GDouble* pfDevVVStar, GDouble* pfDevWeights,
     
     aIndA += 2*nEvents;
 	}
-	
+
 	pdDevRes[i] = (double)(pfDevWeights[i] * G_LOG( fSumRe ));
 }
 

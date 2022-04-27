@@ -49,7 +49,7 @@ extern "C" void GPU_ExecFactPermKernel( dim3 dimGrid, dim3 dimBlock,
 
 
 extern "C" void GPU_ExecNICalcKernel( dim3 dimGrid, dim3 dimBlock, unsigned int sharedSize,
-                                      int nElements, GDouble* pfDevNICalc,
+                                      int nElements, double* pdDevNICalc,
                                       GDouble* pfDevAmps, GDouble* pfDevWeights,
                                       int nEvents, int nTrueEvents );
 

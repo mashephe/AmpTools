@@ -100,8 +100,8 @@ public:
   double calcSumLogIntensity( const vector< complex< double > >& prodCoef,
                               const vector< vector< bool > >& cohMtx );
 
-  void calcIntegrals( GDouble* result, int nElements, const vector<int>& iIndex,
-                     const vector<int>& jIndex );
+  void calcIntegrals( double* result, int nElements, const vector<int>& iIndex,
+                      const vector<int>& jIndex );
   
   // General utils:
   static int calcNEventsGPU( int iNEvents ){
@@ -126,7 +126,7 @@ private:
   // array sizes
   unsigned long long m_iGDoubleEventArrSize;
   unsigned long long m_iDoubleEventArrSize;
-  unsigned long long m_iTrueEventArrSize;
+  unsigned long long m_iDoubleTrueEventArrSize;
   unsigned long long m_iAmpArrSize;
   unsigned int m_iVArrSize;
   unsigned int m_iNICalcSize;
@@ -135,7 +135,7 @@ private:
   GDouble* m_pcCalcAmp;
   
   GDouble* m_pfVVStar;
-  GDouble* m_pfRes;
+  double* m_pdRes;
   
   //Device Arrays 
   GDouble* m_pfDevData;
