@@ -686,8 +686,7 @@ FitResults::writeResults( const string& outFile ) const {
     }
     else{
       ni->forceCacheUpdate();
-      ni->exportNormIntCache( output,
-                              m_intenManVec[i]->termsAreRenormalized() );
+      ni->exportNormIntCache( output );
     }
   }
   
