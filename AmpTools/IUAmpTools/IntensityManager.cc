@@ -55,9 +55,7 @@
 
 IntensityManager::IntensityManager( const vector< string >& reaction,
                                    const string& reactionName) :
-m_reactionName(reactionName),
-m_renormalizeTerms( false ),
-m_normInt( NULL )
+m_reactionName(reactionName)
 {
 
 }
@@ -220,22 +218,3 @@ IntensityManager::setParValue( const string& name, const string& parName,
     m_termScaleVec[m_termIndex[name]].setValue( val );
   }
 }
-
-/*
- * disable these for now until a fix is made to the NormIntInterface to prevent
- * problems with free parameters in amplitudes
- 
- void
- IntensityManager::renormalizeAmps( const NormIntInterface* normInt ){
- 
- m_normInt = normInt;
- m_renormalizeAmps = true;
- }
- 
- void
- IntensityManager::disableRenormalization(){
- 
- m_renormalizeAmps = false;
- }
- */
-
