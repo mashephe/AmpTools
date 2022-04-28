@@ -7,6 +7,31 @@ CXX_FLAGS := -O3
 
 #########  END DEFAULT COMPILER SETTINGS
 
+#########  USER BUILD SETTINGS
+# These can be used to control preprocessor definitons to control
+# the compilation of the code.
+
+# Default behavior is to build with double precision stoarge for
+# event-level data like amplitudes and kinematics -- speed and
+# memory use can be optimized by make FP32=1 but at a risk of
+# numerical issues in the minimization algorithm.
+
+ifdef FP32
+CXX_DEFINES := -DAMPTOOLS_GDOUBLE_FP32
+else
+CXX_DEFINES := -DAMPTOOLS_GDOUBLE_FP64
+endif
+
+# This option is here to so that likelihood values for the current
+# version can be compared with those from version 0.13.1 and prior.
+# At some point this build option will be deprecated.
+
+ifdef LEGACY_LN_LIK
+CXX_DEFINES += -DUSE_LEGACY_LN_LIK_SCALING
+endif
+
+CXX_FLAGS += $(CXX_DEFINES)
+#########  END USER BUILD SETTINGS
 
 #########  MPI COMPILER SETTINGS
 # to use MPI, an MPI compiler should be in the user path -- this will be used
