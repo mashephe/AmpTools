@@ -79,7 +79,29 @@ using namespace std;
 // reduce memory consumption at the risk of minimization instability for
 // large data sets.  (Any sums are maintained in double precision always.)
 
-#ifdef AMPTOOLS_GDOUBLE_FP64  // double precision:
+#ifdef AMPTOOLS_GDOUBLE_FP32  // single precision
+
+typedef float GDouble;
+
+//MACROS FOR DIFFERENT PRECISION OPERATIONS
+#define G_SIN(a)  sinf(a)
+#define G_ASIN(a) asinf(a)
+#define G_COS(a)  cosf(a)
+#define G_ACOS(a) acosf(a)
+
+#define G_ATAN2(a,b)  atan2f(a,b)
+#define G_ATAN(a) atanf(a)
+#define G_LOG(a)  logf(a)
+
+#define G_FABS(a)  fabsf(a)
+#define G_POW(a,b)  powf(a,b)
+#define G_EXP(a) expf(a)
+#define G_SQRT(a)  sqrtf(a)
+
+#define PI 3.141592653589793f
+#define D_EPS    1.e-10f
+
+#else  // default double precision:  AMPTOOLS_GDOUBLE_FP64
 
 typedef double GDouble;
 
@@ -101,29 +123,7 @@ typedef double GDouble;
 #define PI 3.141592653589793
 #define D_EPS		1.e-10
 
-#else // single precision: AMPTOOLS_GDOUBLE_FP32
-
-typedef float GDouble;
-
-//MACROS FOR DIFFERENT PRECISION OPERATIONS
-#define G_SIN(a)	sinf(a)
-#define G_ASIN(a) asinf(a)
-#define G_COS(a)  cosf(a)
-#define G_ACOS(a) acosf(a)
-
-#define G_ATAN2(a,b)	atan2f(a,b)
-#define G_ATAN(a) atanf(a)
-#define G_LOG(a)	logf(a)
-
-#define G_FABS(a)	fabsf(a)
-#define G_POW(a,b)	powf(a,b)
-#define G_EXP(a) expf(a)
-#define G_SQRT(a)	sqrtf(a)
-
-#define PI 3.141592653589793f
-#define D_EPS		1.e-10f
-
-#endif // AMPTOOLS_GDOUBLE_FP64
+#endif // AMPTOOLS_GDOUBLE_FP32
 
 //Shortcut macros
 #define SQ(a) ((a)*(a)) 
