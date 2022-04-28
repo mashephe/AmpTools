@@ -342,15 +342,7 @@ NormIntInterface::ampInt( string amp, string conjAmp, bool forceUseCache ) const
     << "    Providing original cached value which may be incorrect if\n"
     << "    the parameter has changed since initialization."
     << endl;
-    
-    // problem: this *is* used in a fit if the renormalizeAmps is turned on
-    // and there is a floating parameter in one of the amplitudes
-    // add code here to load up generated MC and hang onto it
-    // print a notice that we're hogging memory in this configuration
-    // for now renormalize is disabled in AmplitudeManager to avoid
-    // confusing the user
   }
-  
   
   if( !hasAmpInt( amp, conjAmp ) ){
     
@@ -437,15 +429,15 @@ NormIntInterface::forceCacheUpdate( bool normIntOnly ) const
 }
 
 void
-NormIntInterface::exportNormIntCache( const string& fileName, bool renormalize) const
+NormIntInterface::exportNormIntCache( const string& fileName ) const
 {
   ofstream out( fileName.c_str() );
   out.precision( 15 );
-  exportNormIntCache( out, renormalize );
+  exportNormIntCache( out );
 }
 
 void
-NormIntInterface::exportNormIntCache( ostream& out, bool renormalize) const
+NormIntInterface::exportNormIntCache( ostream& out ) const
 {
   if( m_emptyNormIntCache || m_emptyAmpIntCache ) forceCacheUpdate();
   
@@ -468,17 +460,7 @@ NormIntInterface::exportNormIntCache( ostream& out, bool renormalize) const
     
       complex< double > value( m_ampIntCache[2*i*n+2*j],
                                m_ampIntCache[2*i*n+2*j+1] );
-      
-      if( renormalize ){
- 
-        // diagonal elements are real so we don't need to deal
-        // with the imaginary part in the renormalization
-        
-        value /= sqrt( m_ampIntCache[2*i*n+2*i] *
-                       m_ampIntCache[2*j*n+2*j] );
-        
-      }
-      
+
       out << value << "\t";
     }
 
@@ -491,19 +473,7 @@ NormIntInterface::exportNormIntCache( ostream& out, bool renormalize) const
       
       complex< double > value( m_normIntCache[2*i*n+2*j],
                                m_normIntCache[2*i*n+2*j+1] );
-      
-      if( renormalize ){
-        
-        // diagonal elements are real so we don't need to deal
-        // with the imaginary part in the renormalization
-        // renormalize by generated so one has efficiency on
-        // the diagonal for the accepted matrix
-        
-        value /= sqrt( m_ampIntCache[2*i*n+2*i] *
-                       m_ampIntCache[2*j*n+2*j] );
-        
-      }
-      
+            
       out << value << "\t";
     }
     

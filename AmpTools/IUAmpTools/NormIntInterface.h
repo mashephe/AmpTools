@@ -84,8 +84,8 @@ public:
   // override this function
   virtual void forceCacheUpdate( bool normIntOnly = false ) const;
   
-  void exportNormIntCache( const string& fileName, bool renormalize = false ) const;
-  void exportNormIntCache( ostream& output, bool renormalize = false ) const;
+  void exportNormIntCache( const string& fileName ) const;
+  void exportNormIntCache( ostream& output ) const;
   
   // allow direct access to raw data matrix in memory, which is useful
   // for high-speed implementations, but not user friendly
