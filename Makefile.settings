@@ -52,7 +52,7 @@ endif
 # the user's path
 
 NVCC :=  nvcc
-NVCC_FLAGS := -m64
+NVCC_FLAGS := -m64 $(CXX_DEFINES)
 
 ifndef GPU_ARCH
 GPU_ARCH := sm_70
