@@ -95,35 +95,15 @@ AmpVecs::deallocAmpVecs()
   m_hasNonUnityWeights = false;
   m_hasMixedSignWeights = false;
   m_lastWeightSign = 0;
- 
-  if( m_sharedDataFriends.empty() && !m_usesSharedData ) {
 
-    // proceed as normal if the data aren't
-    // shared with other AmpVecs classes -- or
-    // this class isn't looking at another class
-    // for data
+  // this handles the case that
+  // other classes may be looking
+  // to this class for the data
+  clearFourVecs();
 
-    if(m_pdData)
-      delete[] m_pdData;
-    m_pdData=0;
-  
-    if(m_pdWeights)
-      delete[] m_pdWeights;
-    m_pdWeights=0;
-  }
-  else{
-    
-    // transfer the ownership of the data
-    // to the first member of the set of
-    // objects that are sharing this data
-    
-    auto avItr = m_sharedDataFriends.begin();
-    
-    AmpVecs* newDataOwner = *avItr;
-    m_sharedDataFriends.erase( avItr );
-    
-    newDataOwner->claimDataOwnership( m_sharedDataFriends );
-  }
+  if(m_pdWeights)
+    delete[] m_pdWeights;
+  m_pdWeights=0;
   
   if(m_pdIntensity)
     delete[] m_pdIntensity;
@@ -166,10 +146,31 @@ AmpVecs::deallocAmpVecs()
 
 void
 AmpVecs::clearFourVecs(){
-  
-  if( m_pdData && m_sharedDataFriends.empty() )
-    delete[] m_pdData;
-  m_pdData=0;
+
+  if( m_sharedDataFriends.empty() && !m_usesSharedData ) {
+
+    // proceed as normal if the data aren't
+    // shared with other AmpVecs classes -- or
+    // this class isn't looking at another class
+    // for data
+
+    if(m_pdData)
+      delete[] m_pdData;
+    m_pdData=0;
+  }
+  else{
+    
+    // transfer the ownership of the data
+    // to the first member of the set of
+    // objects that are sharing this data
+    
+    auto avItr = m_sharedDataFriends.begin();
+    
+    AmpVecs* newDataOwner = *avItr;
+    m_sharedDataFriends.erase( avItr );
+    
+    newDataOwner->claimDataOwnership( m_sharedDataFriends );
+  }
 }
 
 void
@@ -193,7 +194,6 @@ AmpVecs::loadEvent( const Kinematics* pKinematics, unsigned long long iEvent,
     
     m_pdData = new GDouble[4*m_iNParticles*m_iNEvents];
     m_pdWeights = new GDouble[m_iNEvents];
-    
   }
   
   // check to be sure we won't exceed the bounds of the array
@@ -383,7 +383,16 @@ AmpVecs::shareDataWith( AmpVecs* targetAmpVecs ){
   targetAmpVecs->m_iNParticles = m_iNParticles;
   
   targetAmpVecs->m_pdData = m_pdData;
-  targetAmpVecs->m_pdWeights = m_pdWeights;
+
+  // while we are really going to share the four-vectors,
+  // we will give the target a copy of the weights -- this
+  // avoids complications if the four-vectors can later
+  // be flusehd from memory but the weights need to remain
+  // for the fit
+
+  targetAmpVecs->m_pdWeights = new GDouble[m_iNEvents];
+  memcpy( targetAmpVecs->m_pdWeights, m_pdWeights, 
+	  sizeof(GDouble)*m_iNEvents );
   
   targetAmpVecs->m_dataLoaded = true;
   targetAmpVecs->m_hasNonUnityWeights = m_hasNonUnityWeights;
