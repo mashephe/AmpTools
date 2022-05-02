@@ -147,19 +147,11 @@ AmpVecs::deallocAmpVecs()
 void
 AmpVecs::clearFourVecs(){
 
-  if( m_sharedDataFriends.empty() && !m_usesSharedData ) {
+  // don't do anything if we are using shared data
+  if( m_usesSharedData ) return;
 
-    // proceed as normal if the data aren't
-    // shared with other AmpVecs classes -- or
-    // this class isn't looking at another class
-    // for data
+  if( !m_sharedDataFriends.empty() ) {
 
-    if(m_pdData)
-      delete[] m_pdData;
-    m_pdData=0;
-  }
-  else{
-    
     // transfer the ownership of the data
     // to the first member of the set of
     // objects that are sharing this data
@@ -170,7 +162,20 @@ AmpVecs::clearFourVecs(){
     m_sharedDataFriends.erase( avItr );
     
     newDataOwner->claimDataOwnership( m_sharedDataFriends );
+
+    // clear out the shared data friends since the new
+    // owner is now responsible for them
+    m_sharedDataFriends.clear();
+
+    // set the pointer to zero to avoid deleting data
+    // that others need in the steps below
+    m_pdData = 0;
   }
+
+  // proceed as normal by flushing the four-vectors
+  if(m_pdData)
+    delete[] m_pdData;
+  m_pdData=0;
 }
 
 void
