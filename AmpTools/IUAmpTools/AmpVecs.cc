@@ -382,6 +382,11 @@ AmpVecs::getEvent( int iEvent ){
 void
 AmpVecs::shareDataWith( AmpVecs* targetAmpVecs ){
   
+  // the algorithm assumes that the target AmpVecs
+  // object is empty to begin with -- if this is not
+  // the case there is programming error somewhere
+  assert( targetAmpVecs->m_pdData == 0 );
+  
   targetAmpVecs->m_iNEvents = m_iNEvents;
   targetAmpVecs->m_iNTrueEvents = m_iNTrueEvents;
   targetAmpVecs->m_dSumWeights = m_dSumWeights;
