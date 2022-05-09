@@ -132,7 +132,6 @@ SCOREP_USER_REGION_BEGIN( normIntTerm, "normIntTerm", SCOREP_USER_REGION_TYPE_CO
   m_intenManager.prodFactorArray( m_prodFactorArray );
   
   double normTerm = 0;
-  bool renormalize = m_intenManager.termsAreRenormalized();
   
   switch( m_intenManager.type() ){
       
@@ -158,11 +157,6 @@ SCOREP_USER_REGION_BEGIN( normIntTerm, "normIntTerm", SCOREP_USER_REGION_TYPE_CO
           thisTerm -= ( imVa*reVb - reVa*imVb ) * imNI;
           
           if( a != b ) thisTerm *= 2;
-          
-          if( renormalize ){
-            thisTerm /= sqrt( m_ampIntArray[2*a*n+2*a] *
-                              m_ampIntArray[2*b*n+2*b] );
-          }
           
           normTerm += thisTerm;
         }

@@ -100,8 +100,8 @@ public:
   double calcSumLogIntensity( const vector< complex< double > >& prodCoef,
                               const vector< vector< bool > >& cohMtx );
 
-  void calcIntegrals( GDouble* result, int nElements, const vector<int>& iIndex,
-                     const vector<int>& jIndex );
+  void calcIntegrals( double* result, int nElements, const vector<int>& iIndex,
+                      const vector<int>& jIndex );
   
   // General utils:
   static int calcNEventsGPU( int iNEvents ){
@@ -118,14 +118,15 @@ private:
   
   // array dimensions
   unsigned int m_iNParticles;
-  unsigned long long m_iNEvents;
-  unsigned long long m_iNTrueEvents;
+  unsigned long m_iNEvents;
+  unsigned long m_iNTrueEvents;
   unsigned int m_iNAmps;
   unsigned int m_iNUserVars;
   
   // array sizes
-  unsigned long long m_iEventArrSize;
-  unsigned long long m_iTrueEventArrSize;
+  unsigned long long m_iGDoubleEventArrSize;
+  unsigned long long m_iDoubleEventArrSize;
+  unsigned long long m_iDoubleTrueEventArrSize;
   unsigned long long m_iAmpArrSize;
   unsigned int m_iVArrSize;
   unsigned int m_iNICalcSize;
@@ -134,7 +135,7 @@ private:
   GDouble* m_pcCalcAmp;
   
   GDouble* m_pfVVStar;
-  GDouble* m_pfRes;
+  double* m_pdRes;
   
   //Device Arrays 
   GDouble* m_pfDevData;
@@ -145,10 +146,10 @@ private:
   
   GDouble* m_pfDevAmps;
   GDouble* m_pfDevVVStar;
-  GDouble* m_pfDevNICalc;
+  double* m_pdDevNICalc;
   
-  GDouble* m_pfDevRes;
-  GDouble* m_pfDevREDUCE;
+  double* m_pdDevRes;
+  double* m_pdDevREDUCE;
   
   // CUDA Thread and Grid sizes
   unsigned int m_iDimGridX;

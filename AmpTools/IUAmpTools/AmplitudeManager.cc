@@ -658,12 +658,17 @@ SCOREP_USER_REGION_BEGIN( calcIntensities, "calcIntensities", SCOREP_USER_REGION
     for( j = 0; j <= i; j++ ){
       
       cTmp = productionFactor( i ) * conj( productionFactor( j ) );
-            
-      if( termsAreRenormalized() ){
-        
-        cTmp /= sqrt( normInt()->ampInt( ampNames[i], ampNames[i] ) *
-                      normInt()->ampInt( ampNames[j], ampNames[j] ) );
-      }
+
+      // This is a scaling of the intensity so that the "data term"
+      // in the ln likelihood grows like N instead of N*ln(N) -- this
+      // makes the scaling consistent with the norm int term, but
+      // shifts the likelihood at minimum.  This may be bothersome
+      // to users comparing across versions so leave an option for
+      // turning it off at compile time.
+
+#ifndef USE_LEGACY_LN_LIK_SCALING
+      cTmp /= a.m_iNEvents;
+#endif
       
       pdViVjRe[i*(i+1)/2+j] = cTmp.real();
       pdViVjIm[i*(i+1)/2+j] = cTmp.imag();
@@ -767,11 +772,17 @@ SCOREP_USER_REGION_BEGIN( calcSumLogIntensity, "calcSumLogIntensity", SCOREP_USE
   for( int i = 0; i < ampNames.size(); ++i ){
     
     gpuProdPars[i] = productionFactor( ampNames[i] );
-    
-    if( termsAreRenormalized() ){
-      
-      gpuProdPars[i] /= sqrt( normInt()->ampInt( ampNames[i], ampNames[i] ) );
-    }
+
+    // This is a scaling of the intensity so that the "data term"
+    // in the ln likelihood grows like N instead of N*ln(N) -- this
+    // makes the scaling consistent with the norm int term, but
+    // shifts the likelihood at minimum.  This may be bothersome
+    // to users comparing across versions so leave an option for
+    // turning it off at compile time.
+
+#ifndef USE_LEGACY_LN_LIK_SCALING
+    gpuProdPars[i] /= sqrt( a.m_iNEvents );
+#endif
   }
   
   // need to explicitly do amplitude calculation
@@ -803,7 +814,7 @@ SCOREP_USER_REGION_DEFINE( calcIntegralsB )
 SCOREP_USER_REGION_BEGIN( calcIntegralsA, "calcIntegralsA", SCOREP_USER_REGION_TYPE_COMMON )
 #endif
 
-  GDouble* integralMatrix = a.m_pdIntegralMatrix;
+  double* integralMatrix = a.m_pdIntegralMatrix;
   
   // amp -> amp* -> value
   assert( iNGenEvents );
@@ -839,7 +850,7 @@ SCOREP_USER_REGION_BEGIN( calcIntegralsA, "calcIntegralsA", SCOREP_USER_REGION_T
   vector<int> jIndex(maxNIElements);
   
   // this stores the real and imaginary parts of the term calculations
-  vector<GDouble> result(maxNIElements*2);
+  vector<double> result(maxNIElements*2);
   
   // now figure out which elements of the NI matrix need to be computed
   int i, j;
@@ -917,9 +928,9 @@ SCOREP_USER_REGION_BEGIN( calcIntegralsA, "calcIntegralsA", SCOREP_USER_REGION_T
     int j = jIndex[iTerm];
 	
     integralMatrix[2*i*iNAmps+2*j] = result[2*iTerm] /
-      static_cast< GDouble >( iNGenEvents );
+      static_cast< double >( iNGenEvents );
     integralMatrix[2*i*iNAmps+2*j+1] = result[2*iTerm+1] /
-      static_cast< GDouble >( iNGenEvents );
+      static_cast< double >( iNGenEvents );
     
     if( i != j ) {
       

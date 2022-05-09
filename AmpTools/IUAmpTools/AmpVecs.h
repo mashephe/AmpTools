@@ -148,7 +148,7 @@ struct AmpVecs
    * that is useful for calculating normalization integrals.
    */
   
-  GDouble* m_pdIntegralMatrix;
+  double* m_pdIntegralMatrix;
   
   /**
    * An array of length iNEvents that stores the intensity for each event.

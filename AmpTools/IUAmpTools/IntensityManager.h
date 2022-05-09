@@ -423,61 +423,6 @@ public:
    */
   void resetProductionFactors();
   
-  /**
-   * This will cause amplitude manager to renormalize amplitudes <b>in
-   * computations of the intensity only</b>.  Each amplitude will be
-   * multipled by a factor of \f$ 1 / \lang A_i(x) A_i^*(x) \rang \f$
-   * that comes from the normalization integral interface.
-   *
-   * This scaling is useful when fitting data as it results in a trivial
-   * relation between the fit parameters (production amplitudes) and
-   * the number of events associated with each amplitude.
-   *
-   * This feature should be used with caution when coupled with constraints
-   * on the production parameters.  If two amplitudes are constrained
-   * to have the same production coefficient and have the same
-   * scale, turning on renormalization will essentially for the two
-   * amplitudes to have the same number of events in the fit.
-   *
-   * The default behavior is to have renormalization turned off.
-   *
-   * Results of calcAmplitudes or calcIntegrals will remain unchanged.
-   * Note that this is necessary to avoid a circular dependency.
-   *
-   * (Temporarily disabled until NormIntInterface supports renormalization
-   * of amplitudes with free parameters.)
-   *
-   * \param[in] normInt the interface to provide normalization integrals
-   *
-   * \see disableRenormalization
-   * \see ampsAreRenormalized
-   */
-  //  void renormalizeTerms( const NormIntInterface* normInt );
-  
-  /**
-   * This function disables renormalization of amplitudes in the
-   * calculation of the intensity.
-   *
-   * (Temporarily disabled until NormIntInterface supports renormalization
-   * of amplitudes with free parameters.)
-   *
-   * \see renormalizeAmps
-   * \see ampsAreRenormalized
-   */
-  //  void disableRenormalization();
-  
-  /**
-   * This function checks to see whether amplitudes are renormalized
-   * in the intensity calculation.
-   *
-   * \see renormalizeTerms
-   * \see disableRenormalization
-   */
-  bool termsAreRenormalized() const { return m_renormalizeTerms; }
-  
-protected:
-  
-  const NormIntInterface* normInt() const { return m_normInt; }
   
 private:
   
@@ -497,13 +442,8 @@ private:
   
   // a map to hold a set of default production factors
   map< string, complex< double > > m_defaultProdFactor;
-   
-  // a flag to track if we are renormalizing the terms
-  bool m_renormalizeTerms;
-  const NormIntInterface* m_normInt;
   
   vector< AmpParameter > m_termScaleVec;
-    
 };
 
 

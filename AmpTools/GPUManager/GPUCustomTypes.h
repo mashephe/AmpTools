@@ -73,22 +73,35 @@ using namespace std;
 
 #define COPY_P4(a1,a2) GDouble a2[4]; for( int zzz = 0; zzz < 4; ++zzz ) a2[zzz] = a1[zzz];
 
+// The GDouble type is used for event-level objects like four-vectors,
+// weights, or individual event amplitudes.  The type is double by default
+// but can be set at compile time to be float to enhance perfomance and
+// reduce memory consumption at the risk of minimization instability for
+// large data sets.  (Any sums are maintained in double precision always.)
 
-// Use this flag to turn on double precision
-// (MPI portions of the code depend on this also)
-// 
-// NOTE: 64-bit floating point math is only
-// supported on hardware with 1.3 or higher
-// compute capability
-//
-// single precision should be used with caution;
-// some intensity calculations may be sensitive to
-// cancellation in terms which is difficult to 
-// achieve numerically with single precision
+#ifdef AMPTOOLS_GDOUBLE_FP32  // single precision
 
-#define USE_DOUBLE_PRECISION
+typedef float GDouble;
 
-#ifdef USE_DOUBLE_PRECISION  // double precision:
+//MACROS FOR DIFFERENT PRECISION OPERATIONS
+#define G_SIN(a)  sinf(a)
+#define G_ASIN(a) asinf(a)
+#define G_COS(a)  cosf(a)
+#define G_ACOS(a) acosf(a)
+
+#define G_ATAN2(a,b)  atan2f(a,b)
+#define G_ATAN(a) atanf(a)
+#define G_LOG(a)  logf(a)
+
+#define G_FABS(a)  fabsf(a)
+#define G_POW(a,b)  powf(a,b)
+#define G_EXP(a) expf(a)
+#define G_SQRT(a)  sqrtf(a)
+
+#define PI 3.141592653589793f
+#define D_EPS    1.e-10f
+
+#else  // default double precision:  AMPTOOLS_GDOUBLE_FP64
 
 typedef double GDouble;
 
@@ -110,29 +123,7 @@ typedef double GDouble;
 #define PI 3.141592653589793
 #define D_EPS		1.e-10
 
-#else // single precision:
-
-typedef float GDouble;
-
-//MACROS FOR DIFFERENT PRECISION OPERATIONS
-#define G_SIN(a)	sinf(a)
-#define G_ASIN(a) asinf(a)
-#define G_COS(a)  cosf(a)
-#define G_ACOS(a) acosf(a)
-
-#define G_ATAN2(a,b)	atan2f(a,b)
-#define G_ATAN(a) atanf(a)
-#define G_LOG(a)	logf(a)
-
-#define G_FABS(a)	fabsf(a)
-#define G_POW(a,b)	powf(a,b)
-#define G_EXP(a) expf(a)
-#define G_SQRT(a)	sqrtf(a)
-
-#define PI 3.141592653589793f
-#define D_EPS		1.e-10f
-
-#endif // USE_DOUBLE_PRECISION
+#endif // AMPTOOLS_GDOUBLE_FP32
 
 //Shortcut macros
 #define SQ(a) ((a)*(a)) 

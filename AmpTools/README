@@ -62,19 +62,7 @@ NOTE: if the free parameter is only a scale parameter
 *that is set by the "scale" command in the config file* then the error
 propagation will be handled correctly in the computation of the intensity.
 
-(3) Capability to renormalize amplitudes to unity is disabled.
-In general, this feature requires a modification of the NormIntInterface 
-to cache the generated MC throughout the fit, as it is needed to recalculate the
-acceptance-corrected amplitude integral to do the normalization.  
-This integral not constant if the amplitude contains free parameters, and
-therefore the generated MC is needed at every fit iteration.  
-(Currently the generated MC is flushed after initialization and 
-only the accepted MC is maintained to save memory.)  If amplitudes
-do not have free parameters, users can experiment with this feature by
-uncommenting the renormalizeAmps method in the AmplitudeManager.
-Do not use for fits with free parameters in amplitudes until a fix is made.
-
-(4) Support for moment/pdf fits: a future version will include the capability
+(3) Support for moment/pdf fits: a future version will include the capability
 to fit data to a sum of moments.  Currently the only supported scheme
 is fitting to multiple coherent sums of amplitudes.  It is possible to obtain
 some equivalent behavior of by fitting using a signle sum and single amplitude
