@@ -51,7 +51,7 @@ It is also recommended to check the validity of errors by studying distribution
 of fit results using ensembles of toy data.
 
 (2) While it is possible to fit for a parameter that is embedded inside of
-the calculation of the amplitude, there is no easy to to compute the
+the calculation of the amplitude, there is no easy way to compute the
 derivative of the intensity with respect to that parameter since the parameter
 may appear in any arbitrary form.  This means that propagation of the
 statistical error on the floating parameter to the uncertainty in the 
@@ -70,6 +70,33 @@ with parameters of interest emedded in the amplitude.  The amplitude returns
 the square root of the intensity computed from the parameters and the kinematics.
 
 RELEASE NOTES:
+
+v0.14.0 (9-May-2022):
+
+This release includes a number of underlying performance improvements that
+should largely be invisible to the user.  One key user visible change is that
+the calculation of -2 ln L has been adjusted by a constant offset of -2 ln N,
+where N is the number of observed signal events.  This has been done to keep
+the terms in the likelihood calculation of similar scale in hopes of reducing
+problems with numerical precision for large numbers of events.  (This scaling
+can be disabled by passing LEGACY_LN_LIK=1 as an argument to make.)  Also,
+the convergence criteria for MINUIT can be adjusted through the setTolerance
+method of the MinuitMinimizationManager.
+
+The user can now more easily switched between single and double precision
+floating point to store event-level amplitudes and kinematics.  Specifically,
+by default GDouble is a double type, but passing FP32=1 as an argument to
+make will define GDouble as float.  This reduces RAM consumption for large
+fits and can provide significant speed gains on GPUs, particularly those
+with NVIDIA compute capablity 7.5.  (User code may need some adjustment it
+is written in a way such that it is assumed GDouble is always double.)
+
+In some cases it is useful to use the same MC set in multiple reactions,
+this version will recognize the set has been reused and share it in memory
+rather than duplicating it.
+
+Profiling with Score-P is now supported.  There are a few other improvements
+to enhance speed, particularly for GPU accelerated fits.
 
 v0.13.1 (17-Feb-2022):
 
