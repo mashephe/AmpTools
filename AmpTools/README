@@ -71,6 +71,16 @@ the square root of the intensity computed from the parameters and the kinematics
 
 RELEASE NOTES:
 
+v0.14.1 (10-May-2022):
+
+This release turns off by deafult the new likelihood scaling.  That is,
+in the context of the notes below, it sets LEGACY_LN_LIK=1 by default.
+The scaling is functional, but as implemented results in different
+values for the likelihood at minimum for MPI vs. non-MPI jobs due to
+how the scale factors are computed.  While the fit results are fine,
+this variation is bothersome for production use and needs to be fixed
+prior to making this the default.
+
 v0.14.0 (9-May-2022):
 
 This release includes a number of underlying performance improvements that
