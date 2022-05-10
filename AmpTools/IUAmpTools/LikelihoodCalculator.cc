@@ -67,6 +67,7 @@ m_firstDataCalc( true ),
 m_firstNormIntCalc( true ),
 m_sumBkgWeights( 0 ),
 m_numBkgEvents( 0 ),
+m_sumDataWeights( 0 ),
 m_numDataEvents( 0 )
 {
   
@@ -222,7 +223,8 @@ SCOREP_USER_REGION_BEGIN( dataTerm, "dataTerm", SCOREP_USER_REGION_TYPE_COMMON )
     m_ampVecsSignal.allocateTerms( m_intenManager, true );
 
     m_numDataEvents = m_ampVecsSignal.m_iNTrueEvents;
-    
+    m_sumDataWeights = m_ampVecsSignal.m_dSumWeights;
+ 
     if( m_ampVecsSignal.m_hasNonUnityWeights && m_hasBackground ){
     
       cout

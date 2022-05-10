@@ -154,23 +154,31 @@ LikelihoodCalculatorMPI::operator()()
   double lnL = 0;
   double sumBkgWeights = 0;
   double numBkgEvents  = 0;
+  double sumDataWeights = 0;
   double numDataEvents = 0;
-  double data[4];
-  
+  double data[5]; 
+ 
   // collect the sums
   for( int i = 1; i < m_numProc; ++i ){
     
-    MPI_Recv( (double*)&data, 4, MPI_DOUBLE, i, MPITag::kDoubleSend,
+    MPI_Recv( (double*)&data, 5, MPI_DOUBLE, i, MPITag::kDoubleSend,
              MPI_COMM_WORLD, &status );
     
     lnL           += data[0];
     sumBkgWeights += data[1];
     numBkgEvents  += data[2];
-    numDataEvents += data[3];
+    sumDataWeights+= data[3];
+    numDataEvents += data[4];
   }
-  
+
+#ifndef USE_LEGACY_LN_LIK_SCALING
+  lnL -= sumDataWeights*log(numDataEvents);
+  if(numBkgEvents != 0) lnL += sumBkgWeights*log(numBkgEvents);
+#endif
+ 
   setSumBkgWeights( sumBkgWeights );
   setNumBkgEvents ( numBkgEvents  );
+  setSumDataWeights ( sumDataWeights );
   setNumDataEvents( numDataEvents );
 
   if( sumBkgWeights < 0 ){
@@ -246,7 +254,7 @@ LikelihoodCalculatorMPI::computeLikelihood()
 {
   assert( !m_isLeader );
   
-  double data[4];
+  double data[5];
   
   // true flag will suppress error checking on the
   // sum of background weights on each node -- this checking
@@ -254,9 +262,15 @@ LikelihoodCalculatorMPI::computeLikelihood()
   data[0] = dataTerm( true );
   data[1] = sumBkgWeights();
   data[2] = numBkgEvents();
-  data[3] = numDataEvents();
-  
-  MPI_Send( (double*)&data, 4, MPI_DOUBLE, 0, MPITag::kDoubleSend, MPI_COMM_WORLD );
+  data[3] = sumDataWeights();
+  data[4] = numDataEvents();
+
+#ifndef USE_LEGACY_LN_LIK_SCALING 
+  data[0] += data[3]*log(data[4]);
+  if(data[2] != 0) data[0] -= data[1]*log(data[2]);
+#endif 
+
+  MPI_Send( (double*)&data, 5, MPI_DOUBLE, 0, MPITag::kDoubleSend, MPI_COMM_WORLD );
 }
 
 void
