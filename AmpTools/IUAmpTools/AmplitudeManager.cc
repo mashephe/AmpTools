@@ -781,7 +781,7 @@ SCOREP_USER_REGION_BEGIN( calcSumLogIntensity, "calcSumLogIntensity", SCOREP_USE
     // turning it off at compile time.
 
 #ifndef USE_LEGACY_LN_LIK_SCALING
-    gpuProdPars[i] /= sqrt( a.m_iNEvents );
+    gpuProdPars[i] /= sqrt( a.m_iNTrueEvents );
 #endif
   }
   
