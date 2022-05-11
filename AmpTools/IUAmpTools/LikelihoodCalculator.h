@@ -99,10 +99,12 @@ protected:
   
   double sumBkgWeights()  const { return m_sumBkgWeights; }
   double numBkgEvents()   const { return m_numBkgEvents;  }
+  double sumDataWeights() const { return m_sumDataWeights;}
   double numDataEvents()  const { return m_numDataEvents; }
   
   void setSumBkgWeights(  double sum ) { m_sumBkgWeights  = sum; }
   void setNumBkgEvents (  double num ) { m_numBkgEvents   = num; }
+  void setSumDataWeights(  double sum ) { m_sumDataWeights = sum; }
   void setNumDataEvents(  double num ) { m_numDataEvents  = num; }
   
 private:
@@ -128,6 +130,7 @@ private:
   
   double m_sumBkgWeights;
   double m_numBkgEvents;
+  double m_sumDataWeights;
   double m_numDataEvents;
 };
 
