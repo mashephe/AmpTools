@@ -29,9 +29,9 @@ endif
 # but the likelihoods are not easy to compare on MPI vs. non-MPI
 # implementations.
 
-# ifdef LEGACY_LN_LIK
+ifdef LEGACY_LN_LIK
 CXX_DEFINES += -DUSE_LEGACY_LN_LIK_SCALING
-# endif
+endif
 
 CXX_FLAGS += $(CXX_DEFINES)
 #########  END USER BUILD SETTINGS

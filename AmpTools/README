@@ -71,6 +71,12 @@ the square root of the intensity computed from the parameters and the kinematics
 
 RELEASE NOTES:
 
+v0.14.2 (13-May-2022):
+
+This re-enables new likelihood scaling.  Consistent likelihood results
+now are report for MPI and non-MPI jobs.  No other functionality
+changes have been made.
+
 v0.14.1 (10-May-2022):
 
 This release turns off by deafult the new likelihood scaling.  That is,
