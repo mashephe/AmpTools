@@ -864,7 +864,12 @@ SCOREP_USER_REGION_BEGIN( calcIntegralsA, "calcIntegralsA", SCOREP_USER_REGION_T
         
         integralMatrix[2*i*iNAmps+2*j] = 0;
         integralMatrix[2*i*iNAmps+2*j+1] = 0;
-        
+
+	// must also set the complex conjugate to zero because complex
+	// conjugation is only done for terms that are actually computed
+	integralMatrix[2*j*iNAmps+2*i] = 0;
+	integralMatrix[2*j*iNAmps+2*i+1] = 0;
+	
         continue;
       }
         
