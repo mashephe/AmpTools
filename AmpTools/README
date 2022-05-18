@@ -71,6 +71,13 @@ the square root of the intensity computed from the parameters and the kinematics
 
 RELEASE NOTES:
 
+v0.14.3 (18-May-2022):
+
+This release contains a bug fix that leads to bogus results when computing
+the intensity using the FitResults class.  Fits may appear to work fine, but
+due to a read of unitialized memory in the normalization integral matrix
+one can obtain unphysical and nan results for intensity computations.
+
 v0.14.2 (13-May-2022):
 
 This re-enables new likelihood scaling.  Consistent likelihood results
