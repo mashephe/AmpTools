@@ -313,7 +313,7 @@ Histogram* PlotGenerator::projection( unsigned int projectionIndex, string react
       double scaleFactor = 1.;
 #else
       int dataIndex = m_reactIndex[reactName] * kNumTypes + type;
-      double scaleFactor = m_ati.sumWeights( dataIndex );
+      double scaleFactor = m_ati.numEvents( dataIndex );
 #endif
       
       vector< Histogram* >* histVect = &((*cachePtr)[config][reactName]);
