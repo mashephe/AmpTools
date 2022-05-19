@@ -309,12 +309,19 @@ Histogram* PlotGenerator::projection( unsigned int projectionIndex, string react
     // generated events for that reaction
     if( ( ( type == kAccMC ) || ( type == kGenMC ) ) && m_weightMCByIntensity  ){
       
+#ifdef USE_LEGACY_LN_LIK_SCALING
+      double scaleFactor = 1.;
+#else
+      int dataIndex = m_reactIndex[reactName] * kNumTypes + type;
+      double scaleFactor = m_ati.sumWeights( dataIndex );
+#endif
+      
       vector< Histogram* >* histVect = &((*cachePtr)[config][reactName]);
       for( vector< Histogram* >::iterator hist = histVect->begin();
           hist != histVect->end();
           ++hist ){
                   
-        (*hist)->rescale( 1. / m_normIntMap[reactName]->numGenEvents() );
+        (*hist)->rescale( scaleFactor / m_normIntMap[reactName]->numGenEvents() );
       }
     }
   }
