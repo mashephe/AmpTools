@@ -71,6 +71,13 @@ the square root of the intensity computed from the parameters and the kinematics
 
 RELEASE NOTES:
 
+v0.14.4 (19-May-2022):
+
+This is another bug fix that corrects scaling of MC histograms in the
+PlotGenerator, which was affected by rescaling of the likelihood that was
+introduced in v0.14
+
+
 v0.14.3 (18-May-2022):
 
 This release contains a bug fix that leads to bogus results when computing
