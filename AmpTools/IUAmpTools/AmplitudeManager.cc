@@ -667,7 +667,7 @@ SCOREP_USER_REGION_BEGIN( calcIntensities, "calcIntensities", SCOREP_USER_REGION
       // turning it off at compile time.
 
 #ifndef USE_LEGACY_LN_LIK_SCALING
-      cTmp /= a.m_iNEvents;
+      cTmp /= a.m_iNTrueEvents;
 #endif
       
       pdViVjRe[i*(i+1)/2+j] = cTmp.real();
