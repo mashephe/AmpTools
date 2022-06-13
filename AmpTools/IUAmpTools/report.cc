@@ -38,25 +38,20 @@
 #include "GPUManager/GPUCustomTypes.h"
 
 #include <iostream>
+#include <fstream>
 #include <cstdlib>
 #include <iomanip>
+#include <string.h>
 
 #ifdef USE_MPI
 #include <mpi.h>
 #endif
 
-class NullBuffer : public std::streambuf
-{
-public:
-  int overflow(int c) { return c; }
-};
-
 using namespace std;
 
-static const char* kModule = "IUAmpTools.report";
+static const char* kModule = "report";
 
-static NullBuffer nullBuffer;
-static ostream nullStream = ostream( &nullBuffer );
+static ofstream nullStream;
 static bool initReportSplash = false;
 static ReportLevel currentLevel = INFO;
 
@@ -106,6 +101,8 @@ ostream& report( ReportLevel level,
 }
 
 void initReport(){
+
+  nullStream.open( "/dev/null", ios::out );
   
   if( const char* envLevel = getenv( "AMPTOOLS_REPORT_LEVEL" ) ){
     
