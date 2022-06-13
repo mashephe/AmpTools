@@ -49,6 +49,9 @@
 #include "IUAmpTools/Kinematics.h"
 #include "IUAmpTools/DataReader.h"
 
+#include "IUAmpTools/report.h"
+static const char* kModule = "NormIntInterface";
+
 NormIntInterface::NormIntInterface() :
 m_pIntenManager( NULL ),
 m_accMCReader( NULL ),
@@ -65,14 +68,13 @@ m_emptyNormIntCache( true ),
 m_emptyAmpIntCache( true )
 {
   
-  cout << "Reading cached normalization integral calculation from: "
+  report( INFO, kModule ) << "Reading cached normalization integral calculation from: "
        << normIntFile << endl;
   
   ifstream inFile( normIntFile.c_str() );
   
   if( !inFile ){
-    cout << "NormIntInterface WARNING:  Could not find file "
-    << normIntFile << endl;
+    report( ERROR, kModule ) << "Could not find file " << normIntFile << endl;
     assert( false );
   }
   
@@ -97,15 +99,14 @@ m_termNames( intenManager.getTermNames() )
   auto genVecs = m_uniqueDataSets.find( m_genMCReader );
   if( genVecs == m_uniqueDataSets.end() ){
   
-    cout << "Loading generated Monte Carlo from file..." << endl;
+    report( INFO, kModule ) << "Loading generated Monte Carlo from file..." << endl;
     m_genMCVecs.loadData( m_genMCReader );
-    cout << "\tDone.\n" << flush;
     
     m_uniqueDataSets[m_genMCReader] = &m_genMCVecs;
   }
   else{
     
-    cout << "NOTICE:  Duplicated Monte Carlo set detected, "
+    report( NOTICE, kModule ) << "Duplicated Monte Carlo set detected, "
          << "using previously loaded version" << endl;
     
     genVecs->second->shareDataWith( &m_genMCVecs );
@@ -115,15 +116,14 @@ m_termNames( intenManager.getTermNames() )
   auto accVecs = m_uniqueDataSets.find( m_accMCReader );
   if( accVecs == m_uniqueDataSets.end() ){
   
-    cout << "Loading accepted Monte Carlo from file..." << endl;
+    report( INFO, kModule ) << "Loading accepted Monte Carlo from file..." << endl;
     m_accMCVecs.loadData( m_accMCReader );
-    cout << "\tDone.\n" << flush;
     
     m_uniqueDataSets[m_accMCReader] = &m_accMCVecs;
   }
   else{
     
-    cout << "NOTICE:  Duplicated Monte Carlo set detected, "
+    report( NOTICE, kModule ) << "Duplicated Monte Carlo set detected, "
          << "using previously loaded version" << endl;
     
     accVecs->second->shareDataWith( &m_accMCVecs );
@@ -280,7 +280,7 @@ NormIntInterface::normInt( string amp, string conjAmp, bool forceUseCache ) cons
   
   if( !hasNormInt( amp, conjAmp ) ){
     
-    cout << "ERROR: normalization integral does not exist for "
+    report( ERROR, kModule ) << "ERROR: normalization integral does not exist for "
     << amp << ", " << conjAmp << "*" << endl;
     assert( false );
   }
@@ -293,10 +293,10 @@ NormIntInterface::normInt( string amp, string conjAmp, bool forceUseCache ) cons
   if( !hasAccessToMC() && ( m_pIntenManager != NULL ) &&
        m_pIntenManager->hasTermWithFreeParam() ){
     
-    cout << "ERROR: the AmplitudeManager has amplitudes that contain free\n"
-    << "       parameters, but no MC has been provided to recalculate\n"
-    << "       the normalization integrals.  Check that config file\n"
-    << "       lists appropriate data and MC sources." << endl;
+    report( ERROR, kModule ) << "The AmplitudeManager has amplitudes that contain free\n"
+    << "\tparameters, but no MC has been provided to recalculate\n"
+    << "\tthe normalization integrals.  Check that config file\n"
+    << "\tlists appropriate data and MC sources." << endl;
     
     assert( false );
   }
@@ -336,17 +336,17 @@ NormIntInterface::ampInt( string amp, string conjAmp, bool forceUseCache ) const
   if( !forceUseCache && ( m_pIntenManager != NULL ) &&
        m_pIntenManager->hasTermWithFreeParam() ){
     
-    cout << "WARNING:  request of for numerical integral of amplitude\n"
-    << "    that has floating parameters using *generated* MC.\n"
-    << "    (This is not typically used in a fit -- check for bugs!)\n" 
-    << "    Providing original cached value which may be incorrect if\n"
-    << "    the parameter has changed since initialization."
+    report( WARNING, kModule ) << "Request of for numerical integral of amplitude\n"
+    << "\tthat has floating parameters using *generated* MC.\n"
+    << "\t(This is not typically used in a fit -- check for bugs!)\n"
+    << "\tProviding original cached value which may be incorrect if\n"
+    << "\tthe parameter has changed since initialization."
     << endl;
   }
   
   if( !hasAmpInt( amp, conjAmp ) ){
     
-    cout << "ERROR: amplitude integral does not exist for "
+    report( ERROR, kModule ) << "amplitude integral does not exist for "
     << amp << ", " << conjAmp << "*" << endl;
     assert( false );
   }
@@ -416,7 +416,7 @@ NormIntInterface::forceCacheUpdate( bool normIntOnly ) const
   if( ( m_accMCReader == m_genMCReader ) && !m_emptyAmpIntCache ) {
     
     // optimization for perfect acceptance  
-    cout << "NOTICE:  perfect acceptance -- generated and accepted are the same" << endl;
+    report( NOTICE, kModule ) << "Perfect acceptance -- generated and accepted are the same" << endl;
     
     setNormIntMatrix( m_ampIntCache );
   }

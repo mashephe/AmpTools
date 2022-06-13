@@ -48,6 +48,9 @@
 #include "AmpPlotter/PlotFactory.h"
 #include "AmpPlotter/PlotComponentManager.h"
 
+#include "IUAmpTools/report.h"
+static const char* kModule = "PlotterMainWindow";
+
 using namespace std;
 
 PlotterMainWindow::PlotterMainWindow( const TGWindow* win, 
@@ -382,7 +385,7 @@ PlotterMainWindow::ProcessMessage( long mes, long p1, long p2 )
               
             default:
 							
-              cout << "Unkown button click!" << endl;
+              report( ERROR, kModule ) << "Unkown button click!" << endl;
               break;
           } // end of check buttons
           break;
@@ -414,7 +417,7 @@ PlotterMainWindow::ProcessMessage( long mes, long p1, long p2 )
               
             default:
               
-              cout << "Unkown listbox!" << endl;
+              report( ERROR, kModule ) << "Unkown listbox!" << endl;
               break;
           } // end of listboxes
           break;

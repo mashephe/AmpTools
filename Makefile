@@ -15,9 +15,9 @@ AMPPLOTTER := $(AMPTOOLS_HOME)/AmpPlotter
 
 export
 
-.PHONY: default, all, mpi, gpu, mpigpu, gpumpi, clean
+.PHONY: default, all, mpi, gpu, mpigpu, gpumpi, clean, force
 
-default:
+default: compiler_flags
 	@echo "=== Building AmpTools ==="
 	@$(MAKE) -C AmpTools
 	@echo "=== Building AmpPlotter ==="
@@ -25,13 +25,13 @@ default:
 	@echo "=== Building Dalitz tutorial ==="
 	@$(MAKE) -C Tutorials/Dalitz
 
-mpi:  default
+mpi: compiler_flags default
 	@echo "=== Building AmpTools with MPI ==="
 	@$(MAKE) -C AmpTools MPI=1
 	@echo "=== Building Dalitz tutorial with MPI ==="
 	@$(MAKE) -C Tutorials/Dalitz MPI=1
 
-gpu:
+gpu: compiler_flags
 	@echo "=== Building AmpTools with GPU acceleration ==="
 	@$(MAKE) -C AmpTools GPU=1
 	@echo "=== Building AmpPlotter ==="
@@ -39,7 +39,7 @@ gpu:
 	@echo "=== Building Dalitz tutorial with GPU acceleration ==="
 	@$(MAKE) -C Tutorials/Dalitz GPU=1
 
-mpigpu: gpu
+mpigpu: compiler_flags gpu
 	@echo "=== Building AmpTools with MPI and GPU acceleration ==="
 	@$(MAKE) -C AmpTools GPU=1 MPI=1
 	@echo "=== Building AmpPlotter ==="
@@ -48,6 +48,9 @@ mpigpu: gpu
 	@$(MAKE) -C Tutorials/Dalitz MPI=1 GPU=1
 
 gpumpi: mpigpu
+
+compiler_flags: force
+	@echo '$(CXX_FLAGS)' | cmp -s - $@ || echo '$(CXX_FLAGS)' > $@
 
 clean:
 	@$(MAKE) -C AmpTools clean

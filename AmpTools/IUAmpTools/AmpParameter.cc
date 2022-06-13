@@ -40,6 +40,9 @@
 #include <stdlib.h>
 
 #include "IUAmpTools/AmpParameter.h"
+#include "IUAmpTools/report.h"
+
+static const char* kModule = "AmpParameter";
 
 AmpParameter::AmpParameter( const string& arg ) :
 m_valPtr( &m_defaultValue ),
@@ -54,7 +57,7 @@ m_hasExternalPtr( false )
         
         if( strncmp( &(arg[length-1]), "]", 1 ) != 0 ){
             
-            cerr << "ERROR in AmpParameter argument: " << arg << endl;
+            report( ERROR, kModule ) << "ERROR in AmpParameter argument: " << arg << endl;
             assert( false );
         }
         

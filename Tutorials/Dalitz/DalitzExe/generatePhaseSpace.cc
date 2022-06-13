@@ -9,6 +9,9 @@
 #include "IUAmpTools/Kinematics.h"
 #include "DalitzDataIO/DalitzDataWriter.h"
 
+#include "IUAmpTools/report.h"
+static const char* kModule = "generatePhaseSpace";
+
 using namespace std;
 
 int main(int argc, char** argv){
@@ -18,13 +21,14 @@ int main(int argc, char** argv){
     // usage
     // ************************
 
-  cout << endl << " *** Generate Phase Space *** " << endl << endl;
 
   if (argc <= 2){
-    cout << "Usage:" << endl << endl;
-    cout << "\tgeneratePhaseSpace <output file name> <number of events>" << endl << endl;
+    report( NOTICE, kModule ) << "Usage:" << endl << endl;
+    report( NOTICE, kModule ) << "\tgeneratePhaseSpace <output file name> <number of events>" << endl << endl;
     return 0;
   }
+
+  cout << endl << " *** Generate Phase Space *** " << endl << endl;
 
 
     // ************************
@@ -34,19 +38,19 @@ int main(int argc, char** argv){
   string filename(argv[1]);
   int nevents(atoi(argv[2]));
 
-  cout << "Output file name = " << filename << endl;
-  cout << "Number of events = " << nevents << endl << endl;
+  report( INFO, kModule ) << "Output file name = " << filename << endl;
+  report( INFO, kModule ) << "Number of events = " << nevents << endl << endl;
 
 
     // ************************
     // set up a DalitzDataWriter object
     // ************************
 
-  cout << "Creating a Data Writer..." << endl;
+  report( DEBUG, kModule ) << "Creating a Data Writer..." << endl;
 
   DalitzDataWriter dataWriter(filename);
 
-  cout << "... Finished creating a Data Writer" << endl << endl;
+  report( DEBUG, kModule ) << "... Finished creating a Data Writer" << endl << endl;
 
 
     // ************************
@@ -89,7 +93,7 @@ int main(int argc, char** argv){
     dataWriter.writeEvent(kin);
 
     if (dataWriter.eventCounter() % 1000 == 0)
-      cout << "Event counter = " << dataWriter.eventCounter() << endl;
+      report( INFO, kModule ) << "Event counter = " << dataWriter.eventCounter() << endl;
 
   }
 

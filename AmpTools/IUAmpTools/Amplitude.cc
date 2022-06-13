@@ -44,6 +44,10 @@
 #include "IUAmpTools/AmpParameter.h"
 #include "IUAmpTools/Kinematics.h"
 
+#include "IUAmpTools/report.h"
+
+static const char* kModule = "Amplitude";
+
 #ifdef SCOREP
 #include <scorep/SCOREP_User.h>
 #endif
@@ -77,7 +81,7 @@ SCOREP_USER_REGION_DEFINE( calcUserVarsAll )
 
 
   
-//  cout << "Caculating user data for " << name() << endl;
+  report( DEBUG, kModule ) << "Caculating user data for " << name() << endl;
   
   unsigned int numVars = numUserVars();
   
@@ -210,7 +214,7 @@ Amplitude::calcAmplitude( const Kinematics* pKin, GDouble* userVars ) const {
 complex< GDouble >
 Amplitude::calcAmplitude( GDouble** pKin, GDouble* userVars ) const {
   
-  cout
+  report( ERROR, kModule )
   << "***********************************************************\n"
   << "ERROR in the construction of the class that defines\n"
   << "the Amplitude named " << name() << ".\n"

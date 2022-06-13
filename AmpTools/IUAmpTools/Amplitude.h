@@ -441,7 +441,7 @@ public:
    */
   virtual void launchGPUKernel( dim3 dimGrid, dim3 dimBlock, GPU_AMP_PROTO ) const {
     
-    cout << "\nNo GPU function for calculating " << name() << " is defined." << endl;
+    report( ERROR, kModule ) << "\nNo GPU function for calculating " << name() << " is defined." << endl;
     assert( false );
   }
   

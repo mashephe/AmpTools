@@ -44,6 +44,9 @@
 
 #include "IUAmpTools/ConfigurationInfo.h"
 
+#include "IUAmpTools/report.h"
+static const char* kModule = "ConfigurationInfo";
+
 
 ConfigurationInfo::~ConfigurationInfo(){
   removeParameter();
@@ -336,8 +339,8 @@ ConfigurationInfo::createCoherentSum  (const string& reactionName,
   if (sum == NULL){
     ReactionInfo* rctn = reaction(reactionName);
     if (rctn == NULL){
-      cout << "ConfigurationInfo:  Trying to create coherentSum for unknown reaction" << endl;
-      cout << "\tcreateCoherentSum(" << reactionName << "," << sumName << ")" << endl;
+      report( ERROR, kModule ) << "Trying to create coherentSum for unknown reaction" << endl;
+      report( ERROR, kModule ) << "\tcreateCoherentSum(" << reactionName << "," << sumName << ")" << endl;
       exit(0);
     }
     sum = new CoherentSumInfo(reactionName,sumName);
@@ -356,22 +359,22 @@ ConfigurationInfo::createAmplitude  (const string& reactionName,
                                      const string& sumName, 
                                      const string& ampName){
   if (pdfList(reactionName).size() != 0){
-    cout << "ConfigurationInfo:  problem with reaction named " << reactionName << ":" << endl;
-    cout << "   mixing amplitudes and pdfs is not currently supported" << endl;
+    report( ERROR, kModule ) << "problem with reaction named " << reactionName << ":" << endl;
+    report( ERROR, kModule ) << "  mixing amplitudes and pdfs is not currently supported" << endl;
     exit(0);
   }
   AmplitudeInfo* amp = amplitude(reactionName,sumName,ampName);
   if (amp == NULL){
     ReactionInfo* rctn = reaction(reactionName);
     if (rctn == NULL){
-      cout << "ConfigurationInfo:  Trying to create amplitude for unknown reaction" << endl;
-      cout << "\tcreateAmplitude(" << reactionName << "," << sumName << "," << ampName << ")" << endl;
+      report( ERROR, kModule ) << "Trying to create amplitude for unknown reaction" << endl;
+      report( ERROR, kModule ) << "\tcreateAmplitude(" << reactionName << "," << sumName << "," << ampName << ")" << endl;
       exit(0);
     }
     CoherentSumInfo* sum = coherentSum(reactionName,sumName);
     if (sum == NULL){
-      cout << "ConfigurationInfo:  Trying to create amplitude for unknown coherent sum" << endl;
-      cout << "\tcreateAmplitude(" << reactionName << "," << sumName << "," << ampName << ")" << endl;
+      report( ERROR, kModule ) << "Trying to create amplitude for unknown coherent sum" << endl;
+      report( ERROR, kModule ) << "\tcreateAmplitude(" << reactionName << "," << sumName << "," << ampName << ")" << endl;
       exit(0);
     }
     amp = new AmplitudeInfo(reactionName,sumName,ampName);
@@ -388,16 +391,16 @@ PDFInfo*
 ConfigurationInfo::createPDF  (const string& reactionName, 
                                const string& pdfName){
   if (amplitudeList(reactionName).size() != 0){
-    cout << "ConfigurationInfo:  problem with reaction named " << reactionName << ":" << endl;
-    cout << "   mixing amplitudes and pdfs is not currently supported" << endl;
+    report( ERROR, kModule ) << "problem with reaction named " << reactionName << ":" << endl;
+    report( ERROR, kModule ) << "  mixing amplitudes and pdfs is not currently supported" << endl;
     exit(0);
   }
   PDFInfo* addpdf = pdf(reactionName,pdfName);
   if (addpdf == NULL){
     ReactionInfo* rctn = reaction(reactionName);
     if (rctn == NULL){
-      cout << "ConfigurationInfo:  Trying to create pdf for unknown reaction" << endl;
-      cout << "\tcreatePDF(" << reactionName << "," << pdfName << ")" << endl;
+      report( ERROR, kModule ) << "Trying to create pdf for unknown reaction" << endl;
+      report( ERROR, kModule ) << "\tcreatePDF(" << reactionName << "," << pdfName << ")" << endl;
       exit(0);
     }
     addpdf = new PDFInfo(reactionName,pdfName);
@@ -833,9 +836,8 @@ ConfigurationInfo::display(string fileName, bool append){
     cout.rdbuf(outfile.rdbuf());
   }
 
-  cout << endl;
-  cout << "## CONFIGURATION INFO DISPLAY ##" << endl;
-  cout << endl;
+  report( INFO, kModule ) << "## CONFIGURATION INFO DISPLAY ##" << endl;
+  report( INFO, kModule ) << endl;
 
   if (fileName != ""){
     outfile.close();
@@ -879,36 +881,36 @@ ReactionInfo::display(string fileName, bool append){
     cout.rdbuf(outfile.rdbuf());
   }
 
-  cout << "############################################" << endl;
-  cout << "#############   REACTION INFO  #############" << endl;
-  cout << "############################################" << endl;
-  cout << "      REACTION NAME:  " << m_reactionName << endl;
-  cout << "      PARTICLE LIST:  " << m_particleList.size() << endl;
+  report( INFO, kModule ) << "############################################" << endl;
+  report( INFO, kModule ) << "#############   REACTION INFO  #############" << endl;
+  report( INFO, kModule ) << "############################################" << endl;
+  report( INFO, kModule ) << "      REACTION NAME:  " << m_reactionName << endl;
+  report( INFO, kModule ) << "      PARTICLE LIST:  " << m_particleList.size() << endl;
   for (unsigned int i = 0; i < m_particleList.size(); i++){
-    cout << "\t\t" << i+1 << ".  " << m_particleList[i] << endl;
+    report( INFO, kModule ) << "\t\t" << i+1 << ".  " << m_particleList[i] << endl;
   }
-  cout << "        DATA READER:  " << m_data.first << endl;
+  report( INFO, kModule ) << "        DATA READER:  " << m_data.first << endl;
   for (unsigned int i = 0; i < m_data.second.size(); i++){
-    cout << "\t\t\t\t" << m_data.second[i] << endl;
+    report( INFO, kModule ) << "\t\t\t\t" << m_data.second[i] << endl;
   }
   if( m_bkgnd.first != "" ){
-    cout << "        BACKGROUND READER:  " << m_bkgnd.first << endl;
+    report( INFO, kModule ) << "        BACKGROUND READER:  " << m_bkgnd.first << endl;
     for (unsigned int i = 0; i < m_bkgnd.second.size(); i++){
-      cout << "\t\t\t\t" << m_bkgnd.second[i] << endl;
+      report( INFO, kModule ) << "\t\t\t\t" << m_bkgnd.second[i] << endl;
     }
   }
-  cout << "      ACC MC READER:  " << m_accMC.first << endl;
+  report( INFO, kModule ) << "      ACC MC READER:  " << m_accMC.first << endl;
   for (unsigned int i = 0; i < m_accMC.second.size(); i++){
-    cout << "\t\t\t\t" << m_accMC.second[i] << endl;
+    report( INFO, kModule ) << "\t\t\t\t" << m_accMC.second[i] << endl;
   }
-  cout << "      GEN MC READER:  " << m_genMC.first << endl;
+  report( INFO, kModule ) << "      GEN MC READER:  " << m_genMC.first << endl;
   for (unsigned int i = 0; i < m_genMC.second.size(); i++){
-    cout << "\t\t\t\t" << m_genMC.second[i] << endl;
+    report( INFO, kModule ) << "\t\t\t\t" << m_genMC.second[i] << endl;
   }
-  cout << "  NORMALIZATION INTEGRAL FILE: " << endl;
-  if (m_normIntFile != "")  cout << "\t\t    " << m_normIntFile << endl;
-  if (m_normIntFileInput)   cout << "\t\t       (use as input)" << endl;
-  cout << "      GPU DEVICE NUMBER:  " << m_gpuDeviceNumber << endl;
+  report( INFO, kModule ) << "  NORMALIZATION INTEGRAL FILE: " << endl;
+  if (m_normIntFile != "")  report( INFO, kModule ) << "\t\t    " << m_normIntFile << endl;
+  if (m_normIntFileInput)   report( INFO, kModule ) << "\t\t       (use as input)" << endl;
+  report( INFO, kModule ) << "      GPU DEVICE NUMBER:  " << m_gpuDeviceNumber << endl;
 
   if (fileName != ""){
     outfile.close();
@@ -933,11 +935,11 @@ CoherentSumInfo::display(string fileName, bool append){
     cout.rdbuf(outfile.rdbuf());
   }
 
-  cout << "********************************************" << endl;
-  cout << "***********  COHERENT SUM INFO  ************" << endl;
-  cout << "********************************************" << endl;
-  cout << "      REACTION NAME:  " << m_reactionName << endl;
-  cout << "  COHERENT SUM NAME:  " << m_sumName << endl;
+  report( INFO, kModule ) << "********************************************" << endl;
+  report( INFO, kModule ) << "***********  COHERENT SUM INFO  ************" << endl;
+  report( INFO, kModule ) << "********************************************" << endl;
+  report( INFO, kModule ) << "      REACTION NAME:  " << m_reactionName << endl;
+  report( INFO, kModule ) << "  COHERENT SUM NAME:  " << m_sumName << endl;
 
   if (fileName != ""){
     outfile.close();
@@ -1110,42 +1112,42 @@ AmplitudeInfo::display(string fileName, bool append){
   vector< TermInfo* >      n_constraints = constraints();
   vector< ParameterInfo* > n_parameters = parameters();
 
-  cout << "++++++++++++++++++++++++++++++++++++++++++++" << endl;
-  cout << "+++++++++++++  AMPLITUDE INFO  +++++++++++++" << endl;
-  cout << "++++++++++++++++++++++++++++++++++++++++++++" << endl;
-  cout << "      REACTION NAME:  " << m_reactionName << endl;
-  cout << "  COHERENT SUM NAME:  " << m_sumName << endl;
-  cout << "     AMPLITUDE NAME:  " << m_ampName << endl;
-  cout << "            FACTORS:  " << n_factors.size() << endl;
+  report( INFO, kModule ) << "++++++++++++++++++++++++++++++++++++++++++++" << endl;
+  report( INFO, kModule ) << "+++++++++++++  AMPLITUDE INFO  +++++++++++++" << endl;
+  report( INFO, kModule ) << "++++++++++++++++++++++++++++++++++++++++++++" << endl;
+  report( INFO, kModule ) << "      REACTION NAME:  " << m_reactionName << endl;
+  report( INFO, kModule ) << "  COHERENT SUM NAME:  " << m_sumName << endl;
+  report( INFO, kModule ) << "     AMPLITUDE NAME:  " << m_ampName << endl;
+  report( INFO, kModule ) << "            FACTORS:  " << n_factors.size() << endl;
   for (unsigned int i = 0; i < n_factors.size(); i++){
     vector<string> factor = n_factors[i];
-    cout << "\t\t" << i+1 << ".  ";
+    report( INFO, kModule ) << "\t\t" << i+1 << ".  ";
     for (unsigned int j = 0; j < factor.size(); j++){
-      cout << " " << factor[j];
+      report( INFO, kModule ) << " " << factor[j];
     }
-    cout << endl;
+    report( INFO, kModule ) << endl;
   }
-  cout << " EXTRA PERMUTATIONS:  " << m_permutations.size() << endl;
+  report( INFO, kModule ) << " EXTRA PERMUTATIONS:  " << m_permutations.size() << endl;
   for (unsigned int i = 0; i < m_permutations.size(); i++){
     vector<int> permutation = m_permutations[i];
-    cout << "\t\t" << i+1 << ".  ";
+    report( INFO, kModule ) << "\t\t" << i+1 << ".  ";
     for (unsigned int j = 0; j < permutation.size(); j++){
-      cout << " " << permutation[j];
+      report( INFO, kModule ) << " " << permutation[j];
     }
-    cout << endl;
+    report( INFO, kModule ) << endl;
   }
-  cout << "        CONSTRAINTS:  " << n_constraints.size() << endl;
+  report( INFO, kModule ) << "        CONSTRAINTS:  " << n_constraints.size() << endl;
   for (unsigned int i = 0; i < n_constraints.size(); i++){
-    cout << "\t\t" << i+1 << ".  " << n_constraints[i]->fullName() << endl;
+    report( INFO, kModule ) << "\t\t" << i+1 << ".  " << n_constraints[i]->fullName() << endl;
   }
-  cout << "         PARAMETERS:  " << n_parameters.size() << endl;
+  report( INFO, kModule ) << "         PARAMETERS:  " << n_parameters.size() << endl;
   for (unsigned int i = 0; i < n_parameters.size(); i++){
-    cout << "\t\t" << i+1 << ".  " << n_parameters[i]->parName() << endl;
+    report( INFO, kModule ) << "\t\t" << i+1 << ".  " << n_parameters[i]->parName() << endl;
   }
-  cout << "      INITIAL VALUE:  " << m_value << endl;
-  cout << "               REAL?  " << m_real << endl;
-  cout << "              FIXED?  " << m_fixed << endl;
-  cout << "              SCALE:  " << m_scale << endl;
+  report( INFO, kModule ) << "      INITIAL VALUE:  " << m_value << endl;
+  report( INFO, kModule ) << "               REAL?  " << m_real << endl;
+  report( INFO, kModule ) << "              FIXED?  " << m_fixed << endl;
+  report( INFO, kModule ) << "              SCALE:  " << m_scale << endl;
 
   if (fileName != ""){
     outfile.close();
@@ -1175,31 +1177,31 @@ PDFInfo::display(string fileName, bool append){
   vector< TermInfo* >      n_constraints = constraints();
   vector< ParameterInfo* > n_parameters = parameters();
 
-  cout << "++++++++++++++++++++++++++++++++++++++" << endl;
-  cout << "+++++++++++++  PDF INFO  +++++++++++++" << endl;
-  cout << "++++++++++++++++++++++++++++++++++++++" << endl;
-  cout << "      REACTION NAME:  " << m_reactionName << endl;
-  cout << "           PDF NAME:  " << m_pdfName << endl;
-  cout << "            FACTORS:  " << n_factors.size() << endl;
+  report( INFO, kModule ) << "++++++++++++++++++++++++++++++++++++++" << endl;
+  report( INFO, kModule ) << "+++++++++++++  PDF INFO  +++++++++++++" << endl;
+  report( INFO, kModule ) << "++++++++++++++++++++++++++++++++++++++" << endl;
+  report( INFO, kModule ) << "      REACTION NAME:  " << m_reactionName << endl;
+  report( INFO, kModule ) << "           PDF NAME:  " << m_pdfName << endl;
+  report( INFO, kModule ) << "            FACTORS:  " << n_factors.size() << endl;
   for (unsigned int i = 0; i < n_factors.size(); i++){
     vector<string> factor = n_factors[i];
-    cout << "\t\t" << i+1 << ".  ";
+    report( INFO, kModule ) << "\t\t" << i+1 << ".  ";
     for (unsigned int j = 0; j < factor.size(); j++){
-      cout << " " << factor[j];
+      report( INFO, kModule ) << " " << factor[j];
     }
-    cout << endl;
+    report( INFO, kModule ) << endl;
   }
-  cout << "        CONSTRAINTS:  " << n_constraints.size() << endl;
+  report( INFO, kModule ) << "        CONSTRAINTS:  " << n_constraints.size() << endl;
   for (unsigned int i = 0; i < n_constraints.size(); i++){
-    cout << "\t\t" << i+1 << ".  " << n_constraints[i]->fullName() << endl;
+    report( INFO, kModule ) << "\t\t" << i+1 << ".  " << n_constraints[i]->fullName() << endl;
   }
-  cout << "         PARAMETERS:  " << n_parameters.size() << endl;
+  report( INFO, kModule ) << "         PARAMETERS:  " << n_parameters.size() << endl;
   for (unsigned int i = 0; i < n_parameters.size(); i++){
-    cout << "\t\t" << i+1 << ".  " << n_parameters[i]->parName() << endl;
+    report( INFO, kModule ) << "\t\t" << i+1 << ".  " << n_parameters[i]->parName() << endl;
   }
-  cout << "      INITIAL VALUE:  " << m_value << endl;
-  cout << "              FIXED?  " << m_fixed << endl;
-  cout << "              SCALE:  " << m_scale << endl;
+  report( INFO, kModule ) << "      INITIAL VALUE:  " << m_value << endl;
+  report( INFO, kModule ) << "              FIXED?  " << m_fixed << endl;
+  report( INFO, kModule ) << "              SCALE:  " << m_scale << endl;
 
   if (fileName != ""){
     outfile.close();
@@ -1225,18 +1227,18 @@ ParameterInfo::display(string fileName, bool append){
     cout.rdbuf(outfile.rdbuf());
   }
 
-  cout << "--------------------------------------------" << endl;
-  cout << "-------------  PARAMETER INFO  -------------" << endl;
-  cout << "--------------------------------------------" << endl;
-  cout << "     PARAMETER NAME:  " << m_parName << endl;
-  cout << "      INITIAL VALUE:  " << m_value << endl;
-  cout << "              FIXED?  " << m_fixed << endl;
-  cout << "            BOUNDED?  " << m_bounded << endl;
-  cout << "        LOWER BOUND:  " << m_lowerBound << endl;
-  cout << "        UPPER BOUND:  " << m_upperBound << endl;
-  cout << "   GAUSSIAN BOUNDED?  " << m_gaussianBounded << endl;
-  cout << "      CENTRAL VALUE:  " << m_centralValue << endl;
-  cout << "     GAUSSIAN ERROR:  " << m_gaussianError << endl;
+  report( INFO, kModule ) << "--------------------------------------------" << endl;
+  report( INFO, kModule ) << "-------------  PARAMETER INFO  -------------" << endl;
+  report( INFO, kModule ) << "--------------------------------------------" << endl;
+  report( INFO, kModule ) << "     PARAMETER NAME:  " << m_parName << endl;
+  report( INFO, kModule ) << "      INITIAL VALUE:  " << m_value << endl;
+  report( INFO, kModule ) << "              FIXED?  " << m_fixed << endl;
+  report( INFO, kModule ) << "            BOUNDED?  " << m_bounded << endl;
+  report( INFO, kModule ) << "        LOWER BOUND:  " << m_lowerBound << endl;
+  report( INFO, kModule ) << "        UPPER BOUND:  " << m_upperBound << endl;
+  report( INFO, kModule ) << "   GAUSSIAN BOUNDED?  " << m_gaussianBounded << endl;
+  report( INFO, kModule ) << "      CENTRAL VALUE:  " << m_centralValue << endl;
+  report( INFO, kModule ) << "     GAUSSIAN ERROR:  " << m_gaussianError << endl;
 
   if (fileName != ""){
     outfile.close();

@@ -48,6 +48,9 @@
 #include "IUAmpTools/AmpToolsInterface.h"
 #include "IUAmpTools/FitResults.h"
 
+#include "IUAmpTools/report.h"
+
+static const char* kModule = "AmpToolsInterface";
 
 vector<Amplitude*> AmpToolsInterface::m_userAmplitudes;
 vector<DataReader*> AmpToolsInterface::m_userDataReaders;
@@ -82,6 +85,8 @@ AmpToolsInterface::resetConfigurationInfo(ConfigurationInfo* configurationInfo){
   m_configurationInfo = configurationInfo;
   
   clear();
+  
+  report( DEBUG, kModule ) << "resetting from configuration info" << endl;
   
   if( m_functionality == kFull ){
     
@@ -143,8 +148,7 @@ AmpToolsInterface::resetConfigurationInfo(ConfigurationInfo* configurationInfo){
     IntensityManager* intenMan = intensityManager(reactionName);
     
     if (!intenMan)
-      cout << "AmpToolsInterface WARNING:  not creating an AmplitudeManager for reaction "
-      << reactionName << endl;
+      report( WARNING, kModule ) << "not creating an AmplitudeManager for reaction " << reactionName << endl;
     
     
     if( m_functionality == kFull || m_functionality == kPlotGeneration ){
@@ -178,14 +182,11 @@ AmpToolsInterface::resetConfigurationInfo(ConfigurationInfo* configurationInfo){
       m_uniqueDataSets.insert( accMCRdr );
       
       if (!dataRdr)
-        cout << "AmpToolsInterface WARNING:  not creating a DataReader for data associated with reaction "
-        << reactionName << endl;
+        report( WARNING, kModule ) << "not creating a DataReader for data associated with reaction " << reactionName << endl;
       if (!genMCRdr)
-        cout << "AmpToolsInterface WARNING:  not creating a DataReader for generated MC associated with reaction "
-        << reactionName << endl;
+        report( WARNING, kModule ) << "not creating a DataReader for generated MC associated with reaction " << reactionName << endl;
       if (!accMCRdr)
-        cout << "AmpToolsInterface WARNING:  not creating a DataReader for accepted MC associated with reaction "
-        << reactionName << endl;
+        report( WARNING, kModule ) << "not creating a DataReader for accepted MC associated with reaction " << reactionName << endl;
       
       if( m_functionality == kFull ){
  
@@ -203,8 +204,7 @@ AmpToolsInterface::resetConfigurationInfo(ConfigurationInfo* configurationInfo){
           normInt = new NormIntInterface(genMCRdr, accMCRdr, *intenMan);
           m_normIntMap[reactionName] = normInt;
           if (reaction->normIntFile() == "")
-            cout << "AmpToolsInterface WARNING:  no name given to NormInt file for reaction "
-            << reactionName << endl;
+            report( WARNING, kModule ) << "no name given to NormInt file for reaction " << reactionName << endl;
         }
         else if (reaction->normIntFileInput()){
 
@@ -213,8 +213,7 @@ AmpToolsInterface::resetConfigurationInfo(ConfigurationInfo* configurationInfo){
         }
         else{
 
-          cout << "AmpToolsInterface WARNING:  not creating a NormIntInterface for reaction "
-          << reactionName << endl;
+          report( WARNING, kModule ) << "not creating a NormIntInterface for reaction " << reactionName << endl;
         }
         
         // ************************
@@ -227,8 +226,7 @@ AmpToolsInterface::resetConfigurationInfo(ConfigurationInfo* configurationInfo){
           m_likCalcMap[reactionName] = likCalc;
         }
         else{
-          cout << "AmpToolsInterface WARNING:  not creating a LikelihoodCalculator for reaction "
-          << reactionName << endl;
+          report( WARNING, kModule ) << "not creating a LikelihoodCalculator for reaction " << reactionName << endl;
         }
       }
     }
@@ -358,14 +356,14 @@ AmpToolsInterface::randomizeParameter( const string& parName, float min, float m
   
   if( parItr == parInfoVec.end() ){
     
-    cout << "ERROR:  request to randomize nonexistent parameter:  " << parName << endl;
+    report( ERROR, kModule ) << "request to randomize nonexistent parameter:  " << parName << endl;
     return;
   }
   
   if( (**parItr).fixed() ){
     
-    cout << "ERROR:  request to randomize a parameter named " << parName
-         << " that is fixed.  Ignoring." << endl;
+    report( ERROR, kModule ) << "request to randomize a parameter named " << parName
+         << " that is fixed.  Ignoring this request." << endl;
     return;
   }
   
@@ -530,8 +528,8 @@ void
 AmpToolsInterface::clearEvents(unsigned int iDataSet){
   
   if (iDataSet >= MAXAMPVECS){
-    cout << "AmpToolsInterface:  ERROR data set index out of range" << endl;
-    exit(1);
+    report( ERROR, kModule ) << "data set index out of range" << endl;
+    assert(false);
   }
   
   m_ampVecsReactionName[iDataSet] = "";
@@ -545,8 +543,8 @@ AmpToolsInterface::loadEvents(DataReader* dataReader,
                               unsigned int iDataSet){
   
   if (iDataSet >= MAXAMPVECS){
-    cout << "AmpToolsInterface:  ERROR data set index out of range" << endl;
-    exit(1);
+    report( ERROR, kModule ) << "data set index out of range" << endl;
+    assert(false);
   }
   
   clearEvents(iDataSet);
@@ -564,8 +562,8 @@ AmpToolsInterface::loadEvent(Kinematics* kin, int iEvent, int nEventsTotal,
                              unsigned int iDataSet){
   
   if (iDataSet >= MAXAMPVECS){
-    cout << "AmpToolsInterface:  ERROR data set index out of range" << endl;
-    exit(1);
+    report( ERROR, kModule ) << "data set index out of range" << endl;
+    assert(false);
   }
   
   m_ampVecs[iDataSet].loadEvent(kin, iEvent, nEventsTotal);
@@ -578,8 +576,8 @@ AmpToolsInterface::processEvents(string reactionName,
                                  unsigned int iDataSet) {
   
   if (iDataSet >= MAXAMPVECS){
-    cout << "AmpToolsInterface:  ERROR data set index out of range" << endl;
-    exit(1);
+    report( ERROR, kModule ) << "data set index out of range" << endl;
+    assert(false);
   }
   
   bool isFirstPass = (m_ampVecs[iDataSet].m_pdAmps == 0);
@@ -599,8 +597,8 @@ int
 AmpToolsInterface::numEvents(unsigned int iDataSet) const {
   
   if (iDataSet >= MAXAMPVECS){
-    cout << "AmpToolsInterface:  ERROR data set index out of range" << endl;
-    exit(1);
+    report( ERROR, kModule ) << "data set index out of range" << endl;
+    assert(false);
   }
   
   return m_ampVecs[iDataSet].m_iNTrueEvents;
@@ -611,8 +609,8 @@ double
 AmpToolsInterface::sumWeights(unsigned int iDataSet) const {
   
   if (iDataSet >= MAXAMPVECS){
-    cout << "AmpToolsInterface:  ERROR data set index out of range" << endl;
-    exit(1);
+    report( ERROR, kModule ) << "data set index out of range" << endl;
+    assert(false);
   }
   
   return m_ampVecs[iDataSet].m_dSumWeights;
@@ -625,8 +623,8 @@ AmpToolsInterface::kinematics(int iEvent,
                               unsigned int iDataSet){
   
   if (iDataSet >= MAXAMPVECS){
-    cout << "AmpToolsInterface:  ERROR data set index out of range" << endl;
-    exit(1);
+    report( ERROR, kModule ) << "data set index out of range" << endl;
+    assert(false);
   }
   
   return m_ampVecs[iDataSet].getEvent(iEvent);
@@ -639,13 +637,13 @@ AmpToolsInterface::intensity(int iEvent,
                              unsigned int iDataSet) const {
   
   if (iDataSet >= MAXAMPVECS){
-    cout << "AmpToolsInterface:  ERROR data set index out of range" << endl;
-    exit(1);
+    report( ERROR, kModule ) << "data set index out of range" << endl;
+    assert(false);
   }
   
   if (iEvent >= m_ampVecs[iDataSet].m_iNTrueEvents || iEvent < 0){
-    cout << "AmpToolsInterface ERROR:  out of bounds in intensity call" << endl;
-    exit(1);
+    report( ERROR, kModule ) << "out of bounds in intensity call" << endl;
+    assert(false);
   }
   
   return m_ampVecs[iDataSet].m_pdIntensity[iEvent];
@@ -658,13 +656,13 @@ AmpToolsInterface::decayAmplitude (int iEvent, string ampName,
                                    unsigned int iDataSet) const {
   
   if (iDataSet >= MAXAMPVECS){
-    cout << "AmpToolsInterface:  ERROR data set index out of range" << endl;
-    exit(1);
+    report( ERROR, kModule ) << "data set index out of range" << endl;
+    assert(false);
   }
   
   if (iEvent >= m_ampVecs[iDataSet].m_iNTrueEvents || iEvent < 0){
-    cout << "AmpToolsInterface ERROR:  out of bounds in decayAmplitude call" << endl;
-    exit(1);
+    report( ERROR, kModule ) << "out of bounds in decayAmplitude call" << endl;
+    assert(false);
   }
   
   IntensityManager* intenMan = intensityManager(m_ampVecsReactionName[iDataSet]);
@@ -697,10 +695,9 @@ AmpToolsInterface::alternateIntensity(int iEvent,
                                       unsigned int iDataSet) const {
   
   if (iDataSet >= MAXAMPVECS){
-    cout << "AmpToolsInterface:  ERROR data set index out of range" << endl;
-    exit(1);
+    report( ERROR, kModule ) << "data set index out of range" << endl;
+    assert(false);
   }
-  
   
   double runningIntensity = 0.0;
   
@@ -738,23 +735,22 @@ AmpToolsInterface::printKinematics(string reactionName, Kinematics* kin) const {
   vector<TLorentzVector> momenta = kin->particleList();
   
   if (reaction->particleList().size() != momenta.size()){
-    cout << "AmpToolsInterface ERROR:  kinematics incompatible with this reaction" << endl;
-    exit(1);
+    report( ERROR, kModule ) << "kinematics incompatible with this reaction" << endl;
+    assert(false);
   }
   
-  cout << "  +++++++++++++++++++++++++++++++++" << endl;
-  cout << "    EVENT KINEMATICS " << endl;
+  report( INFO, kModule ) << "  +++++++++++++++++++++++++++++++++" << endl;
+  report( INFO, kModule ) << "    EVENT KINEMATICS " << endl;
   streamsize defaultStreamSize = cout.precision(15);
   for (unsigned int imom = 0; imom < momenta.size(); imom++){
-    cout << "      particle " << reaction->particleList()[imom] << endl;
-    cout << "          E  = " << momenta[imom].E() << endl;
-    cout << "          Px = " << momenta[imom].Px() << endl;
-    cout << "          Py = " << momenta[imom].Py() << endl;
-    cout << "          Pz = " << momenta[imom].Pz() << endl;
+    report( INFO, kModule ) << "      particle " << reaction->particleList()[imom] << endl;
+    report( INFO, kModule ) << "          E  = " << momenta[imom].E() << endl;
+    report( INFO, kModule ) << "          Px = " << momenta[imom].Px() << endl;
+    report( INFO, kModule ) << "          Py = " << momenta[imom].Py() << endl;
+    report( INFO, kModule ) << "          Pz = " << momenta[imom].Pz() << endl;
   }
   cout.precision(defaultStreamSize);
-  cout << "  +++++++++++++++++++++++++++++++++" << endl << endl;
-  
+  report( INFO, kModule ) << "  +++++++++++++++++++++++++++++++++" << endl << endl;
 }
 
 
@@ -765,9 +761,9 @@ AmpToolsInterface::printAmplitudes(string reactionName, Kinematics* kin) const {
   
   if( intenMan->type() != IntensityManager::kAmplitude ){
     
-    cout << "NOTE:  printAmplitudes is being called for a reaction "
-    << "       that is not setup for an amplitude fit."
-    << "       (Nothing more will be printed.)" << endl;
+    report( NOTICE, kModule ) << "printAmplitudes is being called for a reaction "
+                              << "       that is not setup for an amplitude fit."
+                              << "       (Nothing more will be printed.)" << endl;
     
     return;
   }
@@ -793,17 +789,17 @@ AmpToolsInterface::printAmplitudes(string reactionName, Kinematics* kin) const {
   int nAmps = ampNames.size();
   for (unsigned int iamp = 0; iamp < nAmps; iamp++){
     
-    cout << "    ----------------------------------" << endl;
-    cout << "      AMPLITUDE = " << ampNames[iamp] << endl;
-    cout << "    ----------------------------------" << endl << endl;
+    report( INFO, kModule ) << "    ----------------------------------" << endl;
+    report( INFO, kModule ) << "      AMPLITUDE = " << ampNames[iamp] << endl;
+    report( INFO, kModule ) << "    ----------------------------------" << endl << endl;
     
     vector< const Amplitude* > ampFactors = ampMan->getFactors(ampNames[iamp]);
     vector <vector <int> > permutations = ampMan->getPermutations(ampNames[iamp]);
     
-    cout << "      PRODUCT OF FACTORS" << endl
-         << "      SUMMED OVER PERMUTATIONS = ( "
-         << aVecs.m_pdAmps[iamp*2] << ", "
-         << aVecs.m_pdAmps[iamp*2+1] << " )" << endl << endl;
+    report( INFO, kModule ) << "      PRODUCT OF FACTORS" << endl
+                            << "      SUMMED OVER PERMUTATIONS = ( "
+                            << aVecs.m_pdAmps[iamp*2] << ", "
+                            << aVecs.m_pdAmps[iamp*2+1] << " )" << endl << endl;
     
     int nPerm = permutations.size();
     
@@ -815,23 +811,23 @@ AmpToolsInterface::printAmplitudes(string reactionName, Kinematics* kin) const {
       
       for (unsigned int iperm = 0; iperm < nPerm; iperm++){
         
-        cout << "        PERMUTATION = ";
+        report( INFO, kModule ) << "        PERMUTATION = ";
         for (unsigned int ipar = 0; ipar < permutations[iperm].size(); ipar++){
-          cout << permutations[iperm][ipar] << " ";
+          report( INFO, kModule ) << permutations[iperm][ipar] << " ";
         }
         
-        cout << endl << endl;
+        report( INFO, kModule ) << endl << endl;
         
         int nFact = ampFactors.size();
         
         for (unsigned int ifact = 0; ifact < nFact; ifact++){
           
-          cout << "          AMPLITUDE FACTOR = " << ampFactors[ifact]->name() << endl;
-          cout << "          IDENTIFIER = " << ampFactors[ifact]->identifier() << endl;
-          cout << "          RESULT = ( "
-               << aVecs.m_pdAmpFactors[ifact*nPerm*2+iperm*2] << ", "
-               << aVecs.m_pdAmpFactors[ifact*nPerm*2+iperm*2+1] << " )"
-               << endl << endl;
+          report( INFO, kModule ) << "          AMPLITUDE FACTOR = " << ampFactors[ifact]->name() << endl;
+          report( INFO, kModule ) << "          IDENTIFIER = " << ampFactors[ifact]->identifier() << endl;
+          report( INFO, kModule ) << "          RESULT = ( "
+                                  << aVecs.m_pdAmpFactors[ifact*nPerm*2+iperm*2] << ", "
+                                  << aVecs.m_pdAmpFactors[ifact*nPerm*2+iperm*2+1] << " )"
+                                  << endl << endl;
         }
       }
     }
@@ -847,11 +843,11 @@ AmpToolsInterface::printIntensity(string reactionName, Kinematics* kin) const {
   
   IntensityManager* intenMan = intensityManager(reactionName);
   
-  cout << "      ---------------------------------" << endl;
-  cout << "        CALCULATING INTENSITY" << endl;
-  cout << "      ---------------------------------" << endl << endl;
+  report( INFO, kModule ) << "      ---------------------------------" << endl;
+  report( INFO, kModule ) << "        CALCULATING INTENSITY" << endl;
+  report( INFO, kModule ) << "      ---------------------------------" << endl << endl;
   double intensity = intenMan->calcIntensity(kin);
-  cout << endl << "          INTENSITY = " << intensity << endl << endl << endl;
+  report( INFO, kModule ) << endl << "          INTENSITY = " << intensity << endl << endl << endl;
   
 }
 

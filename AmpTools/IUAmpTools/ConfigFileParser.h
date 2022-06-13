@@ -283,15 +283,8 @@ class ConfigFileLine
     vector<string>  arguments()      const {return m_arguments;}
     bool            comment()        const {return m_comment;}
 
-    void            printLine()      const {cout << "(" << m_lineNumber << ") " << 
-                                                    m_fileName   << " >>   " << 
-                                                    m_line       << endl;}
-
-    void            printArguments() const {cout << "KEYWORD:  " << m_keyword << endl;
-                                            cout << "ARGUMENTS: " << endl;
-                                            for ( unsigned int i = 0; i < m_arguments.size(); i++){
-                                              cout << m_arguments[i] << endl;}}
-
+    void            printLine()      const;
+    void            printArguments() const;
     void            flushDefinition(const string& word, const vector<string>& definition);
 
   private:

@@ -5,6 +5,8 @@
 CXX := gcc
 CXX_FLAGS := -O3
 
+GIT_VERSION := "$(shell git describe --abbrev=4 --dirty --always --tags)"
+CXX_FLAGS += -DATVERSION=\"$(GIT_VERSION)\"
 #########  END DEFAULT COMPILER SETTINGS
 
 #########  USER BUILD SETTINGS

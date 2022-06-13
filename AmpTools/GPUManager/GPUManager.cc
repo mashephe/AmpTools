@@ -50,6 +50,9 @@
 #include "GPUManager/GPUKernel.h"
 #include "GPUManager/GPUManager.h"
 
+#include "IUAmpTools/report.h"
+static const char* kModule = "GPUManager";
+
 #ifdef SCOREP
 #include <scorep/SCOREP_User.h>
 #endif
@@ -98,7 +101,7 @@ GPUManager::GPUManager()
   int thisDevice = 0;
   
   if( !m_cudaDisplay )
-    cout<<"\n################### CUDA DEVICE ##################\n";    
+    report( INFO, kModule ) <<"\n################### CUDA DEVICE ##################\n";
   
 #ifdef USE_MPI
   
@@ -115,9 +118,9 @@ GPUManager::GPUManager()
   thisDevice = rank % devs;
   
   if( !m_cudaDisplay ) {
-    cout << "\nParallel GPU configuration requested." << endl;
-    cout << "\nNumber of CUDA devices available on this node:  " << devs << endl;
-    cout << "\nMPI process " << rank << " is using device " << thisDevice << endl;
+    report( INFO, kModule ) << "\nParallel GPU configuration requested." << endl;
+    report( INFO, kModule ) << "\nNumber of CUDA devices available on this node:  " << devs << endl;
+    report( INFO, kModule ) << "\nMPI process " << rank << " is using device " << thisDevice << endl;
   }
 #endif
   
@@ -130,12 +133,11 @@ GPUManager::GPUManager()
 
   if( ! m_cudaDisplay ){
     
-    cout<<"Current GPU Properites:\n";
-    cout<<"\t Name: "<<devProp.name<<endl; 
-    cout<<"\t Total global memory: "<<devProp.totalGlobalMem/((float)1024*1024)<<" MB"<<endl; 
-    cout<<"\t Rev.: "<<devProp.major<<"."<<devProp.minor<<endl;
-    cout<<"\t Precision (size of GDouble): " << sizeof(GDouble) << " bytes" << endl; 
-    cout<<"##################################################\n\n";
+    report( INFO, kModule ) << "Current GPU Properites:\n";
+    report( INFO, kModule ) << "\t Name: "<<devProp.name<<endl;
+    report( INFO, kModule ) << "\t Total global memory: "<<devProp.totalGlobalMem/((float)1024*1024)<<" MB"<<endl;
+    report( INFO, kModule ) << "\t Rev.: "<<devProp.major<<"."<<devProp.minor<<endl;
+    report( INFO, kModule ) << "##################################################\n\n";
     ///////END OF CUDA INITIALIZATION
     m_cudaDisplay = true;
   }
@@ -143,7 +145,7 @@ GPUManager::GPUManager()
   if( m_devProp_major == 1  && devProp.minor < 3 ){
     
     // double precision operations need 1.3 hardware or higher
-    cerr << "Sorry, your GPU hardware is no longer supported." << endl;
+    report( ERROR, kModule ) << "Sorry, your GPU hardware is no longer supported." << endl;
     assert( false );
   }
 
@@ -212,7 +214,7 @@ GPUManager::init( const AmpVecs& a, bool use4Vectors )
 
   totalMemory /= (1024*1024);
   
-  cout << "Attempting to allocate " << (int)totalMemory << " MB of global GPU memory." << endl;
+  report( INFO, kModule ) << "Attempting to allocate " << (int)totalMemory << " MB of global GPU memory." << endl;
   
   // device memory needed for intensity or integral calculation and sum
   gpuErrChk( cudaMalloc( (void**)&m_pfDevVVStar  , m_iVArrSize                 ) ) ;
@@ -230,7 +232,7 @@ GPUManager::init( const AmpVecs& a, bool use4Vectors )
 			  a.m_maxFactPerEvent * m_iGDoubleEventArrSize                    ) ) ;
   gpuErrChk( cudaMalloc(  (void**)&m_pfDevAmps    , m_iAmpArrSize                         ) ) ;
   
-  cout << "GPU memory allocated for " << m_iNAmps << " amplitudes and "
+  report( INFO, kModule ) << "GPU memory allocated for " << m_iNAmps << " amplitudes and "
        << m_iNEvents << " events (" << m_iNTrueEvents << " actual events)."
        << endl;
   
@@ -392,7 +394,7 @@ GPUManager::calcAmplitudeAll( const Amplitude* amp, unsigned long long offset,
     cudaError_t cerrKernel=cudaGetLastError();
     if( cerrKernel!= cudaSuccess  ){
       
-      cout << "\nKERNEL LAUNCH ERROR [" << amp->name() << "]: " 
+      report( ERROR, kModule ) << "\nKERNEL LAUNCH ERROR [" << amp->name() << "]: "
            << cudaGetErrorString( cerrKernel ) << endl;
       assert( false );
     }
@@ -468,7 +470,7 @@ GPUManager::calcSumLogIntensity( const vector< complex< double > >& prodCoef,
   cudaError_t cerrKernel=cudaGetLastError();
   if( cerrKernel!= cudaSuccess  ){
       
-    cout << "\nKERNEL LAUNCH ERROR [GPU_ExecAmpKernel]: " 
+    report( ERROR, kModule ) << "\nKERNEL LAUNCH ERROR [GPU_ExecAmpKernel]: "
 	 << cudaGetErrorString( cerrKernel ) << endl;
     assert( false );
   }
@@ -499,7 +501,7 @@ GPUManager::calcSumLogIntensity( const vector< complex< double > >& prodCoef,
     cerrKernel=cudaGetLastError();
     if( cerrKernel!= cudaSuccess  ){
       
-      cout << "\nKERNEL LAUNCH ERROR [reduce<double>]: " 
+      report( ERROR, kModule ) << "\nKERNEL LAUNCH ERROR [reduce<double>]: "
 	   << cudaGetErrorString( cerrKernel ) << endl;
       assert( false );
     }
@@ -654,8 +656,8 @@ void GPUManager::calcCUDADims()
     m_iDimGridY=iDivHi;
   }
   
-  // cout<<"\tThread dimensions:  ("<<m_iDimThreadX<<","<<m_iDimThreadY<<")\n";
-  // cout<<"\tGrid dimensions:  ("<<m_iDimGridX<<","<<m_iDimGridY<<")\n";
+  report( DEBUG, kModule ) << "\tThread dimensions:  ("<<m_iDimThreadX<<","<<m_iDimThreadY<<")\n";
+  report( DEBUG, kModule ) << "\tGrid dimensions:  ("<<m_iDimGridX<<","<<m_iDimGridY<<")\n";
   
   //Reduction Parameters
   unsigned int maxThreads = ( m_devProp_major >= 2 ? 1024 : 512 );  // number of threads per block
@@ -669,8 +671,8 @@ void GPUManager::calcCUDADims()
   m_iNBlocks = m_iNEvents / (m_iNThreads * 2); 
   m_iNBlocks = min(maxBlocks, m_iNBlocks);
   
-  // cout<<"Reduction:\n";
-  // cout<<"\tNumber of threads:  "<<m_iNThreads<<"\n";
-  // cout<<"\tNumber of blocks:   "<<m_iNBlocks<<"\n\n\n"<<flush; 
+  report( DEBUG, kModule ) << "Reduction:\n";
+  report( DEBUG, kModule ) << "\tNumber of threads:  "<<m_iNThreads<<"\n";
+  report( DEBUG, kModule ) << "\tNumber of blocks:   "<<m_iNBlocks<<"\n\n\n"<<flush;
 }
 

@@ -44,8 +44,12 @@
 #include <map>
 #include <complex>
 #include <stdlib.h>
+
 #include "IUAmpTools/ConfigurationInfo.h"
 #include "IUAmpTools/ConfigFileParser.h"
+#include "IUAmpTools/report.h"
+
+static const char* kModule = "ConfigFileParser";
 
 
 bool ConfigFileParser::m_verboseParsing = false;
@@ -101,15 +105,14 @@ ConfigFileParser::readConfigFile(istream& input){
 vector<ConfigFileLine>
 ConfigFileParser::readConfigFileLines(const string& configfile) const{
 
-    if (m_verboseParsing)
-    cout << "ConfigFileParser INFO:  Reading from the file...  " << configfile << endl;
+  report( DEBUG, kModule ) << "Reading from the file...  " << configfile << endl;
 
   vector<ConfigFileLine> configFileLines;
   int lineNumber = 0;
 
   ifstream in(configfile.c_str());
   if (!in.is_open()){
-    cout << "ConfigFileParser ERROR:  Could not open file: " << configfile << endl;
+    report( ERROR, kModule ) << "Could not open file: " << configfile << endl;
     exit(1);
   }
   while (!in.eof()){
@@ -121,8 +124,7 @@ ConfigFileParser::readConfigFileLines(const string& configfile) const{
   }
   in.close();
 
-    if (m_verboseParsing)
-    cout << "ConfigFileParser INFO:  Finished reading from the file...  " << configfile << endl;
+  report( DEBUG, kModule ) << "Finished reading from the file...  " << configfile << endl;
 
   return configFileLines;
 
@@ -132,8 +134,7 @@ ConfigFileParser::readConfigFileLines(const string& configfile) const{
 vector<ConfigFileLine>
 ConfigFileParser::readConfigFileLines(istream& input) const{
 
-    if (m_verboseParsing)
-    cout << "ConfigFileParser INFO:  Reading from a stream...  " << endl;
+  report( DEBUG, kModule ) << "Reading from a stream...  " << endl;
 
   vector<ConfigFileLine> configFileLines;
   int lineNumber = 0;
@@ -146,8 +147,7 @@ ConfigFileParser::readConfigFileLines(istream& input) const{
       configFileLines[configFileLines.size()-1].printLine();
   }
 
-    if (m_verboseParsing)
-    cout << "ConfigFileParser INFO:  Finished reading from a stream  " << endl;
+  report( DEBUG, kModule ) <<  "Finished reading from a stream  " << endl;
 
   return configFileLines;
 
@@ -158,8 +158,7 @@ ConfigFileParser::readConfigFileLines(istream& input) const{
 vector<ConfigFileLine>
 ConfigFileParser::expandConfigFileLines(vector<ConfigFileLine> configFileLines) const{
 
-    if (m_verboseParsing)
-    cout << "ConfigFileParser INFO:  Starting to expand config file lines..." << endl;
+  report( DEBUG, kModule ) << "Starting to expand config file lines..." << endl;
 
 
     // flush all "include" lines
@@ -170,7 +169,7 @@ ConfigFileParser::expandConfigFileLines(vector<ConfigFileLine> configFileLines) 
     if (lineItr->keyword() == "include"){
 
       if (lineItr->arguments().size() != 1){
-        cout << "ConfigFileParser ERROR:  Wrong number of arguments for the include statement:" << endl;
+        report( ERROR, kModule ) << "Wrong number of arguments for the include statement:  " << endl;
         lineItr->printLine();
         exit(1);
       }
@@ -201,7 +200,7 @@ ConfigFileParser::expandConfigFileLines(vector<ConfigFileLine> configFileLines) 
     if (lineItr->keyword() == "define"){
 
       if (lineItr->arguments().size() == 0){
-        cout << "ConfigFileParser ERROR:  Wrong number of arguments for the define statement:" << endl;
+        report( ERROR, kModule ) << "Wrong number of arguments for the define statement:" << endl;
         lineItr->printLine();
         exit(1);
       }
@@ -228,7 +227,7 @@ ConfigFileParser::expandConfigFileLines(vector<ConfigFileLine> configFileLines) 
     if (lineItr->keyword() == "loop"){
 
       if (lineItr->arguments().size() < 3){
-        cout << "ConfigFileParser ERROR:  Wrong number of arguments for the loop statement:" << endl;
+        report( ERROR, kModule ) << "Wrong number of arguments for the loop statement:" << endl;
         lineItr->printLine();
         exit(1);
       }
@@ -266,7 +265,7 @@ ConfigFileParser::expandConfigFileLines(vector<ConfigFileLine> configFileLines) 
       for (unsigned int i = 0; i < foundLoops.size()-1; i++){
         for (unsigned int j = i+1; j < foundLoops.size(); j++){
           if (mapLoops[foundLoops[i]].size() != mapLoops[foundLoops[j]].size()){
-            cout << "ConfigFileParser ERROR:  Mismatch in loop size:" << endl;
+            report( ERROR, kModule ) << "Mismatch in loop size:" << endl;
             lineItr->printLine();
             exit(1);
           }
@@ -294,9 +293,7 @@ ConfigFileParser::expandConfigFileLines(vector<ConfigFileLine> configFileLines) 
 
   }
 
-
-    if (m_verboseParsing)
-    cout << "ConfigFileParser INFO:  Finished expanding config file lines..." << endl;
+  report( DEBUG, kModule ) << "Finished expanding config file lines..." << endl;
 
     if (m_verboseParsing){
       for (unsigned int i = 0; i < configFileLines.size(); i++){
@@ -316,22 +313,19 @@ void
 ConfigFileParser::setupConfigurationInfo(){
 
 
-      // Do some quick syntax checks
+  // Do some quick syntax checks
 
-    if (m_verboseParsing)
-    cout << "ConfigFileParser INFO:  Begin Syntax Checking " << endl;
+  report( DEBUG, kModule ) << "Begin Syntax Checking " << endl;
 
   checkSyntax();
 
-    if (m_verboseParsing)
-    cout << "ConfigFileParser INFO:  Finished Syntax Checking " << endl;
+  report( DEBUG, kModule ) << "Finished Syntax Checking " << endl;
 
 
-      // ZEROTH PASS ("fit")
+  // ZEROTH PASS ("fit")
   
-    if (m_verboseParsing)
-    cout << "ConfigFileParser INFO:  Starting ZEROTH PASS (finding the fit name)" << endl;
-
+  report( DEBUG, kModule ) << "Starting ZEROTH PASS (finding the fit name)" << endl;
+  
   for (vector<ConfigFileLine>::iterator lineItr = m_configFileLines.begin();
        lineItr != m_configFileLines.end(); ++lineItr){
 
@@ -341,23 +335,21 @@ ConfigFileParser::setupConfigurationInfo(){
 
   }
 
-    if (m_verboseParsing)
-    cout << "ConfigFileParser INFO:  Finished ZEROTH PASS" << endl;
+  report( DEBUG, kModule ) << "Finished ZEROTH PASS" << endl;
 
 
     // Create a new ConfigurationInfo object
 
 
     if (m_fitName == "")
-    cout << "ConfigFileParser WARNING:  use the keyword \"fit\" to define a fit name" << endl;
+      report( WARNING, kModule ) << "use the keyword \"fit\" to define a fit name" << endl;
 
   m_configurationInfo = new ConfigurationInfo(m_fitName);
 
 
       // FIRST PASS ("reaction")
   
-    if (m_verboseParsing)
-    cout << "ConfigFileParser INFO:  Starting FIRST PASS (creating reactions and parameters)" << endl;
+  report( DEBUG, kModule ) << "Starting FIRST PASS (creating reactions and parameters)" << endl;
 
   for (vector<ConfigFileLine>::iterator lineItr = m_configFileLines.begin();
        lineItr != m_configFileLines.end(); ++lineItr){
@@ -369,15 +361,13 @@ ConfigFileParser::setupConfigurationInfo(){
 
   }
 
-    if (m_verboseParsing)
-    cout << "ConfigFileParser INFO:  Finished FIRST PASS" << endl;
+  report( DEBUG, kModule ) << "Finished FIRST PASS" << endl;
 
 
 
       // SECOND PASS ("sum" and reaction info)
   
-    if (m_verboseParsing)
-    cout << "ConfigFileParser INFO:  Starting SECOND PASS (creating sums and filling reactions)" << endl;
+  report( DEBUG, kModule ) << "Starting SECOND PASS (creating sums and filling reactions)" << endl;
 
   for (vector<ConfigFileLine>::iterator lineItr = m_configFileLines.begin();
        lineItr != m_configFileLines.end(); ++lineItr){
@@ -398,15 +388,13 @@ ConfigFileParser::setupConfigurationInfo(){
 
   }
 
-    if (m_verboseParsing)
-    cout << "ConfigFileParser INFO:  Finished SECOND PASS" << endl;
+  report( DEBUG, kModule ) << "Finished SECOND PASS" << endl;
 
 
 
       // THIRD PASS ("amplitude")
   
-    if (m_verboseParsing)
-    cout << "ConfigFileParser INFO:  Starting THIRD PASS (creating amplitudes)" << endl;
+  report( DEBUG, kModule ) << "Starting THIRD PASS (creating amplitudes)" << endl;
 
   for (vector<ConfigFileLine>::iterator lineItr = m_configFileLines.begin();
        lineItr != m_configFileLines.end(); ++lineItr){
@@ -416,15 +404,13 @@ ConfigFileParser::setupConfigurationInfo(){
 
   }
 
-    if (m_verboseParsing)
-    cout << "ConfigFileParser INFO:  Finished THIRD PASS" << endl;
+  report( DEBUG, kModule ) << "Finished THIRD PASS" << endl;
 
 
 
       // FOURTH PASS (operations on amplitudes -- constrain, permute, scale)
   
-    if (m_verboseParsing)
-    cout << "ConfigFileParser INFO:  Starting FOURTH PASS (filling amplitudes 1/2)" << endl;
+  report( DEBUG, kModule ) << "Starting FOURTH PASS (filling amplitudes 1/2)" << endl;
 
   for (vector<ConfigFileLine>::iterator lineItr = m_configFileLines.begin();
        lineItr != m_configFileLines.end(); ++lineItr){
@@ -437,14 +423,12 @@ ConfigFileParser::setupConfigurationInfo(){
 
   }
 
-    if (m_verboseParsing)
-    cout << "ConfigFileParser INFO:  Finished FOURTH PASS" << endl;
+  report( DEBUG, kModule ) << "Finished FOURTH PASS" << endl;
 
 
       // FIFTH PASS (operations on amplitudes -- initialize)
   
-    if (m_verboseParsing)
-    cout << "ConfigFileParser INFO:  Starting FIFTH PASS (filling amplitudes 2/2)" << endl;
+  report( DEBUG, kModule ) << "Starting FIFTH PASS (filling amplitudes 2/2)" << endl;
 
   for (vector<ConfigFileLine>::iterator lineItr = m_configFileLines.begin();
        lineItr != m_configFileLines.end(); ++lineItr){
@@ -454,19 +438,16 @@ ConfigFileParser::setupConfigurationInfo(){
 
   }
 
-    if (m_verboseParsing)
-    cout << "ConfigFileParser INFO:  Finished FIFTH PASS" << endl;
+  report( DEBUG, kModule ) << "Finished FIFTH PASS" << endl;
 
 
       // Do some quick syntax checks
 
-    if (m_verboseParsing)
-    cout << "ConfigFileParser INFO:  Begin Syntax Checking " << endl;
+  report( DEBUG, kModule ) << "Begin Syntax Checking " << endl;
 
   checkSyntax();
 
-    if (m_verboseParsing)
-    cout << "ConfigFileParser INFO:  Finished Syntax Checking " << endl;
+  report( DEBUG, kModule ) << "Finished Syntax Checking " << endl;
 
 }
 
@@ -511,13 +492,13 @@ ConfigFileParser::checkSyntax() const{
     if (!lineItr->comment()){
       map<string, pair<int,int> >::const_iterator mapItr = keywordParameters.find(lineItr->keyword());
       if (mapItr == keywordParameters.end()){
-        cout << "ConfigFileParser ERROR:  Undefined keyword:  " << lineItr->keyword() << endl;
+        report( ERROR, kModule ) << "Undefined keyword:  " << lineItr->keyword() << endl;
         lineItr->printLine();
         exit(1);
       }
       else if (((int)lineItr->arguments().size() > mapItr->second.second) ||
                ((int)lineItr->arguments().size() < mapItr->second.first)){
-        cout << "ConfigFileParser ERROR:  Keyword " << lineItr->keyword() << 
+        report( ERROR, kModule ) << "Keyword " << lineItr->keyword() <<
         " has the wrong number of arguments: " << endl;
         lineItr->printLine();
         exit(1);
@@ -567,22 +548,22 @@ ConfigFileParser::doData(const ConfigFileLine& line){
   vector<string> dataargs (arguments.begin()+2, arguments.end());
   ReactionInfo* rct = m_configurationInfo->reaction(reaction);
   if (!rct){
-    cout << "ConfigFileParser ERROR:  Can't associate data with a reaction:  " << endl;
+    report( ERROR, kModule ) << "Can't associate data with a reaction:  " << endl;
     line.printLine();
     exit(1);
   }
   if (line.keyword() == "datafile"){
-    cout << "ConfigFileParser ERROR:  datafile is deprecated, use data" << endl;
+    report( ERROR, kModule ) << "datafile is deprecated, use data" << endl;
     line.printLine();
     exit(1);
   }
   if (line.keyword() == "genmcfile"){
-    cout << "ConfigFileParser ERROR:  genmcfile is deprecated, use genmc" << endl;
+    report( ERROR, kModule ) << "genmcfile is deprecated, use genmc" << endl;
     line.printLine();
     exit(1);
   }
   if (line.keyword() == "accmcfile"){
-    cout << "ConfigFileParser ERROR:  accmcfile is deprecated, use accmc" << endl;
+    report( ERROR, kModule ) << "accmcfile is deprecated, use accmc" << endl;
     line.printLine();
     exit(1);
   }
@@ -600,7 +581,7 @@ ConfigFileParser::doGPUDevice(const ConfigFileLine& line){
   int deviceNumber = atoi((arguments[1]).c_str());
   ReactionInfo* rct = m_configurationInfo->reaction(reaction);
   if (!rct){
-    cout << "ConfigFileParser ERROR:  Can't associate gpudevice with a reaction:  " << endl;
+    report( ERROR, kModule ) << "Can't associate gpudevice with a reaction:  " << endl;
     line.printLine();
     exit(1);
   }
@@ -617,7 +598,7 @@ ConfigFileParser::doNormInt(const ConfigFileLine& line){
   if (arguments.size() > 2 && arguments[2] == "input") input = true;
   ReactionInfo* rct = m_configurationInfo->reaction(reaction);
   if (!rct){
-    cout << "ConfigFileParser ERROR:  Can't associate normintfile with a reaction:  " << endl;
+    report( ERROR, kModule ) << "Can't associate normintfile with a reaction:  " << endl;
     line.printLine();
     exit(1);
   }
@@ -634,7 +615,7 @@ ConfigFileParser::doSum(const ConfigFileLine& line){
   string reaction = arguments[0];
   ReactionInfo* rct = m_configurationInfo->reaction(reaction);
   if (!rct){
-    cout << "ConfigFileParser ERROR:  Can't associate sum with a reaction:  " << endl;
+    report( ERROR, kModule ) << "Can't associate sum with a reaction:  " << endl;
     line.printLine();
     exit(1);
   }
@@ -673,7 +654,7 @@ ConfigFileParser::doParameter(const ConfigFileLine& line){
     parinfo->setGaussianError(b);
   }
   else{
-    cout << "ConfigFileParser ERROR:  parameter type must be floating, fixed, bounded, or gaussian  " << endl;
+    report( ERROR, kModule ) << "parameter type must be floating, fixed, bounded, or gaussian  " << endl;
     line.printLine();
     exit(1);
   }    
@@ -699,7 +680,7 @@ ConfigFileParser::doAmplitude(const ConfigFileLine& line){
       }
       ParameterInfo* parinfo = m_configurationInfo->parameter(parname);
       if (!parinfo){
-        cout << "ConfigFileParser ERROR:  can't find parameter " << parname << endl;
+        report( ERROR, kModule ) << "can't find parameter " << parname << endl;
         line.printLine();
         exit(1);
       }
@@ -727,7 +708,7 @@ ConfigFileParser::doPDF(const ConfigFileLine& line){
       }
       ParameterInfo* parinfo = m_configurationInfo->parameter(parname);
       if (!parinfo){
-        cout << "ConfigFileParser ERROR:  can't find parameter " << parname << endl;
+        report( ERROR, kModule ) << "can't find parameter " << parname << endl;
         line.printLine();
         exit(1);
       }
@@ -741,7 +722,7 @@ void
 ConfigFileParser::doConstrain(const ConfigFileLine& line){
   vector<string> arguments = line.arguments();
   if (arguments.size()%3 != 0){
-    cout << "ConfigFileParser ERROR:  wrong number of arguments for constrain keyword " << endl;
+    report( ERROR, kModule ) << "wrong number of arguments for constrain keyword " << endl;
     line.printLine();
     exit(1);
   }
@@ -755,7 +736,7 @@ ConfigFileParser::doConstrain(const ConfigFileLine& line){
     AmplitudeInfo* amplitude1 = m_configurationInfo->amplitude(reaction1,sumname1,ampname1);
     AmplitudeInfo* amplitude2 = m_configurationInfo->amplitude(reaction2,sumname2,ampname2);
     if ((!amplitude1) || (!amplitude2)){
-      cout << "ConfigFileParser ERROR:  trying to constrain nonexistent amplitude " << endl;
+      report( ERROR, kModule ) << "trying to constrain nonexistent amplitude " << endl;
       line.printLine();
       exit(1);
     }
@@ -767,7 +748,7 @@ void
 ConfigFileParser::doPDFConstrain(const ConfigFileLine& line){
   vector<string> arguments = line.arguments();
   if (arguments.size()%2 != 0){
-    cout << "ConfigFileParser ERROR:  wrong number of arguments for pdfconstrain keyword " << endl;
+    report( ERROR, kModule ) << "wrong number of arguments for pdfconstrain keyword " << endl;
     line.printLine();
     exit(1);
   }
@@ -779,7 +760,7 @@ ConfigFileParser::doPDFConstrain(const ConfigFileLine& line){
     PDFInfo* pdf1 = m_configurationInfo->pdf(reaction1,pdfname1);
     PDFInfo* pdf2 = m_configurationInfo->pdf(reaction2,pdfname2);
     if ((!pdf1) || (!pdf2)){
-      cout << "ConfigFileParser ERROR:  trying to constrain nonexistent pdf " << endl;
+      report( ERROR, kModule ) << "trying to constrain nonexistent pdf " << endl;
       line.printLine();
       exit(1);
     }
@@ -797,13 +778,13 @@ ConfigFileParser::doPermute(const ConfigFileLine& line){
   vector<string> permutation(arguments.begin()+3, arguments.end());
   AmplitudeInfo* amplitude = m_configurationInfo->amplitude(reaction,sumname,ampname);
   if (!amplitude){
-    cout << "ConfigFileParser ERROR:  trying to permute nonexistent amplitude " << endl;
+    report( ERROR, kModule ) << "trying to permute nonexistent amplitude " << endl;
     line.printLine();
     exit(1);
   }
   vector<string> particleList = m_configurationInfo->reaction(reaction)->particleList();
   if (permutation.size() != particleList.size()){
-    cout << "ConfigFileParser ERROR:  wrong number of arguments for permute keyword " << endl;
+    report( ERROR, kModule ) << "wrong number of arguments for permute keyword " << endl;
     line.printLine();
     exit(1);
   }
@@ -811,14 +792,14 @@ ConfigFileParser::doPermute(const ConfigFileLine& line){
   for (unsigned int i = 0; i < permutation.size(); i++){
     for (unsigned int j = 0; j < permutation[i].size(); j++){
       if (!isdigit(permutation[i][j])){
-        cout << "ConfigFileParser ERROR:  particle index is not an unsigned integer " << endl;
+        report( ERROR, kModule ) << "particle index is not an unsigned integer " << endl;
         line.printLine();
         exit(1);
       }
     }
     int ipart = atoi(permutation[i].c_str());
     if (ipart < 0 || ipart >= (int)particleList.size()){
-      cout << "ConfigFileParser ERROR:  particle index is out of bounds " << endl;
+      report( ERROR, kModule ) << "particle index is out of bounds " << endl;
       line.printLine();
       exit(1);
     }
@@ -827,7 +808,7 @@ ConfigFileParser::doPermute(const ConfigFileLine& line){
   for (unsigned int i = 0; i < intpermutation.size(); i++){
     for (unsigned int j = i+1; j < intpermutation.size(); j++){
       if (intpermutation[i] == intpermutation[j]){
-        cout << "ConfigFileParser ERROR:  particle index repeated " << endl;
+        report( ERROR, kModule ) << "particle index repeated " << endl;
         line.printLine();
         exit(1);
       }
@@ -852,7 +833,7 @@ ConfigFileParser::doInitialize(const ConfigFileLine& line){
   if (arguments.size() == 8) fixtype2 = arguments[7];
   AmplitudeInfo* amplitude = m_configurationInfo->amplitude(reaction,sumname,ampname);
   if (!amplitude){
-    cout << "ConfigFileParser ERROR:  trying to initialize nonexistent amplitude " << endl;
+    report( ERROR, kModule ) << "trying to initialize nonexistent amplitude " << endl;
     line.printLine();
     exit(1);
   }
@@ -863,27 +844,27 @@ ConfigFileParser::doInitialize(const ConfigFileLine& line){
     amplitude->setValue(polar(value1,value2));
   }
   else if (type == "events"){
-    cout << "ConfigFileParser ERROR:  initializing with events is not yet re-implemented " << endl;
+    report( ERROR, kModule ) << "initializing with events is not yet re-implemented " << endl;
     line.printLine();
     exit(1);
     /*
     string normIntFile = m_configurationInfo->reaction(reaction)->normIntFile();
     if (normIntFile == ""){
-      cout << "ConfigFileParser ERROR:  initializing with events, but no normalization integral " << endl;
-      cout << "                         file has been specified for this reaction " << endl;
+     report( ERROR, kModule ) << "ConfigFileParser ERROR:  initializing with events, but no normalization integral " << endl;
+     report( ERROR, kModule ) << "                         file has been specified for this reaction " << endl;
       line.printLine();
       exit(1);
     }
     ifstream test(normIntFile.c_str());
     if (!test){
-      cout << "ConfigFileParser ERROR:  initializing with events, but can't find the normalization integral " << endl;
-      cout << "                         file specified for this reaction (" << normIntFile << ")" << endl;
+     report( ERROR, kModule ) << "ConfigFileParser ERROR:  initializing with events, but can't find the normalization integral " << endl;
+     report( ERROR, kModule ) << "                         file specified for this reaction (" << normIntFile << ")" << endl;
       line.printLine();
       exit(1);
     }
     NormIntInterface normint(normIntFile);
     if (!normint.hasAmpInt(ampname,ampname)){
-      cout << "ConfigFileParser ERROR:  can't find the right amplitude in the normalization integral file " << endl;
+     report( ERROR, kModule ) << "ConfigFileParser ERROR:  can't find the right amplitude in the normalization integral file " << endl;
       line.printLine();
       exit(1);
     }
@@ -892,7 +873,7 @@ ConfigFileParser::doInitialize(const ConfigFileLine& line){
     */
   }
   else{
-    cout << "ConfigFileParser ERROR:  initialize must use cartesian, polar, or events  " << endl;
+    report( ERROR, kModule ) << "initialize must use cartesian, polar, or events  " << endl;
     line.printLine();
     exit(1);
   }
@@ -905,7 +886,7 @@ ConfigFileParser::doInitialize(const ConfigFileLine& line){
     amplitude->setFixed(true);
   }
   else{
-    cout << "ConfigFileParser ERROR:  initialize must use floating, fixed, or real  " << endl;
+    report( ERROR, kModule ) << "initialize must use floating, fixed, or real  " << endl;
     line.printLine();
     exit(1);
   }
@@ -922,7 +903,7 @@ ConfigFileParser::doInitialize(const ConfigFileLine& line){
     amplitude->setFixed(false);
   }
   else{
-    cout << "ConfigFileParser ERROR:  initialize must use floating, fixed, or real  " << endl;
+    report( ERROR, kModule ) << "initialize must use floating, fixed, or real  " << endl;
     line.printLine();
     exit(1);
   }
@@ -940,7 +921,7 @@ ConfigFileParser::doPDFInitialize(const ConfigFileLine& line){
   if (arguments.size() >= 4) fixtype = arguments[3];
   PDFInfo* pdf = m_configurationInfo->pdf(reaction,pdfname);
   if (!pdf){
-    cout << "ConfigFileParser ERROR:  trying to initialize nonexistent pdf " << endl;
+    report( ERROR, kModule ) << "trying to initialize nonexistent pdf " << endl;
     line.printLine();
     exit(1);
   }
@@ -948,7 +929,7 @@ ConfigFileParser::doPDFInitialize(const ConfigFileLine& line){
        if (fixtype == "floating"){ pdf->setFixed(false); }
   else if (fixtype == "fixed")   { pdf->setFixed(true); }
   else{
-    cout << "ConfigFileParser ERROR:  pdfinitialize must use floating or fixed  " << endl;
+    report( ERROR, kModule ) << "pdfinitialize must use floating or fixed  " << endl;
     line.printLine();
     exit(1);
   }
@@ -964,7 +945,7 @@ ConfigFileParser::doScale(const ConfigFileLine& line){
   string value    = arguments[3];
   AmplitudeInfo* amplitude = m_configurationInfo->amplitude(reaction,sumname,ampname);
   if (!amplitude){
-    cout << "ConfigFileParser ERROR:  trying to scale nonexistent amplitude " << endl;
+    report( ERROR, kModule ) << "trying to scale nonexistent amplitude " << endl;
     line.printLine();
     exit(1);
   }
@@ -975,7 +956,7 @@ ConfigFileParser::doScale(const ConfigFileLine& line){
     }
     ParameterInfo* parinfo = m_configurationInfo->parameter(parname);
     if (!parinfo){
-      cout << "ConfigFileParser ERROR:  can't find parameter " << parname << endl;
+      report( ERROR, kModule ) << "can't find parameter " << parname << endl;
       line.printLine();
       exit(1);
     }
@@ -993,7 +974,7 @@ ConfigFileParser::doPDFScale(const ConfigFileLine& line){
   string value    = arguments[2];
   PDFInfo* pdf = m_configurationInfo->pdf(reaction,pdfname);
   if (!pdf){
-    cout << "ConfigFileParser ERROR:  trying to scale nonexistent pdf " << endl;
+    report( ERROR, kModule ) << "trying to scale nonexistent pdf " << endl;
     line.printLine();
     exit(1);
   }
@@ -1004,7 +985,7 @@ ConfigFileParser::doPDFScale(const ConfigFileLine& line){
     }
     ParameterInfo* parinfo = m_configurationInfo->parameter(parname);
     if (!parinfo){
-      cout << "ConfigFileParser ERROR:  can't find parameter " << parname << endl;
+      report( ERROR, kModule ) << "can't find parameter " << parname << endl;
       line.printLine();
       exit(1);
     }
@@ -1103,4 +1084,21 @@ ConfigFileLine::flushDefinition(const string& word, const vector<string>& defini
   m_arguments = newArguments;
 }
 
+void
+ConfigFileLine::printLine() const {
+  
+  report( INFO, kModule ) << "(" << m_lineNumber << ") " <<
+  m_fileName   << " >>   " <<
+  m_line       << endl;
+}
 
+void
+ConfigFileLine::printArguments() const {
+  
+  report( INFO, kModule ) << "KEYWORD:  " << m_keyword << endl;
+  report( INFO, kModule ) << "ARGUMENTS: " << endl;
+  for ( unsigned int i = 0; i < m_arguments.size(); i++){
+
+    report( INFO, kModule ) << m_arguments[i] << endl;
+  }
+}

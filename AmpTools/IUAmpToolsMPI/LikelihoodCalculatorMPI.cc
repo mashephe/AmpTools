@@ -40,6 +40,9 @@
 #include "IUAmpToolsMPI/LikelihoodCalculatorMPI.h"
 #include "IUAmpToolsMPI/LikelihoodManagerMPI.h"
 
+#include "IUAmpTools/report.h"
+static const char* kModule = "LikelihoodCalculatorMPI";
+
 LikelihoodCalculatorMPI::
 LikelihoodCalculatorMPI( const IntensityManager& intenManager,
                         const NormIntInterface& normInt,
@@ -182,7 +185,7 @@ LikelihoodCalculatorMPI::operator()()
   setNumDataEvents( numDataEvents );
 
   if( sumBkgWeights < 0 ){
-    cerr
+    report( ERROR, kModule ) << "\n"
     << "****************************************************************\n"
     << "* ERROR: The sum of all background weights is negative.  This  *\n"
     << "*   implies a negative background in the signal region, which  *\n"

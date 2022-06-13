@@ -49,12 +49,15 @@
 #include "IUAmpTools/ConfigFileParser.h"
 #include "MinuitInterface/MinuitMinimizationManager.h"
 
+#include "IUAmpTools/report.h"
+static const char* kModule = "FitResults";
+
 FitResults::FitResults( ConfigurationInfo* cfgInfo,
-                        vector< IntensityManager* > intenManVec,
-                        map< string, LikelihoodCalculator* > likCalcMap,
-                        map< string, NormIntInterface* > normIntMap,
-                        MinuitMinimizationManager* minManager,
-                        ParameterManager* parManager) :
+                       vector< IntensityManager* > intenManVec,
+                       map< string, LikelihoodCalculator* > likCalcMap,
+                       map< string, NormIntInterface* > normIntMap,
+                       MinuitMinimizationManager* minManager,
+                       ParameterManager* parManager) :
 m_likelihoodTotal( 0 ),
 m_cfgInfo( cfgInfo ),
 m_intenManVec( intenManVec ),
@@ -65,7 +68,7 @@ m_parManager( parManager ),
 m_createdFromFile( false ),
 m_warnedAboutFreeParams( false ),
 m_isValid( true ){
-    
+  
 }
 
 FitResults::FitResults( const string& inFile ) :
@@ -79,11 +82,11 @@ m_isValid( false ){
 FitResults::~FitResults() {
   
   if( m_createdFromFile ) {
-   
-    for( map< string, NormIntInterface* >::iterator mapItr = m_normIntMap.begin();
-         mapItr != m_normIntMap.end();
-         ++mapItr ){
     
+    for( map< string, NormIntInterface* >::iterator mapItr = m_normIntMap.begin();
+        mapItr != m_normIntMap.end();
+        ++mapItr ){
+      
       delete mapItr->second;
     }
   }
@@ -91,12 +94,12 @@ FitResults::~FitResults() {
 
 double
 FitResults::likelihood( const string& reaction ) const {
-
+  
   map< string, double >::const_iterator reac = m_likelihoodMap.find( reaction );
   
   if( reac == m_likelihoodMap.end () ){
     
-    cout << "FitResults ERROR:  request for likelihood of unknown reaction: " << reaction << endl;
+    report( ERROR, kModule ) << "request for likelihood of unknown reaction: " << reaction << endl;
     return sqrt( -1 );
   }
   
@@ -105,7 +108,7 @@ FitResults::likelihood( const string& reaction ) const {
 
 pair< double, double >
 FitResults::intensity( bool accCorrected ) const {
-
+  
   // return the intensity for all amplitudes
   return intensity( ampList(), accCorrected );
 }
@@ -117,57 +120,57 @@ FitResults::intensity( const vector< string >& amplitudes, bool accCorrected ) c
   vector< string > knownAmps = ampList();
   for( vector< string >::const_iterator amp = amplitudes.begin();
       amp != amplitudes.end(); ++amp ){
-
+    
     if( find( knownAmps.begin(), knownAmps.end(), *amp ) == knownAmps.end() ){
       
-      cout << "FitResults ERROR:  request to compute intensity for unknown amplitude:\n\t"
-           << *amp << endl;
+      report( ERROR, kModule ) << "request to compute intensity for unknown amplitude:\n\t"
+      << *amp << endl;
       assert( false );
     }
   }
   
   // intensity = sum_a sum_a' s_a s_a' V_a V*_a' NI( a, a' )
-    
+  
   // a subset of the larger error matrix
   vector< vector< double > > errorMatrix;
-
+  
   // a vector for the derivatives of the intensity with respect to the
   // real and imaginary parts of the production amplitudes and the
   // scale parameter for the amplitude
   vector< double > deriv( 3 * amplitudes.size() );
   vector< double > parName( 3 * amplitudes.size() );
-
+  
   double intensity = 0;
-
+  
   // check for free parameters and print an appropriate warning message
   // about the accuracy of the intensity errors since we don't yet have
   // the ability to numerically compute the derivatives of the
   // normalization integrals with respect to the free parameters
- 
+  
   map< string, double > ampParameters = ampParMap();
   for( map< string, double >::iterator par = ampParameters.begin();
-       par != ampParameters.end();
-       ++par ){
+      par != ampParameters.end();
+      ++par ){
     
     // there are parameters -- check errors to see if they
     // were floating in the fit
     int parIndex = m_parIndex.find( par->first )->second;
     if( fabs( m_covMatrix[parIndex][parIndex] ) > 1E-20 ){
-    
-      if( !m_warnedAboutFreeParams )
       
-      cout
-      << "***************************************************************" << endl
-      << "* WARNING!:  You are calculating an intensity that depends on *" << endl
-      << "*   parameters that were floating in the fit.  Unless the par-*" << endl
-      << "*   ameters are amplitude scale factors only, THE UNCERTAINTY *" << endl
-      << "*   ON THE INTENSITY SHOULD BE CONSIDERED UNRELIABLE because  *" << endl
-      << "*   the calculation assumes that the derivatives of the norm- *" << endl
-      << "*   alization integrals with respect to the parameters are    *" << endl
-      << "*   equal to zero.  Consider using a technique like bootstrap *" << endl
-      << "*   to make a robust estimation of statistical uncertainties. *" << endl
-      << "***************************************************************" << endl
-      << endl;
+      if( !m_warnedAboutFreeParams )
+        
+        report( WARNING, kModule )
+        << "***************************************************************" << endl
+        << "* WARNING!:  You are calculating an intensity that depends on *" << endl
+        << "*   parameters that were floating in the fit.  Unless the par-*" << endl
+        << "*   ameters are amplitude scale factors only, THE UNCERTAINTY *" << endl
+        << "*   ON THE INTENSITY SHOULD BE CONSIDERED UNRELIABLE because  *" << endl
+        << "*   the calculation assumes that the derivatives of the norm- *" << endl
+        << "*   alization integrals with respect to the parameters are    *" << endl
+        << "*   equal to zero.  Consider using a technique like bootstrap *" << endl
+        << "*   to make a robust estimation of statistical uncertainties. *" << endl
+        << "***************************************************************" << endl
+        << endl;
       
       m_warnedAboutFreeParams = true;
     }
@@ -179,7 +182,7 @@ FitResults::intensity( const vector< string >& amplitudes, bool accCorrected ) c
   
   for( vector< string >::const_iterator amp = amplitudes.begin();
       amp != amplitudes.end(); ++amp ){
-
+    
     // the vector of amplitudes should be "full" amplitude names
     // that include the reaction, sum, and amplitude name
     vector<string> ampNameParts = stringSplit( *amp, "::" );
@@ -216,11 +219,11 @@ FitResults::intensity( const vector< string >& amplitudes, bool accCorrected ) c
       vector<string> conjAmpNameParts = stringSplit( *conjAmp, "::" );
       assert( conjAmpNameParts.size() == 3 );
       string conjReaction = conjAmpNameParts[0];
-
+      
       int jRe = 3 * ( conjAmp - amplitudes.begin() );
       int jIm = jRe + 1;
       int jScale = jRe + 2;
-
+      
       int JRe    = m_parIndex.find( realProdParName( *conjAmp ) )->second;
       int JIm    = m_parIndex.find( imagProdParName( *conjAmp ) )->second;
       
@@ -228,7 +231,7 @@ FitResults::intensity( const vector< string >& amplitudes, bool accCorrected ) c
       // free parameters set the index to -1 and watch for this below
       map< string, int >::const_iterator idx2 = m_parIndex.find( ampScaleName( *conjAmp ) );
       int JScale = ( idx2 == m_parIndex.end() ? -1 : idx2->second );
-    
+      
       // if the two amplitudes are from different reactions then they do not add coherently
       // and we should set the integral of A A* to zero
       // for amplitudes from different sums within the same reaction, this happens
@@ -249,30 +252,30 @@ FitResults::intensity( const vector< string >& amplitudes, bool accCorrected ) c
       errorMatrix[iRe][jRe] = m_covMatrix[IRe][JRe];
       errorMatrix[iRe][jIm] = m_covMatrix[IRe][JIm];
       errorMatrix[iRe][jScale] =
-         ( JScale == -1 ? 0 : m_covMatrix[IRe][JScale] );
+      ( JScale == -1 ? 0 : m_covMatrix[IRe][JScale] );
       errorMatrix[iIm][jRe] = m_covMatrix[IIm][JRe];
       errorMatrix[iIm][jIm] = m_covMatrix[IIm][JIm];
       errorMatrix[iIm][jScale] =
-         ( JScale == -1 ? 0 : m_covMatrix[IIm][JScale] );
+      ( JScale == -1 ? 0 : m_covMatrix[IIm][JScale] );
       errorMatrix[iScale][jRe] =
-         ( IScale == -1 ? 0 : m_covMatrix[IScale][JRe] );
+      ( IScale == -1 ? 0 : m_covMatrix[IScale][JRe] );
       errorMatrix[iScale][jIm] =
-         ( IScale == -1 ? 0 : m_covMatrix[IScale][JIm] );
+      ( IScale == -1 ? 0 : m_covMatrix[IScale][JIm] );
       errorMatrix[iScale][jScale] =
-         ( IScale == -1 || JScale == -1 ? 0 : m_covMatrix[IScale][JScale] );
+      ( IScale == -1 || JScale == -1 ? 0 : m_covMatrix[IScale][JScale] );
       
       deriv[iRe]    += 2 * ampScale( *amp ) * ampScale( *conjAmp ) *
-        ( m_parValues[JRe] * real( ampInt ) + m_parValues[JIm] * imag( ampInt ) );
+      ( m_parValues[JRe] * real( ampInt ) + m_parValues[JIm] * imag( ampInt ) );
       deriv[iIm]    += 2 * ampScale( *amp ) * ampScale( *conjAmp ) *
-        ( m_parValues[JIm] * real( ampInt ) - m_parValues[JRe] * imag( ampInt ) );
-  
+      ( m_parValues[JIm] * real( ampInt ) - m_parValues[JRe] * imag( ampInt ) );
+      
       double intensityContrib = ampScale( *amp ) * ampScale( *conjAmp ) *
-        ( ( m_parValues[IRe] * m_parValues[JRe] + m_parValues[IIm] * m_parValues[JIm] ) * real( ampInt ) -
-          ( m_parValues[IIm] * m_parValues[JRe] - m_parValues[IRe] * m_parValues[JIm] ) * imag( ampInt ) );
+      ( ( m_parValues[IRe] * m_parValues[JRe] + m_parValues[IIm] * m_parValues[JIm] ) * real( ampInt ) -
+       ( m_parValues[IIm] * m_parValues[JRe] - m_parValues[IRe] * m_parValues[JIm] ) * imag( ampInt ) );
       
       deriv[iScale] += 2. * ampScale( *conjAmp ) * (
-	( m_parValues[IRe] * m_parValues[JRe] + m_parValues[IIm] * m_parValues[JIm]) * real( ampInt ) +
-	( m_parValues[IRe] * m_parValues[JIm] - m_parValues[IIm] * m_parValues[JRe]) * imag( ampInt ));
+                                                    ( m_parValues[IRe] * m_parValues[JRe] + m_parValues[IIm] * m_parValues[JIm]) * real( ampInt ) +
+                                                    ( m_parValues[IRe] * m_parValues[JIm] - m_parValues[IIm] * m_parValues[JRe]) * imag( ampInt ));
       
       intensity += intensityContrib;
     }
@@ -295,10 +298,10 @@ FitResults::phaseDiff( const string& amp1, const string& amp2 ) const {
   
   vector< string > knownAmps = ampList();
   if( ( find( knownAmps.begin(), knownAmps.end(), amp1 ) == knownAmps.end() ) ||
-      ( find( knownAmps.begin(), knownAmps.end(), amp2 ) == knownAmps.end() ) ){
+     ( find( knownAmps.begin(), knownAmps.end(), amp2 ) == knownAmps.end() ) ){
     
-    cout << "FitResults ERROR:  unkown amplitude(s) in phase difference calculation\n\t"
-         << amp1 << " and/or " << amp2 << endl;
+    report( ERROR, kModule ) << "unkown amplitude(s) in phase difference calculation\n\t"
+    << amp1 << " and/or " << amp2 << endl;
     assert( false );
   }
   
@@ -311,14 +314,14 @@ FitResults::phaseDiff( const string& amp1, const string& amp2 ) const {
   assert( ampNameParts.size() == 3 );
   string reaction2 = ampNameParts[0];
   string sum2 = ampNameParts[1];
-
+  
   if( ( reaction1 != reaction2 ) || ( sum1 != sum2 ) ){
     
-    cout << "FitResults WARNING:: request to compute phase difference of " << endl
-         << "                     amplitudes from different sums or different" << endl
-         << "                     reactions which is not meaningful, returning 0. " << endl
-         << "    amp1: " << amp1 << endl
-         << "    amp2: " << amp2 << endl;
+    report( WARNING, kModule ) << "request to compute phase difference of " << endl
+    << "                     amplitudes from different sums or different" << endl
+    << "                     reactions which is not meaningful, returning 0. " << endl
+    << "    amp1: " << amp1 << endl
+    << "    amp2: " << amp2 << endl;
     
     return pair< double, double >( 0, 0 );
   }
@@ -331,13 +334,13 @@ FitResults::phaseDiff( const string& amp1, const string& amp2 ) const {
   idx[1] = m_parIndex.find( imagProdParName( amp1 ) )->second;
   idx[2] = m_parIndex.find( realProdParName( amp2 ) )->second;
   idx[3] = m_parIndex.find( imagProdParName( amp2 ) )->second;
-
+  
   // this makes the code a little easier to read
   double a1Re = m_parValues[idx[0]];
   double a1Im = m_parValues[idx[1]];
   double a2Re = m_parValues[idx[2]];
   double a2Im = m_parValues[idx[3]];
-
+  
   vector< double > pDeriv( 4 );
   pDeriv[0] = ( -a1Im / ( a1Re * a1Re + a1Im * a1Im ) );
   pDeriv[1] = (  a1Re / ( a1Re * a1Re + a1Im * a1Im ) );
@@ -353,27 +356,27 @@ FitResults::phaseDiff( const string& amp1, const string& amp2 ) const {
   }
   
   return pair< double, double >( arg( complex< double > ( a1Re, a1Im ) ) -
-                                 arg( complex< double > ( a2Re, a2Im ) ),
-                                 sqrt(pVar) );
+                                arg( complex< double > ( a2Re, a2Im ) ),
+                                sqrt(pVar) );
 }
 
 const NormIntInterface*
 FitResults::normInt( const string& reactionName ) const {
   
   map< string, NormIntInterface* >::const_iterator nameNormInt =
-     m_normIntMap.find( reactionName );
+  m_normIntMap.find( reactionName );
   
   if( nameNormInt == m_normIntMap.end() ){
     
-    cout << "FitResults ERROR:  requesting NormIntInterface for reaction "
-         << "that does not exist: " << reactionName << endl;
+    report( ERROR, kModule ) << "requesting NormIntInterface for reaction "
+    << "that does not exist: " << reactionName << endl;
     
-    cout << "  Returning a NULL pointer that may result in a segfault."
-         << endl;
+    report( ERROR, kModule ) << "  Returning a NULL pointer that may result in a segfault."
+    << endl;
     
     return NULL;
   }
-
+  
   return nameNormInt->second;
 }
 
@@ -381,7 +384,7 @@ string
 FitResults::realProdParName( const string& amplitude ) const {
   
   string parName = amplitude + "_re";
-
+  
   // be sure the parameter actually exists before returning its name
   // if this fails, then a bogus amplitude name was passed in
   assert( m_parIndex.find( parName ) != m_parIndex.end() );
@@ -415,16 +418,16 @@ FitResults::ampScaleName( const string& amplitude ) const {
   
   if( reactIndexPair == m_reacIndex.end() ){
     
-    cout << "FitResults::ampScaleName ERROR:: no such reaction: " << reaction << endl;
+    report( ERROR, kModule ) << "FitResults::ampScaleName no such reaction: " << reaction << endl;
     assert( false );
   }
   
   map< string, int >::const_iterator ampIndexPair =
-     m_ampIndex.at(reactIndexPair->second).find( amplitude );
+  m_ampIndex.at(reactIndexPair->second).find( amplitude );
   
   if( ampIndexPair == m_ampIndex.at(reactIndexPair->second).end() ){
     
-    cout << "FitResults::ampScaleName ERROR:: no such amplitude: " << amplitude << endl;
+    report( ERROR, kModule ) << "FitResults::ampScaleName no such amplitude: " << amplitude << endl;
     assert( false );
   }
   
@@ -438,12 +441,12 @@ FitResults::ampProdParMap() const {
   
   vector< string > amps = ampList();
   for( vector< string >::iterator amp = amps.begin();
-       amp != amps.end();
-       ++amp ){
-
+      amp != amps.end();
+      ++amp ){
+    
     ampMap[*amp] = productionParameter( *amp );
   }
-
+  
   return ampMap;
 }
 
@@ -471,7 +474,7 @@ FitResults::ampParMap() const {
   vector< ParameterInfo* > parList = m_cfgInfo->parameterList();
   
   for( vector< ParameterInfo* >::iterator par = parList.begin();
-       par != parList.end(); ++par ){
+      par != parList.end(); ++par ){
     
     if( (**par).fixed() ) continue;
     
@@ -483,10 +486,10 @@ FitResults::ampParMap() const {
 
 complex< double >
 FitResults::productionParameter( const string& ampName ) const {
-    
+  
   int iRe = m_parIndex.find( realProdParName( ampName ) )->second;
   int iIm = m_parIndex.find( imagProdParName( ampName ) )->second;
-
+  
   return complex< double >( m_parValues[iRe], m_parValues[iIm] );
 }
 
@@ -504,8 +507,8 @@ FitResults::parValue( const string& parName ) const {
   
   if( parIndexPair == m_parIndex.end() ){
     
-    cout << "FitResults:: ERROR:  request for unknown parameter " << parName << endl
-         << "                     returning nan." << endl;
+    report( ERROR, kModule ) << "request for unknown parameter " << parName << endl
+    << "                     returning nan." << endl;
     
     return sqrt( -1 );
   }
@@ -515,7 +518,7 @@ FitResults::parValue( const string& parName ) const {
 
 double
 FitResults::parError( const string& parName ) const {
-
+  
   return sqrt( covariance( parName, parName ) );
 }
 
@@ -527,9 +530,9 @@ FitResults::covariance( const string& par1, const string& par2 ) const {
   
   if( par1Pair == m_parIndex.end() || par2Pair == m_parIndex.end() ){
     
-    cout << "FitResults:: ERROR:  request for covaraince of unkown parameters "
-         << par1 << ", " << par2 << endl
-         << "                     returning nan" << endl;
+    report( ERROR, kModule ) << "request for covaraince of unkown parameters "
+    << par1 << ", " << par2 << endl
+    << "                     returning nan" << endl;
     return sqrt( -1 );
   }
   
@@ -549,7 +552,7 @@ FitResults::ampScale( const string& amplitude ) const {
   
   if( reactIndexPair == m_reacIndex.end() ){
     
-    cout << "FitResults::ampScaleName ERROR:: no such reaction: " << reaction << endl;
+    report( ERROR, kModule ) << "FitResults::ampScaleName no such reaction: " << reaction << endl;
     assert( false );
   }
   
@@ -558,13 +561,13 @@ FitResults::ampScale( const string& amplitude ) const {
   
   if( ampIndexPair == m_ampIndex.at(reactIndexPair->second).end() ){
     
-    cout << "FitResults::ampScaleName ERROR:: no such amplitude: " << amplitude << endl;
+    report( ERROR, kModule ) << "FitResults::ampScaleName no such amplitude: " << amplitude << endl;
     assert( false );
   }
   
   return m_ampScaleValues.at( reactIndexPair->second ).at( ampIndexPair->second );
 }
-  
+
 vector< string >
 FitResults::ampList() const {
   
@@ -577,8 +580,8 @@ FitResults::ampList() const {
     vector< string > thisReacList = ampList( *reacItr );
     
     for( vector< string >::iterator ampItr = thisReacList.begin();
-         ampItr != thisReacList.end();
-         ++ampItr ){
+        ampItr != thisReacList.end();
+        ++ampItr ){
       
       list.push_back( *ampItr );
     }
@@ -624,14 +627,14 @@ FitResults::writeResults( const string& outFile ) const {
   output << "+++ Reactions, Amplitudes, and Scale Parameters +++" << endl;
   output << "  " << m_numReactions << endl;
   for( int i = 0; i < m_numReactions; ++i ){
-
+    
     output << "  " <<m_reactionNames[i] << "\t" << m_numAmps[i] << endl;
     
     for( int j = 0; j < m_ampNames[i].size(); ++j ) {
       
       output << "  " <<m_ampNames[i][j] << "\t" 
-             << m_ampScaleNames[i][j] << "\t"
-             << m_ampScaleValues[i][j] << endl;
+      << m_ampScaleNames[i][j] << "\t"
+      << m_ampScaleValues[i][j] << endl;
     }
   }
   
@@ -640,7 +643,7 @@ FitResults::writeResults( const string& outFile ) const {
   for( int i = 0; i < m_numReactions; ++i ){
     
     output << "  " <<m_reactionNames[i] << "\t" 
-           << m_likelihoodMap.find(m_reactionNames[i])->second << endl;
+    << m_likelihoodMap.find(m_reactionNames[i])->second << endl;
   }
   
   output << "+++ Fitter Information +++" << endl;
@@ -670,11 +673,11 @@ FitResults::writeResults( const string& outFile ) const {
   
   // here we will use the NormIntInterface rather than replicating the
   // functionality that is already found there
-
+  
   output << "+++ Normalization Integrals +++" << endl;
-
+  
   for( int i = 0; i < m_reactionNames.size(); ++i ){
-   
+    
     string reac = m_reactionNames[i];
     output << "  " << reac << endl;
     
@@ -705,46 +708,46 @@ FitResults::writeSeed( const string& outFile ) const {
   
   vector< string > amps = ampList();
   for( vector< string >::const_iterator amp = amps.begin();
-       amp != amps.end();
-       ++amp ){
+      amp != amps.end();
+      ++amp ){
     
     vector<string> parts = stringSplit( *amp, "::" );
     assert( parts.size() == 3 );
     AmplitudeInfo* ampInfo =
-      m_cfgInfo->amplitude( parts[0], parts[1], parts[2] );
+    m_cfgInfo->amplitude( parts[0], parts[1], parts[2] );
     
     output << "initialize " << *amp << " cartesian "
-           << parValue( realProdParName( *amp ) ) << " "
-           << parValue( imagProdParName( *amp ) );
+    << parValue( realProdParName( *amp ) ) << " "
+    << parValue( imagProdParName( *amp ) );
     
     if( ampInfo->fixed() )
       output << " fixed";
     
     if( ampInfo->real() )
       output << " real";
-
+    
     output << endl;
   }
   
   map< string, double > ampPars = ampParMap();
   for( map< string, double >::const_iterator par = ampPars.begin();
-       par != ampPars.end();
-       ++par ){
+      par != ampPars.end();
+      ++par ){
     
     output << "parameter " << par->first << " " << par->second;
     
     ParameterInfo* parInfo = m_cfgInfo->parameter( par->first );
-
+    
     if( parInfo->fixed() )
       output << " fixed";
-
+    
     if( parInfo->bounded() )
       output << " bounded " << parInfo->lowerBound()
-           << " " << parInfo->upperBound();
-
+      << " " << parInfo->upperBound();
+    
     if( parInfo->gaussianBounded() )
       output << " gaussian " << parInfo->centralValue()
-           << " " << parInfo->gaussianError();
+      << " " << parInfo->gaussianError();
     
     output << endl;
   }
@@ -770,7 +773,7 @@ FitResults::loadResults( const string& inFile ){
   if( lineStr.find( outputHeader() ) == string::npos ){
     
     cerr << "ERROR::  trying to construct a FitResults object from a file " << endl
-         << "         that is not FitResults file.  (Check arguments.)" << endl;
+    << "         that is not FitResults file.  (Check arguments.)" << endl;
     assert( false );
   }
   
@@ -789,7 +792,7 @@ FitResults::loadResults( const string& inFile ){
   for( int i = 0; i < m_numReactions; ++i ){
     
     input >> m_reactionNames[i] >> m_numAmps[i];
-        
+    
     m_reacIndex[m_reactionNames[i]] = i;
     
     m_ampNames[i].resize( m_numAmps[i] );
@@ -799,8 +802,8 @@ FitResults::loadResults( const string& inFile ){
     for( int j = 0; j < m_ampNames[i].size(); ++j ) {
       
       input >> m_ampNames[i][j] 
-            >> m_ampScaleNames[i][j]
-            >> m_ampScaleValues[i][j];
+      >> m_ampScaleNames[i][j]
+      >> m_ampScaleValues[i][j];
       
       m_ampIndex[i][m_ampNames[i][j]] = j;
     }
@@ -821,7 +824,7 @@ FitResults::loadResults( const string& inFile ){
   
   input.getline( line, kMaxLine ); // fit info heading
   input.getline( line, kMaxLine ); // fit info heading
-
+  
   input >> tmp >> m_lastCommand;
   input >> tmp >> m_lastCommandStatus;
   input >> tmp >> m_eMatrixStatus;
@@ -832,7 +835,7 @@ FitResults::loadResults( const string& inFile ){
   
   input.getline( line, kMaxLine ); // parameters heading
   input.getline( line, kMaxLine ); // parameters heading
-
+  
   int nPar;
   input >> nPar;
   m_parNames.resize( nPar );
@@ -853,7 +856,7 @@ FitResults::loadResults( const string& inFile ){
       input >> m_covMatrix[i][j];
     }    
   }
-    
+  
   // here we will use the NormIntInterface rather than replicating the
   // functionality that is already found there
   
@@ -867,7 +870,7 @@ FitResults::loadResults( const string& inFile ){
     m_normIntMap[reac] = new NormIntInterface();
     input >> (*m_normIntMap[reac]);
   }    
-
+  
   // now read back in the ConfigurationInfo using the ConfigFileParser
   input.getline( line, kMaxLine ); // cfg info heading
   input.getline( line, kMaxLine ); // cfg info heading
@@ -894,12 +897,12 @@ FitResults::recordAmpSetup(){
   m_ampNames.clear();
   m_ampScaleNames.clear();
   m_ampScaleValues.clear();
-
+  
   m_reacIndex.clear();
   m_ampIndex.clear();
-    
-  for( int i = 0; i < m_intenManVec.size(); ++i ){
   
+  for( int i = 0; i < m_intenManVec.size(); ++i ){
+    
     IntensityManager* intenMan = m_intenManVec[i];
     
     m_reacIndex[intenMan->reactionName()] = i;
@@ -918,7 +921,7 @@ FitResults::recordAmpSetup(){
       
       ampScaleNames.push_back( intenMan->getScale( ampNames[j] ).name() );
       ampScaleValues.push_back( intenMan->getScale( ampNames[j] ) );
-
+      
       m_ampIndex[i][ampNames[j]] = j;
     }
     
@@ -929,13 +932,13 @@ FitResults::recordAmpSetup(){
 
 void
 FitResults::recordLikelihood(){
-
+  
   m_likelihoodTotal = 0;
   
   for( map< string, LikelihoodCalculator* >::iterator 
-           mapItr = m_likCalcMap.begin();
-       mapItr != m_likCalcMap.end();
-       ++mapItr ){
+      mapItr = m_likCalcMap.begin();
+      mapItr != m_likCalcMap.end();
+      ++mapItr ){
     
     double thisLikVal = (*(mapItr->second))();
     
@@ -950,12 +953,12 @@ FitResults::recordParameters(){
   m_parNames = m_parManager->parameterList();
   m_parValues = m_parManager->parameterValues();
   m_covMatrix = m_parManager->covarianceMatrix();
-
+  
   for( int i = 0; i < m_parNames.size(); ++i ){
     
     m_parIndex[m_parNames[i]] = i;
   }
-
+  
 }
 
 void
@@ -988,17 +991,17 @@ FitResults::rotateResults()
     for( vector< CoherentSumInfo* >::const_iterator sumInfoItr = sumInfo.begin(); sumInfoItr != sumInfo.end(); ++sumInfoItr ){
       sumNames.push_back( (**sumInfoItr).sumName() );
     }
-
+    
     // Get all of the amplitudes, independent of sums
     vector< string > allAmpNames;
     vector< AmplitudeInfo* > ampInfoEachSum;
     for( unsigned int sum = 0; sum < sumNames.size(); sum++ ){
       ampInfoEachSum = m_cfgInfo->amplitudeList( reactionName, sumNames[sum] );
       for( vector< AmplitudeInfo* >::const_iterator ampInfoItr = ampInfoEachSum.begin(); ampInfoItr != ampInfoEachSum.end(); ++ampInfoItr ){
-	allAmpNames.push_back( (**ampInfoItr).fullName() );
+        allAmpNames.push_back( (**ampInfoItr).fullName() );
       }
     }
-
+    
     // loop over the coherent sums
     for( unsigned int sum = 0; sum < sumNames.size(); sum++ ){
       
@@ -1021,19 +1024,19 @@ FitResults::rotateResults()
         int reIndex = m_parIndex.find( reParName )->second;
         int imIndex = m_parIndex.find( imParName )->second;
         
-	// Index of scale and scale itself are
-	// initialized to -1 and 1, respectively.
-	// The index acts as a flag of whether the scale exists.
-	int scIndex = -1;
-	double scale = 1.0;
-
-	// check if scale parameter exists
-	if(ampScaleName(ampNames[ampNames.size()-1]) != "-"){
-	  // if it exists, set the index and scale value
-	  scIndex = m_parIndex.find( ampScaleName( ampNames[ampNames.size()-1] ))->second;
-	  scale = m_parValues[scIndex];
-	}
-
+        // Index of scale and scale itself are
+        // initialized to -1 and 1, respectively.
+        // The index acts as a flag of whether the scale exists.
+        int scIndex = -1;
+        double scale = 1.0;
+        
+        // check if scale parameter exists
+        if(ampScaleName(ampNames[ampNames.size()-1]) != "-"){
+          // if it exists, set the index and scale value
+          scIndex = m_parIndex.find( ampScaleName( ampNames[ampNames.size()-1] ))->second;
+          scale = m_parValues[scIndex];
+        }
+        
         // check if a rotation is necessary
         if( (**ampInfoItr).real() == true && foundRealAmp == false ){
           foundRealAmp = true;
@@ -1081,71 +1084,71 @@ FitResults::rotateResults()
         if( reflect == true && m_parValues[imIndex] != 0.0 )
           m_parValues[imIndex] *= -1.0;
         
-	// Get the sum name for this amp.
-	// This is used when flipping the scale elements of
-	// the ovariance matrix.
-	vector<string> ampNameParts = stringSplit( ampNames[amp], "::" );
-	string sumAmp = ampNameParts[1];
-
+        // Get the sum name for this amp.
+        // This is used when flipping the scale elements of
+        // the ovariance matrix.
+        vector<string> ampNameParts = stringSplit( ampNames[amp], "::" );
+        string sumAmp = ampNameParts[1];
+        
         // also make the necessary changes to the covariance matrix
         for( unsigned int conjAmp = 0; conjAmp < allAmpNames.size(); conjAmp++ ){
           
           string imConjParName = imagProdParName( allAmpNames[conjAmp] );
           int imConjIndex = m_parIndex.find( imConjParName )->second;
           
-	  string scConjParName = ampScaleName( allAmpNames[conjAmp] );
-	  int scConjIndex      = -1;
-	  if(scConjParName != "-") scConjIndex = m_parIndex.find( scConjParName )->second;
-
+          string scConjParName = ampScaleName( allAmpNames[conjAmp] );
+          int scConjIndex      = -1;
+          if(scConjParName != "-") scConjIndex = m_parIndex.find( scConjParName )->second;
+          
           if( rotate == true ){
             m_covMatrix[reIndex][imConjIndex] *= -1.0;
             m_covMatrix[imConjIndex][reIndex] *= -1.0;
-
-	    // For scale parameters, each scale parameter is saved as
-	    // one entry in the covariance matrix, in contrast with
-	    // each production amplitude appearing once for each sum.
-	    // Therefore, we need to flip the sign only when the sums
-	    // of the amp and conjAmp are the same.
-	    // Otherwise, we will flip the covariance matrix n times,
-	    // where n is the number of sums.
-	    if(scConjIndex!=-1){
-
-	      vector<string> conjAmpNameParts = stringSplit( allAmpNames[conjAmp], "::" );
-	      string sumConjAmp = conjAmpNameParts[1];
-	      cout << "sum name of conjAmp = " << sumConjAmp << endl;
-	      if(sumAmp == sumConjAmp){
-		// cout << "rotate: flipping sign for scConjIndex = " << scConjIndex << endl;
-		m_covMatrix[reIndex][scConjIndex] *= -1.0;
-		m_covMatrix[scConjIndex][reIndex] *= -1.0;
-	      }
-	    }
-
+            
+            // For scale parameters, each scale parameter is saved as
+            // one entry in the covariance matrix, in contrast with
+            // each production amplitude appearing once for each sum.
+            // Therefore, we need to flip the sign only when the sums
+            // of the amp and conjAmp are the same.
+            // Otherwise, we will flip the covariance matrix n times,
+            // where n is the number of sums.
+            if(scConjIndex!=-1){
+              
+              vector<string> conjAmpNameParts = stringSplit( allAmpNames[conjAmp], "::" );
+              string sumConjAmp = conjAmpNameParts[1];
+              report( DEBUG, kModule ) << "sum name of conjAmp = " << sumConjAmp << endl;
+              if(sumAmp == sumConjAmp){
+                report( DEBUG, kModule ) << "rotate: flipping sign for scConjIndex = " << scConjIndex << endl;
+                m_covMatrix[reIndex][scConjIndex] *= -1.0;
+                m_covMatrix[scConjIndex][reIndex] *= -1.0;
+              }
+            }
+            
           }
-
+          
           string reConjParName = realProdParName( allAmpNames[conjAmp] );
           int reConjIndex = m_parIndex.find( reConjParName )->second;
-
+          
           if( reflect == true ){
             m_covMatrix[imIndex][reConjIndex] *= -1.0;
             m_covMatrix[reConjIndex][imIndex] *= -1.0;
-
-	    // For scale parameters, each scale parameter is saved as
-	    // one entry in the covariance matrix, in contrast with
-	    // each production amplitude appearing once for each sum.
-	    // Therefore, we need to flip the sign only when the sums
-	    // of the amp and conjAmp are the same.
-	    // Otherwise, we will flip the covariance matrix n times,
-	    // where n is the number of sums.
-	    if(scConjIndex!=-1){
-
-	      vector<string> conjAmpNameParts = stringSplit( allAmpNames[conjAmp], "::" );
-	      string sumConjAmp = conjAmpNameParts[1];
-	      if(sumAmp == sumConjAmp){
-		m_covMatrix[imIndex][scConjIndex] *= -1.0;
-		m_covMatrix[scConjIndex][imIndex] *= -1.0;
-	      }
-	    } // found scConjIndex
-
+            
+            // For scale parameters, each scale parameter is saved as
+            // one entry in the covariance matrix, in contrast with
+            // each production amplitude appearing once for each sum.
+            // Therefore, we need to flip the sign only when the sums
+            // of the amp and conjAmp are the same.
+            // Otherwise, we will flip the covariance matrix n times,
+            // where n is the number of sums.
+            if(scConjIndex!=-1){
+              
+              vector<string> conjAmpNameParts = stringSplit( allAmpNames[conjAmp], "::" );
+              string sumConjAmp = conjAmpNameParts[1];
+              if(sumAmp == sumConjAmp){
+                m_covMatrix[imIndex][scConjIndex] *= -1.0;
+                m_covMatrix[scConjIndex][imIndex] *= -1.0;
+              }
+            } // found scConjIndex
+            
           }
         }
       } // end of nested loop over amplitudes
@@ -1155,11 +1158,11 @@ FitResults::rotateResults()
 
 void
 FitResults::writeFitResults( const string& outFile ){
-
+  
   ofstream output( outFile.c_str() );
-
+  
   output << m_numAmps[0]/4. << "\t0" << endl;
-
+  
   for( unsigned int i = 0; i < m_parNames.size()-1; i++ ){
     string reactName = m_parNames[i].substr( 8, 4 );
     if( strcmp( reactName.c_str(), "amp1" ) != 0 ) continue;
@@ -1170,7 +1173,7 @@ FitResults::writeFitResults( const string& outFile ){
       output << "\t(" << m_parValues[i-1] << "," << m_parValues[i] << ")" << endl;
     }
   }
-
+  
   for( unsigned int i = 0; i < m_parNames.size()-1; i++ ){
     string reactNamei = m_parNames[i].substr( 8, 4 );
     if( strcmp( reactNamei.c_str(), "amp1" ) != 0 ) continue;
@@ -1186,7 +1189,7 @@ FitResults::writeFitResults( const string& outFile ){
     }
     output << endl;
   }
-
+  
   output.close();
 }
 

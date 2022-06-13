@@ -13,6 +13,8 @@
 #include "DalitzDataIO/DalitzDataReader.h"
 #include "DalitzAmp/BreitWigner.h"
 
+#include "IUAmpTools/report.h"
+static const char* kModule = "fitAmplitudesMPI";
 
 using std::complex;
 using namespace std;
@@ -31,14 +33,15 @@ int main( int argc, char* argv[] ){
     // usage
     // ************************
 
-  if (rank == 0) cout << endl << " *** Performing the Fit *** " << endl << endl;
 
   if (argc <= 1){
-    if (rank == 0) cout << "Usage:" << endl << endl;
-    if (rank == 0) cout << "\tfitAmplitudesMPI <config file name>" << endl << endl;
+    report( INFO, kModule ) << "Usage:" << endl << endl;
+    report( INFO, kModule ) << "\tfitAmplitudesMPI <config file name>" << endl << endl;
     MPI_Finalize();
     return 0;
   }
+
+  report( INFO, kModule ) << " *** Performing the Fit *** " << endl;
 
 
     // ************************
@@ -47,7 +50,7 @@ int main( int argc, char* argv[] ){
 
   string cfgname(argv[1]);
 
-  if (rank == 0) cout << "Config file name = " << cfgname << endl << endl;
+  report( INFO, kModule ) << "Config file name:  " << cfgname << endl << endl;
 
 
     // ************************
@@ -56,7 +59,7 @@ int main( int argc, char* argv[] ){
 
   ConfigFileParser parser(cfgname);
   ConfigurationInfo* cfgInfo = parser.getConfigurationInfo();
-  if (rank == 0) cfgInfo->display();
+  cfgInfo->display();
 
 
     // ************************
@@ -71,7 +74,7 @@ int main( int argc, char* argv[] ){
   if (rank == 0){
     
     double neg2LL = ATI.likelihood();
-    cout << "-2 ln(L) BEFORE MINIMIZATION:  " << neg2LL << endl;
+    report( INFO, kModule ) << "-2 ln(L) BEFORE MINIMIZATION:  " << neg2LL << endl;
 
     MinuitMinimizationManager* fitManager = ATI.minuitMinimizationManager();
     fitManager->setStrategy(1);
@@ -79,10 +82,10 @@ int main( int argc, char* argv[] ){
     fitManager->migradMinimization();
 
     if( fitManager->status() != 0 && fitManager->eMatrixStatus() != 3 ){
-      cout << "ERROR: fit failed..." << endl;
+      report( WARNING, kModule ) << "Fit failed." << endl;
     }
 
-    cout << "-2 ln(L) AFTER MINIMIZATION:  " << ATI.likelihood() << endl;
+    report( INFO, kModule ) << "-2 ln(L) AFTER MINIMIZATION:  " << ATI.likelihood() << endl;
 
     ATI.finalizeFit();
   }

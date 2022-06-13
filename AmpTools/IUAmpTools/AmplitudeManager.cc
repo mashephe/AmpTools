@@ -44,6 +44,9 @@ using namespace std;
 
 #include "IUAmpTools/AmplitudeManager.h"
 #include "IUAmpTools/NormIntInterface.h"
+#include "IUAmpTools/report.h"
+
+static const char* kModule = "AmplitudeManager";
 
 #ifdef SCOREP
 #include <scorep/SCOREP_User.h>
@@ -57,8 +60,7 @@ m_optimizeParIteration( false ),
 m_flushFourVecsIfPossible( false ),
 m_forceUserVarRecalculation( false )
 {
-  cout << endl << "## AMPLITUDE MANAGER INITIALIZATION ##" << endl;
-  cout << " Creating amplitude manager for reaction:  " << reactionName << endl;
+  report( INFO, kModule ) << "Creating AmplitudeManager for the reaction:  " << reactionName << endl;
   
   // a list of index switches needed to generate the symmetrized amplitude
   // group the switches by particle type
@@ -66,7 +68,7 @@ m_forceUserVarRecalculation( false )
   map< string, vector< pair< int, int > > > swapsByType;
   for( unsigned int i = 0; i < reaction.size(); ++i ){
     
-    cout << "\t particle index assignment:  " << reaction[i] << " -->> " << i << endl;
+    report( INFO, kModule ) << "\t particle index assignment:  " << reaction[i] << " -> " << i << endl;
     
     for( unsigned int j = i + 1; j < reaction.size(); ++j ){
       
@@ -86,7 +88,7 @@ m_forceUserVarRecalculation( false )
     // don't forget the option of leaving the particles unchanged
     int partCombos = partItr->second.size() + 1;
     
-    cout << "There are " << partCombos
+    report( INFO, kModule ) << "There are " << partCombos
     << " ways of rearranging particles of type: "
     << partItr->first << endl;
     
@@ -125,16 +127,16 @@ m_forceUserVarRecalculation( false )
   
   if( m_symmCombos.size() > 1 ){
     
-    cout << "The following " << numberOfCombos << " orderings of the particles are" << endl
+    report( INFO, kModule ) << "The following " << numberOfCombos << " orderings of the particles are" << endl
     << "indistinguishable and will be permuted when computing amplitudes." << endl;
     
     for( unsigned int i = 0; i < m_symmCombos.size(); ++i ){
       
       for( unsigned int j = 0; j < reaction.size(); ++j ){
         
-        cout << "\t" << m_symmCombos[i][j];
+        report( INFO, kModule ) << "\t" << m_symmCombos[i][j];
       }
-      cout << endl;
+      report( INFO, kModule ) << endl;
     }
   }
 }
@@ -987,8 +989,8 @@ AmplitudeManager::addAmpFactor( const string& name,
   
   if( defaultAmp == m_registeredFactors.end() ){
     
-    cout << "ERROR: amplitude factor with name " << factorName
-	 << " has not been registered." << endl;
+    report( ERROR, kModule ) << "Amplitude factor with name " << factorName
+                             << " has not been registered." << endl;
     assert( false );
   }
   
@@ -1062,8 +1064,7 @@ AmplitudeManager::addAmpPermutation( const string& ampName, const vector< int >&
   
   if( mapItr == m_ampPermutations.end() ){
     
-    cout << "WARNING:  adding permutation for nonexistent amplitude " << ampName
-    << endl;
+    report( WARNING, kModule ) << "adding permutation for nonexistent amplitude " << ampName << endl;
     
     m_ampPermutations[ampName] = vector< vector< int > >( 0 );
     m_ampPermutations[ampName].push_back( permutation );
@@ -1082,27 +1083,27 @@ AmplitudeManager::addAmpPermutation( const string& ampName, const vector< int >&
     
     if( !foundPermutation ){
       
-      cout << "Adding a new permutation for " << ampName << ":  ";
+      report( INFO, kModule ) << "Adding a new permutation for " << ampName << ":  ";
       for( vector< int >::const_iterator itr = permutation.begin();
           itr != permutation.end();
           ++itr ){
         
-        cout << *itr << " ";
+        report( INFO, kModule ) << *itr << " ";
       }
-      cout << endl;
+      report( INFO, kModule ) << endl;
       
       mapItr->second.push_back( permutation );
     }
     else{
       
-      cout << "The permutation ";
+      report( INFO, kModule ) << "The permutation ";
       for( vector< int >::const_iterator itr = permutation.begin();
           itr != permutation.end();
           ++itr ){
         
-        cout << *itr << " ";
+        report( INFO, kModule ) << *itr << " ";
       }
-      cout << "already exists for " << ampName << endl;
+      report( INFO, kModule ) << "already exists for " << ampName << endl;
     }
   }
 }

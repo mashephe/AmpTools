@@ -9,6 +9,9 @@
 #include "IUAmpTools/Kinematics.h"
 #include "DalitzDataIO/DalitzDataReader.h"
 
+#include "IUAmpTools/report.h"
+static const char* kModule = "plotData";
+
 using namespace std;
 
 int main(int argc, char** argv){
@@ -18,14 +21,13 @@ int main(int argc, char** argv){
     // usage
     // ************************
 
-  cout << endl << " *** Plotting Data *** " << endl << endl;
-
   if (argc <= 2){
-    cout << "Usage:" << endl << endl;
-    cout << "\tplotData <input file name> <output file name>" << endl << endl;
+    report( NOTICE, kModule ) << "Usage:" << endl << endl;
+    report( NOTICE, kModule ) << "\tplotData <input file name> <output file name>" << endl << endl;
     return 0;
   }
 
+  report( INFO, kModule ) << endl << " *** Plotting Data *** " << endl << endl;
 
     // ************************
     // parse the command line parameters
@@ -34,21 +36,21 @@ int main(int argc, char** argv){
   string infilename(argv[1]);
   string outfilename(argv[2]);
 
-  cout << "Input file name  = " << infilename << endl;
-  cout << "Output file name = " << outfilename << endl << endl;
+  report( INFO, kModule ) << "Input file name  = " << infilename << endl;
+  report( INFO, kModule ) << "Output file name = " << outfilename << endl << endl;
 
 
     // ************************
     // set up a DalitzDataReader object
     // ************************
 
-  cout << "Creating a Data Reader..." << endl;
+  report( DEBUG, kModule ) << "Creating a Data Reader..." << endl;
 
   vector<string> args;
   args.push_back(infilename);
   DalitzDataReader dataReader(args);
 
-  cout << "... Finished creating a Data Reader" << endl << endl;
+  report( DEBUG, kModule ) << "... Finished creating a Data Reader" << endl << endl;
 
 
     // ************************
@@ -109,7 +111,7 @@ int main(int argc, char** argv){
     hs12s23->Fill((pList[1]+pList[2]).M2(),(pList[0]+pList[1]).M2());
 
     if (dataReader.eventCounter() % 1000 == 0)
-      cout << "Event counter = " << dataReader.eventCounter() << endl;
+      report( INFO, kModule ) << "Event counter = " << dataReader.eventCounter() << endl;
 
     delete kin;
 

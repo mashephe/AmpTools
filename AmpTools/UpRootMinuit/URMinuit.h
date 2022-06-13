@@ -209,7 +209,7 @@ public:
  virtual Int_urt  Migrad( Double_urt tolerance );
  virtual Int_urt  Minos();
  virtual Int_urt  Hesse();
- void             SetLogStream( std::ostream& aStream ) { m_logStream = &aStream; }
+// void             SetLogStream( std::ostream& aStream ) { m_logStream = &aStream; }
  virtual void   mnamin();
  virtual void   mnbins(Double_urt a1, Double_urt a2, Int_urt naa, Double_urt &bl, Double_urt &bh, Int_urt &nb, Double_urt &bwid);
  virtual void   mncalf(Double_urt *pvec, Double_urt &ycalf);
@@ -219,7 +219,7 @@ public:
  virtual void   mncont(Int_urt ke1, Int_urt ke2, Int_urt nptu, Double_urt *xptu, Double_urt *yptu, Int_urt &ierrf);
 // virtual void   mncrck(const std::string& crdbuf, Int_urt maxcwd, const std::string &comand, Int_urt &lnc
 // header change (mrs43): 
-//   seems as if the point of this is to modify comand - should not be a const reference
+//   seems as if the point of this is to modify command - should not be a const reference
 //   cardbuf also appears to be an input only -- pass by value instead of const reference
  virtual void   mncrck(std::string crdbuf, Int_urt maxcwd, std::string &comand, Int_urt &lnc,
 		Int_urt mxp, Double_urt *plist, Int_urt &llist, Int_urt &ierr, Int_urt isyswr);
@@ -285,7 +285,7 @@ public:
     std::vector<Double_urt>    m_userParameterValue; //  External (visible to user in FCN) value of parameters (was fU)
     std::vector<std::string> m_userParameterName;  // parameters names (was fCpnam)
     std::vector<Int_urt>       m_userParameterFlag;   // parameter flags (-1=undefined, 0=constant..)  (was fNvarl)
-    std::ostream* m_logStream;
+//    std::ostream* m_logStream;
 };
 
 #endif

@@ -48,6 +48,9 @@
 #include "IUAmpTools/AmpToolsInterface.h"
 #include "IUAmpTools/FitResults.h"
 
+#include "IUAmpTools/report.h"
+static const char* kModule = "PlotGenerator";
+
 PlotGenerator::PlotGenerator( const FitResults& results, Option opt ) :
 m_fitResults( results ),
 // in the context of this class we are not going to modify the
@@ -127,7 +130,7 @@ m_histTitles( 0 )
       
       if( m_ampIndex.find( *ampName ) == m_ampIndex.end() ){
         
-        cout << "ERROR:  cannot find production parameter for: "
+        report( ERROR, kModule ) << "cannot find production parameter for: "
         << *ampName << "\n\tAre fit results and config file consistent?"
         << endl;
         
@@ -335,7 +338,7 @@ PlotGenerator::getAmpIndex( const string& ampName) const {
   
   map<string, unsigned int>::const_iterator mapItr = m_ampIndex.find(ampName);
   if (mapItr == m_ampIndex.end()){
-    cout << "PlotGenerator ERROR:  Could not find amplitude " << ampName << endl;
+    report( ERROR, kModule ) << "Could not find amplitude " << ampName << endl;
     assert (false);
   }
   
@@ -450,8 +453,8 @@ PlotGenerator::disableAmp( unsigned int uniqueAmpIndex ){
     
     unsigned int i = mapItr->second;
     
-    //     cout << "Setting production amp for " << mapItr->first << " from "
-    //          << m_prodAmps[i] << " to " << m_zeroProdAmps[i] << endl;
+    report( DEBUG, kModule ) << "Setting production amp for " << mapItr->first << " from "
+                             << m_prodAmps[i] << " to " << m_zeroProdAmps[i] << endl;
     
     m_prodAmps[i] = m_zeroProdAmps[i];
     m_ampEnabled[amp] = false;
@@ -481,8 +484,8 @@ PlotGenerator::enableAmp( unsigned int uniqueAmpIndex ){
     
     if( m_sumEnabled[ampParts[1]] ){
       
-      //   cout << "Setting production amp for " << mapItr->first << " from "
-      //         << m_prodAmps[i] << " to " << m_fitProdAmps[i] << endl;
+      report( DEBUG, kModule ) << "Setting production amp for " << mapItr->first << " from "
+                               << m_prodAmps[i] << " to " << m_fitProdAmps[i] << endl;
       
       m_prodAmps[i] = m_fitProdAmps[i];
     }
@@ -537,8 +540,8 @@ PlotGenerator::enableSum( unsigned int uniqueSumIndex ){
     
     if( m_ampEnabled[ampParts[2]] ){
       
-      // cout << "Setting production amp for " << mapItr->first << " from "
-      //      << m_prodAmps[i] << " to " << m_fitProdAmps[i] << endl;
+      report( DEBUG, kModule ) << "Setting production amp for " << mapItr->first << " from "
+                               << m_prodAmps[i] << " to " << m_fitProdAmps[i] << endl;
       
       m_prodAmps[i] = m_fitProdAmps[i];
     }

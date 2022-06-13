@@ -11,6 +11,9 @@
 #include "DalitzDataIO/DalitzDataReader.h"
 #include "TSystem.h"
 
+#include "IUAmpTools/report.h"
+static const char* kModule = "DalitzDataReader";
+
 using namespace std;
 
 DalitzDataReader::DalitzDataReader( const vector< string >& args ) :
@@ -31,7 +34,7 @@ m_eventCounter( 0 ){
     m_inTree = static_cast<TTree*>( m_inFile->Get( inTreeName.c_str() ) );
   }
   else{
-    cout << "DalitzDataReader WARNING:  Cannot find file... " << inFileName << endl;
+    report( WARNING, kModule ) << "Cannot find file: " << inFileName << endl;
     m_inFile = NULL;
     m_inTree = NULL;
   }

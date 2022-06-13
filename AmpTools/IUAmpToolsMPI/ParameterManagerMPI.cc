@@ -41,6 +41,9 @@
 #include "IUAmpToolsMPI/ParameterManagerMPI.h"
 #include "IUAmpToolsMPI/MPITag.h"
 
+#include "IUAmpTools/report.h"
+static const char* kModule = "ParameterManagerMPI";
+
 ParameterManagerMPI::
 ParameterManagerMPI( MinuitMinimizationManager* minuitManager,
                     IntensityManager* intenManager ) :
@@ -159,7 +162,7 @@ void ParameterManagerMPI::addProductionParameter( const string& termName,
     
     if( intenManPtr == m_intenManagers.end() ){
 
-      cout << "ParameterManager ERROR: Could not find production amplitude for " 
+      report( ERROR, kModule ) << "ParameterManager ERROR: Could not find production amplitude for "
            << termName << endl;
       assert( false );
     }
@@ -212,7 +215,7 @@ void ParameterManagerMPI::addAmplitudeParameter( const string& termName,
     
     if( !foundOne ){
       
-      cout << "WARNING:  could not find term named " << termName 
+      report( WARNING, kModule ) << "could not find term named " << termName
            << "          while trying to set parameter " << parName << endl;
     }
   }
