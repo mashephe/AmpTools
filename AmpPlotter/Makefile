@@ -34,7 +34,7 @@ DEFAULT := libAmpPlotter.a
 
 export
 
-.PHONY: default clean
+.PHONY: default clean force
 .PRECIOUS: %.o
 
 default: lib $(DEFAULT)
@@ -42,7 +42,7 @@ default: lib $(DEFAULT)
 lib:
 	$(Q)mkdir lib
 
-lib%.a: 
+lib%.a: compiler_flags
 	$(Q)$(MAKE) -C $* LIB=$@
 	$(Q)cp $*/$@ lib/
 
@@ -52,3 +52,6 @@ clean: $(addprefix clean_, $(SRCDIRS))
 
 clean_%:
 	$(Q)-cd $* && $(MAKE) clean
+
+compiler_flags: force
+	@echo '$(CXX_FLAGS)' | cmp -s - $@ || echo '$(CXX_FLAGS)' > $@

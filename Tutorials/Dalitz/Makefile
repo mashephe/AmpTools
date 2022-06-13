@@ -7,11 +7,11 @@ INSTALL_LIB := $(PROJECT_HOME)/lib
 
 export
 
-.PHONY: default clean library
+.PHONY: default clean library force
 
 default: library exe
 
-library:
+library: compiler_flags
 	@echo "=== Building $(PROJECT) libraries ==="
 	@$(MAKE) -C $(PROJECT)Lib
 	
@@ -22,3 +22,6 @@ exe: library
 clean:
 	@$(MAKE) -C $(PROJECT)Lib clean
 	@$(MAKE) -C $(PROJECT)Exe clean
+
+compiler_flags: force
+	@echo '$(CXX_FLAGS)' | cmp -s - $@ || echo '$(CXX_FLAGS)' > $@
