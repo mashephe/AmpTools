@@ -323,7 +323,8 @@ Amplitude::calcAmplitudeGPU( dim3 dimGrid, dim3 dimBlock, GPU_AMP_PROTO,
 #endif
 }
 
-void Amplitude::launchGPUKernel( dim3 dimGrid, dim3 dimBlock, GPU_AMP_PROTO ) const; {
+void
+Amplitude::launchGPUKernel( dim3 dimGrid, dim3 dimBlock, GPU_AMP_PROTO ) const {
   
   report( ERROR, kModule ) << "\nNo GPU function for calculating " << name() << " is defined." << endl;
   assert( false );
