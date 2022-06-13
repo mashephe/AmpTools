@@ -47,7 +47,10 @@
 #include "IUAmpTools/Kinematics.h"
 #include "GPUManager/GPUCustomTypes.h"
 
-#ifdef GPU_ACCELERATION 
+#include "IUAmpTools/report.h"
+static const char* kModule = "Amplitude";
+
+#ifdef GPU_ACCELERATION
 #include "cuda_runtime.h"
 #include "GPUManager/CUDA-Complex.cuh"
 class GPUManager;
