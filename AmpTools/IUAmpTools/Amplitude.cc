@@ -44,10 +44,6 @@
 #include "IUAmpTools/AmpParameter.h"
 #include "IUAmpTools/Kinematics.h"
 
-#include "IUAmpTools/report.h"
-
-static const char* kModule = "Amplitude";
-
 #ifdef SCOREP
 #include <scorep/SCOREP_User.h>
 #endif
@@ -307,6 +303,7 @@ SCOREP_USER_REGION_END( calcAmplitude )
 
 
 #ifdef GPU_ACCELERATION 
+
 void
 Amplitude::calcAmplitudeGPU( dim3 dimGrid, dim3 dimBlock, GPU_AMP_PROTO,
                             const vector< int >& perm ) const {
@@ -315,13 +312,20 @@ Amplitude::calcAmplitudeGPU( dim3 dimGrid, dim3 dimBlock, GPU_AMP_PROTO,
   SCOREP_USER_REGION_BEGIN( calcAmplitudeGPU, "calcAmplitudeGPU", SCOREP_USER_REGION_TYPE_COMMON )
 #endif
 
-  	m_currentPermutation = perm;
-	launchGPUKernel( dimGrid, dimBlock, GPU_AMP_ARGS );
+  m_currentPermutation = perm;
+  launchGPUKernel( dimGrid, dimBlock, GPU_AMP_ARGS );
   
 #ifdef SCOREP
   SCOREP_USER_REGION_END( calcAmplitudeGPU )
 #endif
 }
+
+void Amplitude::launchGPUKernel( dim3 dimGrid, dim3 dimBlock, GPU_AMP_PROTO ) const; {
+  
+  report( ERROR, kModule ) << "\nNo GPU function for calculating " << name() << " is defined." << endl;
+  assert( false );
+}
+
 #endif
 
 
