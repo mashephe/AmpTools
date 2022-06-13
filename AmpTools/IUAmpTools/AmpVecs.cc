@@ -285,6 +285,7 @@ AmpVecs::loadData( DataReader* pDataReader ){
   
   m_termsValid = false;
   m_integralValid = false;
+  m_dataLoaded = true;
   m_userVarsOffset.clear();
 }
 
