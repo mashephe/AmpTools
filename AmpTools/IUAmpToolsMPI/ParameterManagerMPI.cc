@@ -53,7 +53,7 @@ ParameterManager( minuitManager, intenManager )
   
   if( !m_isLeader ){
     
-    cerr << "Instance of MinuitMinimizationManager exists on follower node"
+    report( ERROR, kModule ) << "Instance of MinuitMinimizationManager exists on follower node"
     << endl;
     
     assert( false );
@@ -69,7 +69,7 @@ ParameterManager( minuitManager, intenManagers )
   
   if( !m_isLeader ){
     
-    cerr << "Instance of MinuitMinimizationManager exists on follower node"
+    report( ERROR, kModule ) << "Instance of MinuitMinimizationManager exists on follower node"
     << endl;
     
     assert( false );
@@ -85,7 +85,7 @@ m_intenManagers( 0 )
   
   if( m_isLeader ){
     
-    cerr << "Leader ParameterManager has no MinuitMinimizationManager"
+    report( ERROR, kModule ) << "Leader ParameterManager has no MinuitMinimizationManager"
     << endl;
     
     assert( false );
@@ -103,7 +103,7 @@ m_intenManagers( intenManagers )
   
   if( m_isLeader ){
     
-    cerr << "Leader ParameterManager has no MinuitMinimizationManager"
+    report( ERROR, kModule ) << "Leader ParameterManager has no MinuitMinimizationManager"
     << endl;
     
     assert( false );

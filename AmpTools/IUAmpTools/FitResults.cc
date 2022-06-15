@@ -597,7 +597,7 @@ FitResults::ampList( const string& reaction ) const {
   
   if( reacIndex == m_reacIndex.end() ){
     
-    cerr << "FitResults ERROR:: unkown reaction: " << reaction << endl;
+    report( ERROR, kModule ) << "unkown reaction: " << reaction << endl;
     assert( false );
   }
   
@@ -764,7 +764,7 @@ FitResults::loadResults( const string& inFile ){
   
   if( input.fail() ){
     
-    cerr << "ERROR::  FitResults file does not exist: " << inFile << endl;
+    report( ERROR, kModule ) << "FitResults file does not exist: " << inFile << endl;
     return;
   }
   
@@ -772,7 +772,7 @@ FitResults::loadResults( const string& inFile ){
   string lineStr( line );
   if( lineStr.find( outputHeader() ) == string::npos ){
     
-    cerr << "ERROR::  trying to construct a FitResults object from a file " << endl
+    report( ERROR, kModule ) << "trying to construct a FitResults object from a file " << endl
     << "         that is not FitResults file.  (Check arguments.)" << endl;
     assert( false );
   }
