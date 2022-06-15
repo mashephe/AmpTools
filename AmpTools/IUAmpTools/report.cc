@@ -134,7 +134,7 @@ void initReport(){
 
   const char* gpuSupport =
 #ifdef GPU_ACCELERATION
-  getenv( "GPU_ARCH" );
+  "YES";
 #else
   "NO";
 #endif
