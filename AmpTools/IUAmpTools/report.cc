@@ -114,9 +114,8 @@ void initReport(){
     else report( WARNING, kModule ) << "Unknown report level:  " << envLevel << endl;
   }
   
-  const char* mpiSupport =
 #ifdef USE_MPI
-  "YES";
+  const char* mpiSupport = "YES";
   MPI_Comm_rank( MPI_COMM_WORLD, &mpiRank_AT );
   if( const char* envLevel = getenv( "AMPTOOLS_REPORT_LEVEL_MPI" ) ){
     
@@ -129,27 +128,27 @@ void initReport(){
   }
   if( mpiRank_AT > 0 ) return;
 #else
-  "NO";
+  const char* mpiSupport = "NO";
 #endif
 
   const char* gpuSupport =
 #ifdef GPU_ACCELERATION
-  "YES";
+  GPU_ARCH;
 #else
   "NO";
 #endif
 
   cout << "\e[1m" << endl;
   cout << "   "; printLine();
-  cout << setw(22) << right << "|        ^         " << setw(40) << right <<  "|" << endl;
-  cout << setw(22) << right << "|       / \\        " << setw(15) << right << "Version:  " << setw(20) << left << ATVERSION << setw(5) << right << "|" << endl;
-  cout << setw(22) << right << "|      /---\\       " << setw(40) << right << "|" << endl;
-  cout << setw(22) << right << "|     /     \\      " << setw(15) << right << "GDouble:  " << sizeof(GDouble) << setw(19) << left << " bytes" << setw(5) << right << "|" << endl;
-  cout << setw(22) << right << "|    /       \\ MP  " << setw(15) << right << "MPI:  " << setw(20) << left << mpiSupport << setw(5) << right << "|" << endl;
-  cout << setw(22) << right << "|     -------      " << setw(15) << right << "GPU:  " << setw(20) << left << gpuSupport << setw(5) << right << "|" << endl;
-  cout << setw(22) << right << "|        |         " << setw(40) << right << "|" << endl;
-  cout << setw(22) << right << "|        |         " << setw(40) << right << "doi.org/10.5281/zenodo.5039377    |" << endl;
-  cout << setw(22) << right << "|        | OOLS    " << setw(40) << right << "|" << endl;
+  cout << setw(22) << right << "|        ^         " << setw(46) << right <<  "|" << endl;
+  cout << setw(22) << right << "|       / \\        " << setw(15) << right << "Version:  " << setw(25) << left << ATVERSION << setw(6) << right << "|" << endl;
+  cout << setw(22) << right << "|      /---\\       " << setw(46) << right << "|" << endl;
+  cout << setw(22) << right << "|     /     \\      " << setw(15) << right << "GDouble:  " << sizeof(GDouble) << setw(19) << left << " bytes" << setw(11) << right << "|" << endl;
+  cout << setw(22) << right << "|    /       \\ MP  " << setw(15) << right << "MPI:  " << setw(20) << left << mpiSupport << setw(11) << right << "|" << endl;
+  cout << setw(22) << right << "|     -------      " << setw(15) << right << "GPU:  " << setw(20) << left << gpuSupport << setw(11) << right << "|" << endl;
+  cout << setw(22) << right << "|        |         " << setw(46) << right << "|" << endl;
+  cout << setw(22) << right << "|        |         " << setw(46) << right << "doi.org/10.5281/zenodo.5039377          |" << endl;
+  cout << setw(22) << right << "|        | OOLS    " << setw(46) << right << "|" << endl;
   cout << "   ";  printLine();
   cout << "\e[0m" << endl;
   
@@ -158,7 +157,7 @@ void initReport(){
 
 void printLine(){
   
-  for( int i = 0; i < 60; ++i ) cout << "=";
+  for( int i = 0; i < 65; ++i ) cout << "=";
   cout << endl;
 }
 

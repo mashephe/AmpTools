@@ -75,6 +75,8 @@ endif
 CUDA_LIBS := -L$(CUDA_INSTALL_PATH)/lib64
 CUDA_LINK := -lcudart
 
+CXX_FLAGS += -DGPU_ARCH=\"$(GPU_ARCH)\"
+
 endif
 
 ######### END GPU / CUDA SETTINGS
