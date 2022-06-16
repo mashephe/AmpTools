@@ -101,7 +101,7 @@ GPUManager::GPUManager()
   int thisDevice = 0;
   
   if( !m_cudaDisplay )
-    report( INFO, kModule ) <<"\n################### CUDA DEVICE ##################\n";
+    report( INFO, kModule ) << "################### CUDA DEVICE ##################" << endl;
   
 #ifdef USE_MPI
   
@@ -118,9 +118,9 @@ GPUManager::GPUManager()
   thisDevice = rank % devs;
   
   if( !m_cudaDisplay ) {
-    report( INFO, kModule ) << "\nParallel GPU configuration requested." << endl;
-    report( INFO, kModule ) << "\nNumber of CUDA devices available on this node:  " << devs << endl;
-    report( INFO, kModule ) << "\nMPI process " << rank << " is using device " << thisDevice << endl;
+    report( INFO, kModule ) << "Parallel GPU configuration requested." << endl;
+    report( INFO, kModule ) << "Number of CUDA devices available on this node:  " << devs << endl;
+    report( INFO, kModule ) << "MPI process " << rank << " is using device " << thisDevice << endl;
   }
 #endif
   
@@ -137,7 +137,7 @@ GPUManager::GPUManager()
     report( INFO, kModule ) << "\t Name: "<<devProp.name<<endl;
     report( INFO, kModule ) << "\t Total global memory: "<<devProp.totalGlobalMem/((float)1024*1024)<<" MB"<<endl;
     report( INFO, kModule ) << "\t Rev.: "<<devProp.major<<"."<<devProp.minor<<endl;
-    report( INFO, kModule ) << "##################################################\n\n";
+    report( INFO, kModule ) << "##################################################" << endl;
     ///////END OF CUDA INITIALIZATION
     m_cudaDisplay = true;
   }
