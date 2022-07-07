@@ -130,6 +130,7 @@ GPUManager::GPUManager()
   gpuErrChk( cudaGetDeviceProperties( &devProp, thisDevice ) );
   
   m_devProp_major = devProp.major;
+  m_devProp_minor = devProp.minor;
 
   if( ! m_cudaDisplay ){
     
@@ -148,7 +149,16 @@ GPUManager::GPUManager()
     report( ERROR, kModule ) << "Sorry, your GPU hardware is no longer supported." << endl;
     assert( false );
   }
-
+  
+  // the NI calculation kernel sometimes pushes the limits of dynamically allocated
+  // shared memory -- maximize this depending on device and track
+  
+  m_maxShared_bytes = 48152;
+  if( m_devProp_major == 7 && m_devProp_minor == 5 ) m_maxShared_bytes = 65536;
+  if( m_devProp_major >= 8 ||
+     ( m_devProp_major == 7 && m_devProp_minor == 0 ) ) m_maxShared_bytes = 98304;
+  if( m_devProp_major >= 7 )
+    cudaFuncSetAttribute( ni_calc_kernel, cudaFuncAttributeMaxDynamicSharedMemorySize, m_maxShared_bytes );
 }
 
 GPUManager::GPUManager( const AmpVecs& a )
@@ -299,7 +309,7 @@ GPUManager::copyDataToGPU( const AmpVecs& a, bool use4Vectors )
                           4 * m_iNParticles * m_iGDoubleEventArrSize,
                           cudaMemcpyHostToDevice ) );
 
-    delete tmpStorage;
+    delete[] tmpStorage;
   }
   #ifdef SCOREP
   SCOREP_USER_REGION_END( copyDataToGPU )
@@ -424,7 +434,17 @@ GPUManager::assembleTerms( int iAmpInd, int nFact, int nPerm ){
   
   GPU_ExecFactPermKernel( dimGrid, dimBlock, &(m_pfDevAmps[2*m_iNEvents*iAmpInd]),
                           m_pcDevCalcAmp, nFact, nPerm, m_iNEvents );
-  #ifdef SCOREP
+
+  // check to be sure kernel execution was OK
+  cudaError_t cerrKernel=cudaGetLastError();
+  if( cerrKernel!= cudaSuccess  ){
+    
+    report( ERROR, kModule ) << "\nKERNEL LAUNCH ERROR [GPU_ExecFactPermKernel]: "
+         << cudaGetErrorString( cerrKernel ) << endl;
+    assert( false );
+  }
+
+#ifdef SCOREP
   SCOREP_USER_REGION_END( assembleTerms ) 
   #endif
 }
@@ -467,8 +487,8 @@ GPUManager::calcSumLogIntensity( const vector< complex< double > >& prodCoef,
 		     m_pfDevVVStar, m_pfDevWeights,
                      m_iNAmps, m_iNEvents, m_pdDevRes );
 
-  cudaError_t cerrKernel=cudaGetLastError();
-  if( cerrKernel!= cudaSuccess  ){
+  cudaError_t cerrKernel = cudaGetLastError();
+  if( cerrKernel != cudaSuccess  ){
       
     report( ERROR, kModule ) << "\nKERNEL LAUNCH ERROR [GPU_ExecAmpKernel]: "
 	 << cudaGetErrorString( cerrKernel ) << endl;
@@ -498,7 +518,7 @@ GPUManager::calcSumLogIntensity( const vector< complex< double > >& prodCoef,
     reduce<double>( m_iNEvents, m_iNThreads, m_iNBlocks,
 		    m_pdDevRes, m_pdDevREDUCE );
 
-    cerrKernel=cudaGetLastError();
+    cerrKernel = cudaGetLastError();
     if( cerrKernel!= cudaSuccess  ){
       
       report( ERROR, kModule ) << "\nKERNEL LAUNCH ERROR [reduce<double>]: "
@@ -547,10 +567,28 @@ GPUManager::calcIntegrals( double* result, int nElements,
   gpuErrChk( cudaMemcpy( &(piDevIndex[nElements]), &(jIndex[0]),
                         indexSize, cudaMemcpyHostToDevice ) );
   
+  if( totalSize > m_maxShared_bytes ){
+    
+    report( ERROR, kModule )
+    << "\nTotal size needed for normalization integral calculation\n"
+    << "(" << totalSize << " bytes) exceeds maximum GPU shared memory (" << m_maxShared_bytes << " bytes).\n"
+    << "Unable to continue -- reduce the number of amplitudes to perform this fit on the GPU." << endl;
+    exit( 1 );
+  }
+  
   GPU_ExecNICalcKernel( dimGrid, dimBlock, totalSize, nElements,
                         m_pdDevNICalc, m_pfDevAmps, m_pfDevWeights,
-			m_iNEvents, m_iNTrueEvents );
-  
+                        m_iNEvents, m_iNTrueEvents );
+
+  // check to be sure kernel execution was OK
+  cudaError_t cerrKernel = cudaGetLastError();
+  if( cerrKernel != cudaSuccess  ){
+    
+    report( ERROR, kModule ) << "\nKERNEL LAUNCH ERROR [GPU_ExecNICalcKernel]: "
+         << cudaGetErrorString( cerrKernel ) << endl;
+    assert( false );
+  }
+
   gpuErrChk( cudaMemcpy( result, m_pdDevNICalc,
   			 resultSize, cudaMemcpyDeviceToHost ) );
 }
