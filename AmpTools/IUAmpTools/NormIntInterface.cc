@@ -416,7 +416,7 @@ NormIntInterface::forceCacheUpdate( bool normIntOnly ) const
   if( ( m_accMCReader == m_genMCReader ) && !m_emptyAmpIntCache ) {
     
     // optimization for perfect acceptance  
-    report( NOTICE, kModule ) << "Perfect acceptance -- generated and accepted are the same" << endl;
+    report( NOTICE, kModule ) << "Perfect acceptance -- generated and accepted MC are the same" << endl;
     
     setNormIntMatrix( m_ampIntCache );
   }
