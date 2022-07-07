@@ -6619,7 +6619,7 @@ void URMinuit::mnpsdf()
     }
     fCstatu = "NOT POSDEF";
    ostringstream warning;
-   warning << "MATRIX FORCED POS-DEF BY ADDING %f TO DIAGONAL. " << padd;
+   warning << "MATRIX FORCED POS-DEF BY ADDING " << padd << " TO DIAGONAL. ";
    mnwarn("W", fCfrom.c_str(), warning.str().c_str());
 
 } /* mnpsdf_ */
