@@ -127,8 +127,12 @@ extern "C" void GPU_ExecNICalcKernel( dim3 dimGrid, dim3 dimBlock,
        	   			      unsigned int sharedSize,
                                       int nElements, double* pdDevNICalc,
                                       GDouble* pfDevAmps, GDouble* pfDevWeights,
-                                      int nEvents, int nTrueEvents )
+                                      int nEvents, int nTrueEvents, unsigned int maxSize )
 {
-  ni_calc_kernel<<< dimGrid, dimBlock, sharedSize >>>
+
+   if( maxSize )
+      cudaFuncSetAttribute( ni_calc_kernel, cudaFuncAttributeMaxDynamicSharedMemorySize, maxSize );
+
+   ni_calc_kernel<<< dimGrid, dimBlock, sharedSize >>>
      ( nElements, pdDevNICalc, pfDevAmps, pfDevWeights, nEvents, nTrueEvents );
 }

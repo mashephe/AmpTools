@@ -157,8 +157,6 @@ GPUManager::GPUManager()
   if( m_devProp_major == 7 && m_devProp_minor == 5 ) m_maxShared_bytes = 65536;
   if( m_devProp_major >= 8 ||
      ( m_devProp_major == 7 && m_devProp_minor == 0 ) ) m_maxShared_bytes = 98304;
-  if( m_devProp_major >= 7 )
-    cudaFuncSetAttribute( ni_calc_kernel, cudaFuncAttributeMaxDynamicSharedMemorySize, m_maxShared_bytes );
 }
 
 GPUManager::GPUManager( const AmpVecs& a )
@@ -578,7 +576,8 @@ GPUManager::calcIntegrals( double* result, int nElements,
   
   GPU_ExecNICalcKernel( dimGrid, dimBlock, totalSize, nElements,
                         m_pdDevNICalc, m_pfDevAmps, m_pfDevWeights,
-                        m_iNEvents, m_iNTrueEvents );
+                        m_iNEvents, m_iNTrueEvents,
+			m_devProp_major >= 7 ? m_maxShared_bytes : 0 );
 
   // check to be sure kernel execution was OK
   cudaError_t cerrKernel = cudaGetLastError();
