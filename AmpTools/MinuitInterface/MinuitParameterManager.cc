@@ -47,6 +47,9 @@
 #include "MinuitInterface/MinuitMinimizationManager.h"
 #include "MinuitInterface/MIPointerListIterator.h"
 
+#include "IUAmpTools/report.h"
+static const char* kModule = "MinuitParameterManager";
+
 using namespace std;
 
 typedef list<MinuitParameter*>::iterator ListIter;
@@ -69,8 +72,8 @@ MinuitParameterManager::update()
    {
       int minuitId = parameter->minuitId();
       const vector<double>& minuitValues = m_minimizationManager.minuitWorkingValues();
-//       cout << "Updating param " << parameter->name() 
-// 	   << " with new value " << minuitValues[minuitId] << endl;
+      report( DEBUG, kModule ) << "Updating param " << parameter->name()
+  	   << " with new value " << minuitValues[minuitId] << endl;
       parameter->setValue( minuitValues[minuitId] );
       parameter->invalidateErrors();
    }
@@ -93,8 +96,8 @@ MinuitParameterManager::updateErrors()
       double downwardsError;
       double parabolicError;
       double correlationCoefficient;
-//       cout << "querying minuit about error for param: " << parameter->name() 
-//          << " MinuitId " << minuitId << endl;
+     report( DEBUG, kModule ) << "querying minuit about error for param: " << parameter->name()
+     << " MinuitId " << minuitId << endl;
       theMinimizer.mnerrs( minuitId, upwardsError, downwardsError, 
 			   parabolicError, correlationCoefficient );
       parameter->setAsymmetricErrors( std::pair<double,double>(downwardsError,
@@ -141,8 +144,8 @@ MinuitParameterManager::synchronizeMinuit()
     // make sure that minuit has all of its parameters held fixed as necessary
     // Note: a positive minuitVariableId => minuit considers the parameter floating
     if ( ! parameter->floating() ) {
-//      cout << "Need to fix parameter " << minuitId << " MinuitVariableId = "
-//      << minuitVariableId << endl;
+      report( DEBUG, kModule ) << "Need to fix parameter " << minuitId << " MinuitVariableId = "
+      << minuitVariableId << endl;
       if ( minuitVariableId > 0 ) {
         theMinimizer.FixParameter( minuitId );
       }
@@ -287,7 +290,7 @@ MinuitParameterManager::correlationMatrix(){
 void 
 MinuitParameterManager::removeParameter( MinuitParameter* aParameter ) {
    remove( aParameter );
-   cout << " Warning: UpRootMinuit class does not yet support parameter removal!" << endl;
+  report( WARNING, kModule ) << " UpRootMinuit class does not yet support parameter removal!" << endl;
 }
 
 std::ostream& 

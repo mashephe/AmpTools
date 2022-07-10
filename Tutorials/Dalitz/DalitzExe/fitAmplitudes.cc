@@ -11,24 +11,26 @@
 #include "DalitzDataIO/DalitzDataReader.h"
 #include "DalitzAmp/BreitWigner.h"
 
+#include "IUAmpTools/report.h"
+static const char* kModule = "fitAmplitudes";
+
 
 using std::complex;
 using namespace std;
 
 int main( int argc, char* argv[] ){
 
+  if (argc <= 1){
+    report( INFO, kModule ) << "Usage:" << endl << endl;
+    report( INFO, kModule ) << "\tfitAmplitudes <config file name>" << endl << endl;
+    return 0;
+  }
 
     // ************************
     // usage
     // ************************
 
-  cout << endl << " *** Performing the Fit *** " << endl << endl;
-
-  if (argc <= 1){
-    cout << "Usage:" << endl << endl;
-    cout << "\tfitAmplitudes <config file name>" << endl << endl;
-    return 0;
-  }
+  report( INFO, kModule ) << " *** Performing the Fit *** " << endl;
 
 
     // ************************
@@ -37,7 +39,7 @@ int main( int argc, char* argv[] ){
 
   string cfgname(argv[1]);
 
-  cout << "Config file name = " << cfgname << endl << endl;
+  report( INFO, kModule ) << "Config file name:  " << cfgname << endl << endl;
 
 
     // ************************
@@ -59,7 +61,7 @@ int main( int argc, char* argv[] ){
   AmpToolsInterface ATI(cfgInfo);
 
   double neg2LL = ATI.likelihood();
-  cout << "-2 ln(L) BEFORE MINIMIZATION:  " << neg2LL << endl;
+  report( INFO, kModule ) << "-2 ln(L) BEFORE MINIMIZATION:  " << neg2LL << endl;
 
   MinuitMinimizationManager* fitManager = ATI.minuitMinimizationManager();
   fitManager->setStrategy(1);
@@ -67,10 +69,10 @@ int main( int argc, char* argv[] ){
   fitManager->migradMinimization();
 
   if( fitManager->status() != 0 && fitManager->eMatrixStatus() != 3 ){
-    cout << "ERROR: fit failed..." << endl;
+    report( WARNING, kModule ) << "Fit failed." << endl;
   }
 
-  cout << "-2 ln(L) AFTER MINIMIZATION:  " << ATI.likelihood() << endl;
+  report( INFO, kModule ) << "-2 ln(L) AFTER MINIMIZATION:  " << ATI.likelihood() << endl;
 
   ATI.finalizeFit();
 

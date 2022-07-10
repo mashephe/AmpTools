@@ -41,6 +41,10 @@
 #include "IUAmpTools/Kinematics.h"
 #include "TLorentzVector.h"
 
+#include "IUAmpTools/report.h"
+static const char* kModule = "Kinematics";
+
+
 using namespace std;
 
 const vector< TLorentzVector >&
@@ -54,7 +58,7 @@ Kinematics::particle( unsigned int index ) const {
   
   if( index >= m_particleList.size() ){
     
-    cout << "ERROR:  Request for particle index " << index << 
+    report( ERROR, kModule ) << "ERROR:  Request for particle index " << index << 
     ", but only " << m_particleList.size() << " particles exist." << endl;
     
     assert( false );

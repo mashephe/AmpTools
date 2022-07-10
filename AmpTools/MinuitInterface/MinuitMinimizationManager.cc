@@ -42,6 +42,9 @@
 
 #include <sys/time.h>
 
+#include "IUAmpTools/report.h"
+static const char* kModule = "MinuitMinimizationManager";
+
 using namespace std;
 
 MinuitMinimizationManager::MinuitMinimizationManager( int maxParameters ) :
@@ -226,9 +229,9 @@ MinuitMinimizationManager::migradMinimization() {
   timersub( &(tStop), &(tStart), &tSpan );
   dTime = tSpan.tv_sec + tSpan.tv_usec/1000000.0; // 10^6 uSec per second
   
-  cout << "\n MIGRAD evaluation total wall time:  " << dTime << " s." << endl;
-  cout << "    average time per function call:  " << dTime * 1000 / m_functionCallCounter
-  << " ms." << endl << endl;
+  report( INFO, kModule ) << "MIGRAD evaluation total wall time:  " << dTime << " s." << endl;
+  report( INFO, kModule ) << "   average time per function call:  " << dTime * 1000 / m_functionCallCounter
+  << " ms." << endl;
 }
 
 void
@@ -259,9 +262,9 @@ MinuitMinimizationManager::minosMinimization() {
   timersub( &(tStop), &(tStart), &tSpan );
   dTime = tSpan.tv_sec + tSpan.tv_usec/1000000.0; // 10^6 uSec per second
   
-  cout << "\n MINOS evaluation total wall time:  " << dTime << " s." << endl;
-  cout << "   average time per function call:  " << dTime * 1000 / m_functionCallCounter
-       << " ms." << endl << endl;
+  report( INFO, kModule ) << "MINOS evaluation total wall time:  " << dTime << " s." << endl;
+  report( INFO, kModule ) << "  average time per function call:  " << dTime * 1000 / m_functionCallCounter
+       << " ms." << endl;
 
 }
 
@@ -316,17 +319,17 @@ MinuitMinimizationManager::hesseEvaluation() {
   timersub( &(tStop), &(tStart), &tSpan );
   dTime = tSpan.tv_sec + tSpan.tv_usec/1000000.0; // 10^6 uSec per second
   
-  cout << "\n HESSE evaluation total wall time:  " << dTime << " s." << endl;
-  cout << "   average time per function call:  " << dTime * 1000 / m_functionCallCounter
-       << " ms." << endl << endl;
+  report( INFO, kModule ) << "HESSE evaluation total wall time:  " << dTime << " s." << endl;
+  report( INFO, kModule ) << "  average time per function call:  " << dTime * 1000 / m_functionCallCounter
+       << " ms." << endl;
   
   return secDerivMatrix;
 }
 
-void
-MinuitMinimizationManager::setLogStream( std::ostream& logStream ) {
-   m_fitter.SetLogStream( logStream );
-}
+//void
+//MinuitMinimizationManager::setLogStream( std::ostream& logStream ) {
+//   m_fitter.SetLogStream( logStream );
+//}
 
 void
 MinuitMinimizationManager::operator()( int &npar, double *grad, double &fval, const std::vector<double>& par, int flag) {

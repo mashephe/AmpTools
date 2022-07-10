@@ -15,7 +15,7 @@ AMPPLOTTER := $(AMPTOOLS_HOME)/AmpPlotter
 
 export
 
-.PHONY: default, all, mpi, gpu, mpigpu, gpumpi, clean
+.PHONY: default all mpi gpu mpigpu gpumpi clean
 
 default:
 	@echo "=== Building AmpTools ==="
@@ -25,7 +25,7 @@ default:
 	@echo "=== Building Dalitz tutorial ==="
 	@$(MAKE) -C Tutorials/Dalitz
 
-mpi:  default
+mpi: default
 	@echo "=== Building AmpTools with MPI ==="
 	@$(MAKE) -C AmpTools MPI=1
 	@echo "=== Building Dalitz tutorial with MPI ==="

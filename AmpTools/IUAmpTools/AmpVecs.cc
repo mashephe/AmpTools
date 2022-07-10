@@ -41,6 +41,9 @@
 #include "IUAmpTools/DataReader.h"
 #include "IUAmpTools/Kinematics.h"
 
+#include "IUAmpTools/report.h"
+static const char* kModule = "AmpVecs";
+
 #ifdef GPU_ACCELERATION
 #include "GPUManager/GPUManager.h"
 #include "cuda_runtime.h"
@@ -226,7 +229,7 @@ AmpVecs::loadData( DataReader* pDataReader ){
   //  Make sure no data is already loaded
   
   if( m_pdData!=0 || m_pdWeights!=0 ){
-    cout<<"\n ERROR:  Trying to load data into a non-empty AmpVecs object\n"<<flush;
+    report( ERROR, kModule ) << "Trying to load data into a non-empty AmpVecs object\n"<<flush;
     assert(false);
   }
   
@@ -242,12 +245,12 @@ AmpVecs::loadData( DataReader* pDataReader ){
     string readerName = pDataReader->name();
     vector< string > readerArgs = pDataReader->arguments();
     
-    cout << "NOTICE:  " << readerName << " with arguments:  \n\t";
+    report( NOTICE, kModule ) << readerName << " with arguments:  \n\t";
     for( auto arg = readerArgs.begin(); arg != readerArgs.end(); ++arg ){
       
-      cout << *arg << "\t";
+      report( NOTICE, kModule ) << *arg << "\t";
     }
-    cout << "\n does not contain any events." << endl;
+    report( NOTICE, kModule ) << "\n does not contain any events." << endl;
   }
   
   // Loop over events and load each one individually
@@ -282,6 +285,7 @@ AmpVecs::loadData( DataReader* pDataReader ){
   
   m_termsValid = false;
   m_integralValid = false;
+  m_dataLoaded = true;
   m_userVarsOffset.clear();
 }
 
@@ -295,16 +299,15 @@ AmpVecs::allocateTerms( const IntensityManager& intenMan, bool bAllocIntensity )
   
   if( m_pdAmps!=0 || m_pdAmpFactors!=0 || m_pdUserVars!=0 || m_pdIntensity!=0 )
   {
-    cout << "ERROR:  trying to reallocate terms in AmpVecs after\n" << flush;
-    cout << "        they have already been allocated.  Please\n" << flush;
-    cout << "        deallocate them first." << endl;
+    report( ERROR, kModule ) << "ERROR:  trying to reallocate terms in AmpVecs after\n" << flush;
+    report( ERROR, kModule ) << "        they have already been allocated.  Please\n" << flush;
+    report( ERROR, kModule ) << "        deallocate them first." << endl;
     assert(false);
   }
   
   if ( !m_dataLoaded ){
-    cout << "ERROR: trying to allocate space for terms in\n" << flush;
-    cout << "       AmpVecs before any events have been loaded\n" << flush;
-
+    report( ERROR, kModule ) << "ERROR: trying to allocate space for terms in\n" << flush;
+    report( ERROR, kModule ) << "       AmpVecs before any events have been loaded\n" << flush;
     assert(false);
   }
   
@@ -355,7 +358,7 @@ AmpVecs::allocateCPUAmpStorage( const IntensityManager& intenMan ){
   cudaError_t cudaErr = cudaGetLastError();
   if( cudaErr != cudaSuccess  ){
     
-    cout<<"\n\nHOST MEMORY ALLOCATION ERROR: "<< cudaGetErrorString( cudaErr ) << endl;
+    report( ERROR, kModule ) << "CUDA memory allocation error: "<< cudaGetErrorString( cudaErr ) << endl;
     assert( false );
   }
 }

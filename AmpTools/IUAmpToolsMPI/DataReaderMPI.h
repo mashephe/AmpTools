@@ -6,6 +6,9 @@
 #include "IUAmpTools/Kinematics.h"
 #include "IUAmpToolsMPI/MPITag.h"
 
+#include "IUAmpTools/report.h"
+static const char* kDRModule = "DataReaderMPI";
+
 /**
  * This is a helper struct that is used to pass kinematic data between
  * different processes using MPI.
@@ -207,7 +210,7 @@ void DataReaderMPI<T>::resetSource()
   
   if( m_isLeader ){
     
-    //    cout << "Resetting leader data source " << m_rank << endl;
+    report( DEBUG, kDRModule ) << "Resetting leader data source " << m_rank << endl;
     
     // on the leader, we want the data reader to behave
     // like a normal instance of the non-MPI version so use the 
@@ -217,7 +220,7 @@ void DataReaderMPI<T>::resetSource()
   }
   else{
     
-    //    cout << "Resetting data source on process with rank " << m_rank << endl;
+    report( DEBUG, kDRModule ) << "Resetting data source on process with rank " << m_rank << endl;
     
     // on the followers the "source" is the local cache of Kinematics
     // objects so this should be reset
@@ -253,8 +256,7 @@ void DataReaderMPI<T>::distributeData()
     
     int nEvents = ( i > remainder ? stepSize : stepSize + 1 );
     
-    cout << "Sending process " << i << " " << nEvents << " events" << endl;    
-    flush( cout );
+    report( DEBUG, kDRModule ) << "Sending process " << i << " " << nEvents << " events" << endl;
     
     MPI_Send( &nEvents, 1, MPI_INT, i, MPITag::kIntSend, MPI_COMM_WORLD );
     for( int j = 0; j < nEvents; ++j ){
@@ -270,15 +272,15 @@ void DataReaderMPI<T>::distributeData()
     MPI_Send( kinArray, nEvents, MPI_KinStruct, i, MPITag::kDataSend,
               MPI_COMM_WORLD );
     
-    //    cout << "Waiting for acknowledge from " << i << endl;
-    //    flush( cout );
+    report( DEBUG, kDRModule ) << "Waiting for acknowledge from " << i << endl;
+    flush( cout );
     
     // wait for acknowledgment before continuing
     MPI_Recv( &nEvents, 1, MPI_INT, i, MPITag::kAcknowledge, 
              MPI_COMM_WORLD, &status );
     
-    //    cout << "Send to process " << i << " finished." << endl;
-    //    flush( cout );
+    report( DEBUG, kDRModule ) << "Send to process " << i << " finished." << endl;
+    flush( cout );
   }
   
   delete[] kinArray;
@@ -295,8 +297,8 @@ void DataReaderMPI<T>::receiveData()
   MPI_Recv( &nEvents, 1, MPI_INT, 0, MPITag::kIntSend, 
            MPI_COMM_WORLD, &status );
   
-  //  cout << "Process " << m_rank << " waiting for " 
-  //       << nEvents << " events." << endl;
+  report( DEBUG, kDRModule ) << "Process " << m_rank << " waiting for "
+  << nEvents << " events." << endl;
   
   KinStruct* kinArray = new KinStruct[nEvents];
   
@@ -308,9 +310,8 @@ void DataReaderMPI<T>::receiveData()
     m_ptrCache.push_back( createKin( &(kinArray[i]) ) );
   }
   
-  cout << "Process " << m_rank << " received "
+  report( DEBUG, kDRModule ) << "Process " << m_rank << " received "
        << m_ptrCache.size() << " events." << endl;
-  flush( cout );
   
   // adjust the pointer iterator to point to the beginning of the cache
   resetSource();

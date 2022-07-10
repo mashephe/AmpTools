@@ -43,6 +43,9 @@
 #include "IUAmpToolsMPI/LikelihoodCalculatorMPI.h"
 #include "IUAmpToolsMPI/MPITag.h"
 
+#include "IUAmpTools/report.h"
+static const char* kModule = "LikelihoodManagerMPI";
+
 void
 LikelihoodManagerMPI::registerCalculator( int id, 
                                          LikelihoodCalculatorMPI* calc )
@@ -57,7 +60,7 @@ LikelihoodManagerMPI::deliverLikelihood()
   
   if( m_isLeader ){
     
-    cerr << "ERROR:  deliverLikelihood() should not run on leader node"
+    report( ERROR, kModule ) << "ERROR:  deliverLikelihood() should not run on leader node"
     << endl;
     assert( false );
   }
@@ -106,7 +109,7 @@ LikelihoodManagerMPI::deliverLikelihood()
         
       default:
         
-        cerr << "Unknown command flag!" << endl;
+        report( ERROR, kModule ) << "Unknown command flag!" << endl;
         assert( false );
     }
     

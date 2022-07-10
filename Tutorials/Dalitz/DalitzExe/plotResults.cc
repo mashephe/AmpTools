@@ -16,6 +16,9 @@
 #include "DalitzAmp/BreitWigner.h"
 #include "DalitzPlot/DalitzPlotGenerator.h"
 
+#include "IUAmpTools/report.h"
+static const char* kModule = "plotResults";
+
 using std::complex;
 using namespace std;
 
@@ -26,13 +29,13 @@ int main( int argc, char* argv[] ){
     // usage
     // ************************
 
-  cout << endl << " *** Plotting Results from the Fit *** " << endl << endl;
-
   if (argc < 3){
-    cout << "Usage:" << endl << endl;
-    cout << "\tplotResults <fit results name> <output file name>" << endl << endl;
+    report( NOTICE, kModule ) << "Usage:" << endl << endl;
+    report( NOTICE, kModule ) << "\tplotResults <fit results name> <output file name>" << endl << endl;
     return 0;
   }
+
+  report( INFO, kModule ) << endl << " *** Plotting Results from the Fit *** " << endl << endl;
 
 
     // ************************
@@ -42,8 +45,8 @@ int main( int argc, char* argv[] ){
   string resultsname(argv[1]);
   string outname(argv[2]);
 
-  cout << "Fit results file name    = " << resultsname << endl;
-  cout << "Output file name    = " << outname << endl << endl;
+  report( INFO, kModule ) << "Fit results file name    = " << resultsname << endl;
+  report( INFO, kModule ) << "Output file name    = " << outname << endl << endl;
 
 
     // ************************
@@ -146,12 +149,12 @@ int main( int argc, char* argv[] ){
     // ************************
 
 
-  cout << "TOTAL EVENTS = " << results.intensity().first << " +- "
+  report( NOTICE, kModule ) << "TOTAL EVENTS = " << results.intensity().first << " +- "
                             << results.intensity().second << endl;
   vector<string> fullamps = plotGenerator.fullAmplitudes();
   for (unsigned int i = 0; i < fullamps.size(); i++){
     vector<string> useamp;  useamp.push_back(fullamps[i]);
-    cout << "FIT FRACTION " << i+1 << " = "
+    report( NOTICE, kModule ) << "FIT FRACTION " << i+1 << " = "
          << results.intensity(useamp).first /
             results.intensity().first <<  " +- "
          << results.intensity(useamp).second /

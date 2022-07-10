@@ -41,6 +41,9 @@
 #include "IUAmpToolsMPI/ParameterManagerMPI.h"
 #include "IUAmpToolsMPI/MPITag.h"
 
+#include "IUAmpTools/report.h"
+static const char* kModule = "ParameterManagerMPI";
+
 ParameterManagerMPI::
 ParameterManagerMPI( MinuitMinimizationManager* minuitManager,
                     IntensityManager* intenManager ) :
@@ -50,7 +53,7 @@ ParameterManager( minuitManager, intenManager )
   
   if( !m_isLeader ){
     
-    cerr << "Instance of MinuitMinimizationManager exists on follower node"
+    report( ERROR, kModule ) << "Instance of MinuitMinimizationManager exists on follower node"
     << endl;
     
     assert( false );
@@ -66,7 +69,7 @@ ParameterManager( minuitManager, intenManagers )
   
   if( !m_isLeader ){
     
-    cerr << "Instance of MinuitMinimizationManager exists on follower node"
+    report( ERROR, kModule ) << "Instance of MinuitMinimizationManager exists on follower node"
     << endl;
     
     assert( false );
@@ -82,7 +85,7 @@ m_intenManagers( 0 )
   
   if( m_isLeader ){
     
-    cerr << "Leader ParameterManager has no MinuitMinimizationManager"
+    report( ERROR, kModule ) << "Leader ParameterManager has no MinuitMinimizationManager"
     << endl;
     
     assert( false );
@@ -100,7 +103,7 @@ m_intenManagers( intenManagers )
   
   if( m_isLeader ){
     
-    cerr << "Leader ParameterManager has no MinuitMinimizationManager"
+    report( ERROR, kModule ) << "Leader ParameterManager has no MinuitMinimizationManager"
     << endl;
     
     assert( false );
@@ -159,7 +162,7 @@ void ParameterManagerMPI::addProductionParameter( const string& termName,
     
     if( intenManPtr == m_intenManagers.end() ){
 
-      cout << "ParameterManager ERROR: Could not find production amplitude for " 
+      report( ERROR, kModule ) << "ParameterManager ERROR: Could not find production amplitude for "
            << termName << endl;
       assert( false );
     }
@@ -212,7 +215,7 @@ void ParameterManagerMPI::addAmplitudeParameter( const string& termName,
     
     if( !foundOne ){
       
-      cout << "WARNING:  could not find term named " << termName 
+      report( WARNING, kModule ) << "could not find term named " << termName
            << "          while trying to set parameter " << parName << endl;
     }
   }

@@ -12,6 +12,9 @@
 
 using namespace std;
 
+#include "IUAmpTools/report.h"
+static const char* kModule = "printAmplitudes";
+
 int main(int argc, char** argv){
 
 
@@ -19,14 +22,13 @@ int main(int argc, char** argv){
     // usage
     // ************************
 
-  cout << endl << " *** Printing Amplitudes *** " << endl << endl;
-
   if (argc <= 1){
-    cout << "Usage:" << endl << endl;
-    cout << "\tprintAmplitudes <config file name>" << endl << endl;
+    report( NOTICE, kModule ) << "Usage:" << endl << endl;
+    report( NOTICE, kModule ) << "\tprintAmplitudes <config file name>" << endl << endl;
     return 0;
   }
 
+  report( INFO, kModule ) << endl << " *** Printing Amplitudes *** " << endl << endl;
 
     // ************************
     // parse the command line parameters
@@ -34,7 +36,7 @@ int main(int argc, char** argv){
 
   string cfgname(argv[1]);
 
-  cout << "Config file name = " << cfgname << endl << endl;
+  report( INFO, kModule ) << "Config file name = " << cfgname << endl << endl;
 
 
     // ************************

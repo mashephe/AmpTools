@@ -40,6 +40,9 @@
 
 #include "IUAmpTools/Histogram2D.h"
 
+#include "IUAmpTools/report.h"
+static const char* kModule = "Histogram2D";
+
 using namespace std;
 
 Histogram2D::Histogram2D() :
@@ -137,7 +140,7 @@ Histogram2D::toStruct( void ) const {
   
   if( m_nBins > MAXBINS ){
     
-    cout << "Too many bins in histogram -- increase MAXBINS" << endl;
+    report( ERROR, kModule ) << "Too many bins in histogram -- increase MAXBINS" << endl;
     assert( false );
   }
   

@@ -14,6 +14,9 @@
 #include "DalitzDataIO/DalitzDataWriter.h"
 #include "DalitzAmp/BreitWigner.h"
 
+#include "IUAmpTools/report.h"
+static const char* kModule = "generatePhysics";
+
 
 using namespace std;
 
@@ -24,13 +27,14 @@ int main(int argc, char** argv){
     // usage
     // ************************
 
-  cout << endl << " *** Generating Events According to Amplitudes *** " << endl << endl;
 
   if (argc <= 3){
-    cout << "Usage:" << endl << endl;
-    cout << "\tgeneratePhysics <config file name> <output file name> <number of events>" << endl << endl;
+    report( NOTICE, kModule ) << "Usage:" << endl;
+    report( NOTICE, kModule ) << "\tgeneratePhysics <config file name> <output file name> <number of events>" << endl << endl;
     return 0;
   }
+
+  report( INFO, kModule ) << endl << " *** Generating Events According to Amplitudes *** " << endl << endl;
 
 
     // ************************
@@ -41,9 +45,9 @@ int main(int argc, char** argv){
   string outfilename(argv[2]);
   int nevents(atoi(argv[3]));
 
-  cout << "Config file name = " << cfgname << endl << endl;
-  cout << "Output file name = " << outfilename << endl;
-  cout << "Number of events = " << nevents << endl << endl;
+  report( INFO, kModule ) << "Config file name = " << cfgname << endl << endl;
+  report( INFO, kModule ) << "Output file name = " << outfilename << endl;
+  report( INFO, kModule ) << "Number of events = " << nevents << endl << endl;
 
 
     // ************************
@@ -62,20 +66,20 @@ int main(int argc, char** argv){
     // ************************
 
   cout << endl << endl;
-  cout << "Creating an AmpToolsInterface..." << endl;
+  report( DEBUG, kModule ) << "Creating an AmpToolsInterface..." << endl;
   AmpToolsInterface::registerAmplitude(BreitWigner());
   AmpToolsInterface::registerDataReader(DalitzDataReader());
   AmpToolsInterface ATI(cfgInfo,AmpToolsInterface::kMCGeneration);
-  cout << "... Finished creating AmpToolsInterface" << endl;
+  report( DEBUG, kModule ) << "... Finished creating AmpToolsInterface" << endl;
 
 
     // ************************
     // create a DataWriter
     // ************************
 
-  cout << "Creating a Data Writer..." << endl;
+  report( DEBUG, kModule ) << "Creating a Data Writer..." << endl;
   DalitzDataWriter dataWriter(outfilename);
-  cout << "... Finished creating a Data Writer" << endl << endl;
+  report( DEBUG, kModule ) << "... Finished creating a Data Writer" << endl << endl;
 
 
     // ************************
@@ -93,7 +97,7 @@ int main(int argc, char** argv){
     // first generate a set of phase space events
     // ************************
 
-  cout << "generating phase space..." << endl;
+  report( DEBUG, kModule ) << "generating phase space..." << endl;
 
   for (int i = 0; i < nevents; i++){
 
@@ -122,23 +126,23 @@ int main(int argc, char** argv){
 
   }
 
-  cout << "... finished generating phase space" << endl;
+  report( DEBUG, kModule ) << "... finished generating phase space" << endl;
 
     
     // ************************
     // calculate intensities for all events
     // ************************
 
-  cout << "calculating intensities..." << endl;
+  report( DEBUG, kModule ) << "calculating intensities..." << endl;
   double maxIntensity = 1.2 * ATI.processEvents(reaction->reactionName());
-  cout << "... finished calculating intensities" << endl;
+  report( DEBUG, kModule ) << "... finished calculating intensities" << endl;
 
 
     // ************************
     // loop over all events again and do accept/reject
     // ************************
 
-  cout << "doing accept/reject..." << endl;
+  report( DEBUG, kModule ) << "doing accept/reject..." << endl;
   for (int i = 0; i < nevents; i++){
     double intensity = ATI.intensity(i); 
     double rndm = drand48() * maxIntensity;
@@ -148,10 +152,8 @@ int main(int argc, char** argv){
       delete kin;
     }
   }
-  cout << "... finished doing accept/reject" << endl;
+  report( DEBUG, kModule ) << "... finished doing accept/reject" << endl;
 
-  cout << "KEPT " << dataWriter.eventCounter() << " events" << endl;
-
-
+  report( INFO, kModule ) << "KEPT " << dataWriter.eventCounter() << " events" << endl;
 
 }

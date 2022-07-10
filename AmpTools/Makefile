@@ -53,14 +53,14 @@ TARGET_LIBS := $(SRCDIRS:%=lib%$(SUFFIX).a)
 
 export
 
-.PHONY: default clean
+.PHONY: default clean force
 
 default: lib $(DEFAULT)
 
 lib:
 	$(Q)mkdir lib
 
-$(DEFAULT): $(TARGET_LIBS)
+$(DEFAULT): compiler_flags $(TARGET_LIBS)
 	$(foreach lib, $(TARGET_LIBS), $(shell cd lib; ar -x $(lib) ) )
 	$(Q)(cd lib && ar -rsc $@ .*$(SUFFIX).o && ranlib $@)
 	$(Q)(cd lib && rm -f .*$(SUFFIX).o)
@@ -80,3 +80,6 @@ clean: $(addprefix clean_, $(ALLDIRS))
 
 clean_%:
 	$(Q)-cd $* && $(MAKE) clean
+
+compiler_flags: force
+	@echo '$(CXX_FLAGS)' | cmp -s - $@ || echo '$(CXX_FLAGS)' > $@

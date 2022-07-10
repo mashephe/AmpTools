@@ -53,6 +53,9 @@
 #include "IUAmpTools/NormIntInterface.h"
 #include "IUAmpTools/Kinematics.h"
 
+#include "IUAmpTools/report.h"
+static const char* kModule = "IntensityManager";
+
 IntensityManager::IntensityManager( const vector< string >& reaction,
                                    const string& reactionName) :
 m_reactionName(reactionName)
@@ -133,7 +136,7 @@ IntensityManager::productionFactor( const string& name ) const {
   
   if( m_prodFactor.find( name ) == m_prodFactor.end() ){
     
-    cout << "ERROR: cannot provide production amplitude for " << name << endl;
+    report( ERROR, kModule ) << "cannot provide production amplitude for " << name << endl;
     assert( false );
   }
   
@@ -179,7 +182,7 @@ IntensityManager::setExternalProductionFactor( const string& name,
   
   if( prodItr == m_prodFactor.end() ){
     
-    cout << "ERROR:  amplitude " << name << " has no factors!" << endl;
+    report( ERROR, kModule ) << "amplitude " << name << " has no factors!" << endl;
     assert( false );
   }
   

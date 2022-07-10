@@ -5,6 +5,7 @@ doc/html
 *.DS_Store
 *.SYMDEF*
 *.goutputstream*
+*compiler_flags*
 Tutorials/Dalitz/DalitzExe/ampPlotter
 Tutorials/Dalitz/DalitzExe/fitAmplitudes
 Tutorials/Dalitz/DalitzExe/fitAmplitudesMPI

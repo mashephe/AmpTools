@@ -23,6 +23,10 @@
 #include "UpRootMinuit/URMinuit.h"
 #include "UpRootMinuit/URMath.h"
 
+#include "IUAmpTools/report.h"
+
+static const char* kModule = "Minuit";
+
 //#include "TError.h"
 //#include "TPluginManager.h"
 //#include "TClass.h"
@@ -42,8 +46,7 @@ URMinuit::URMinuit() :
    m_userParameterIdToInternalId(kDefaultMaximumExternalParameters+1,0),
    m_userParameterValue(kDefaultMaximumExternalParameters+1,0),
    m_userParameterName(kDefaultMaximumExternalParameters+1,kUndefinedParameterName),
-   m_userParameterFlag(kDefaultMaximumExternalParameters+1,-1),
-   m_logStream( &cout )
+   m_userParameterFlag(kDefaultMaximumExternalParameters+1,-1)
 {
 //*-*-*-*-*-*-*-*-*-*-*Minuit normal constructor*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 //*-*                  ========================
@@ -62,8 +65,7 @@ URMinuit::URMinuit(Int_urt maxpar) :
    m_userParameterIdToInternalId(2*maxpar+1),
    m_userParameterValue(2*maxpar+1,0),
    m_userParameterName(2*maxpar+1,kUndefinedParameterName),
-   m_userParameterFlag(2*maxpar+1,-1),
-   m_logStream( &cout )
+   m_userParameterFlag(2*maxpar+1,-1)
 {
 //*-*-*-*-*-*-*-*-*-*-*Minuit normal constructor*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 //*-*                  ========================
@@ -587,7 +589,7 @@ void URMinuit::mnamin()
 
     nparx = fNpar;
     if (fISW[4] >= 1) {
-       *m_logStream << " FIRST CALL TO USER FUNCTION AT NEW START POINT, WITH IFLAG=4." << endl;;
+       report( INFO, kModule ) << " FIRST CALL TO USER FUNCTION AT NEW START POINT, WITH IFLAG=4." << endl;;
     }
     mnexin(fX);
 //    Eval(nparx, fGin, fnew, fU, 4);    ++fNfcn;
@@ -848,13 +850,11 @@ void URMinuit::mncntr(Int_urt ike1, Int_urt ike2, Int_urt &ierrf)
 	chmid[ix-1]  = '*';
 	chzero[ix-1] = '-';
     }
-//    std::printf(" Y-AXIS: PARAMETER %3d: %s\n",ke2, fCpnam[ke2-1].c_str() );
-//    std::printf(" Y-AXIS: PARAMETER %3d: %s\n",ke2, m_userParameterName[ke2].c_str() );
-    *m_logStream << " Y-AXIS: PARAMETER " << setw(3) << ke2 << ": " << m_userParameterName[ke2] << '\n';
+    report( INFO, kModule ) << " Y-AXIS: PARAMETER " << setw(3) << ke2 << ": " << m_userParameterName[ke2] << '\n';
     if (ixzero > 0) {
 	chzero[ixzero-1] = '+';
 	chln = " ";
-        *m_logStream << "             X=0\n";
+      report( INFO, kModule ) << "             X=0\n";
 	//std::printf("             X=0\n");
     }
 //*-*-                loop over rows
@@ -900,7 +900,7 @@ L240:
 	    if (contur[ics-1] < fmx) chln[ix-1] = clabel[ics-1];
 	}
 //*-*-                print a row of the contour plot
-        *m_logStream << setw(12) << setprecision(4) << ylabel << chln << '\n';
+      report( INFO, kModule ) << setw(12) << setprecision(4) << ylabel << chln << '\n';
         // std::printf(" %12.4g %s\n",ylabel,chln.c_str() );
     }
 //*-*-                contours printed, label x-axis
@@ -910,18 +910,18 @@ L240:
     chln.replace(ixmid-1,1,"I");
     chln.replace(nx-1,1,"I");
     // std::printf("              %s\n", chln.c_str());
-    *m_logStream << "              " << chln << '\n';
+  report( INFO, kModule ) << "              " << chln << '\n';
 
 //*-*-               the hardest of all: print x-axis scale!
     chln =  " ";
     if (nx <= 26) {
         //std::printf("        %12.4g%s%12.4g\n",xlo,chln.c_str(),xup);
-       *m_logStream << "        " << setw(12) << setprecision(4) << xlo << chln << setw(12) << xup << '\n';
+       report( INFO, kModule ) << "        " << setw(12) << setprecision(4) << xlo << chln << setw(12) << xup << '\n';
         //std::printf("              %s%12.4g\n",chln.c_str(),xsav);
-       *m_logStream << "              " << chln << setw(12) << setprecision(4) << xsav << '\n';
+       report( INFO, kModule ) << "              " << chln << setw(12) << setprecision(4) << xsav << '\n';
     } else {
         //std::printf("        %12.4g%s%12.4g%s%12.4g\n",xlo,chln.c_str(),xsav,chln.c_str(),xup);
-       *m_logStream << "        " << setw(12) << setprecision(4) << xlo << chln 
+       report( INFO, kModule ) << "        " << setw(12) << setprecision(4) << xlo << chln
             << setw(12) << setprecision(4) << xsav << chln
             << setw(12) << setprecision(4) << xup << '\n';
     }
@@ -929,10 +929,10 @@ L240:
 //            ,ke1,(fCpnam[ke1-1]).c_str(),bwidx);
     //std::printf("       X-AXIS: PARAMETER%3d: %s  ONE COLUMN=%12.4g\n"
     //        ,ke1,(m_userParameterName[ke1]).c_str(),bwidx);
-    *m_logStream << "       X-AXIS: PARAMETER" << setw(3) << ke1 << ": "<< m_userParameterName[ke1]
+    report( INFO, kModule ) << "       X-AXIS: PARAMETER" << setw(3) << ke1 << ": "<< m_userParameterName[ke1]
          << "  ONE COLUMN=" << setw(12) << setprecision(4) << bwidx << '\n';
     //std::printf(" FUNCTION VALUES: F(I)=%12.4g +%12.4g *I**2\n",fAmin,fUp);
-    *m_logStream << " FUNCTION VALUES: F(I)=" << setw(12) << setprecision(4) << fAmin
+    report( INFO, kModule ) << " FUNCTION VALUES: F(I)=" << setw(12) << setprecision(4) << fAmin
          << " +" << setw(12) << setprecision(4) << fUp << " *I**2\n";
 //*-*-                finished.  reset input values
 //    fU[ke1-1] = xsav;
@@ -940,10 +940,10 @@ L240:
     m_userParameterValue[ke1] = xsav;
     m_userParameterValue[ke2] = ysav;
     ierrf     = 0;
-    *m_logStream << endl;
+    report( INFO, kModule ) << endl;
     return;
 L1350:
-       *m_logStream << " INVALID PARAMETER NUMBER(S) REQUESTED.  IGNORED." << endl;
+       report( INFO, kModule ) << " INVALID PARAMETER NUMBER(S) REQUESTED.  IGNORED." << endl;
     //std::printf(" INVALID PARAMETER NUMBER(S) REQUESTED.  IGNORED.\n");
     ierrf = 1;
 } /* mncntr_ */
@@ -997,7 +997,7 @@ void URMinuit::mncomd(const string& crdbin, Int_urt &icondn)
 
 //*-*-                    blank or null command
     if (ipos > lenbuf) {
-        *m_logStream << " BLANK COMMAND IGNORED." << endl;
+        report( INFO, kModule ) << " BLANK COMMAND IGNORED." << endl;
 	//std::printf(" BLANK COMMAND IGNORED.\n");
 	icondn = 1;
 	return;
@@ -1032,7 +1032,7 @@ void URMinuit::mncomd(const string& crdbin, Int_urt &icondn)
     mncrck(ctemp, 20, comand, lnc, fMaxpar, fCOMDplist, llist, ierr, fIsyswr);
     if (ierr > 0) {
 	//std::printf(" COMMAND CANNOT BE INTERPRETED\n");
-        *m_logStream << " COMMAND CANNOT BE INTERPRETED" << endl;
+        report( INFO, kModule ) << " COMMAND CANNOT BE INTERPRETED" << endl;
 	icondn = 2;
 	return;
     }
@@ -1102,18 +1102,18 @@ void URMinuit::mncont(Int_urt ike1, Int_urt ike2, Int_urt nptu, Double_urt *xptu
     fNfcnfr = nfcnco;
     if (fISW[4] >= 0) {
         //std::printf(" START MNCONTOUR CALCULATION OF%4d POINTS ON CONTOUR.\n",nptu);
-        *m_logStream << " START MNCONTOUR CALCULATION OF" << setw(4) << nptu << " POINTS ON CONTOUR." << endl;
+        report( INFO, kModule ) << " START MNCONTOUR CALCULATION OF" << setw(4) << nptu << " POINTS ON CONTOUR." << endl;
 	if (fNpar > 2) {
 	    if (fNpar == 3) {
 		ki3 = 6 - ki1 - ki2;
 		ke3 = fNexofi[ki3-1];
 //                std::printf(" EACH POINT IS A MINIMUM WITH RESPECT TO PARAMETER %3d  %s\n",ke3,fCpnam[ke3-1].c_str());
 		//std::printf(" EACH POINT IS A MINIMUM WITH RESPECT TO PARAMETER %3d  %s\n",ke3,m_userParameterName[ke3].c_str());
-                *m_logStream << " EACH POINT IS A MINIMUM WITH RESPECT TO PARAMETER " << setw(3) << ke3
+                report( INFO, kModule ) << " EACH POINT IS A MINIMUM WITH RESPECT TO PARAMETER " << setw(3) << ke3
                      << "  " << m_userParameterName[ke3] << endl;
 	    } else {
 		//std::printf(" EACH POINT IS A MINIMUM WITH RESPECT TO THE OTHER%3d VARIABLE PARAMETERS.\n",fNpar - 2);
-                *m_logStream << " EACH POINT IS A MINIMUM WITH RESPECT TO THE OTHER" << setw(3) << (fNpar - 2)
+                report( INFO, kModule ) << " EACH POINT IS A MINIMUM WITH RESPECT TO THE OTHER" << setw(3) << (fNpar - 2)
                    << " VARIABLE PARAMETERS." << endl;
 	    }
 	}
@@ -1163,7 +1163,7 @@ void URMinuit::mncont(Int_urt ike1, Int_urt ike2, Int_urt nptu, Double_urt *xptu
     next    = 5;
     if (ldebug) {
 	//std::printf(" Plot of four points found by MINOS\n");
-        *m_logStream << " Plot of four points found by MINOS" << endl;
+        report( INFO, kModule ) << " Plot of four points found by MINOS" << endl;
 	fXpt[0]  = u1min;
 	fYpt[0]  = u2min;
 	fChpt[0] = ' ';
@@ -1174,7 +1174,7 @@ void URMinuit::mncont(Int_urt ike1, Int_urt ike2, Int_urt nptu, Double_urt *xptu
 	    fYpt[i-1] = yptu[i-2];
 	}
 	//std::printf(fChpt,"%s"," ABCD");
-        *m_logStream << fChpt << " ABCD" << endl;
+        report( INFO, kModule ) << fChpt << " ABCD" << endl;
 	mnplot(fXpt, fYpt, fChpt, nall, fNpagwd, fNpagln);
     }
 
@@ -1241,7 +1241,7 @@ L300:
 	    if (a1 > .5) {
 		if (fISW[4] >= 0) {
 		    //std::printf(" MNCONT CANNOT FIND NEXT POINT ON CONTOUR.  ONLY%3d POINTS FOUND.\n",nowpts);
-                    *m_logStream << " MNCONT CANNOT FIND NEXT POINT ON CONTOUR.  ONLY" << setw(3) << nowpts
+                    report( INFO, kModule ) << " MNCONT CANNOT FIND NEXT POINT ON CONTOUR.  ONLY" << setw(3) << nowpts
                                  << " POINTS FOUND." << endl;
 		}
 		goto L950;
@@ -1280,20 +1280,20 @@ L950:
         fChpt[nall] = 0;
 //      std::printf(" Y-AXIS: PARAMETER %3d  %s\n",ke2,fCpnam[ke2-1].c_str());
         //std::printf(" Y-AXIS: PARAMETER %3d  %s\n",ke2,m_userParameterName[ke2].c_str());
-	*m_logStream << " Y-AXIS: PARAMETER " << setw(3) << ke2 << "  " << m_userParameterName[ke2] << '\n';
+	report( INFO, kModule ) << " Y-AXIS: PARAMETER " << setw(3) << ke2 << "  " << m_userParameterName[ke2] << '\n';
 
 	mnplot(fXpt, fYpt, fChpt, nall, fNpagwd, fNpagln);
 
 //      std::printf("                         X-AXIS: PARAMETER %3d  %s\n",ke1,fCpnam[ke1-1].c_str());
 	//std::printf("                         X-AXIS: PARAMETER %3d  %s\n",ke1,m_userParameterName[ke1].c_str());
-        *m_logStream << "                         X-AXIS: PARAMETER " << setw(3) << ke1 << "  " << m_userParameterName[ke1] << '\n';
+        report( INFO, kModule ) << "                         X-AXIS: PARAMETER " << setw(3) << ke1 << "  " << m_userParameterName[ke1] << '\n';
     }
 //*-*-                print out the coordinates around the contour
     if (fISW[4] >= 1) {
 	npcol = (nowpts + 1) / 2;
 	nfcol = nowpts / 2;
 	//std::printf("%5d POINTS ON CONTOUR.   FMIN=%13.5e   ERRDEF=%11.3g\n",nowpts,abest,fUp);
-	*m_logStream << setw(5) << nowpts << " POINTS ON CONTOUR.   FMIN=" << setw(13) << setprecision(5) << abest
+	report( INFO, kModule ) << setw(5) << nowpts << " POINTS ON CONTOUR.   FMIN=" << setw(13) << setprecision(5) << abest
 	     << "   ERRDEF=" << setw(11) << setprecision(3) << fUp << '\n';
 //      std::printf("         %s%s%s%s\n",fCpnam[ke1-1].c_str(),
 //            fCpnam[ke2-1].c_str(),
@@ -1303,17 +1303,17 @@ L950:
         //                           m_userParameterName[ke2].c_str(),
         //                           m_userParameterName[ke1].c_str(),
         //                           m_userParameterName[ke2].c_str());
-	*m_logStream << "         " << m_userParameterName[ke1] << m_userParameterName[ke2]
+	report( INFO, kModule ) << "         " << m_userParameterName[ke1] << m_userParameterName[ke2]
 	                    << m_userParameterName[ke1] << m_userParameterName[ke1] << '\n';
 	for (line = 1; line <= nfcol; ++line) {
 	    lr = line + npcol;
 	    //std::printf(" %5d%13.5e%13.5e          %5d%13.5e%13.5e\n",line,xptu[line-1],yptu[line-1],lr,xptu[lr-1],yptu[lr-1]);
-	    *m_logStream << setw(6) << line << setw(13) << setprecision(5) << xptu[line-1] << setw(13) << setprecision(5) << yptu[line-1]
+	    report( INFO, kModule ) << setw(6) << line << setw(13) << setprecision(5) << xptu[line-1] << setw(13) << setprecision(5) << yptu[line-1]
 		 << setw(15) << lr  << setw(13) << setprecision(5) << xptu[lr-1]   << setw(13) << setprecision(5) << yptu[lr-1] << '\n';
 	}
 	if (nfcol < npcol) {
 	  //std::printf(" %5d%13.5e%13.5e\n",npcol,xptu[npcol-1],yptu[npcol-1]);
-	    *m_logStream << setw(6) << npcol << setw(13) << setprecision(5) << xptu[npcol-1]   << setw(13) << setprecision(5) << yptu[npcol-1] << '\n';
+	    report( INFO, kModule ) << setw(6) << npcol << setw(13) << setprecision(5) << xptu[npcol-1]   << setw(13) << setprecision(5) << yptu[npcol-1] << '\n';
 	}
     }
 //*-*-                                   . . contour finished. reset v
@@ -1344,18 +1344,18 @@ L950:
 //*-*-                                    Error returns
 L1350:
     //std::printf(" INVALID PARAMETER NUMBERS.\n");
-    *m_logStream << " INVALID PARAMETER NUMBERS.\n";
+    report( INFO, kModule ) << " INVALID PARAMETER NUMBERS.\n";
     goto L1450;
 L1400:
     //std::printf(" LESS THAN FOUR POINTS REQUESTED.\n");
-    *m_logStream << " LESS THAN FOUR POINTS REQUESTED.\n";
+    report( INFO, kModule ) << " LESS THAN FOUR POINTS REQUESTED.\n";
 L1450:
     ierrf   = -1;
     fCstatu = "USER ERROR";
     goto L2000;
 L1500:
     //std::printf(" MNCONT UNABLE TO FIND FOUR POINTS.\n");
-    *m_logStream << " MNCONT UNABLE TO FIND FOUR POINTS.\n";
+    report( INFO, kModule ) << " MNCONT UNABLE TO FIND FOUR POINTS.\n";
 //    fU[ke1-1] = u1min;
 //    fU[ke2-1] = u2min;
     m_userParameterValue[ke1] = u1min;
@@ -1365,7 +1365,7 @@ L1500:
 L2000:
     fCfrom  = "MNContour ";
     fNfcnfr = nfcnco;
-    *m_logStream << endl;
+    report( INFO, kModule ) << endl;
 } /* mncont_ */
 
 //______________________________________________________________________________
@@ -1429,12 +1429,12 @@ L250:
     lelmnt[ielmnt-1] = iend - ibegin + 1;
     if (lelmnt[ielmnt-1] > 19) {
       //std::printf(" MINUIT WARNING: INPUT DATA WORD TOO LONG.\n");
-	*m_logStream << " MINUIT WARNING: INPUT DATA WORD TOO LONG." << endl;
+	report( INFO, kModule ) << " MINUIT WARNING: INPUT DATA WORD TOO LONG." << endl;
         ctemp = cardbuf.substr(ibegin-1,iend-ibegin+1);
         //std::printf("     ORIGINAL:%s\n",ctemp.c_str());
-	*m_logStream << "     ORIGINAL:" << ctemp << '\n';
+	report( INFO, kModule ) << "     ORIGINAL:" << ctemp << '\n';
 	//std::printf(" TRUNCATED TO:%s\n",celmnt[ielmnt-1]);
-	*m_logStream << " TRUNCATED TO:" << celmnt[ielmnt-1] << endl;
+	report( INFO, kModule ) << " TRUNCATED TO:" << celmnt[ielmnt-1] << endl;
 	lelmnt[ielmnt-1] = 19;
     }
     if (ipos >= lend) goto L300;
@@ -1483,9 +1483,9 @@ L450:
 	if (llist > mxp) {
 	    nreq = nelmnt - ielmnt + 1;
 	    //std::printf(" MINUIT WARNING IN MNCRCK: \n");
-	    *m_logStream << " MINUIT WARNING IN MNCRCK: \n";
+	    report( INFO, kModule ) << " MINUIT WARNING IN MNCRCK: \n";
             //std::printf(" COMMAND HAS INPUT%5d NUMERIC FIELDS, BUT MINUIT CAN ACCEPT ONLY%3d\n",nreq,mxp);
-	    *m_logStream << " COMMAND HAS INPUT" << setw(5) << nreq << " NUMERIC FIELDS, BUT MINUIT CAN ACCEPT ONLY"
+	    report( INFO, kModule ) << " COMMAND HAS INPUT" << setw(5) << nreq << " NUMERIC FIELDS, BUT MINUIT CAN ACCEPT ONLY"
 		 << setw(3) << mxp << endl;
 	    goto L900;
 	}
@@ -1571,7 +1571,9 @@ void URMinuit::mncros(Double_urt &aopt, Int_urt &iercr)
     mneval(anext, fnext, ierev);
 //*-* debug printout:
     if (ldebug) {
-	std::printf(" MNCROS: calls=%8d   AIM=%10.5f  F,A=%10.5f%10.5f\n",fNfcn,aim,fnext,aopt);
+//	std::printf(" MNCROS: calls=%8d   AIM=%10.5f  F,A=%10.5f%10.5f\n",fNfcn,aim,fnext,aopt);
+      report( DEBUG, kModule ) << "MNCROS: calls=" << setw(8) << fNfcn << "AIM=" << setw(10) << setprecision(5) << aim
+      << "F,A=" << setw(10) << setprecision(5) << fnext << setw(10) << setprecision(5) << aopt << endl;
     }
     if (ierev > 0) goto L900;
     if (fLimset && fnext <= aim) goto L930;
@@ -1595,7 +1597,9 @@ void URMinuit::mncros(Double_urt &aopt, Int_urt &iercr)
     mneval(aopt, fnext, ierev);
 //*-* debug printout:
     if (ldebug) {
-	std::printf(" MNCROS: calls=%8d   AIM=%10.5f  F,A=%10.5f%10.5f\n",fNfcn,aim,fnext,aopt);
+	//std::printf(" MNCROS: calls=%8d   AIM=%10.5f  F,A=%10.5f%10.5f\n",fNfcn,aim,fnext,aopt);
+      report( DEBUG, kModule ) << "MNCROS: calls=" << setw(8) << fNfcn << "AIM=" << setw(10) << setprecision(5) << aim
+      << "F,A=" << setw(10) << setprecision(5) << fnext << setw(10) << setprecision(5) << aopt << endl;
     }
     if (ierev > 0) goto L900;
     if (fLimset && fnext <= aim) goto L930;
@@ -1623,7 +1627,9 @@ L300:
 	mneval(aopt, fnext, ierev);
 //*-* debug printout:
 	if (ldebug) {
-            std::printf(" MNCROS: calls=%8d   AIM=%10.5f  F,A=%10.5f%10.5f\n",fNfcn,aim,fnext,aopt);
+//            std::printf(" MNCROS: calls=%8d   AIM=%10.5f  F,A=%10.5f%10.5f\n",fNfcn,aim,fnext,aopt);
+    report( DEBUG, kModule ) << "MNCROS: calls=" << setw(8) << fNfcn << "AIM=" << setw(10) << setprecision(5) << aim
+    << "F,A=" << setw(10) << setprecision(5) << fnext << setw(10) << setprecision(5) << aopt << endl;
 	}
 	if (ierev > 0) goto L900;
 	if (fLimset && fnext <= aim) goto L930;
@@ -1661,8 +1667,10 @@ L460:
     mneval(aopt, fnext, ierev);
 //*-* debug printout:
     if (ldebug) {
-        std::printf(" MNCROS: calls=%8d   AIM=%10.5f  F,A=%10.5f%10.5f\n",fNfcn,aim,fnext,aopt);
-    }
+//        std::printf(" MNCROS: calls=%8d   AIM=%10.5f  F,A=%10.5f%10.5f\n",fNfcn,aim,fnext,aopt);
+      report( DEBUG, kModule ) << "MNCROS: calls=" << setw(8) << fNfcn << "AIM=" << setw(10) << setprecision(5) << aim
+      << "F,A=" << setw(10) << setprecision(5) << fnext << setw(10) << setprecision(5) << aopt << endl;
+   }
     if (ierev > 0) goto L900;
     if (fLimset && fnext <= aim) goto L930;
     alsb[2] = aopt;
@@ -1717,7 +1725,7 @@ L500:
     s2 = coeff[1] + x2*2*coeff[2];
     if (s1*s2 > 0) {
       //std::printf(" MNCONTour problem 1\n");
-	*m_logStream << " MNCONTour problem 1" << endl;
+	report( INFO, kModule ) << " MNCONTour problem 1" << endl;
     }
     aopt  = x1;
     slope = s1;
@@ -1777,7 +1785,9 @@ L500:
     mneval(aopt, fnext, ierev);
 //*-* debug printout:
     if (ldebug) {
-        std::printf(" MNCROS: calls=%8d   AIM=%10.5f  F,A=%10.5f%10.5f\n",fNfcn,aim,fnext,aopt);
+//        std::printf(" MNCROS: calls=%8d   AIM=%10.5f  F,A=%10.5f%10.5f\n",fNfcn,aim,fnext,aopt);
+      report( DEBUG, kModule ) << "MNCROS: calls=" << setw(8) << fNfcn << "AIM=" << setw(10) << setprecision(5) << aim
+      << "F,A=" << setw(10) << setprecision(5) << fnext << setw(10) << setprecision(5) << aopt << endl;
     }
     if (ierev > 0) goto L900;
     if (fLimset && fnext <= aim) goto L930;
@@ -1828,15 +1838,15 @@ L1000:
 	if (fXdircr < 0) chsign = "NEGA";
 	if (fKe2cr == 0) {
 	  //std::printf("  %sTIVE MINOS ERROR, PARAMETER %3d\n",chsign,fKe1cr);
-	    *m_logStream << chsign << "TIVE MINOS ERROR, PARAMETER " << setw(3) << fKe1cr << endl;
+	    report( INFO, kModule ) << chsign << "TIVE MINOS ERROR, PARAMETER " << setw(3) << fKe1cr << endl;
 	}
 	if (itoohi == 1) {
 	  //std::printf("POINTS LABELLED '+' WERE TOO HIGH TO PLOT.\n");
-	    *m_logStream << "POINTS LABELLED '+' WERE TOO HIGH TO PLOT." << endl;
+	    report( INFO, kModule ) << "POINTS LABELLED '+' WERE TOO HIGH TO PLOT." << endl;
 	}
 	if (iercr == 1) {
 	  //std::printf("RIGHTMOST POINT IS UP AGAINST LIMIT.\n");
-	    *m_logStream << "RIGHTMOST POINT IS UP AGAINST LIMIT." << endl;
+	    report( INFO, kModule ) << "RIGHTMOST POINT IS UP AGAINST LIMIT." << endl;
 	}
 	mnplot(fXpt, fYpt, fChpt, ipt, fNpagwd, fNpagln);
     }
@@ -1858,7 +1868,7 @@ void URMinuit::mncuve()
 
     if (fISW[3] < 1) {
       //std::printf(" FUNCTION MUST BE MINIMIZED BEFORE CALLING %s\n",fCfrom.c_str());
-	*m_logStream << " FUNCTION MUST BE MINIMIZED BEFORE CALLING " << fCfrom << endl;
+	report( INFO, kModule ) << " FUNCTION MUST BE MINIMIZED BEFORE CALLING " << fCfrom << endl;
 	fApsi = fEpsi;
 	mnmigr();
     }
@@ -1929,8 +1939,8 @@ void URMinuit::mnderi()
 	}
 	//std::printf("  FIRST DERIVATIVE DEBUG PRINTOUT.  MNDERI\n");
         //std::printf(" PAR    DERIV     STEP      MINSTEP   OPTSTEP  D1-D2    2ND DRV\n");
-	*m_logStream << "  FIRST DERIVATIVE DEBUG PRINTOUT.  MNDERI\n";
-	*m_logStream << " PAR    DERIV     STEP      MINSTEP   OPTSTEP  D1-D2    2ND DRV" << endl;
+	report( INFO, kModule ) << "  FIRST DERIVATIVE DEBUG PRINTOUT.  MNDERI\n";
+	report( INFO, kModule ) << " PAR    DERIV     STEP      MINSTEP   OPTSTEP  D1-D2    2ND DRV" << endl;
     }
     dfmin = fEpsma2*8*(URMath::Abs(fAmin) + fUp);
     if (fIstrat <= 0) {
@@ -2254,7 +2264,7 @@ void URMinuit::mnemat(Double_urt *emat, Int_urt ndim)
     if (fISW[1] < 1) return;
     if (fISW[4] >= 2) {
       //std::printf(" EXTERNAL ERROR MATRIX.    NDIM=%4d    NPAR=%3d    ERR DEF=%g\n",ndim,fNpar,fUp);
-	*m_logStream << " EXTERNAL ERROR MATRIX.    NDIM=" << setw(4) << ndim << "    NPAR=" << setw(3)
+	report( INFO, kModule ) << " EXTERNAL ERROR MATRIX.    NDIM=" << setw(4) << ndim << "    NPAR=" << setw(3)
 	     << fNpar << "    ERR DEF=" << fUp << endl;
     }
 //*-*-                   size of matrix to be printed
@@ -2262,7 +2272,7 @@ void URMinuit::mnemat(Double_urt *emat, Int_urt ndim)
     if (ndim < fNpar) {
 	npard = ndim;
 	if (fISW[4] >= 0) {
-	    std::printf(" USER-DIMENSIONED  ARRAY EMAT NOT BIG ENOUGH. REDUCED MATRIX CALCULATED.\n");
+    report( WARNING, kModule ) << " USER-DIMENSIONED  ARRAY EMAT NOT BIG ENOUGH. REDUCED MATRIX CALCULATED." << endl;
 	}
     }
 //*-*-                NPERLN is the number of elements that fit on one line
@@ -2299,7 +2309,8 @@ void URMinuit::mnemat(Double_urt *emat, Int_urt ndim)
                    localTemp << " " << setw(10) << setprecision(3) << emat[i + kk*emat_dim1];
 		    ctemp += localTemp.str();
 	        }
-                std::printf("%s\n",ctemp.c_str());
+//                std::printf("%s\n",ctemp.c_str());
+        report( INFO, kModule ) << ctemp << endl;
 	    }
 	}
     }
@@ -2490,7 +2501,8 @@ void URMinuit::mnexcm(const string& command, Double_urt *plist, Int_urt llist, I
 	if (fISW[4] >= 0) {
 	    lnow = llist;
 	    if (lnow > 4) lnow = 4;
-	    std::printf(" **********\n");
+//	    std::printf(" **********\n");
+    report( INFO, kModule ) << "**********" << endl;
             ostringstream octemp;
             octemp << " **" << setw(5) << fIcomnd << " **" << fCword;
             ctemp = octemp.str();
@@ -2500,7 +2512,8 @@ void URMinuit::mnexcm(const string& command, Double_urt *plist, Int_urt llist, I
                localTemp << " " << plist[i-1];
                 ctemp += localTemp.str();
 	    }
-            std::printf("%s\n",ctemp.c_str());
+//            std::printf("%s\n",ctemp.c_str());
+      report( INFO, kModule ) << ctemp << endl;
 	    inonde = 0;
 	    if (llist > lnow) {
 		kll = llist;
@@ -2508,14 +2521,18 @@ void URMinuit::mnexcm(const string& command, Double_urt *plist, Int_urt llist, I
 		    inonde = 1;
 		    kll = fMaxpar;
 		}
-                std::printf(" ***********\n");
+//                std::printf(" ***********\n");
+        report( INFO, kModule ) << "**********" << endl;
 		for (i = lnow + 1; i <= kll; ++i) {
-                   std::printf("%12.4g\n",plist[i-1]);
+//                   std::printf("%12.4g\n",plist[i-1]);
+      report( INFO, kModule ) << setw(12) << setprecision(4) << plist[i-1] << endl;
 		}
 	    }
-	    std::printf(" **********\n");
+//                std::printf(" ***********\n");
+            report( INFO, kModule ) << "**********" << endl;
 	    if (inonde > 0) {
-		std::printf("  ERROR: ABOVE CALL TO MNEXCM TRIED TO PASS MORE THAN %d PARAMETERS.\n", fMaxpar);
+//		std::printf("  ERROR: ABOVE CALL TO MNEXCM TRIED TO PASS MORE THAN %d PARAMETERS.\n", fMaxpar);
+        report( ERROR, kModule ) << "ABOVE CALL TO MNEXCM TRIED TO PASS MORE THAN " << fMaxpar << " PARAMETERS." << endl;
 	    }
 	}
     }
@@ -2536,7 +2553,8 @@ void URMinuit::mnexcm(const string& command, Double_urt *plist, Int_urt llist, I
     for (i = 1; i <= nntot; ++i) {
 	if (strncmp(ctemp.c_str(),cname[i-1].c_str(),3) == 0) goto L90;
     }
-    std::printf("UNKNOWN COMMAND IGNORED:%s\n", comand.c_str());
+//    std::printf("UNKNOWN COMMAND IGNORED:%s\n", comand.c_str());
+  report( ERROR, kModule ) << "UNKNOWN COMMAND IGNORED:  " << comand << endl;
     ierflg = 3;
     return;
 //*-*-               normal case: recognized MINUIT command . . . . . . .
@@ -2631,7 +2649,8 @@ L510:
     mnmigr();
     mnwerr();
     if (fNfcn < nsuper) goto L510;
-    std::printf(" TOO MANY FUNCTION CALLS. MINOS GIVES UP\n");
+//    std::printf(" TOO MANY FUNCTION CALLS. MINOS GIVES UP\n");
+  report( WARNING, kModule) << " TOO MANY FUNCTION CALLS. MINOS GIVES UP." << endl;
     ierflg = 4;
     return;
 //*-*-                                       . . . . . . . . . .set, show
@@ -2651,7 +2670,8 @@ L901:
     lfreed = kurFALSE;
     lfixed = kurFALSE;
     if (llist == 0) {
-	std::printf("%s:  NO PARAMETERS REQUESTED \n",fCword.c_str());
+//	std::printf("%s:  NO PARAMETERS REQUESTED \n",fCword.c_str());
+      report( NOTICE, kModule ) << fCword << ":  NO PARAMETERS REQUESTED" << endl;
 	return;
     }
     for (ilist = 1; ilist <= llist; ++ilist) {
@@ -2681,7 +2701,8 @@ L901:
 	}
 	continue;
 L930:
-	std::printf(" PARAMETER%4d %s IGNORED.\n",iext,chwhy.c_str());
+//	std::printf(" PARAMETER%4d %s IGNORED.\n",iext,chwhy.c_str());
+      report( WARNING, kModule ) << " PARAMETER" << setw(4) << iext << chwhy << " IGNORED." << endl;
     }
     if (lfreed || lfixed) mnrset(0);
     if (lfreed) {
@@ -2707,7 +2728,8 @@ L1000:
     }
     return;
 L1005:
-    std::printf(" IGNORED.  UNKNOWN ARGUMENT:%4d\n",it);
+//    std::printf(" IGNORED.  UNKNOWN ARGUMENT:%4d\n",it);
+  report( WARNING, kModule ) << " IGNORED.  UNKNOWN ARGUMENT: " << setw(4) << it << endl;
     ierflg = 3;
     return;
 //*-*-                                       . . . . . . . . . . release
@@ -2727,7 +2749,8 @@ L1210:
     mnscan();
     return;
 L1250:
-    std::printf(" PARAMETER%4d NOT VARIABLE.\n",iext);
+//    std::printf(" PARAMETER%4d NOT VARIABLE.\n",iext);
+  report( WARNING, kModule ) << " PARAMETER " << setw(4) << iext << " NOT VARIABLE." << endl;
     ierflg = 3;
     return;
 //*-*-                                       . . . . . . . . . . contour
@@ -2739,7 +2762,8 @@ L1300:
 	    ke1 = fNexofi[0];
 	    ke2 = fNexofi[1];
 	} else {
-	    std::printf("%s:  NO PARAMETERS REQUESTED \n",fCword.c_str());
+//	    std::printf("%s:  NO PARAMETERS REQUESTED \n",fCword.c_str());
+    report( WARNING, kModule ) << fCword << ":  NO PARAMETERS REQUESTED" << endl;
 	    ierflg = 3;
 	    return;
 	}
@@ -2799,7 +2823,8 @@ L1900:
     it = Int_urt(fWord7[0]);
     if (fFval3 != fAmin && it == 0) {
 	iflag = 3;
-	std::printf(" CALL TO USER FUNCTION WITH IFLAG = 3\n");
+//	std::printf(" CALL TO USER FUNCTION WITH IFLAG = 3\n");
+      report( INFO, kModule ) << " CALL TO USER FUNCTION WITH IFLAG = 3" << endl;
 	nparx = fNpar;
 //        Eval(nparx, fGin, f, fU, iflag);	++fNfcn;
 	Eval(nparx, fGin, f, m_userParameterValue, iflag);	++fNfcn;
@@ -2812,7 +2837,8 @@ L1900:
 L2200:
     mncler();
     if (fISW[4] >= 1) {
-	std::printf(" MINUIT MEMORY CLEARED. NO PARAMETERS NOW DEFINED.\n");
+//	std::printf(" MINUIT MEMORY CLEARED. NO PARAMETERS NOW DEFINED.\n");
+      report( INFO, kModule ) << " MINUIT MEMORY CLEARED. NO PARAMETERS NOW DEFINED." << endl;
     }
     return;
 //*-*-                                       . . . . . . . . . . help
@@ -2863,7 +2889,8 @@ L2600:
     return;
 //*-*-                                     . . . . . . . . . . blank line
 L3300:
-    std::printf(" BLANK COMMAND IGNORED.\n");
+//    std::printf(" BLANK COMMAND IGNORED.\n");
+  report( WARNING, kModule ) << "BLANK COMMAND IGNORED." << endl;
     ierflg = 1;
     return;
 //*-*  . . . . . . . . obsolete commands     . . . . . . . . . . . . . .
@@ -3828,7 +3855,7 @@ void URMinuit::mnhess()
 	tlrg2  = .02;
     }
     if (fISW[4] >= 2 || ldebug) {
-	std::printf("   START COVARIANCE MATRIX CALCULATION.\n");
+      report( DEBUG, kModule ) << "   START COVARIANCE MATRIX CALCULATION." << endl;
     }
     fCfrom  = "HESSE   ";
     fNfcnfr = fNfcn;
@@ -4012,7 +4039,8 @@ L214:
 	fEDM += fP[i + i*fMaxpar - fMaxpar-1]*(fGrd[i-1]*fGrd[i-1]);
     }
     if (fISW[4] >= 1 && fISW[1] == 3 && fItaur == 0) {
-	std::printf(" COVARIANCE MATRIX CALCULATED SUCCESSFULLY\n");
+//	std::printf(" COVARIANCE MATRIX CALCULATED SUCCESSFULLY\n");
+      report( INFO, kModule ) << " COVARIANCE MATRIX CALCULATED SUCCESSFULLY." << endl;
     }
     goto L900;
 //*-*-                             failure to invert 2nd deriv matrix
@@ -4021,7 +4049,8 @@ L390:
     fDcovar = 1;
     fCstatu = "FAILED    ";
     if (fISW[4] >= 0) {
-	std::printf("  MNHESS FAILS AND WILL RETURN DIAGONAL MATRIX. \n");
+//	std::printf("  MNHESS FAILS AND WILL RETURN DIAGONAL MATRIX. \n");
+      report( WARNING, kModule ) << " MNHESS FAILS AND WILL RETURN DIAGONAL MATRIX." << endl;
     }
     for (i = 1; i <= fNpar; ++i) {
 	ndex = i*(i-1) / 2;
@@ -4433,7 +4462,8 @@ void URMinuit::mninit(Int_urt i1, Int_urt i2, Int_urt i3)
     }
     epstry = 1e-7;
     fEpsmac = epstry*4;
-    std::printf(" MNINIT UNABLE TO DETERMINE ARITHMETIC PRECISION. WILL ASSUME:%g\n",fEpsmac);
+//    std::printf(" MNINIT UNABLE TO DETERMINE ARITHMETIC PRECISION. WILL ASSUME:%g\n",fEpsmac);
+  report( WARNING, kModule ) << " MNINIT UNABLE TO DETERMINE ARITHMETIC PRECISION. WILL ASSUME: " << fEpsmac << endl;
 L35:
     fEpsmac = epstry*8;
     fEpsma2 = URMath::Sqrt(fEpsmac)*2;
@@ -4443,7 +4473,6 @@ L35:
     distnn  = URMath::Sqrt(fEpsma2)*8;
     fVlimhi =  piby2 - distnn;
     fVlimlo = -piby2 + distnn;
-  //    *m_logStream << "size of m_userParameterName: " << m_userParameterName.size() << endl;
     mncler();
 //    std::printf("  MINUIT RELEASE %s INITIALIZED.   DIMENSIONS 100/50  EPSMAC=%g",(const char*)fCvrsn,fEpsmac);
 } /* mninit_ */
@@ -4853,14 +4882,16 @@ void URMinuit::mnmatu(Int_urt kode)
     ncoef = (fNpagwd - 19) / 6;
     ncoef = URMath::Min(ncoef,20);
     nparm = URMath::Min(fNpar,ncoef);
-    std::printf(" PARAMETER  CORRELATION COEFFICIENTS  \n");
+//    std::printf(" PARAMETER  CORRELATION COEFFICIENTS  \n");
+    report( INFO, kModule ) << " PARAMETER CORRELATION COEFFICIENTS" << endl;
     ctemp = "       NO.  GLOBAL";
     for (id = 1; id <= nparm; ++id) {
        ostringstream localTemp;
        localTemp << setw(7) << right << fNexofi[id-1];
        ctemp += localTemp.str(); // Form(" %6d",);
     }
-    std::printf("%s\n",ctemp.c_str());
+//    std::printf("%s\n",ctemp.c_str());
+  report( INFO, kModule ) << ctemp << endl;
     for (i = 1; i <= fNpar; ++i) {
 	ix  = fNexofi[i-1];
 	ndi = i*(i + 1) / 2;
@@ -4880,7 +4911,9 @@ void URMinuit::mnmatu(Int_urt kode)
            localTemp << fixed << setw(7) << setprecision(3) << fMATUvline[it-1];
            ctemp += localTemp.str(); //Form(" %6.3f",);
 	}
-        std::printf("%s\n",ctemp.c_str());
+//        std::printf("%s\n",ctemp.c_str());
+  report( INFO, kModule ) << ctemp << endl;
+
 	if (i <= nparm) continue;
 	for (iso = 1; iso <= 10; ++iso) {
             ctemp = "                  ";
@@ -4891,12 +4924,16 @@ void URMinuit::mnmatu(Int_urt kode)
                localTemp << fixed << setw(7) << setprecision(3) << fMATUvline[it-1];
                ctemp = ctemp + localTemp.str(); // Form(" %6.3f",fMATUvline[it-1]);
 	    }
-            std::printf("%s\n",ctemp.c_str());
+//            std::printf("%s\n",ctemp.c_str());
+    report( INFO, kModule ) << ctemp << endl;
+
 	    if (i <= nparm) break;
 	}
     }
     if (isw2 < 3) {
-        std::printf(" %s\n",(fCovmes[isw2]).c_str());
+//        std::printf(" %s\n",(fCovmes[isw2]).c_str());
+      report( INFO, kModule ) << " " << fCovmes[isw2] << endl;
+
     }
 } /* mnmatu_ */
 
@@ -4936,7 +4973,9 @@ void URMinuit::mnmigr()
     fISW[3] = -1;
     rhotol  = fApsi*.001;
     if (iswtr >= 1) {
-	std::printf(" START MIGRAD MINIMIZATION.  STRATEGY%2d.  CONVERGENCE WHEN EDM .LT.%9.2e\n",fIstrat,rhotol);
+//	std::printf(" START MIGRAD MINIMIZATION.  STRATEGY%2d.  CONVERGENCE WHEN EDM .LT.%9.2e\n",fIstrat,rhotol);
+      report( NOTICE, kModule ) << " START MIGRAD MINIMIZATION.  STRATEGY " << setw(2) << fIstrat
+      << "  CONVERGENCE WHEN EDM .LT." << setw(9) << setprecision(2) << scientific << rhotol << endl;
     }
 //*-*-                                          initialization strategy
     if (fIstrat < 2 || fISW[1] >= 3) goto L2;
@@ -5183,26 +5222,30 @@ L135:
 L190:
     fISW[0] = 1;
     if (fISW[4] >= 0) {
-	std::printf(" CALL LIMIT EXCEEDED IN MIGRAD.\n");
+//	std::printf(" CALL LIMIT EXCEEDED IN MIGRAD.\n");
+      report( WARNING, kModule ) << " CALL LIMIT EXCEEDED IN MIGRAD. " << endl;
     }
     fCstatu = "CALL LIMIT";
     goto L230;
 //*-*-                                        . . fails to improve . .
 L200:
     if (iswtr >= 1) {
-	std::printf(" MIGRAD FAILS TO FIND IMPROVEMENT\n");
+//	std::printf(" MIGRAD FAILS TO FIND IMPROVEMENT\n");
+      report( WARNING, kModule ) << " MIGRAD FAILS TO FIND IMPROVEMENT" << endl;
     }
     for (i = 1; i <= fNpar; ++i) { fX[i-1] = fMIGRxxs[i-1]; }
     if (fEDM < rhotol) goto L300;
     if (fEDM < URMath::Abs(fEpsma2*fAmin)) {
 	if (iswtr >= 0) {
-	    std::printf(" MACHINE ACCURACY LIMITS FURTHER IMPROVEMENT.\n");
+//	    std::printf(" MACHINE ACCURACY LIMITS FURTHER IMPROVEMENT.\n");
+    report( WARNING, kModule ) << " MACHINE ACCURACY LIMITS FURTHER IMPROVEMENT." << endl;
 	}
 	goto L300;
     }
     if (fIstrat < 1) {
 	if (fISW[4] >= 0) {
-	    std::printf(" MIGRAD FAILS WITH STRATEGY=0.   WILL TRY WITH STRATEGY=1.\n");
+    //std::printf(" MIGRAD FAILS WITH STRATEGY=0.   WILL TRY WITH STRATEGY=1.\n");
+    report( WARNING, kModule ) << " MIGRAD FAILS WITH STRATEGY=0.   WILL TRY WITH STRATEGY=1." << endl;
 	}
 	fIstrat = 1;
     }
@@ -5210,7 +5253,8 @@ L200:
 //*-*-                                        . . fails to converge
 L230:
     if (iswtr >= 0) {
-	std::printf(" MIGRAD TERMINATED WITHOUT CONVERGENCE.\n");
+//      std::printf(" MIGRAD TERMINATED WITHOUT CONVERGENCE.\n");
+      report( WARNING, kModule ) << " MIGRAD TERMINATED WITHOUT CONVERGENCE." << endl;
     }
     if (fISW[1] == 3) fISW[1] = 1;
     fISW[3] = -1;
@@ -5218,12 +5262,14 @@ L230:
 //*-*-                                        . . apparent convergence
 L300:
     if (iswtr >= 0) {
-	std::printf(" MIGRAD MINIMIZATION HAS CONVERGED.\n");
+//	std::printf(" MIGRAD MINIMIZATION HAS CONVERGED.\n");
+      report( NOTICE, kModule ) << " MIGRAD MINIMIZATION HAS CONVERGED." << endl;
     }
     if (fItaur == 0) {
 	if (fIstrat >= 2 || (fIstrat == 1 && fISW[1] < 3)) {
 	    if (fISW[4] >= 0) {
-		std::printf(" MIGRAD WILL VERIFY CONVERGENCE AND ERROR MATRIX.\n");
+//		std::printf(" MIGRAD WILL VERIFY CONVERGENCE AND ERROR MATRIX.\n");
+        report( INFO, kModule ) << " MIGRAD WILL VERIFY CONVERGENCE AND ERROR MATRIX." << endl;
 	    }
 	    mnhess();
 	    mnwerr();
@@ -5273,7 +5319,8 @@ void URMinuit::mnmnos()
 //               if (fNiofex[ilax-1] > 0) goto L565;
                if (m_userParameterIdToInternalId[ilax] > 0) goto L565;
 	    }
-            std::printf(" PARAMETER NUMBER %3d NOT VARIABLE. IGNORED.\n",ilax);
+//            std::printf(" PARAMETER NUMBER %3d NOT VARIABLE. IGNORED.\n",ilax);
+    report( INFO, kModule ) << " PARAMETER NUMBER " << setw(3) << ilax << " NOT VARIABLE. IGNORED." << endl;
 	    continue;
 	}
 L565:
@@ -5307,19 +5354,19 @@ L650:
     fNfcnfr = nfcnmi;
     fCstatu = "NEW MINIMU";
     if (fISW[4] >= 0) mnprin(4, fAmin);
-    std::printf(" NEW MINIMUM FOUND.  GO BACK TO MINIMIZATION STEP.\n");
-    std::printf(" =================================================\n");
-    std::printf("                                                  V\n");
-    std::printf("                                                  V\n");
-    std::printf("                                                  V\n");
-    std::printf("                                               VVVVVVV\n");
-    std::printf("                                                VVVVV\n");
-    std::printf("                                                 VVV\n");
-    std::printf("                                                  V\n");
-    std::printf("\n");
+  report( INFO, kModule ) << " NEW MINIMUM FOUND.  GO BACK TO MINIMIZATION STEP." << endl;
+  report( INFO, kModule ) << " =================================================" << endl;
+  report( INFO, kModule ) << "                                                  V" << endl;
+  report( INFO, kModule ) << "                                                  V" << endl;
+  report( INFO, kModule ) << "                                                  V" << endl;
+  report( INFO, kModule ) << "                                               VVVVVVV" << endl;
+  report( INFO, kModule ) << "                                                VVVVV" << endl;
+  report( INFO, kModule ) << "                                                 VVV" << endl;
+  report( INFO, kModule ) << "                                                  V" << endl;
+  report( INFO, kModule ) << endl;
     return;
 L700:
-    std::printf(" THERE ARE NO MINOS ERRORS TO CALCULATE.\n");
+  report( INFO, kModule ) << " THERE ARE NO MINOS ERRORS TO CALCULATE." << endl;
 } /* mnmnos_ */
 
 //______________________________________________________________________________
@@ -5568,7 +5615,7 @@ void URMinuit::mnparm(Int_urt k1, const string& cnamj, Double_urt uk, Double_urt
     if (k < 1 || k > fMaxext) {
 //*-*-                    parameter number exceeds allowed maximum value
 	//std::printf(" MINUIT USER ERROR.  PARAMETER NUMBER IS %3d  ALLOWED RANGE IS ONE TO %4d\n",k,fMaxext);
-        *m_logStream << " MINUIT USER ERROR.  PARAMETER NUMBER IS " << setw(3) << k
+        report( WARNING, kModule ) << " MINUIT USER ERROR.  PARAMETER NUMBER IS " << setw(3) << k
                     << "  ALLOWED RANGE IS ONE TO " << setw(4) << fMaxext << '\n';
 	goto L800;
     }
@@ -5585,7 +5632,7 @@ void URMinuit::mnparm(Int_urt k1, const string& cnamj, Double_urt uk, Double_urt
 	mnwarn("W", "PARAM DEF", "REDEFINING A FIXED PARAMETER.");
 	if (kint >= fMaxint) {
 	    //std::printf(" CANNOT RELEASE. MAX NPAR EXCEEDED.\n");
-            *m_logStream << " CANNOT RELEASE. MAX NPAR EXCEEDED.\n";
+            report( WARNING, kModule ) << " CANNOT RELEASE. MAX NPAR EXCEEDED.\n";
 	    goto L800;
 	}
 	mnfree(-k);
@@ -5599,15 +5646,15 @@ L50:
     if (fLphead && fISW[4] >= 0) {
 	//std::printf(" PARAMETER DEFINITIONS:\n");
 	//std::printf("    NO.   NAME         VALUE      STEP SIZE      LIMITS\n");
-        *m_logStream << " PARAMETER DEFINITIONS:\n";
-        *m_logStream << "    NO.   NAME                 VALUE      STEP SIZE      LIMITS\n";
+        report( DEBUG, kModule ) << " PARAMETER DEFINITIONS:\n";
+        report( DEBUG, kModule ) << "    NO.   NAME                 VALUE      STEP SIZE      LIMITS\n";
 	fLphead = kurFALSE;
     }
     if (wk > 0) goto L122;
 //*-*-                                       . . .constant parameter . . . .
     if (fISW[4] >= 0) {
         //std::printf(" %5d %-10s %13.5e  constant\n",k,cnamk.c_str(),uk);
-        *m_logStream << setw(6) << k << " " << setw(20) << cnamk << setw(13) << setprecision(5) << uk << "  constant\n";
+        report( INFO, kModule ) << setw(6) << k << " " << setw(20) << cnamk << setw(13) << setprecision(5) << uk << "  constant\n";
     }
     nvl = 0;
     goto L200;
@@ -5617,7 +5664,7 @@ L122:
 	nvl = 1;
 	if (fISW[4] >= 0) {
             //std::printf(" %5d %-10s %13.5e%13.5e     no limits\n",k,cnamk.c_str(),uk,wk);
-           *m_logStream << setw(6) << k << " " << setw(20) << cnamk 
+           report( DEBUG, kModule ) << setw(6) << k << " " << setw(20) << cnamk
                         << setw(13) << setprecision(5) << uk
                         << setw(13) << setprecision(5) << wk << "     no limits\n";
 	}
@@ -5627,7 +5674,7 @@ L122:
 	fLnolim = kurFALSE;
 	if (fISW[4] >= 0) {
             //std::printf(" %5d %-10s %13.5e%13.5e  %13.5e%13.5e\n",k,cnamk.c_str(),uk,wk,a,b);
-           *m_logStream << setw(6) << k << " " << setw(20) << cnamk 
+           report( DEBUG, kModule ) << setw(6) << k << " " << setw(20) << cnamk
               << setw(13) << setprecision(5) << uk
               << setw(13) << setprecision(5) << wk
               << setw(13) << setprecision(5) << a
@@ -5638,15 +5685,15 @@ L122:
     ++kint;
     if (kint > fMaxint) {
 	//std::printf(" MINUIT USER ERROR.   TOO MANY VARIABLE PARAMETERS.\n");
-        *m_logStream << " MINUIT USER ERROR.   TOO MANY VARIABLE PARAMETERS.\n";
+        report( INFO, kModule ) << " MINUIT USER ERROR.   TOO MANY VARIABLE PARAMETERS.\n";
 	goto L800;
     }
     if (nvl == 1) goto L200;
     if (a == b) {
-	std::printf(" USER ERROR IN MINUIT PARAMETER\n");
-	std::printf(" DEFINITION\n");
-	std::printf(" UPPER AND LOWER LIMITS EQUAL.\n");
-        *m_logStream << " USER ERROR IN MINUIT PARAMETER\n" << " DEFINITION\n" << " UPPER AND LOWER LIMITS EQUAL.\n";
+//	std::printf(" USER ERROR IN MINUIT PARAMETER\n");
+//	std::printf(" DEFINITION\n");
+//	std::printf(" UPPER AND LOWER LIMITS EQUAL.\n");
+        report( WARNING, kModule ) << " USER ERROR IN MINUIT PARAMETER\n" << " DEFINITION\n" << " UPPER AND LOWER LIMITS EQUAL.\n";
 	goto L800;
     }
     if (b < a) {
@@ -5769,11 +5816,11 @@ L280:
     }
     ierflg = 0;
     return;
-    *m_logStream << endl;
+  report( DEBUG, kModule ) << endl;
 //*-*-                  error on input, unable to implement request  . . . .
 L800:
     ierflg = 1;
-    *m_logStream << endl;
+  report( DEBUG, kModule ) << endl;
 } /* mnparm_ */
 
 //______________________________________________________________________________
@@ -6242,7 +6289,7 @@ void URMinuit::mnprin(Int_urt inkode, Double_urt fval)
 
     if (fNu == 0) {
 	//std::printf(" THERE ARE CURRENTLY NO PARAMETERS DEFINED\n");
-        *m_logStream << " THERE ARE CURRENTLY NO PARAMETERS DEFINED" << endl;
+        report( INFO, kModule ) << " THERE ARE CURRENTLY NO PARAMETERS DEFINED" << endl;
 	return;
     }
 //*-*-                 get value of IKODE based in INKODE, ISW(2)
@@ -6259,7 +6306,7 @@ void URMinuit::mnprin(Int_urt inkode, Double_urt fval)
 //*-*-             print title if Minos errors, and title exists.
     if (ikode == 4 && fCtitl != fCundef) {
 	//std::printf(" MINUIT TASK: %s\n",fCtitl.c_str());
-        *m_logStream << " MINUIT TASK: " << fCtitl << '\n';
+        report( INFO, kModule ) << " MINUIT TASK: " << fCtitl << '\n';
     }
 //*-*-             report function value and status
     if (fval == fUndefi) cheval = " unknown       ";
@@ -6281,21 +6328,21 @@ void URMinuit::mnprin(Int_urt inkode, Double_urt fval)
     //           ,cheval.c_str()
     //           ,fCfrom.c_str()
     //           ,fCstatu.c_str(),nc,fNfcn);
-    *m_logStream << " FCN=" << cheval << " FROM " << setw(8) << fCfrom << "   STATUS="
-       << setw(10) << fCstatu << setw(7) << nc << "   " << setw(9) << fNfcn << " TOTAL\n" << endl;
+    report( NOTICE, kModule ) << " FCN=" << cheval << " FROM " << setw(8) << fCfrom << "   STATUS="
+       << setw(10) << fCstatu << setw(7) << nc << "   " << setw(9) << fNfcn << " TOTAL" << endl;
     m = fISW[1];
     if (m == 0 || m == 2 || fDcovar == 0) {
 	// std::printf("                     EDM=%s    STRATEGY=%2d      %s\n"
         //              ,chedm.c_str(),fIstrat
         //              ,fCovmes[m].c_str());
-       *m_logStream << "                     EDM=" << chedm << "    STRATEGY=" << setw(2)
+       report( NOTICE, kModule ) << "                     EDM=" << chedm << "    STRATEGY=" << setw(2)
             << fIstrat << "      " << fCovmes[m] << '\n';
     } else {
 	dcmax = 1;
 	dc    = URMath::Min(fDcovar,dcmax)*100;
 	//std::printf("                     EDM=%s    STRATEGY=%2d  ERROR MATRIX UNCERTAINTY %5.1f per cent\n"
         //              ,chedm.c_str(),fIstrat,dc);
-	*m_logStream << "                     EDM=" << chedm
+	report( NOTICE, kModule ) << "                     EDM=" << chedm
              << "    STRATEGY=" << setw(2) << fIstrat << "  ERROR MATRIX UNCERTAINTY "
              << setw(5) << setprecision(1) << dc << " per cent\n";
     }
@@ -6365,12 +6412,12 @@ L16:
        maxNameSize = max(maxNameSize,nameSize);
     }
     maxNameSize = max(maxNameSize,9);
-//    *m_logStream << "maxNameSize = " << maxNameSize << endl;
+//    report( INFO, kModule ) << "maxNameSize = " << maxNameSize << endl;
     
-    *m_logStream << "  EXT " << setw(maxNameSize) << left << "PARAMETER" << "           "
+    report( NOTICE, kModule ) << "  EXT " << setw(maxNameSize) << left << "PARAMETER" << "           "
          << setw(14) << colhdu[0].c_str() << setw(14) << colhdu[1].c_str() << setw(14) << colhdu[2].c_str() 
          << endl;
-    *m_logStream << "  NO. " << setw(maxNameSize) << left << "  NAME   " << "  VALUE    "
+    report( NOTICE, kModule ) << "  NO. " << setw(maxNameSize) << left << "  NAME   " << "  VALUE    "
          << setw(14) << colhdl[0].c_str() << setw(14) << colhdl[1].c_str() << setw(14) << colhdl[2].c_str() 
          << endl;
 //    std::printf("  EXT PARAMETER              %-14s%-14s%-14s\n",colhdu[0].c_str()
@@ -6397,7 +6444,7 @@ L16:
 	    if (m_userParameterFlag[i] <= 1) {
 //                std::printf("%4d %-11s%14.5e%14.5e\n",i,cnambf.c_str(),fU[i-1],x1);
 //                std::printf("%4d %-11s%14.5e%14.5e\n",i,cnambf.c_str(),m_userParameterValue[i],x1);
-                *m_logStream << setw(5) << right << i << " " << setw(maxNameSize) << m_userParameterName[i]
+                report( NOTICE, kModule ) << setw(5) << right << i << " " << setw(maxNameSize) << m_userParameterName[i]
                      << setw(14) << setprecision(5) << m_userParameterValue[i]
                      << setw(14) << setprecision(5) << x1 << endl;
                continue;
@@ -6444,7 +6491,7 @@ L16:
 //        std::printf("%4d %-11s%14.5e%14.5e%-14s%-14s\n",i
 //                   ,cnambf.c_str(),m_userParameterValue[i],x1
 //                   ,cx2.c_str(),cx3.c_str());
-        *m_logStream << setw(5) << right << i << " " << setw(maxNameSize) << m_userParameterName[i]
+        report( NOTICE, kModule ) << setw(5) << right << i << " " << setw(maxNameSize) << m_userParameterName[i]
              << setw(14) << setprecision(5) << m_userParameterValue[i]
              << setw(14) << setprecision(5) << x1 
              << cx2 << cx3 << endl;
@@ -6454,7 +6501,7 @@ L16:
 	if (m_userParameterFlag[i] <= 1 || ikode == 3) continue;
 	if (URMath::Abs(URMath::Cos(fX[l-1])) < .001) {
 	    //std::printf("                                 WARNING -   - ABOVE PARAMETER IS AT LIMIT.\n");
-           *m_logStream << "                                 WARNING -   - ABOVE PARAMETER IS AT LIMIT.\n";
+           report( WARNING, kModule ) << "                                 WARNING -   - ABOVE PARAMETER IS AT LIMIT.\n";
 	}
 	continue;
 
@@ -6471,7 +6518,7 @@ L55:
            //std::printf("%4d %-11s%14.5e%-14s%14.5e%14.5e\n",i
            //   ,cnambf.c_str(),m_userParameterValue[i]
            //   ,colhdu[0].c_str(),fAlim[i-1],fBlim[i-1]);
-           *m_logStream << setw(5) << right << i << " " << setw(maxNameSize) << m_userParameterName[i]
+           report( NOTICE, kModule ) << setw(5) << right << i << " " << setw(maxNameSize) << m_userParameterName[i]
                 << setw(14) << setprecision(5) << m_userParameterValue[i]
                 << setw(14) << colhdu[0].c_str()
                 << setw(14) << setprecision(5) << fAlim[i-1]
@@ -6482,7 +6529,7 @@ L55:
 //                   ,cnambf.c_str(),fU[i-1],colhdu[0].c_str());
 //           std::printf("%4d %-11s%14.5e%s\n",i
 //                   ,cnambf.c_str(),m_userParameterValue[i],colhdu[0].c_str());
-           *m_logStream << setw(5) << right << i << " " << setw(maxNameSize) << m_userParameterName[i]
+           report( NOTICE, kModule ) << setw(5) << right << i << " " << setw(maxNameSize) << m_userParameterName[i]
                 << setw(14) << setprecision(5) << m_userParameterValue[i]
                 << setw(14) << colhdu[0].c_str()
                 << endl;
@@ -6490,10 +6537,10 @@ L55:
     }
 
     if (fUp != fUpdflt) {
-        std::printf("                               ERR DEF= %g\n",fUp);
-       *m_logStream << "                               ERR DEF= " << fUp;
+//        std::printf("                               ERR DEF= %g\n",fUp);
+       report( NOTICE, kModule ) << "                               ERR DEF= " << fUp;
     }
-    *m_logStream << endl;
+  report( NOTICE, kModule ) << endl;
     return;
 } /* mnprin_ */
 
@@ -6517,16 +6564,16 @@ void URMinuit::mnpsdf()
     for (i = 1; i <= fNpar; ++i) {
 	ndex = i*(i + 1) / 2;
 	if (fVhmat[ndex-1] <= 0) {
-           ostringstream warning;
-           warning << "Negative diagonal element " << i << " in Error Matrix";
+      ostringstream warning;
+      warning << "Negative diagonal element " << i << " in Error Matrix";
 	    mnwarn("W", fCfrom.c_str(), warning.str().c_str());
 	}
 	if (fVhmat[ndex-1] < dgmin) dgmin = fVhmat[ndex-1];
     }
     if (dgmin <= 0) {
 	dg    = epspdf + 1 - dgmin;
-       ostringstream warning;
-       warning << dg << " added to diagonal of error matrix";
+  ostringstream warning;
+  warning << dg << " added to diagonal of error matrix";
 	mnwarn("W", fCfrom.c_str(), warning.str().c_str());
     } else {
 	dg = 0;
@@ -6552,14 +6599,16 @@ void URMinuit::mnpsdf()
     }
     pmax = URMath::Max(URMath::Abs(pmax),Double_urt(1));
     if ( ( pmin <= 0 && fLwarn ) || fISW[4] >= 2) {
-	std::printf(" EIGENVALUES OF SECOND-DERIVATIVE MATRIX:\n");
+//	std::printf(" EIGENVALUES OF SECOND-DERIVATIVE MATRIX:\n");
+      report( INFO, kModule ) << " EIGENVALUES OF SECOND-DERIVATIVE MATRIX:" << endl;
         ctemp = "       ";
 	for (ip = 1; ip <= fNpar; ++ip) {
            ostringstream localTemp;
            localTemp << fPstar[ip-1];
            ctemp += localTemp.str(); //Form(" %11.4e",);
 	}
-        std::printf("%s",ctemp.c_str());
+//        std::printf("%s",ctemp.c_str());
+      report( INFO, kModule ) << ctemp << endl;
     }
     if (pmin > epspdf*pmax) return;
     if (fISW[1] == 3) fISW[1] = 2;
@@ -6569,9 +6618,9 @@ void URMinuit::mnpsdf()
 	fVhmat[ndex-1] *= padd + 1;
     }
     fCstatu = "NOT POSDEF";
-    ostringstream warning;
-    warning << "MATRIX FORCED POS-DEF BY ADDING %f TO DIAGONAL. " << padd;
-    mnwarn("W", fCfrom.c_str(), warning.str().c_str());
+   ostringstream warning;
+   warning << "MATRIX FORCED POS-DEF BY ADDING " << padd << " TO DIAGONAL. ";
+   mnwarn("W", fCfrom.c_str(), warning.str().c_str());
 
 } /* mnpsdf_ */
 
@@ -7068,7 +7117,8 @@ L20:
     fCstatu = "NEW VALUES";
     return;
 L25:
-    std::printf(" UNDEFINED PARAMETER NUMBER.  IGNORED.\n");
+//    std::printf(" UNDEFINED PARAMETER NUMBER.  IGNORED.\n");
+  report( WARNING, kModule ) << " UNDEFINED PARAMETER NUMBER.  IGNORED." << endl;
     return;
 //*-*-                                       . . . . . . . . . . set limits
 L30:
@@ -7135,7 +7185,8 @@ L150:
     val = 3;
     mnrn15(val, jseed);
     if (fISW[4] > 0) {
-        std::printf(" MINUIT RANDOM NUMBER SEED SET TO %d\n",jseed);
+//        std::printf(" MINUIT RANDOM NUMBER SEED SET TO %d\n",jseed);
+      report( INFO, kModule ) << " MINUIT RANDOM NUMBER SEED SET TO " << jseed << endl;
     }
     return;
 //*-*-                                       . . . . . . . . . . set title
@@ -7198,7 +7249,8 @@ L281:
     mnwarn("D", "SHO", "SHO");
     return;
 L288:
-    std::printf(" UNKNOWN DEBUG OPTION %d REQUESTED. IGNORED\n",idbopt);
+//    std::printf(" UNKNOWN DEBUG OPTION %d REQUESTED. IGNORED\n",idbopt);
+  report( WARNING, kModule ) <<" UNKNOWN DEBUG OPTION " << idbopt << " REQUESTED. IGNORED" << endl;
     return;
 //*-*-                                       . . . . . . . . . . set show
 L290:
@@ -7282,14 +7334,17 @@ L1060:
 //*-*-                                       . . . . . . . show nograd, grad
 L1070:
     if (fISW[2] <= 0) {
-	std::printf(" NOGRAD IS SET.  DERIVATIVES NOT COMPUTED IN FCN.\n");
+//	std::printf(" NOGRAD IS SET.  DERIVATIVES NOT COMPUTED IN FCN.\n");
+      report( NOTICE, kModule ) << " NOGRAD IS SET.  DERIVATIVES NOT COMPUTED IN FCN." << endl;
     } else {
-	std::printf("   GRAD IS SET.  USER COMPUTES DERIVATIVES IN FCN.\n");
+//	std::printf("   GRAD IS SET.  USER COMPUTES DERIVATIVES IN FCN.\n");
+      report( NOTICE, kModule ) << " GRAD IS SET.  USER COMPUTES DERIVATIVES IN FCN." << endl;
     }
     return;
 //*-*-                                      . . . . . . . . . . show errdef
 L1090:
-    std::printf(" ERRORS CORRESPOND TO FUNCTION CHANGE OF %g\n",fUp);
+//    std::printf(" ERRORS CORRESPOND TO FUNCTION CHANGE OF %g\n",fUp);
+  report( NOTICE, kModule ) << " ERRORS CORRESPOND TO FUNCTION CHANGE OF " << fUp << endl;
     return;
 //*-*-                                      . . . . . . . . . . show input,
 //*-*-                                               batch, or interactive
@@ -7350,12 +7405,17 @@ L1160:
     return;
 //*-*-                                       . . . . . . . show strategy
 L1170:
-    std::printf(" ALLOWED STRATEGIES ARE:\n");
-    std::printf("                    %s\n",cstrat[0].c_str());
-    std::printf("                    %s\n",cstrat[1].c_str());
-    std::printf("                    %s\n",cstrat[2].c_str());
+//    std::printf(" ALLOWED STRATEGIES ARE:\n");
+//    std::printf("                    %s\n",cstrat[0].c_str());
+//    std::printf("                    %s\n",cstrat[1].c_str());
+//    std::printf("                    %s\n",cstrat[2].c_str());
+  report( INFO, kModule ) << " ALLOWED STRATEGIES ARE:" << endl;
+  report( INFO, kModule ) << setw(30) << cstrat[0] << endl;
+  report( INFO, kModule ) << setw(30) << cstrat[1] << endl;
+  report( INFO, kModule ) << setw(30) << cstrat[2] << endl;
 L1172:
-    std::printf(" NOW USING STRATEGY %s\n",cstrat[fIstrat].c_str());
+//    std::printf(" NOW USING STRATEGY %s\n",cstrat[fIstrat].c_str());
+  report( INFO, kModule ) << " NOW USING STRATEGY " << cstrat[fIstrat] << endl;
     return;
 //*-*-                                         . . . . . show eigenvalues
 L1180:
@@ -7828,8 +7888,10 @@ void URMinuit::mnwarn(const char* copt1, const char* corg1, const char* cmes1)
        if (copt == "W") {
           ityp = 1;
 	  if (fLwarn) {
-             std::printf(" MINUIT WARNING IN %s\n",corg.c_str());
-             std::printf(" ============== %s\n",cmes.c_str());
+//             std::printf(" MINUIT WARNING IN %s\n",corg.c_str());
+//             std::printf(" ============== %s\n",cmes.c_str());
+      report( WARNING, kModule ) << " MINUIT WARNING IN " << corg << endl;
+      report( WARNING, kModule ) << " ============== " << cmes << endl;
 	     return;
 	  }
        } else {

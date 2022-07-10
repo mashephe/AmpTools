@@ -163,6 +163,8 @@ private:
   // Internal Utils
   
   unsigned int m_devProp_major;
+  unsigned int m_devProp_minor;
+  unsigned int m_maxShared_bytes;
 
   void calcCUDADims();
   

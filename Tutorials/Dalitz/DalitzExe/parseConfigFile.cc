@@ -5,6 +5,8 @@
 #include "TH1F.h"
 #include "TFile.h"
 
+#include "IUAmpTools/report.h"
+static const char* kModule = "parseConfigFile";
 
 using namespace std;
 
@@ -15,14 +17,13 @@ int main(int argc, char** argv){
     // usage
     // ************************
 
-  cout << endl << " *** Parse the Config File *** " << endl << endl;
-  
   if (argc <= 1){
-    cout << "Usage:" << endl << endl;
-    cout << "\tparseConfigFile <config file>" << endl << endl;
+    report( NOTICE, kModule ) << "Usage:" << endl << endl;
+    report( NOTICE, kModule ) << "\tparseConfigFile <config file>" << endl << endl;
     return 0;
   }
 
+  report( INFO, kModule ) << endl << " *** Parse the Config File *** " << endl << endl;
 
     // ************************
     // parse the command line parameters
@@ -30,7 +31,7 @@ int main(int argc, char** argv){
 
   string configfile(argv[1]);
 
-  cout << "config file name = " << configfile << endl << endl;
+  report( INFO, kModule ) << "config file name = " << configfile << endl << endl;
 
 
     // ************************

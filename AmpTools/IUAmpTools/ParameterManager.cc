@@ -48,6 +48,9 @@
 #include "MinuitInterface/MinuitParameterManager.h"
 #include "GPUManager/GPUCustomTypes.h"
 
+#include "IUAmpTools/report.h"
+static const char* kModule = "ParameterManager";
+
 ParameterManager::ParameterManager( MinuitMinimizationManager* minuitManager,
                                     IntensityManager* intenManager ) :
 MIObserver(),
@@ -56,7 +59,7 @@ m_intenManagers( 0 )
 { 
   m_minuitManager->attach( this );
   m_intenManagers.push_back(intenManager);
-//  cout << "Parameter manager initialized." << endl;
+  report( DEBUG, kModule ) << "Parameter manager initialized." << endl;
 }
 
 ParameterManager::
@@ -67,7 +70,7 @@ m_minuitManager( minuitManager ),
 m_intenManagers( intenManagers )
 { 
   m_minuitManager->attach( this );
-//  cout << "Parameter manager initialized." << endl;
+  report( DEBUG, kModule ) << "Parameter manager initialized." << endl;
 }
 
 // protected constructors: these are used in MPI implementations where
@@ -83,7 +86,7 @@ ParameterManager::ParameterManager( IntensityManager* ampManager ) :
   m_intenManagers( 0 )
 { 
   m_intenManagers.push_back(ampManager);
-//  cout << "Parameter manager initialized." << endl;
+  report( DEBUG, kModule ) << "Parameter manager initialized." << endl;
 }
 
 ParameterManager::
@@ -91,7 +94,7 @@ ParameterManager( const vector<IntensityManager*>& intenManagers ) :
   m_minuitManager( NULL ),
   m_intenManagers( intenManagers )
 { 
-//  cout << "Parameter manager initialized." << endl;
+  report( DEBUG, kModule ) << "Parameter manager initialized." << endl;
 }
 
 ParameterManager::~ParameterManager()
@@ -166,7 +169,7 @@ ParameterManager::setAmpParameter( const string& parName,
   
   if( ampParItr == m_ampParams.end() ){
     
-    cout << "ERROR:  request to set value of unkown parameter named "
+    report( WARNING, kModule ) << "request to set value of unkown parameter named "
          << parName << " -- ignoring request." << endl;
     return;
   }
@@ -245,7 +248,7 @@ ParameterManager::addAmplitudeParameter( const string& termName, const Parameter
   
   if( !foundOne ){
     
-    cout << "WARNING:  could not find amplitude named " << termName 
+    report( WARNING, kModule ) << "could not find amplitude named " << termName
          << " while trying to set parameter " << parName << endl;
   }
 }
@@ -261,7 +264,7 @@ ParameterManager::addProductionParameter( const string& termName, bool real, boo
     if( (*intenManPtr)->hasTerm( termName ) ) break;
   }
   if( intenManPtr == m_intenManagers.end() ){
-    cout << "ParameterManager ERROR: Could not find production amplitude for " 
+    report( ERROR, kModule ) << "Could not find production amplitude for "
          << termName << endl;
     assert( false );
   }
@@ -281,8 +284,8 @@ ParameterManager::addProductionParameter( const string& termName, bool real, boo
   // create ComplexParameter from scratch if it doesn't already exist
   
   if (!par){
-//    cout << "ParameterManager:  Creating new complex production amplitude parameter for "
-//         << termName << endl;
+    report( DEBUG, kModule ) << "Creating new complex production amplitude parameter for "
+                             << termName << endl;
     par = new ComplexParameter( termName, *m_minuitManager, initialValue, real );
     m_prodPtrCache.push_back( par );
   }

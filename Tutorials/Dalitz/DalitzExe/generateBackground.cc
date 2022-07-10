@@ -11,6 +11,9 @@
 
 using namespace std;
 
+#include "IUAmpTools/report.h"
+static const char* kModule = "generateBackground";
+
 int main(int argc, char** argv){
   
   
@@ -18,15 +21,14 @@ int main(int argc, char** argv){
   // usage
   // ************************
   
-  cout << endl << " *** Generate Background *** " << endl << endl;
-  
   if (argc <= 2){
-    cout << "Usage:" << endl << endl;
-    cout << "\tgenerateBackground <output file name> <number of events>" << endl << endl;
+    report( NOTICE, kModule ) << "Usage:" << endl << endl;
+    report( NOTICE, kModule ) << "\tgenerateBackground <output file name> <number of events>" << endl << endl;
     return 0;
   }
   
-  
+  report( INFO, kModule ) << endl << " *** Generate Background *** " << endl << endl;
+
   // ************************
   // parse the command line parameters
   // ************************
@@ -42,11 +44,11 @@ int main(int argc, char** argv){
   // set up a DalitzDataWriter object
   // ************************
   
-  cout << "Creating a Data Writer..." << endl;
+  report( DEBUG, kModule ) << "Creating a Data Writer..." << endl;
   
   DalitzDataWriter dataWriter(filename);
   
-  cout << "... Finished creating a Data Writer" << endl << endl;
+  report( DEBUG, kModule ) << "... Finished creating a Data Writer" << endl << endl;
   
   
   // ************************
@@ -89,7 +91,7 @@ int main(int argc, char** argv){
     dataWriter.writeEvent(kin);
     
     if (dataWriter.eventCounter() % 1000 == 0)
-      cout << "Event counter = " << dataWriter.eventCounter() << endl;
+      report( INFO, kModule ) << "Event counter = " << dataWriter.eventCounter() << endl;
     
   }
   

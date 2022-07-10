@@ -406,12 +406,6 @@
 
 /*---- misc ------------------------------------------------------------------*/
 
-#ifdef R__GNU
-#   define SafeDelete(p) { if (p) { delete p; p = 0; } }
-#else
-#   define SafeDelete(p) { delete p; p = 0; }
-#endif
-
 #ifdef R__WIN32
 #define R__LL(longlong) longlong
 #else

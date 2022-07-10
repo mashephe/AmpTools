@@ -49,6 +49,9 @@
 #include "MinuitInterface/MinuitParameterManager.h"
 #include "MinuitInterface/MinuitParameter.h"
 
+#include "IUAmpTools/report.h"
+static const char* kModule = "LikelihoodCalculator";
+
 #ifdef SCOREP
 #include <scorep/SCOREP_User.h>
 #endif
@@ -117,8 +120,8 @@ SCOREP_USER_REGION_BEGIN( normIntTerm, "normIntTerm", SCOREP_USER_REGION_TYPE_CO
   
   if( m_intenManager.hasTermWithFreeParam() && !m_normInt.hasAccessToMC() ){
     
-    cout << "ERROR: IntensityManager has terms with floating parameters\n"
-         << "       but NormIntInterface has not been provided with MC." << endl;
+    report( ERROR, kModule ) << "IntensityManager has terms with floating parameters\n"
+         << "\tbut NormIntInterface has not been provided with MC." << endl;
     
     assert( false );
   }
@@ -170,7 +173,7 @@ SCOREP_USER_REGION_BEGIN( normIntTerm, "normIntTerm", SCOREP_USER_REGION_TYPE_CO
       
     default:
       
-      cout << "LikelihoodCalculator ERROR:  unkown IntensityManager type" << endl;
+      report( ERROR, kModule ) << "Unknown IntensityManager type" << endl;
       assert( false );
       break;
   }
@@ -216,8 +219,8 @@ SCOREP_USER_REGION_BEGIN( dataTerm, "dataTerm", SCOREP_USER_REGION_TYPE_COMMON )
     
     // first calculation -- need to load the data
     
-    cout << "Allocating Data and Amplitude Array in LikelihoodCalculator for " 
-         << m_intenManager.reactionName() << "..." << endl;
+    report( DEBUG, kModule ) << "Allocating Data and Amplitude Array in LikelihoodCalculator for "
+      << m_intenManager.reactionName() << "..." << endl;
     
     m_ampVecsSignal.loadData( m_dataReaderSignal );
     m_ampVecsSignal.allocateTerms( m_intenManager, true );
@@ -227,7 +230,7 @@ SCOREP_USER_REGION_BEGIN( dataTerm, "dataTerm", SCOREP_USER_REGION_TYPE_COMMON )
  
     if( m_ampVecsSignal.m_hasNonUnityWeights && m_hasBackground ){
     
-      cout
+      report( WARNING, kModule ) << "\n"
       << "****************************************************************\n"
       << "* WARNING: Events in the signal data sample have weights       *\n"
       << "*   that differ from 1 and a background data sample has been   *\n"
@@ -245,7 +248,7 @@ SCOREP_USER_REGION_BEGIN( dataTerm, "dataTerm", SCOREP_USER_REGION_TYPE_COMMON )
       m_ampVecsBkgnd.allocateTerms( m_intenManager, true );
 
       if( m_ampVecsBkgnd.m_hasMixedSignWeights ){
-        cout
+        report( NOTICE, kModule ) << "\n"
         << "***************************************************************\n"
         << "* NOTICE:  Weights with both positive and negative signs were *\n"
         << "* detected in the background file.  This may be desirable for *\n"
@@ -261,7 +264,7 @@ SCOREP_USER_REGION_BEGIN( dataTerm, "dataTerm", SCOREP_USER_REGION_TYPE_COMMON )
       // may fail on one of the follower nodes if the background sample
       // is sparse
       if( m_sumBkgWeights < 0 && !suppressError ){
-        cerr
+        report( ERROR, kModule ) << "\n"
         << "****************************************************************\n"
         << "* ERROR: The sum of all background weights is negative.  This  *\n"
         << "*   implies a negative background in the signal region, which  *\n"
@@ -275,7 +278,7 @@ SCOREP_USER_REGION_BEGIN( dataTerm, "dataTerm", SCOREP_USER_REGION_TYPE_COMMON )
       m_numBkgEvents = m_ampVecsBkgnd.m_iNTrueEvents;
     }
     
-    cout << "\tDone." << endl;
+    report( DEBUG, kModule ) << "\tDone." << endl;
   }
   
   double sumLnI = m_intenManager.calcSumLogIntensity( m_ampVecsSignal );

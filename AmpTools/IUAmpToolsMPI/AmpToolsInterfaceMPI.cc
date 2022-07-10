@@ -15,15 +15,15 @@
 #include "IUAmpToolsMPI/NormIntInterfaceMPI.h"
 #include "IUAmpToolsMPI/AmpToolsInterfaceMPI.h"
 
-AmpToolsInterfaceMPI::AmpToolsInterfaceMPI(ConfigurationInfo* configurationInfo){
+#include "IUAmpTools/report.h"
+static const char* kModule = "AmpToolsInterfaceMPI";
 
+AmpToolsInterfaceMPI::AmpToolsInterfaceMPI(ConfigurationInfo* configurationInfo){
 
   MPI_Comm_rank( MPI_COMM_WORLD, &m_rank );
   MPI_Comm_size( MPI_COMM_WORLD, &m_numProc );
 
-
   m_configurationInfo = configurationInfo;
-
 
     // ************************
     // create a MinuitMinimizationManager
@@ -116,7 +116,7 @@ AmpToolsInterfaceMPI::AmpToolsInterfaceMPI(ConfigurationInfo* configurationInfo)
       normInt = new NormIntInterfaceMPI(genMCRdr, accMCRdr, *intenMan);
       m_normIntMap[reactionName] = normInt;
       if (reaction->normIntFile() == "")
-	cout << "AmpToolsInterface WARNING:  no name given to NormInt file for reaction " 
+	report( WARNING, kModule ) << "no name given to NormInt file for reaction "
 	 << reactionName << endl;
     }
     else if (reaction->normIntFileInput()){
@@ -124,7 +124,7 @@ AmpToolsInterfaceMPI::AmpToolsInterfaceMPI(ConfigurationInfo* configurationInfo)
       m_normIntMap[reactionName] = normInt;
     }
     else{
-      cout << "AmpToolsInterface WARNING:  not creating a NormIntInterface for reaction " 
+      report( WARNING, kModule ) << "not creating a NormIntInterface for reaction "
        << reactionName << endl;
     }
 
@@ -138,7 +138,7 @@ AmpToolsInterfaceMPI::AmpToolsInterfaceMPI(ConfigurationInfo* configurationInfo)
       m_likCalcMap[reactionName] = likCalc;
     }
     else{
-      cout << "AmpToolsInterface ERROR:  not creating a LikelihoodCalculator for reaction " 
+      report( ERROR, kModule ) << "not creating a LikelihoodCalculator for reaction " 
        << reactionName << endl;
       exit(1);
     }

@@ -47,7 +47,7 @@
 #include "IUAmpTools/Kinematics.h"
 #include "GPUManager/GPUCustomTypes.h"
 
-#ifdef GPU_ACCELERATION 
+#ifdef GPU_ACCELERATION
 #include "cuda_runtime.h"
 #include "GPUManager/CUDA-Complex.cuh"
 class GPUManager;
@@ -439,11 +439,7 @@ public:
    * The user override this route and use it pass any parameters to a global
    * C function that actually launches the GPU kernel
    */
-  virtual void launchGPUKernel( dim3 dimGrid, dim3 dimBlock, GPU_AMP_PROTO ) const {
-    
-    cout << "\nNo GPU function for calculating " << name() << " is defined." << endl;
-    assert( false );
-  }
+  virtual void launchGPUKernel( dim3 dimGrid, dim3 dimBlock, GPU_AMP_PROTO ) const;
   
 #endif //GPU_ACCELERATION
   

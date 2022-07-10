@@ -19,6 +19,9 @@
 #include "DalitzDataIO/DalitzDataReader.h"
 #include "DalitzAmp/BreitWigner.h"
 
+#include "IUAmpTools/report.h"
+static const char* kModule = "ampPlotter";
+
 typedef DalitzPlotGenerator PlotGen;
 
 void atiSetup(){
@@ -44,14 +47,14 @@ int main( int argc, char* argv[] ){
     // usage
     // ************************
 
-  cout << endl << " *** Viewing Results Using AmpPlotter *** " << endl << endl;
-
   if (argc <= 1){
     
-    cout << "Usage:" << endl << endl;
-    cout << "\tampPlotter <fit results name>" << endl << endl;
+    report( NOTICE, kModule ) << "Usage:" << endl << endl;
+    report( NOTICE, kModule ) << "\tampPlotter <fit results name>" << endl << endl;
     return 0;
   }
+
+  report( INFO, kModule ) << endl << " *** Viewing Results Using AmpPlotter ***" << endl << endl;
 
     // ************************
     // parse the command line parameters
@@ -61,7 +64,7 @@ int main( int argc, char* argv[] ){
   FitResults results( resultsName );
   if( !results.valid() ){
     
-    cout << "Invalid fit results in file:  " << resultsName << endl;
+    report( ERROR, kModule ) << "Invalid fit results in file:  " << resultsName << endl;
     exit( 1 );
   }
 
@@ -76,7 +79,7 @@ int main( int argc, char* argv[] ){
     // start the GUI
     // ************************
 
-  cout << ">> Plot generator ready, starting GUI..." << endl;
+  report( INFO, kModule ) << ">> Plot generator ready, starting GUI..." << endl;
 
   int dummy_argc = 0;
   char* dummy_argv[] = {};  
