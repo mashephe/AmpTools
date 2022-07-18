@@ -96,7 +96,7 @@ m_termNames( intenManager.getTermNames() )
   
   m_termNames = intenManager.getTermNames();
   
-  auto genVecs = m_uniqueDataSets.find( m_genMCReader );
+  std::map<DataReader*,AmpVecs*>::iterator genVecs = m_uniqueDataSets.find( m_genMCReader );
   if( genVecs == m_uniqueDataSets.end() ){
   
     report( INFO, kModule ) << "Loading generated Monte Carlo from file..." << endl;
@@ -113,7 +113,7 @@ m_termNames( intenManager.getTermNames() )
   }
   m_nGenEvents = m_genMCVecs.m_iNTrueEvents;
 
-  auto accVecs = m_uniqueDataSets.find( m_accMCReader );
+  std::map<DataReader*,AmpVecs*>::iterator accVecs = m_uniqueDataSets.find( m_accMCReader );
   if( accVecs == m_uniqueDataSets.end() ){
   
     report( INFO, kModule ) << "Loading accepted Monte Carlo from file..." << endl;
@@ -141,14 +141,14 @@ NormIntInterface::~NormIntInterface(){
   // the destructor of AmpVecs will properly transfer
   // ownership of the data to one of the shared objects.
   
-  auto genVecs = m_uniqueDataSets.find( m_genMCReader );
+  std::map<DataReader*,AmpVecs*>::iterator genVecs = m_uniqueDataSets.find( m_genMCReader );
   if( genVecs != m_uniqueDataSets.end() &&
      genVecs->second == &m_genMCVecs ){
     
     m_uniqueDataSets.erase( genVecs );
   }
 
-  auto accVecs = m_uniqueDataSets.find( m_accMCReader );
+  std::map<DataReader*,AmpVecs*>::iterator accVecs = m_uniqueDataSets.find( m_accMCReader );
   if( accVecs != m_uniqueDataSets.end() &&
      accVecs->second == &m_accMCVecs ){
     
