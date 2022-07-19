@@ -144,6 +144,17 @@ ConfigurationInfo::pdfList  (const string& reactionName,
   return pdfs;
 }
 
+vector<LHContributionInfo*>
+ConfigurationInfo::LHContributionList  (const string& lhcontName) const {
+  vector<LHContributionInfo*> lhContributions;
+  for (unsigned int i = 0; i < m_lhContributions.size(); i++){
+    if ((lhcontName == "") || (m_lhContributions[i]->reactionName() == lhcontName)){
+      lhContributions.push_back(m_lhContributions[i]);
+    }
+  }
+  return lhContributions;
+}
+
 vector<TermInfo*>
 ConfigurationInfo::termList  (const string& reactionName,
                               const string& sumName,
@@ -285,6 +296,17 @@ ConfigurationInfo::pdf  (const string& fullName) const {
   return lpdf;
 }
 
+LHContributionInfo*
+ConfigurationInfo::LHContribution  (const string& lhcontName) const {
+  for (unsigned int i = 0; i < m_lhContributions.size(); i++){
+    if (m_lhContributions[i]->LHContributionName() == lhcontName){
+      return m_lhContributions[i];
+    }
+  }
+  LHContributionInfo* lhContribution = NULL;
+  return lhContribution;
+}
+
 TermInfo*
 ConfigurationInfo::term (const string& fullName) const {
   AmplitudeInfo* amp = amplitude(fullName);  if (amp) return amp;
@@ -412,6 +434,19 @@ ConfigurationInfo::createPDF  (const string& reactionName,
   return addpdf;
 }
 
+LHContributionInfo*
+ConfigurationInfo::createLHContribution  (const string& lhcontName){
+  LHContributionInfo* addLHContribution = LHContribution(lhcontName);
+  if (addLHContribution == NULL){
+    addLHContribution = new LHContributionInfo(lhcontName);
+    m_lhContributions.push_back(addLHContribution);
+  }
+  else{
+    addLHContribution->clear();
+  }
+  return addLHContribution;
+}
+
 
 ParameterInfo*
 ConfigurationInfo::createParameter  (const string&  parName,
@@ -523,6 +558,22 @@ ConfigurationInfo::removePDF   (const string& reactionName,
   }
 }
 
+void
+ConfigurationInfo::removeLHContribution   (const string& lhcontName){
+  vector<LHContributionInfo*> removeList = LHContributionList(lhcontName);
+  unsigned int removeListSize = removeList.size();
+  for (unsigned int i = 0; i < removeListSize; i++){
+    for (unsigned int j = 0; j < m_lhContributions.size(); j++){
+      if (removeList[i]->reactionName() == m_lhContributions[j]->LHContributionName()){
+        m_lhContributions[j]->clear();
+        delete m_lhContributions[j];
+        m_lhContributions.erase(m_lhContributions.begin()+j,m_lhContributions.begin()+j+1);
+        j = m_lhContributions.size();
+      }
+    }
+  }
+}
+
 
 void
 ConfigurationInfo::removeParameter   (const string& parName){
@@ -603,6 +654,7 @@ ConfigurationInfo::write( ostream& ff ) const {
   vector<CoherentSumInfo*> Ss   = coherentSumList();
   vector<AmplitudeInfo*>   As   = amplitudeList();
   vector<PDFInfo*>         PDFs = pdfList();
+  vector<LHContributionInfo*>  lhContributions = LHContributionList();
   vector<ParameterInfo*>   Ps   = parameterList();
   
   ff << "### FIT CONFIGURATION ###" << endl;
@@ -677,6 +729,20 @@ ConfigurationInfo::write( ostream& ff ) const {
         ff << " " << args[k];}
       ff << endl;}}
 
+
+  // lhContributions
+  for (unsigned int i = 0; i < lhContributions.size(); i++){
+    LHContributionInfo* lhContribution = lhContributions[i];
+    vector< vector<string> > Fs = lhContribution->factors();
+    for (unsigned int j = 0; j < Fs.size(); j++){
+      ff << "lhContribution " << lhContribution->fullName();
+      vector<string> args = Fs[j];
+      for (unsigned int k = 0; k < args.size(); k++){
+        ff << " " << args[k];
+      }
+      ff << endl;
+    }
+  }
   
   // parameter
   
@@ -858,6 +924,10 @@ ConfigurationInfo::display(string fileName, bool append){
     for (unsigned int k = 0; k < pdfs.size(); k++){
       pdfs[k]->display(fileName,true);
     }
+  }
+  vector<LHContributionInfo*> LHContributions = LHContributionList();
+  for (unsigned int k = 0; k < LHContributions.size(); k++){
+    LHContributions[k]->display(fileName,true);
   }
   for (unsigned int l = 0; l < m_parameters.size(); l++){
     m_parameters[l]->display(fileName,true);
@@ -1210,6 +1280,47 @@ PDFInfo::display(string fileName, bool append){
 
 }
 
+void LHContributionInfo::display(string fileName, bool append){
+  ofstream outfile;
+  streambuf* cout_sbuf = cout.rdbuf();
+  if (fileName != ""){
+    if (append){
+      outfile.open(fileName.c_str(), ios::out | ios::app);
+    }
+    else{
+      outfile.open(fileName.c_str());
+    }
+    cout.rdbuf(outfile.rdbuf());
+  }
+
+  vector< vector<string> > n_factors = factors();
+  vector< ParameterInfo* > n_parameters = parameters();
+
+  report( INFO, kModule ) << "--------------------------------------------" << endl;
+  report( INFO, kModule ) << "-----------  LHCONTRIBUTION INFO  ----------" << endl;
+  report( INFO, kModule ) << "--------------------------------------------" << endl;
+  report( INFO, kModule ) << "   LHCONTRIBUTION NAME:  " << m_lhcontName << endl;
+  report( INFO, kModule ) << "            FACTORS:  " << n_factors.size() << endl;
+  for (unsigned int i = 0; i < n_factors.size(); i++){
+    vector<string> factor = n_factors[i];
+    report( INFO, kModule ) << "\t\t" << i+1 << ".  ";
+    for (unsigned int j = 0; j < factor.size(); j++){
+      report( INFO, kModule ) << " " << factor[j];
+    }
+    report( INFO, kModule ) << endl;
+  }
+  report( INFO, kModule ) << "         PARAMETERS:  " << n_parameters.size() << endl;
+  for (unsigned int i = 0; i < n_parameters.size(); i++){
+    report( INFO, kModule ) << "\t\t" << i+1 << ".  " << n_parameters[i]->parName() << endl;
+  }
+
+
+  if (fileName != ""){
+    outfile.close();
+    cout.rdbuf(cout_sbuf);
+  }  
+}
+
 
 
 void
@@ -1275,6 +1386,11 @@ AmplitudeInfo::clear(){
   m_fixed = false;
   m_scale = "1.0";
   m_permutations.clear();
+}
+
+void
+LHContributionInfo::clear(){
+  termClear();
 }
 
 void

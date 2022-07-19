@@ -53,6 +53,7 @@
 static const char* kModule = "AmpToolsInterface";
 
 vector<Amplitude*> AmpToolsInterface::m_userAmplitudes;
+vector<LHContribution*> AmpToolsInterface::m_userLHContributions;
 vector<DataReader*> AmpToolsInterface::m_userDataReaders;
 unsigned int AmpToolsInterface::m_randomSeed = 0;
 
@@ -125,6 +126,15 @@ AmpToolsInterface::resetConfigurationInfo(ConfigurationInfo* configurationInfo){
     
     m_intensityManagers.push_back(ampMan);
   }
+
+  LHContributionManager* lhcontMan = new LHContributionManager();
+  if( m_functionality == kFull ){
+    for (unsigned int i = 0; i < m_userLHContributions.size(); i++){
+      lhcontMan->registerLHContribution( *m_userLHContributions[i] );
+    }
+    lhcontMan->setMinimizationManager(m_minuitMinimizationManager);
+    lhcontMan->setupFromConfigurationInfo( m_configurationInfo );
+  }
   
   if( m_functionality == kFull ){
     
@@ -132,9 +142,9 @@ AmpToolsInterface::resetConfigurationInfo(ConfigurationInfo* configurationInfo){
     // create a ParameterManager
     // ************************
     
-    m_parameterManager = new ParameterManager ( m_minuitMinimizationManager, m_intensityManagers );
+    m_parameterManager = new ParameterManager ( m_minuitMinimizationManager, m_intensityManagers, lhcontMan );
     m_parameterManager->setupFromConfigurationInfo( m_configurationInfo );
-    
+    m_parameterManager->setLHContributionManager(lhcontMan);
   }
   
   // ************************
@@ -464,6 +474,12 @@ AmpToolsInterface::registerAmplitude( const Amplitude& amplitude){
   
 }
 
+void
+AmpToolsInterface::registerLHContribution( const LHContribution& lhcont){
+  
+  m_userLHContributions.push_back(lhcont.clone());
+  
+}
 
 
 void

@@ -75,6 +75,41 @@ ParameterManager( minuitManager, intenManagers )
     assert( false );
   }
 }
+/***** *****/
+ParameterManagerMPI::
+ParameterManagerMPI( MinuitMinimizationManager* minuitManager,
+                    IntensityManager* intenManager,
+                    LHContributionManager* lhcontManager ) :
+ParameterManager( minuitManager, intenManager, lhcontManager )
+{
+  setupMPI();
+  
+  if( !m_isLeader ){
+    
+    cerr << "Instance of MinuitMinimizationManager exists on Follower node"
+    << endl;
+    
+    assert( false );
+  }
+}
+
+ParameterManagerMPI::
+ParameterManagerMPI( MinuitMinimizationManager* minuitManager,
+                    const vector<IntensityManager*>& intenManagers,
+                    LHContributionManager* lhcontManager ) :
+ParameterManager( minuitManager, intenManagers, lhcontManager )
+{
+  setupMPI();
+  
+  if( !m_isLeader ){
+    
+    cerr << "Instance of MinuitMinimizationManager exists on Follower node"
+    << endl;
+    
+    assert( false );
+  }
+}
+/***** *****/
 
 ParameterManagerMPI::
 ParameterManagerMPI( IntensityManager* intenManager ) :
@@ -218,6 +253,25 @@ void ParameterManagerMPI::addAmplitudeParameter( const string& termName,
       report( WARNING, kModule ) << "could not find term named " << termName
            << "          while trying to set parameter " << parName << endl;
     }
+  }
+}
+
+void ParameterManagerMPI::addLHContributionParameter( const string& termName, 
+                                                 const ParameterInfo* parInfo  )
+{
+
+  const string& parName = parInfo->parName();
+
+  if( m_isLeader ){
+    
+    // utilize the base class functionality for the Leader node
+    ParameterManager::addLHContributionParameter( termName, parInfo );
+  
+    // then use member data to hang onto a pointer to the double
+    m_ampParMap[parName] = getLHContributionParPtr( parName );
+  }
+  else{
+    // we want to calculate the LHContributions only on the Leader process
   }
 }
 

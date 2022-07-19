@@ -1,6 +1,7 @@
 doc/html
 *.a
 *.d
+*.dep
 *.o
 *.DS_Store
 *.SYMDEF*

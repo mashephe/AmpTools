@@ -63,6 +63,13 @@ public:
                       IntensityManager* intenManager );
   ParameterManagerMPI( MinuitMinimizationManager* minuitManager,
                       const vector< IntensityManager* >& intenManagers );
+
+  ParameterManagerMPI( MinuitMinimizationManager* minuitManager,
+                      IntensityManager* intenManager,
+                      LHContributionManager* lhcontManager );
+  ParameterManagerMPI( MinuitMinimizationManager* minuitManager,
+                      const vector< IntensityManager* >& intenManagers,
+                      LHContributionManager* lhcontManager );
   
   // this constructor should be called on the follower nodes
   ParameterManagerMPI( IntensityManager* intenManager );
@@ -74,6 +81,7 @@ public:
   // on whether this instance is on the head or follower node
   void addProductionParameter( const string& termName, bool real = false, bool fixed = false );
   void addAmplitudeParameter( const string& termName, const ParameterInfo* parInfo );
+  void addLHContributionParameter( const string& lhcontName, const ParameterInfo* parInfo );
   
   // the likelihood calculator will need to call this routine in order
   // to update the parameters in advance of the likelihood calculation

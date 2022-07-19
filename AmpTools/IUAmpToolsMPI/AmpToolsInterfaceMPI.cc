@@ -52,7 +52,15 @@ AmpToolsInterfaceMPI::AmpToolsInterfaceMPI(ConfigurationInfo* configurationInfo)
     }
     
     m_intensityManagers.push_back(ampMan);
+  }
 
+  LHContributionManager* lhcontMan = new LHContributionManager();
+  if(m_rank == 0){
+    for (unsigned int i = 0; i < m_userLHContributions.size(); i++){
+      lhcontMan->registerLHContribution( *m_userLHContributions[i] );
+    }
+    lhcontMan->setMinimizationManager(m_minuitMinimizationManager);
+    lhcontMan->setupFromConfigurationInfo( m_configurationInfo );
   }
 
     // ************************
@@ -65,7 +73,8 @@ AmpToolsInterfaceMPI::AmpToolsInterfaceMPI(ConfigurationInfo* configurationInfo)
   }
   else{
     parameterManagerMPI = new ParameterManagerMPI( m_minuitMinimizationManager,
-                                                   m_intensityManagers );
+                                                   m_intensityManagers, lhcontMan );
+    parameterManagerMPI->setLHContributionManager(lhcontMan);
   }
   parameterManagerMPI->setupFromConfigurationInfo( m_configurationInfo );
   m_parameterManager = parameterManagerMPI;
