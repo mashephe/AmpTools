@@ -165,7 +165,7 @@ void
 ParameterManager::setAmpParameter( const string& parName,
                                    double value ){
 
-  auto ampParItr = m_ampParams.find( parName );
+  std::map<string,MinuitParameter*>::iterator ampParItr = m_ampParams.find( parName );
   
   if( ampParItr == m_ampParams.end() ){
     

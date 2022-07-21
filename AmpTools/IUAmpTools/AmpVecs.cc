@@ -159,7 +159,7 @@ AmpVecs::clearFourVecs(){
     // to the first member of the set of
     // objects that are sharing this data
     
-    auto avItr = m_sharedDataFriends.begin();
+    std::set<AmpVecs*>::iterator avItr = m_sharedDataFriends.begin();
     
     AmpVecs* newDataOwner = *avItr;
     m_sharedDataFriends.erase( avItr );
@@ -246,7 +246,7 @@ AmpVecs::loadData( DataReader* pDataReader ){
     vector< string > readerArgs = pDataReader->arguments();
     
     report( NOTICE, kModule ) << readerName << " with arguments:  \n\t";
-    for( auto arg = readerArgs.begin(); arg != readerArgs.end(); ++arg ){
+    for( std::vector<string>::iterator arg = readerArgs.begin(); arg != readerArgs.end(); ++arg ){
       
       report( NOTICE, kModule ) << *arg << "\t";
     }
