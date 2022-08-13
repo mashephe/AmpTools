@@ -101,6 +101,7 @@ int main( int argc, char* argv[] ){
     // loop over data, accMC, and genMC
 
   for (unsigned int iplot = 0; iplot < PlotGenerator::kNumTypes; iplot++){
+    if (iplot == PlotGenerator::kBkgnd) continue;
     if (iamp < amps.size() && iplot == PlotGenerator::kData) continue;
 
 

@@ -55,7 +55,7 @@ int main(int argc, char** argv){
   AmpToolsInterface::registerAmplitude(BreitWigner());
   AmpToolsInterface::registerDataReader(DalitzDataReader());
 
-  AmpToolsInterface ATI(cfgInfo);
+  AmpToolsInterface ATI(cfgInfo, AmpToolsInterface::kPlotGeneration);
 
   DataReader* dataReader = ATI.genMCReader(cfgInfo->reactionList()[0]->reactionName());
   for (int i = 0; i < 10; i++){

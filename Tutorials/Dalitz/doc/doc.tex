@@ -102,13 +102,13 @@ Alternatively, all of the executables (only) can be built at once:
 
 If the executables are built by invoking make from within {\tt \$DALITZ/DalitzExe} then the build products will remain in that directory.
 
-For executables that require MPI support, the name of the {\tt *.cc} file should include the case-insensitive string ``MPI".  All {\tt *.cc} files in the {\tt DalitzExe} directory that have ``MPI" somewhere in the name will be built as an executable with MPI support provided that {\tt MPI=1} is used as an argument to {\tt make}.
+For executables that require MPI support, the name of the {\tt *.cc} file should include the case-insensitive string ``MPI''.  All {\tt *.cc} files in the {\tt DalitzExe} directory that have ``MPI'' somewhere in the name will be built as an executable with MPI support provided that {\tt MPI=1} is used as an argument to {\tt make}.
 
 \section{Setting up a Data Writer: \\ 
 {\tt DalitzDataIO/DalitzDataWriter}}
 \label{sec:dw}
 
-The main purpose of a {\tt DataWriter} class in {\tt AmpTools} is to take a {\tt Kinematics} object, which contains four-vectors, and write its contents to an output file.  The user must write a class derived from the {\tt DataWriter} class to customize the output, including the format of the output file, the variables to be written, and so on.  In the {\tt DalitzDataWriter} example, output files are in a {\tt ROOT} tree format and contain the four-vectors of the three fictitious final state particles of the Dalitz tutorial.
+The main purpose of a {\tt DataWriter} class in {\tt AmpTools} is to take a {\tt Kinematics} object, which contains four-vectors, and write its contents to an output file.  The user must write a class to customize the output, including the format of the output file, the variables to be written, and so on.  In the {\tt DalitzDataWriter} example, output files are in a {\tt ROOT} tree format and contain the four-vectors of the three fictitious final state particles of the Dalitz tutorial.
 
 \section{Generating Phase Space: \\  
 {\tt DalitzExe/generatePhaseSpace}}
