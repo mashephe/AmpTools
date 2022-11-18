@@ -26,10 +26,7 @@ endif
 
 # This option is here to so that likelihood values for the current
 # version can be compared with those from version 0.13.1 and prior.
-# At some point this build option will be deprecated.  As of 0.14.1
-# the legacy scaling is the default.  The new scaling can be used
-# but the likelihoods are not easy to compare on MPI vs. non-MPI
-# implementations.
+# At some point this build option will be deprecated.  
 
 ifdef LEGACY_LN_LIK
 CXX_DEFINES += -DUSE_LEGACY_LN_LIK_SCALING
