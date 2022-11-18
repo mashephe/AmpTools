@@ -42,7 +42,7 @@
 #include <string>
 
 #include "IUAmpTools/ComplexParameter.h"
-#include "IUAmpTools/LHContributionManager.h"
+#include "IUAmpTools/Neg2LnLikContribManager.h"
 #include "MinuitInterface/MinuitMinimizationManager.h"
 #include "MinuitInterface/GaussianBound.h"
 #include "MinuitInterface/MIObserver.h"
@@ -70,11 +70,11 @@ public:
 
   ParameterManager( MinuitMinimizationManager* minuitManager,
                     IntensityManager* intenManager,
-                    LHContributionManager* lhcontManager );
+                    Neg2LnLikContribManager* lhcontManager );
   
   ParameterManager( MinuitMinimizationManager* minuitManager,
                    const vector<IntensityManager*>& intenManagers,
-                   LHContributionManager* lhcontManager );
+                   Neg2LnLikContribManager* lhcontManager );
 
   ~ParameterManager();
   
@@ -85,10 +85,8 @@ public:
   void setProductionParameter( const string& termName,
                                complex< double > prodPar );
   void setAmpParameter( const string& parName, double value );
-  void setLHContributionParameter( const string& parName,
-                                   double value );
 
-  void setLHContributionManager(LHContributionManager* lhcontManagers){
+  void setNeg2LnLikContribManager(Neg2LnLikContribManager* lhcontManagers){
     m_lhcontManagers = lhcontManagers;
   };
   
@@ -126,12 +124,12 @@ protected:
   virtual void addProductionParameter( const string& ampName, bool real = false, bool fixed = false );
   virtual void addAmplitudeParameter( const string& ampName, const ParameterInfo* parInfo );
 
-  virtual void addLHContributionParameter( const string& lhcontName, const ParameterInfo* parInfo );
+  virtual void addNeg2LnLikContribParameter( const string& lhcontName, const ParameterInfo* parInfo );
   
   // useful for MPI implementations of ParameterManager
   complex< double >* getProdParPtr( const string& ampName );
   double* getAmpParPtr( const string& parName );
-  double* getLHContributionParPtr( const string& parName );
+  double* getNeg2LnLikContribParPtr( const string& parName );
   
   virtual void update( const string& parName );
 
@@ -147,7 +145,7 @@ protected:
   MinuitMinimizationManager* m_minuitManager;
   
   vector< IntensityManager* > m_intenManagers;
-  LHContributionManager* m_lhcontManagers;
+  Neg2LnLikContribManager* m_lhcontManagers;
   
   vector< double > m_parValues;
   vector< string > m_parList;

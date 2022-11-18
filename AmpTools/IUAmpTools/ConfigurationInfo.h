@@ -53,7 +53,7 @@ class ReactionInfo;
 class CoherentSumInfo;
 class TermInfo;
 class AmplitudeInfo;
-class LHContributionInfo;
+class Neg2LnLikContribInfo;
 class PDFInfo;
 class ParameterInfo;
 
@@ -217,9 +217,9 @@ public:
    *
    * \param[in] lhcontName (optional) the name of the amplitude
    *
-   * \see LHContribution
+   * \see Neg2LnLikContrib
    */
-  vector<LHContributionInfo*>   LHContributionList   (const string& lhcontName="") const;
+  vector<Neg2LnLikContribInfo*>   Neg2LnLikContribList   (const string& lhcontName="") const;
 
   /**
    * This returns a vector of all pdfs.  Optionally the user can
@@ -338,15 +338,15 @@ public:
   PDFInfo*   pdf   (const string& fullName) const;
 
   /**
-   * Similar to LHContributionList above but returns a pointer to a specific
-   * LHContribution.  Note that the pointer is not const.  This routine can
-   * be used to modify a LHContributionInfo object in the configuration.
+   * Similar to Neg2LnLikContribList above but returns a pointer to a specific
+   * Neg2LnLikContrib.  Note that the pointer is not const.  This routine can
+   * be used to modify a Neg2LnLikContribInfo object in the configuration.
    *
-   * \param[in] lhcontName the full name of the LHContribution
+   * \param[in] lhcontName the full name of the Neg2LnLikContrib
    *
-   * \see LHContributionList
+   * \see Neg2LnLikContribList
    */
-  LHContributionInfo*   LHContribution   (const string& lhcontName) const;
+  Neg2LnLikContribInfo*   Neg2LnLikContrib   (const string& lhcontName) const;
 
 
   /**
@@ -444,16 +444,16 @@ public:
                           const string& pdfName);
 
   /**
-   * A routine to create a new LHContribution.  This returns a pointer to the
-   * LHContribution that has been created so it can be further modified.
+   * A routine to create a new Neg2LnLikContrib.  This returns a pointer to the
+   * Neg2LnLikContrib that has been created so it can be further modified.
    * If the pdf already exists, it will be overwritten with a new
-   * LHContribution.
+   * Neg2LnLikContrib.
    *
-   * \param[in] lhcontName the name of LHContribution to be created
+   * \param[in] lhcontName the name of Neg2LnLikContrib to be created
    *
-   * \see removeLHContribution
+   * \see removeNeg2LnLikContrib
    */
-  LHContributionInfo* createLHContribution  (const string& lhcontName);
+  Neg2LnLikContribInfo* createNeg2LnLikContrib  (const string& lhcontName);
   
   /**
    * This creates a new parameter and returns a pointer to the ParameterInfo
@@ -533,16 +533,16 @@ public:
                     const string& pdfName="");
 
     /**
-   * This removes a LHContribution or LHContributions that are matched to the arguments.
+   * This removes a Neg2LnLikContrib or Neg2LnLikContribs that are matched to the arguments.
    * Passing in a null string to a particular argument will match all
    * instances of that argument (like a wildcard).  The null string is
    * the default argument for all parameters.
    *
-   * \param[in] lhcontName the name of the LHContribution
+   * \param[in] lhcontName the name of the Neg2LnLikContrib
    *
-   * \see createLHContribution
+   * \see createNeg2LnLikContrib
    */
-  void removeLHContribution   (const string& lhcontName="");
+  void removeNeg2LnLikContrib   (const string& lhcontName="");
 
   /**
    * This removes a parameter or parameters matched to the arguments.
@@ -623,7 +623,7 @@ private:
   vector<CoherentSumInfo*> m_sums;
   vector<AmplitudeInfo*>   m_amplitudes;
   vector<PDFInfo*>         m_pdfs;
-  vector<LHContributionInfo*>         m_lhContributions;
+  vector<Neg2LnLikContribInfo*>         m_lhContributions;
   vector<ParameterInfo*>   m_parameters;
   map<string, vector< vector<string> > > m_userKeywordMap;
     
@@ -1253,35 +1253,59 @@ private:
  * \ingroup IUAmpTools
  */
 
-class LHContributionInfo : public TermInfo
-
+class Neg2LnLikContribInfo
 {
+  
 public:
-  LHContributionInfo(const string& lhcontName):
-  m_lhcontName(lhcontName)  {clear();};
+  
+  Neg2LnLikContribInfo( const string& name ) :
+    m_name( name ) {
+    clear();
+  }
 
   /**
-   * This returns the name of the likelihood contribution.
+   * This returns a vector of pointers to all of the ParameterInfo objects
+   * that are associated with this likelihood contribution
    */
-  string LHContributionName() const {return m_lhcontName;}
-  string reactionName() const {return "";}
-  string fullName() const {return m_lhcontName;}
-  void                       display(string fileName = "", bool append = true);
 
+  const vector< ParameterInfo* >& parameters() const {
+     return m_parameters;
+  }
+  
   /**
-   * Flags marking this class as neither an amplitude nor a pdf.
-   */  
-  bool                       isAmplitude()    const {return false;}
-  bool                       isPDF()          const {return false;}
-
-  /**
-   * This clears out all the internal data for this particular PDFInfo
+   * This clears out all the internal data for this particular Neg2LnLikContribInfo
    * object.
    */
-  void                       clear();
+  void clear(){}
+
+  /**
+   * This associates some parameter described by the ParameterInfo
+   * objects with the current contribution.
+   *
+   * \param[in] parameter pointer the ParameterInfo object for the parameter
+   */
+  void addParameter (ParameterInfo* parameter);
+  
+  void addArgs( vector<string>& args ) { m_args = args; }
+  vector< string > args() const { return m_args; }
+  
+  /**
+   * This removes an associated ParameterInfo pointer from the list of
+   * ParameterInfo objects associated with this amplitude/pdf.
+   *
+   * \param[in] parameter a pointer to the ParameterInfo object to removed
+   */
+  void removeParameter (ParameterInfo* parameter);
+  
+  string fullName() const { return m_name; }
+  
+  void display( string fileName = "", bool append = true) ;
 
 private:
-  string m_lhcontName;
+
+  vector< ParameterInfo* >     m_parameters;
+  string m_name;
+  vector< string > m_args;
 };
 
 

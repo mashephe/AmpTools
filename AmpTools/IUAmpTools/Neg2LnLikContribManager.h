@@ -1,28 +1,28 @@
 #if !defined( LHCONTRIBUTIONMANAGER )
 #define LHCONTRIBUTIONMANAGER
 
-#include "IUAmpTools/LHContribution.h"
+#include "IUAmpTools/Neg2LnLikContrib.h"
 #include "IUAmpTools/AmpParameter.h"
 #include "IUAmpTools/ConfigurationInfo.h"
 
 using namespace std;
 
-class LHContributionManager
+class Neg2LnLikContribManager
 {
 public:
   /** Constructor.
-   * Constructs a LHContributionManager
+   * Constructs a Neg2LnLikContribManager
    */ 
-  LHContributionManager(); 
+  Neg2LnLikContribManager();
   
   /** Destructor.
    */
-  ~LHContributionManager();
+  ~Neg2LnLikContribManager();
 
   /**
-   * This function sets up the AmplitudeManager based on information
+   * This function sets up the Neg2LnLikContribManager based on information
    * provided by a ConfigurationInfo object.  It is intended to be the
-   * most user-friendly way of configuring the amplitude manager for
+   * most user-friendly way of configuring the manager for
    * use.
    *
    * \param[in] configInfo a pointer to a ConfigurationInfo object
@@ -30,11 +30,11 @@ public:
   void setupFromConfigurationInfo( const ConfigurationInfo* configInfo );
 
 
-  void addLHContribution(const string& lhcontName,
+  void addNeg2LnLikContrib(const string& lhcontName,
                      const vector< string >& args);
 
 
-  void registerLHContribution( const LHContribution& defaultLHContribution );
+  void registerNeg2LnLikContrib( const Neg2LnLikContrib& defaultNeg2LnLikContrib );
 
     /**
    * This tells an amplitude to use an external pointer to resolve the value
@@ -84,13 +84,14 @@ public:
                                double val );
 
   void setMinimizationManager(MinuitMinimizationManager *minManager){
-    for(auto &p : m_registeredLHContributions){
-      p.second->setMinimizationManager(minManager);
+    for(map< string, Neg2LnLikContrib* >::iterator p = m_registeredNeg2LnLikContribs.begin();
+        p != m_registeredNeg2LnLikContribs.end(); ++p ){
+      p->second->setMinimizationManager(minManager);
     }
   };
 
   bool hasTerm(const string& name){
-    return m_mapNameToLHContributions.count(name);
+    return m_mapNameToNeg2LnLikContribs.count(name);
   };
                     
 
@@ -103,8 +104,8 @@ public:
 
   private:
 
-  map< string, LHContribution* > m_registeredLHContributions;
-  map< string, LHContribution* > m_mapNameToLHContributions;
+  map< string, Neg2LnLikContrib* > m_registeredNeg2LnLikContribs;
+  map< string, Neg2LnLikContrib* > m_mapNameToNeg2LnLikContribs;
 };
 
 #endif

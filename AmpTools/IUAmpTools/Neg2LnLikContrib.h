@@ -25,7 +25,7 @@ class AmpParameter;
 class MinuitMinimizationManager;
 class MinuitParameter;
 
-class LHContribution : public MIFunctionContribution
+class Neg2LnLikContrib : public MIFunctionContribution
 {
   
 public:
@@ -34,22 +34,22 @@ public:
    * The default constructor.  The user's derived class should contain a
    * default constructor that calls this constructor.
    */
-  LHContribution(  ) : m_isDefault(true), MIFunctionContribution(m_minManager) {
+  Neg2LnLikContrib(  ) : m_isDefault(true), MIFunctionContribution(m_minManager) {
     
   }
   
   /**
    * This constructor takes a list of arguments to inititialize a
-   * LHContribution and then stores them.  The user's derived class should
+   * Neg2LnLikContrib and then stores them.  The user's derived class should
    * contain a similar constructor that calls this one.
    */
-  LHContribution( const vector< string >& args ) : m_isDefault(false), 
+  Neg2LnLikContrib( const vector< string >& args ) : m_isDefault(false),
   m_args(args), MIFunctionContribution(m_minManager){ }
   
   /**
    * This is the destructor.
    */
-  virtual ~LHContribution(){}
+  virtual ~Neg2LnLikContrib(){}
 
 
   /** 
@@ -73,8 +73,8 @@ public:
   
   /**
    * This method returns a string that uniquely identifies the instance
-   * of the LHContribution.  It is the LHContribution name and all the arguments
-   * concatenated together.  Every LHContribution with the same identifier
+   * of the Neg2LnLikContrib.  It is the Neg2LnLikContrib name and all the arguments
+   * concatenated together.  Every Neg2LnLikContrib with the same identifier
    * should behave the same way.
    */
   string identifier() const;
@@ -82,32 +82,32 @@ public:
   /**
    * This must be overriden by the user and indicates how to convert a list
    * of strings (arguments) into a pointer to a new instance of the
-   * users defined LHContribution.
+   * users defined Neg2LnLikContrib.
    *
    * The user can avoid writing this method by inheriting from the
-   * UserLHContribution class (which derives from this class).
+   * UserNeg2LnLikContrib class (which derives from this class).
    *
    * \param[in] args a list of string arguments that may, for example, be
    * specified in a configuration file
    *
-   *  \see UserLHContribution
+   *  \see UserNeg2LnLikContrib
    */
-  virtual LHContribution* newLHContribution( const vector< string >& args ) const = 0;
+  virtual Neg2LnLikContrib* newNeg2LnLikContrib( const vector< string >& args ) const = 0;
   
   /**
-   * A function that the user must write that indicates how a LHContribution
+   * A function that the user must write that indicates how a Neg2LnLikContrib
    * can duplicate itself.  It returns a pointer to a new instance of the
-   * LHContribution that behaves in exactly the same way as the original.
+   * Neg2LnLikContrib that behaves in exactly the same way as the original.
    *
    * The user can avoid writing this method by inheriting from the
-   * UserLHContribution class (which derives from this class).
+   * UserNeg2LnLikContrib class (which derives from this class).
    *
-   *  \see UserLHContribution
+   *  \see UserNeg2LnLikContrib
    */
-  virtual LHContribution* clone() const = 0;
+  virtual Neg2LnLikContrib* clone() const = 0;
   
   /**
-   * A function that indicates if this LHContribution was created with the
+   * A function that indicates if this Neg2LnLikContrib was created with the
    * default constructor.
    */
   bool isDefault() const { return ( m_isDefault == true ); }
@@ -131,7 +131,7 @@ public:
    * is useful when fitting as the ParameterManager can automatically
    * updated these external values.  The function returns true if the
    * a parameter of the indicated name was found in the list of registered
-   * parameters for this LHContribution, false otherwise.  The function calls
+   * parameters for this Neg2LnLikContrib, false otherwise.  The function calls
    * updatePar after setting the value.
    *
    * \param[in] name the name of the AmpParameter
@@ -183,52 +183,20 @@ public:
   bool updatePar( const string& name ) const;
   
   /**
-   * This is the user-defined function that computes a single real LHContribution
+   * This is the user-defined function that computes a single real Neg2LnLikContrib
    * as a function of a single coordinate (e.g. sqrt(s)).
    *
    */
-  virtual double calcLHContribution( double x ) const ;
+  virtual double calcNeg2LnLikContrib( double x ) const ;
 
 
   void setMinimizationManager(MinuitMinimizationManager *minManager){
     m_minManager = minManager;
   }
-  
-#ifdef GPU_ACCELERATION 
-  
-  /**
-   * If GPU_ACCELERATION flag is set this is the member function that sets
-   * the current permutation and then calls the user-defined routine
-   * to launch the GPU kernel.  It is the GPU analog of calcAmplitudeAll.
-   */
-  virtual void calcLHContributionGPU( dim3 dimGrid, dim3 dimBlock, GPU_AMP_PROTO ) const;
-  
-  /**
-   * The user override this route and use it pass any parameters to a global
-   * C function that actually launches the GPU kernel
-   */
-  virtual void launchGPUKernel( dim3 dimGrid, dim3 dimBlock, GPU_AMP_PROTO ) const {
     
-    cout << "\nNo GPU function for calculating " << name() << " is defined." << endl;
-    assert( false );
-  }
-
-
-  
-#endif //GPU_ACCELERATION
-  
 protected:
   
-  /**
-   * Any user-defined class derived from Amplitude that has a parameter
-   * in the amplitude should register the parameter using this routine.  This
-   * shoudl be done for each parameter in the constructor of the user's 
-   * Amplitude class.
-   *
-   * \param[in] par a reference to the AmpParmeter object
-   */
   void registerParameter( AmpParameter& par );
-
   
 private:
   
@@ -239,7 +207,6 @@ private:
   vector< AmpParameter* > m_registeredParams;
 
   static MinuitMinimizationManager *m_minManager;
-
   
 };
 

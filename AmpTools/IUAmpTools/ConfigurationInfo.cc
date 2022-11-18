@@ -144,13 +144,13 @@ ConfigurationInfo::pdfList  (const string& reactionName,
   return pdfs;
 }
 
-vector<LHContributionInfo*>
-ConfigurationInfo::LHContributionList  (const string& lhcontName) const {
-  vector<LHContributionInfo*> lhContributions;
+vector<Neg2LnLikContribInfo*>
+ConfigurationInfo::Neg2LnLikContribList  (const string& lhcontName) const {
+  vector<Neg2LnLikContribInfo*> lhContributions;
   for (unsigned int i = 0; i < m_lhContributions.size(); i++){
-    if ((lhcontName == "") || (m_lhContributions[i]->reactionName() == lhcontName)){
+//    if ((lhcontName == "") || (m_lhContributions[i]->reactionName() == lhcontName)){
       lhContributions.push_back(m_lhContributions[i]);
-    }
+//    }
   }
   return lhContributions;
 }
@@ -296,14 +296,14 @@ ConfigurationInfo::pdf  (const string& fullName) const {
   return lpdf;
 }
 
-LHContributionInfo*
-ConfigurationInfo::LHContribution  (const string& lhcontName) const {
+Neg2LnLikContribInfo*
+ConfigurationInfo::Neg2LnLikContrib  (const string& lhcontName) const {
   for (unsigned int i = 0; i < m_lhContributions.size(); i++){
-    if (m_lhContributions[i]->LHContributionName() == lhcontName){
+    if (m_lhContributions[i]->fullName() == lhcontName){
       return m_lhContributions[i];
     }
   }
-  LHContributionInfo* lhContribution = NULL;
+  Neg2LnLikContribInfo* lhContribution = NULL;
   return lhContribution;
 }
 
@@ -434,17 +434,17 @@ ConfigurationInfo::createPDF  (const string& reactionName,
   return addpdf;
 }
 
-LHContributionInfo*
-ConfigurationInfo::createLHContribution  (const string& lhcontName){
-  LHContributionInfo* addLHContribution = LHContribution(lhcontName);
-  if (addLHContribution == NULL){
-    addLHContribution = new LHContributionInfo(lhcontName);
-    m_lhContributions.push_back(addLHContribution);
+Neg2LnLikContribInfo*
+ConfigurationInfo::createNeg2LnLikContrib  (const string& lhcontName){
+  Neg2LnLikContribInfo* addNeg2LnLikContrib = Neg2LnLikContrib(lhcontName);
+  if (addNeg2LnLikContrib == NULL){
+    addNeg2LnLikContrib = new Neg2LnLikContribInfo(lhcontName);
+    m_lhContributions.push_back(addNeg2LnLikContrib);
   }
   else{
-    addLHContribution->clear();
+    addNeg2LnLikContrib->clear();
   }
-  return addLHContribution;
+  return addNeg2LnLikContrib;
 }
 
 
@@ -559,12 +559,12 @@ ConfigurationInfo::removePDF   (const string& reactionName,
 }
 
 void
-ConfigurationInfo::removeLHContribution   (const string& lhcontName){
-  vector<LHContributionInfo*> removeList = LHContributionList(lhcontName);
+ConfigurationInfo::removeNeg2LnLikContrib   (const string& lhcontName){
+  vector<Neg2LnLikContribInfo*> removeList = Neg2LnLikContribList(lhcontName);
   unsigned int removeListSize = removeList.size();
   for (unsigned int i = 0; i < removeListSize; i++){
     for (unsigned int j = 0; j < m_lhContributions.size(); j++){
-      if (removeList[i]->reactionName() == m_lhContributions[j]->LHContributionName()){
+      if (removeList[i]->fullName() == m_lhContributions[j]->fullName()){
         m_lhContributions[j]->clear();
         delete m_lhContributions[j];
         m_lhContributions.erase(m_lhContributions.begin()+j,m_lhContributions.begin()+j+1);
@@ -654,7 +654,7 @@ ConfigurationInfo::write( ostream& ff ) const {
   vector<CoherentSumInfo*> Ss   = coherentSumList();
   vector<AmplitudeInfo*>   As   = amplitudeList();
   vector<PDFInfo*>         PDFs = pdfList();
-  vector<LHContributionInfo*>  lhContributions = LHContributionList();
+  vector<Neg2LnLikContribInfo*>  lhContributions = Neg2LnLikContribList();
   vector<ParameterInfo*>   Ps   = parameterList();
   
   ff << "### FIT CONFIGURATION ###" << endl;
@@ -732,16 +732,9 @@ ConfigurationInfo::write( ostream& ff ) const {
 
   // lhContributions
   for (unsigned int i = 0; i < lhContributions.size(); i++){
-    LHContributionInfo* lhContribution = lhContributions[i];
-    vector< vector<string> > Fs = lhContribution->factors();
-    for (unsigned int j = 0; j < Fs.size(); j++){
-      ff << "lhContribution " << lhContribution->fullName();
-      vector<string> args = Fs[j];
-      for (unsigned int k = 0; k < args.size(); k++){
-        ff << " " << args[k];
-      }
-      ff << endl;
-    }
+    Neg2LnLikContribInfo* lhContribution = lhContributions[i];
+    ff << "lhContribution " << lhContribution->fullName();
+    ff << endl;
   }
   
   // parameter
@@ -925,9 +918,9 @@ ConfigurationInfo::display(string fileName, bool append){
       pdfs[k]->display(fileName,true);
     }
   }
-  vector<LHContributionInfo*> LHContributions = LHContributionList();
-  for (unsigned int k = 0; k < LHContributions.size(); k++){
-    LHContributions[k]->display(fileName,true);
+  vector<Neg2LnLikContribInfo*> Neg2LnLikContribs = Neg2LnLikContribList();
+  for (unsigned int k = 0; k < Neg2LnLikContribs.size(); k++){
+    Neg2LnLikContribs[k]->display(fileName,true);
   }
   for (unsigned int l = 0; l < m_parameters.size(); l++){
     m_parameters[l]->display(fileName,true);
@@ -1280,7 +1273,7 @@ PDFInfo::display(string fileName, bool append){
 
 }
 
-void LHContributionInfo::display(string fileName, bool append){
+void Neg2LnLikContribInfo::display(string fileName, bool append){
   ofstream outfile;
   streambuf* cout_sbuf = cout.rdbuf();
   if (fileName != ""){
@@ -1293,33 +1286,32 @@ void LHContributionInfo::display(string fileName, bool append){
     cout.rdbuf(outfile.rdbuf());
   }
 
-  vector< vector<string> > n_factors = factors();
   vector< ParameterInfo* > n_parameters = parameters();
 
   report( INFO, kModule ) << "--------------------------------------------" << endl;
   report( INFO, kModule ) << "-----------  LHCONTRIBUTION INFO  ----------" << endl;
   report( INFO, kModule ) << "--------------------------------------------" << endl;
-  report( INFO, kModule ) << "   LHCONTRIBUTION NAME:  " << m_lhcontName << endl;
-  report( INFO, kModule ) << "            FACTORS:  " << n_factors.size() << endl;
-  for (unsigned int i = 0; i < n_factors.size(); i++){
-    vector<string> factor = n_factors[i];
-    report( INFO, kModule ) << "\t\t" << i+1 << ".  ";
-    for (unsigned int j = 0; j < factor.size(); j++){
-      report( INFO, kModule ) << " " << factor[j];
-    }
-    report( INFO, kModule ) << endl;
-  }
+  report( INFO, kModule ) << "   LHCONTRIBUTION NAME:  " << m_name << endl;
   report( INFO, kModule ) << "         PARAMETERS:  " << n_parameters.size() << endl;
   for (unsigned int i = 0; i < n_parameters.size(); i++){
     report( INFO, kModule ) << "\t\t" << i+1 << ".  " << n_parameters[i]->parName() << endl;
   }
-
 
   if (fileName != ""){
     outfile.close();
     cout.rdbuf(cout_sbuf);
   }  
 }
+
+void
+Neg2LnLikContribInfo::addParameter (ParameterInfo* parameter){
+  bool foundParameter = false;
+  for (unsigned int i = 0; i < m_parameters.size(); i++){
+    if (m_parameters[i]->parName() == parameter->parName()) foundParameter = true;
+  }
+  if (!foundParameter) m_parameters.push_back(parameter);
+}
+
 
 
 
@@ -1386,11 +1378,6 @@ AmplitudeInfo::clear(){
   m_fixed = false;
   m_scale = "1.0";
   m_permutations.clear();
-}
-
-void
-LHContributionInfo::clear(){
-  termClear();
 }
 
 void

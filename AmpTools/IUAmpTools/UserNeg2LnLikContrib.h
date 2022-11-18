@@ -1,15 +1,15 @@
-#if !(defined USERLHCONTRIBUTION)
-#define USERLHCONTRIBUTION
+#if !(defined USERNEG2LNLIKCONTRIB)
+#define USERNEG2LNLIKCONTRIB
 
 
 #include <string>
 #include <vector>
-#include "IUAmpTools/LHContribution.h"
+#include "IUAmpTools/Neg2LnLikContrib.h"
 
 using namespace std;
 
 template< class T >
-class UserLHContribution : public LHContribution
+class UserNeg2LnLikContrib : public Neg2LnLikContrib
 {
   
 public:
@@ -18,7 +18,7 @@ public:
    * This is the default constructor.  It should be called in the default
    * constructor of the user's derived class.
    */
-  UserLHContribution< T >() : LHContribution() { }
+  UserNeg2LnLikContrib< T >() : Neg2LnLikContrib() { }
   
   
   /**
@@ -26,13 +26,13 @@ public:
    * be a corresponding constructor in the user's derived class that calls
    * this constructor.
    */
-  UserLHContribution< T >( const vector< string >& args ) : LHContribution( args ) { }
+  UserNeg2LnLikContrib< T >( const vector< string >& args ) : Neg2LnLikContrib( args ) { }
   
   
   /**
    * This is the destructor.
    */
-   ~UserLHContribution< T >() {
+   ~UserNeg2LnLikContrib< T >() {
     
     for( typename map< string, T* >::iterator amp = m_ampInstances.begin();
          amp != m_ampInstances.end(); ++amp ){
@@ -41,7 +41,7 @@ public:
     }
   }
   
-  LHContribution* newLHContribution( const vector< string >& args ) const{
+  Neg2LnLikContrib* newNeg2LnLikContrib( const vector< string >& args ) const{
     
     // we need the identifier of the new amplitude first:
     T* newAmp = new T( args );
@@ -65,7 +65,7 @@ public:
   /**
    * This method can create a clone of an amplitude (of the derived type).
    */
-  LHContribution* clone() const {
+  Neg2LnLikContrib* clone() const {
     
     return ( isDefault() ? new T() : new T( arguments() ) );
    }

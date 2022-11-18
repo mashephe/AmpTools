@@ -4,26 +4,26 @@
 #include <iostream>
 #include <sstream>
 
-#include "IUAmpTools/LHContribution.h"
+#include "IUAmpTools/Neg2LnLikContrib.h"
 
 #ifdef VTRACE
 #include "vt_user.h"
 #endif
 
-MinuitMinimizationManager* LHContribution::m_minManager;
+MinuitMinimizationManager* Neg2LnLikContrib::m_minManager;
 
+double Neg2LnLikContrib::operator()(){
 
-double LHContribution::operator()(){
-  double val = neg2LnLikelihood();
-  return val;
+  return neg2LnLikelihood();
 }
 
-double LHContribution::neg2LnLikelihood(){
+double Neg2LnLikContrib::neg2LnLikelihood(){
+
   return 0.;
 }
 
 string
-LHContribution::identifier() const {
+Neg2LnLikContrib::identifier() const {
   
   string id = name();
   
@@ -40,24 +40,12 @@ LHContribution::identifier() const {
   return id;
 }
 
-double LHContribution::calcLHContribution(double x) const {
+double Neg2LnLikContrib::calcNeg2LnLikContrib(double x) const {
   return 0.;
 }
 
-#ifdef GPU_ACCELERATION 
-void
-LHContribution::calcLHContributionGPU( dim3 dimGrid, dim3 dimBlock, GPU_AMP_PROTO ) const {
-#ifdef VTRACE
-  string info = name();
-  info += "::calcLHContributionGPU";
-  VT_TRACER( info.c_str() );
-#endif
-  launchGPUKernel( dimGrid, dimBlock, GPU_AMP_ARGS );
-}
-#endif
-
 bool
-LHContribution::setParPtr( const string& name, const double* ptr ) const {
+Neg2LnLikContrib::setParPtr( const string& name, const double* ptr ) const {
   
   bool foundPar = false;
   
@@ -81,7 +69,7 @@ LHContribution::setParPtr( const string& name, const double* ptr ) const {
 }
 
 bool
-LHContribution::setParValue( const string& name, double val ) const {
+Neg2LnLikContrib::setParValue( const string& name, double val ) const {
   
   bool foundPar = false;
   
@@ -105,7 +93,7 @@ LHContribution::setParValue( const string& name, double val ) const {
 }
 
 bool
-LHContribution::updatePar( const string& name ) const {
+Neg2LnLikContrib::updatePar( const string& name ) const {
   
 #ifdef VTRACE
   string info = (*this).name();
@@ -126,11 +114,11 @@ LHContribution::updatePar( const string& name ) const {
       
       // The const_cast is a little bit undesirable here.  It can be removed
       // at the expensive of requiring the user to declare all member data in
-      // the Amplitude class that is updated on a parameter update "mutable."
+      // the class that is updated on a parameter update "mutable."
       // Since we are trying to maximize user-friendliness, for now we will
       // remove this potential annoyance.
       
-      const_cast< LHContribution* >(this)->updatePar( **parItr );
+      const_cast< Neg2LnLikContrib* >(this)->updatePar( **parItr );
       foundPar = true;
     }
   }
@@ -139,6 +127,7 @@ LHContribution::updatePar( const string& name ) const {
 }
 
 void
-LHContribution::registerParameter( AmpParameter& par ){
+Neg2LnLikContrib::registerParameter( AmpParameter& par ){
+  
   m_registeredParams.push_back( &par );
 }

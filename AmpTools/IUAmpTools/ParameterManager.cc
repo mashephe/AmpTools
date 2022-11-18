@@ -75,7 +75,7 @@ m_intenManagers( intenManagers )
 
 ParameterManager::ParameterManager( MinuitMinimizationManager* minuitManager,
                                     IntensityManager* intenManager,
-                                    LHContributionManager *lhcontManager ) :
+                                    Neg2LnLikContribManager *lhcontManager ) :
 MIObserver(),
 m_minuitManager( minuitManager ),
 m_intenManagers( 0 ),
@@ -90,7 +90,7 @@ m_lhcontManagers( lhcontManager )
 ParameterManager::
 ParameterManager( MinuitMinimizationManager* minuitManager,
                  const vector<IntensityManager*>& intenManagers,
-                 LHContributionManager *lhcontManager ) :
+                 Neg2LnLikContribManager *lhcontManager ) :
 MIObserver(),
 m_minuitManager( minuitManager ),
 m_intenManagers( intenManagers ),
@@ -181,13 +181,13 @@ ParameterManager::setupFromConfigurationInfo( ConfigurationInfo* cfgInfo ){
   }
 
 
-  /** do the same for LHContributions
+  /** do the same for Neg2LnLikContribs
    */
 
 
-  vector< LHContributionInfo* > lhconts = cfgInfo->LHContributionList();
+  vector< Neg2LnLikContribInfo* > lhconts = cfgInfo->Neg2LnLikContribList();
 
-  for( vector< LHContributionInfo* >::iterator lhcontsItr = lhconts.begin();
+  for( vector< Neg2LnLikContribInfo* >::iterator lhcontsItr = lhconts.begin();
       lhcontsItr != lhconts.end();
       ++lhcontsItr ){
     
@@ -196,7 +196,7 @@ ParameterManager::setupFromConfigurationInfo( ConfigurationInfo* cfgInfo ){
     for( vector< ParameterInfo* >::const_iterator parItr = pars.begin();
         parItr != pars.end();
         ++parItr ){
-      addLHContributionParameter( (**lhcontsItr).fullName(), *parItr );
+      addNeg2LnLikContribParameter( (**lhcontsItr).fullName(), *parItr );
     }
   }
 
@@ -236,22 +236,6 @@ ParameterManager::setAmpParameter( const string& parName,
   // appropriately
   update( parName );
 }
-
-void
-ParameterManager::setLHContributionParameter( const string& parName,
-                                   double value ){
-
-  auto ampParItr = m_ampParams.find( parName );
-  
-  if( ampParItr == m_ampParams.end() ){
-    
-    report( WARNING, kModule ) << "request to set value of unkown parameter named "
-         << parName << " -- ignoring request." << endl;
-    return;
-  }
-  ampParItr->second->setValue( value, false );
-}
-
 
 void
 ParameterManager::addAmplitudeParameter( const string& termName, const ParameterInfo* parInfo ){
@@ -318,7 +302,7 @@ ParameterManager::addAmplitudeParameter( const string& termName, const Parameter
 }
 
 
-void ParameterManager::addLHContributionParameter( const string& lhcontName, const ParameterInfo* parInfo ){
+void ParameterManager::addNeg2LnLikContribParameter( const string& lhcontName, const ParameterInfo* parInfo ){
   const string& parName = parInfo->parName();
   
   // see if this is a parameter that we already know about
@@ -359,7 +343,7 @@ void ParameterManager::addLHContributionParameter( const string& lhcontName, con
     parPtr = mapItr->second;
   }
 
-  // find the LHContribution Manager that has the relevant LHContribution
+  // find the Neg2LnLikContrib Manager that has the relevant Neg2LnLikContrib
 
     
   if( parInfo->fixed() ){
@@ -449,7 +433,7 @@ ParameterManager::getAmpParPtr( const string& parName ){
 
 
 double* 
-ParameterManager::getLHContributionParPtr( const string& parName ){
+ParameterManager::getNeg2LnLikContribParPtr( const string& parName ){
   
   map< string, MinuitParameter* >::iterator mapItr = m_ampParams.find( parName );
   

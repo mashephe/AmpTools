@@ -401,7 +401,7 @@ ConfigFileParser::setupConfigurationInfo(){
 
     if ((*lineItr).keyword() == "amplitude") doAmplitude(*lineItr);
     if ((*lineItr).keyword() == "pdf")       doPDF(*lineItr);
-    if ((*lineItr).keyword() == "LHContribution" || (*lineItr).keyword() == "lhContribution")       doLHContribution(*lineItr);
+    if ((*lineItr).keyword() == "Neg2LnLikContrib" || (*lineItr).keyword() == "lhContribution")       doNeg2LnLikContrib(*lineItr);
 
   }
 
@@ -481,7 +481,7 @@ ConfigFileParser::checkSyntax() const{
   keywordParameters["pdfinitialize"] = pair<int,int>(3,4);
   keywordParameters["pdfconstrain"]  = pair<int,int>(4,100);
   keywordParameters["pdfscale"]      = pair<int,int>(3,3);
-  keywordParameters["LHContribution"] = pair<int,int>(1,100);
+  keywordParameters["Neg2LnLikContrib"] = pair<int,int>(1,100);
   keywordParameters["lhContribution"] = pair<int,int>(1,100);
   keywordParameters["parameter"]     = pair<int,int>(2,5);
   keywordParameters["gpudevice"]     = pair<int,int>(2,2);
@@ -720,14 +720,14 @@ ConfigFileParser::doPDF(const ConfigFileLine& line){
   }
 }
 
-void ConfigFileParser::doLHContribution(const ConfigFileLine& line){
+void ConfigFileParser::doNeg2LnLikContrib(const ConfigFileLine& line){
   vector<string> arguments = line.arguments();
   string lhContName  = arguments[0];
   vector<string> lhContargs (arguments.begin(), arguments.end());
-  LHContributionInfo* lhContinfo = m_configurationInfo->LHContribution(lhContName);
+  Neg2LnLikContribInfo* lhContinfo = m_configurationInfo->Neg2LnLikContrib(lhContName);
   if (!lhContinfo)
-    lhContinfo = m_configurationInfo->createLHContribution(lhContName);
-  lhContinfo->addFactor(lhContargs);
+    lhContinfo = m_configurationInfo->createNeg2LnLikContrib(lhContName);
+  lhContinfo->addArgs(lhContargs);
   for (unsigned int i = 1; i < lhContargs.size(); i++){
     unsigned int j = lhContargs[i].size()-1;
     if ((lhContargs[i][0] == '[') && (lhContargs[i][j] == ']')){
