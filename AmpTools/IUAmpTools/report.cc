@@ -60,7 +60,7 @@ static int mpiRank_AT = 0;
 
 ostream& report( ReportLevel level ){
 
-  if( !initReportSplash ) initReport();
+  if( !initReportSplash && getenv("AMPTOOLS_DISABLE_SPLASH") == NULL) initReport();
 
 #ifdef USE_MPI
   if( mpiRank_AT > 0 && level < currentLevelMPI )
