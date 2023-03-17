@@ -303,6 +303,8 @@ AmpToolsInterface::reinitializePars(){
     m_parameterManager->setAmpParameter( parName, value );
   }
 
+  // reset parameter errors after reinitializing parameters
+  minuitMinimizationManager()->resetErrors();
 }
 
 void
@@ -310,6 +312,9 @@ AmpToolsInterface::randomizeProductionPars( float maxFitFraction ){
   
   // shouldn't be callin' unless you're fittin'
   if( m_functionality != kFull ) return;
+
+  // reset parameters (and errors) before randmoizing
+  reinitializePars();
   
   vector< AmplitudeInfo* > amps = m_configurationInfo->amplitudeList();
     
