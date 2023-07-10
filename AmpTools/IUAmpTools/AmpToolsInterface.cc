@@ -132,7 +132,7 @@ AmpToolsInterface::resetConfigurationInfo(ConfigurationInfo* configurationInfo){
     for (unsigned int i = 0; i < m_userNeg2LnLikContribs.size(); i++){
       lhcontMan->registerNeg2LnLikContrib( *m_userNeg2LnLikContribs[i] );
     }
-    lhcontMan->setMinimizationManager(m_minuitMinimizationManager);
+    Neg2LnLikContrib::setMinimizationManager( m_minuitMinimizationManager );
     lhcontMan->setupFromConfigurationInfo( m_configurationInfo );
   }
   
@@ -144,7 +144,7 @@ AmpToolsInterface::resetConfigurationInfo(ConfigurationInfo* configurationInfo){
     
     m_parameterManager = new ParameterManager ( m_minuitMinimizationManager, m_intensityManagers, lhcontMan );
     m_parameterManager->setupFromConfigurationInfo( m_configurationInfo );
-    m_parameterManager->setNeg2LnLikContribManager(lhcontMan);
+    m_parameterManager->setNeg2LnLikContribManager( lhcontMan );
   }
   
   // ************************

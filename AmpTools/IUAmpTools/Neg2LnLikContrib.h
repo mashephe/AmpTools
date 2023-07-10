@@ -182,7 +182,7 @@ public:
   
   bool updatePar( const string& name ) const;
   
-  void setMinimizationManager(MinuitMinimizationManager *minManager){
+  static void setMinimizationManager( MinuitMinimizationManager *minManager ){
     m_minManager = minManager;
   }
     

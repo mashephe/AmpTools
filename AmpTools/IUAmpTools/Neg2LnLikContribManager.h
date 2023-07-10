@@ -83,18 +83,10 @@ public:
   void setParValue( const string& name, const string& parName,
                                double val );
 
-  void setMinimizationManager(MinuitMinimizationManager *minManager){
-    for(map< string, Neg2LnLikContrib* >::iterator p = m_registeredNeg2LnLikContribs.begin();
-        p != m_registeredNeg2LnLikContribs.end(); ++p ){
-      p->second->setMinimizationManager(minManager);
-    }
-  };
-
-  bool hasTerm(const string& name){
+   bool hasTerm(const string& name){
     return m_mapNameToNeg2LnLikContribs.count(name);
   };
                     
-
    /**
    * This function will be called whenever a parameter is updated.
    *
