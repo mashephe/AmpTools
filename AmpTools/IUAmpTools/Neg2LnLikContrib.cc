@@ -40,10 +40,6 @@ Neg2LnLikContrib::identifier() const {
   return id;
 }
 
-double Neg2LnLikContrib::calcNeg2LnLikContrib(double x) const {
-  return 0.;
-}
-
 bool
 Neg2LnLikContrib::setParPtr( const string& name, const double* ptr ) const {
   

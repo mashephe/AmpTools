@@ -4,11 +4,14 @@
 #include <string.h>
 
 #include "IUAmpTools/Neg2LnLikContribManager.h"
+#include "IUAmpTools/report.h"
+
+static const char* kModule = "Neg2LnLikContribManager";
 
 using namespace std;
 
 Neg2LnLikContribManager::Neg2LnLikContribManager(){
-  cout << endl << "## Neg2LnLikContrib Manager INITIALIZATION ##" << endl;
+  report( DEBUG, kModule ) << "## Neg2LnLikContrib Manager INITIALIZATION ##" << endl;
 }
 
 Neg2LnLikContribManager::~Neg2LnLikContribManager() {
@@ -30,8 +33,8 @@ void Neg2LnLikContribManager::addNeg2LnLikContrib(const string& lhcontName,
 
   if( defaultNeg2LnLikContrib == m_registeredNeg2LnLikContribs.end() ){
     
-    cout << "ERROR: Neg2LnLikContrib with name " << lhcontName
-	 << " has not been registered." << endl;
+    report( ERROR, kModule ) << "Neg2LnLikContrib with name " << lhcontName
+                             << " has not been registered." << endl;
     assert( false );
   }   
 

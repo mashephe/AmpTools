@@ -182,14 +182,6 @@ public:
   
   bool updatePar( const string& name ) const;
   
-  /**
-   * This is the user-defined function that computes a single real Neg2LnLikContrib
-   * as a function of a single coordinate (e.g. sqrt(s)).
-   *
-   */
-  virtual double calcNeg2LnLikContrib( double x ) const ;
-
-
   void setMinimizationManager(MinuitMinimizationManager *minManager){
     m_minManager = minManager;
   }
