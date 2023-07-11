@@ -66,10 +66,8 @@ ostream& report( ReportLevel level ){
   if( mpiRank_AT > 0 && level < currentLevelMPI )
     return( nullStream );
 #endif
-  
-  const char* format = ( level >= WARNING ? "\e[1m" : "\e[0m" );
-  
-  if( level >= currentLevel ) return( cout << format );
+    
+  if( level >= currentLevel ) return( cout );
   else return( nullStream );
 }
 
