@@ -5,7 +5,14 @@
 CXX := gcc
 CXX_FLAGS := -O3
 
+# If the source tree is a git repository, this will use the git
+# functions to embed the AmpTools version into the splash screen.
+NO_GIT := $(shell git status >& /dev/null; echo $$?)
+ifeq ($(NO_GIT),0)
 GIT_VERSION := "$(shell git describe --abbrev=4 --dirty --always --tags)"
+else
+GIT_VERSION := "unknown"
+endif
 CXX_FLAGS += -DATVERSION=\"$(GIT_VERSION)\"
 #########  END DEFAULT COMPILER SETTINGS
 
