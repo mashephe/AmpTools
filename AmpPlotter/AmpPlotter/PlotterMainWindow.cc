@@ -229,7 +229,7 @@ m_generator( factory.generator() )
   m_padButton = new TGComboBox( m_canvFrame, kChoosePad );
   char tmp[22];
   for( int i=0; i<factory.getMaxNoPads(); i++ ){
-    sprintf(tmp,"Select pad %d",i+1);
+    snprintf(tmp,22,"Select pad %d",i+1);
     m_padButton->AddEntry( tmp, i+1 );
   }
   m_padButton->Resize( kWidth/3, 20 );
