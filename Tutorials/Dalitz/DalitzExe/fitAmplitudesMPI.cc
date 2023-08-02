@@ -12,7 +12,7 @@
 #include "IUAmpToolsMPI/DataReaderMPI.h"
 #include "DalitzDataIO/DalitzDataReader.h"
 #include "DalitzAmp/BreitWigner.h"
-#include "DalitzAmp/constraint.h"
+#include "DalitzAmp/Constraint.h"
 
 #include "IUAmpTools/report.h"
 static const char* kModule = "fitAmplitudesMPI";
@@ -68,7 +68,7 @@ int main( int argc, char* argv[] ){
     // ************************
 
   AmpToolsInterfaceMPI::registerAmplitude(BreitWigner());
-  AmpToolsInterfaceMPI::registerLHContribution(constraint());
+  AmpToolsInterfaceMPI::registerNeg2LnLikContrib(Constraint());
   AmpToolsInterfaceMPI::registerDataReader(DataReaderMPI<DalitzDataReader>());
 
   AmpToolsInterfaceMPI ATI(cfgInfo);

@@ -79,7 +79,7 @@ ParameterManager( minuitManager, intenManagers )
 ParameterManagerMPI::
 ParameterManagerMPI( MinuitMinimizationManager* minuitManager,
                     IntensityManager* intenManager,
-                    LHContributionManager* lhcontManager ) :
+                    Neg2LnLikContribManager* lhcontManager ) :
 ParameterManager( minuitManager, intenManager, lhcontManager )
 {
   setupMPI();
@@ -96,7 +96,7 @@ ParameterManager( minuitManager, intenManager, lhcontManager )
 ParameterManagerMPI::
 ParameterManagerMPI( MinuitMinimizationManager* minuitManager,
                     const vector<IntensityManager*>& intenManagers,
-                    LHContributionManager* lhcontManager ) :
+                    Neg2LnLikContribManager* lhcontManager ) :
 ParameterManager( minuitManager, intenManagers, lhcontManager )
 {
   setupMPI();
@@ -256,7 +256,7 @@ void ParameterManagerMPI::addAmplitudeParameter( const string& termName,
   }
 }
 
-void ParameterManagerMPI::addLHContributionParameter( const string& termName, 
+void ParameterManagerMPI::addNeg2LnLikContribParameter( const string& termName, 
                                                  const ParameterInfo* parInfo  )
 {
 
@@ -265,13 +265,13 @@ void ParameterManagerMPI::addLHContributionParameter( const string& termName,
   if( m_isLeader ){
     
     // utilize the base class functionality for the Leader node
-    ParameterManager::addLHContributionParameter( termName, parInfo );
+    ParameterManager::addNeg2LnLikContribParameter( termName, parInfo );
   
     // then use member data to hang onto a pointer to the double
-    m_ampParMap[parName] = getLHContributionParPtr( parName );
+    m_ampParMap[parName] = getNeg2LnLikContribParPtr( parName );
   }
   else{
-    // we want to calculate the LHContributions only on the Leader process
+    // we want to calculate the Neg2LnLikContrib only on the Leader process
   }
 }
 
