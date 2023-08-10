@@ -67,15 +67,6 @@ public:
   ParameterManager( MinuitMinimizationManager* minuitManager,
                    const vector<IntensityManager*>& intenManagers );
 
-
-  ParameterManager( MinuitMinimizationManager* minuitManager,
-                    IntensityManager* intenManager,
-                    Neg2LnLikContribManager* lhcontManager );
-  
-  ParameterManager( MinuitMinimizationManager* minuitManager,
-                   const vector<IntensityManager*>& intenManagers,
-                   Neg2LnLikContribManager* lhcontManager );
-
   ~ParameterManager();
   
   MinuitMinimizationManager* fitManager() const { return m_minuitManager; }
@@ -86,8 +77,8 @@ public:
                                complex< double > prodPar );
   void setAmpParameter( const string& parName, double value );
 
-  void setNeg2LnLikContribManager(Neg2LnLikContribManager* lhcontManagers){
-    m_lhcontManagers = lhcontManagers;
+  void setNeg2LnLikContribManager( Neg2LnLikContribManager* lhcontManager ){
+    m_lhcontManager = lhcontManager;
   };
   
   // these functions provide a list of all known parameters, including those that are
@@ -145,7 +136,7 @@ protected:
   MinuitMinimizationManager* m_minuitManager;
   
   vector< IntensityManager* > m_intenManagers;
-  Neg2LnLikContribManager* m_lhcontManagers;
+  Neg2LnLikContribManager* m_lhcontManager;
   
   vector< double > m_parValues;
   vector< string > m_parList;

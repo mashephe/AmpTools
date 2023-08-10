@@ -73,33 +73,6 @@ m_intenManagers( intenManagers )
   report( DEBUG, kModule ) << "Parameter manager initialized." << endl;
 }
 
-ParameterManager::ParameterManager( MinuitMinimizationManager* minuitManager,
-                                    IntensityManager* intenManager,
-                                    Neg2LnLikContribManager *lhcontManager ) :
-MIObserver(),
-m_minuitManager( minuitManager ),
-m_intenManagers( 0 ),
-m_lhcontManagers( lhcontManager )
-{ 
-  m_minuitManager->attach( this );
-  m_intenManagers.push_back(intenManager);
-  report( DEBUG, kModule ) << "Parameter manager initialized." << endl;
-}
-
-
-ParameterManager::
-ParameterManager( MinuitMinimizationManager* minuitManager,
-                 const vector<IntensityManager*>& intenManagers,
-                 Neg2LnLikContribManager *lhcontManager ) :
-MIObserver(),
-m_minuitManager( minuitManager ),
-m_intenManagers( intenManagers ),
-m_lhcontManagers( lhcontManager )
-{ 
-  m_minuitManager->attach( this );
-  report( DEBUG, kModule ) << "Parameter manager initialized." << endl;
-}
-
 // protected constructors: these are used in MPI implementations where
 // the ParameterManager is created on a follower node that does not have
 // a MinuitMinimizationManager.  The reference must be initialized, so
@@ -345,16 +318,16 @@ void ParameterManager::addNeg2LnLikContribParameter( const string& lhcontName, c
 
   // find the Neg2LnLikContrib Manager that has the relevant Neg2LnLikContrib
 
-    
   if( parInfo->fixed() ){
       
-      // if it is fixed just go ahead and set the parameter by value
-      // this prevents Amplitude class from thinking that it has
-      // a free parameter
-    m_lhcontManagers->setParValue( lhcontName, parName, parInfo->value() );
+    // if it is fixed just go ahead and set the parameter by value
+    // this prevents Amplitude class from thinking that it has
+    // a free parameter
+    
+    m_lhcontManager->setParValue( lhcontName, parName, parInfo->value() );
   }
   else{
-    m_lhcontManagers->setParPtr( lhcontName, parName, parPtr->constValuePtr() );
+    m_lhcontManager->setParPtr( lhcontName, parName, parPtr->constValuePtr() );
   }
 }
 
