@@ -45,8 +45,14 @@
 #include "IUAmpTools/ConfigurationInfo.h"
 
 #include "IUAmpTools/report.h"
-static const char* kModule = "ConfigurationInfo";
 
+const char* ConfigurationInfo::kModule = "ConfigurationInfo";
+const char* ReactionInfo::kModule = "ReactionInfo";
+const char* CoherentSumInfo::kModule = "CoherentSumInfo";
+const char* TermInfo::kModule = "TermInfo";
+const char* AmplitudeInfo::kModule = "AmplitudeInfo";
+const char* PDFInfo::kModule = "PDFInfo";
+const char* ParameterInfo::kModule = "ParameterInfo";
 
 ConfigurationInfo::~ConfigurationInfo(){
   removeParameter();
@@ -618,7 +624,7 @@ ConfigurationInfo::write( ostream& ff ) const {
   vector<string> keywords = userKeywords();
   for (unsigned int i = 0; i < keywords.size(); i++){
     vector< vector<string> > argslist = userKeywordArguments(keywords[i]);
-    int min = 0; int max = 0;
+    unsigned long int min = 0; unsigned long int max = 0;
     for (unsigned int j = 0; j < argslist.size(); j++){
       if (argslist[j].size() < min) min = argslist[j].size();
       if (argslist[j].size() > max) max = argslist[j].size();

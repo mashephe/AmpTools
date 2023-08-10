@@ -41,16 +41,20 @@
 #include <cassert>
 
 #include "IUAmpTools/FitResults.h"
+#include "IUAmpTools/ConfigFileParser.h"
+#include "IUAmpTools/ConfigurationInfo.h"
+#include "IUAmpTools/NormIntInterface.h"
+#include "IUAmpTools/report.h"
+
+const char* FitResults::kModule = "FitResults";
+
+#ifndef __ACLIC__
+
 #include "IUAmpTools/AmplitudeManager.h"
 #include "IUAmpTools/ParameterManager.h"
 #include "IUAmpTools/AmpParameter.h"
 #include "IUAmpTools/LikelihoodCalculator.h"
-#include "IUAmpTools/NormIntInterface.h"
-#include "IUAmpTools/ConfigFileParser.h"
 #include "MinuitInterface/MinuitMinimizationManager.h"
-
-#include "IUAmpTools/report.h"
-static const char* kModule = "FitResults";
 
 FitResults::FitResults( ConfigurationInfo* cfgInfo,
                        vector< IntensityManager* > intenManVec,
@@ -70,6 +74,9 @@ m_warnedAboutFreeParams( false ),
 m_isValid( true ){
   
 }
+
+#endif
+
 
 FitResults::FitResults( const string& inFile ) :
 m_createdFromFile( true ),
@@ -605,18 +612,6 @@ FitResults::ampList( const string& reaction ) const {
 }
 
 void
-FitResults::saveResults() {
-  
-  if( !m_createdFromFile ){
-    
-    recordAmpSetup();
-    recordLikelihood();
-    recordParameters();
-    recordFitStats();
-  }
-}
-
-void
 FitResults::writeResults( const string& outFile ) const {
   
   ofstream output( outFile.c_str() );
@@ -630,7 +625,7 @@ FitResults::writeResults( const string& outFile ) const {
     
     output << "  " <<m_reactionNames[i] << "\t" << m_numAmps[i] << endl;
     
-    for( int j = 0; j < m_ampNames[i].size(); ++j ) {
+    for( unsigned int j = 0; j < m_ampNames[i].size(); ++j ) {
       
       output << "  " <<m_ampNames[i][j] << "\t" 
       << m_ampScaleNames[i][j] << "\t"
@@ -657,13 +652,13 @@ FitResults::writeResults( const string& outFile ) const {
   
   output << "+++ Parameter Values and Errors +++" << endl;
   output << "  " << m_parNames.size() << endl;
-  for( int i = 0; i < m_parNames.size(); ++i ){
+  for( unsigned int i = 0; i < m_parNames.size(); ++i ){
     
     output << "  " <<m_parNames[i] << "\t" << m_parValues[i] << endl;
   }
   
-  for( int i = 0; i < m_parNames.size(); ++i ){
-    for( int j = 0; j < m_parNames.size(); ++j ){
+  for( unsigned int i = 0; i < m_parNames.size(); ++i ){
+    for( unsigned int j = 0; j < m_parNames.size(); ++j ){
       
       output << "  " << m_covMatrix[i][j] << "\t";
     }
@@ -676,13 +671,16 @@ FitResults::writeResults( const string& outFile ) const {
   
   output << "+++ Normalization Integrals +++" << endl;
   
-  for( int i = 0; i < m_reactionNames.size(); ++i ){
+  for( unsigned int i = 0; i < m_reactionNames.size(); ++i ){
     
     string reac = m_reactionNames[i];
     output << "  " << reac << endl;
     
     const NormIntInterface* ni = m_normIntMap.find(reac)->second;
     
+#ifdef __ACLIC__
+    ni->exportNormIntCache( output );
+#else
     if( m_createdFromFile || !ni->hasAccessToMC() ){
       
       ni->exportNormIntCache( output );
@@ -691,6 +689,7 @@ FitResults::writeResults( const string& outFile ) const {
       ni->forceCacheUpdate();
       ni->exportNormIntCache( output );
     }
+#endif
   }
   
   output << "+++ Below these two lines is a config file that is   +++" << endl;
@@ -799,7 +798,7 @@ FitResults::loadResults( const string& inFile ){
     m_ampScaleNames[i].resize( m_numAmps[i] );
     m_ampScaleValues[i].resize( m_numAmps[i] );
     
-    for( int j = 0; j < m_ampNames[i].size(); ++j ) {
+    for( unsigned int j = 0; j < m_ampNames[i].size(); ++j ) {
       
       input >> m_ampNames[i][j] 
       >> m_ampScaleNames[i][j]
@@ -842,16 +841,16 @@ FitResults::loadResults( const string& inFile ){
   m_parValues.resize( nPar );
   m_covMatrix.resize( nPar );
   
-  for( int i = 0; i < m_parNames.size(); ++i ){
+  for( unsigned int i = 0; i < m_parNames.size(); ++i ){
     
     input >> m_parNames[i] >> m_parValues[i];
     m_parIndex[m_parNames[i]] = i;
   }
   
-  for( int i = 0; i < m_parNames.size(); ++i ){
+  for( unsigned int i = 0; i < m_parNames.size(); ++i ){
     
     m_covMatrix[i].resize( nPar );
-    for( int j = 0; j < m_parNames.size(); ++j ){
+    for( unsigned int j = 0; j < m_parNames.size(); ++j ){
       
       input >> m_covMatrix[i][j];
     }    
@@ -885,6 +884,20 @@ FitResults::loadResults( const string& inFile ){
   // of validity when reading results from a file
   
   m_isValid = true;
+}
+
+#ifndef __ACLIC__
+
+void
+FitResults::saveResults() {
+  
+  if( !m_createdFromFile ){
+    
+    recordAmpSetup();
+    recordLikelihood();
+    recordParameters();
+    recordFitStats();
+  }
 }
 
 void
@@ -972,6 +985,8 @@ FitResults::recordFitStats(){
   m_estDistToMin = m_minManager->estDistToMinimum();
   m_bestMin = m_minManager->bestMinimum();
 }
+
+#endif
 
 void
 FitResults::rotateResults()
@@ -1154,43 +1169,6 @@ FitResults::rotateResults()
       } // end of nested loop over amplitudes
     } // end of loop over sums
   } // end of loop over reactions
-}
-
-void
-FitResults::writeFitResults( const string& outFile ){
-  
-  ofstream output( outFile.c_str() );
-  
-  output << m_numAmps[0]/4. << "\t0" << endl;
-  
-  for( unsigned int i = 0; i < m_parNames.size()-1; i++ ){
-    string reactName = m_parNames[i].substr( 8, 4 );
-    if( strcmp( reactName.c_str(), "amp1" ) != 0 ) continue;
-    string lastChars = m_parNames[i].substr( m_parNames[i].size() - 2, 2 );
-    if( strcmp( lastChars.c_str(), "im" ) == 0 ){
-      output << m_parNames[i].substr( 0, m_parNames[i].size() - 3 ); 
-      if( m_parValues[i] == 0 && m_covMatrix[i][i] == 0 ) output << "+";
-      output << "\t(" << m_parValues[i-1] << "," << m_parValues[i] << ")" << endl;
-    }
-  }
-  
-  for( unsigned int i = 0; i < m_parNames.size()-1; i++ ){
-    string reactNamei = m_parNames[i].substr( 8, 4 );
-    if( strcmp( reactNamei.c_str(), "amp1" ) != 0 ) continue;
-    string lastCharsi = m_parNames[i].substr( m_parNames[i].size() - 2, 2 );
-    if( strcmp( lastCharsi.c_str(), "im" ) == 0 && m_parValues[i] == 0 && m_covMatrix[i][i] == 0 ) continue;
-    for( unsigned int j = 0; j < m_parNames.size()-1; j++ ){
-      string reactNamej = m_parNames[j].substr( 8, 4 );
-      if( strcmp( reactNamej.c_str(), "amp1" ) == 0 ){
-        string lastCharsj = m_parNames[j].substr( m_parNames[j].size() - 2, 2 );
-        if( strcmp( lastCharsj.c_str(), "im" ) == 0 && m_parValues[j] == 0 && m_covMatrix[j][j] == 0 ) continue;
-        output << m_covMatrix[i][j] << "\t";
-      }
-    }
-    output << endl;
-  }
-  
-  output.close();
 }
 
 vector< string >
