@@ -626,7 +626,8 @@ private:
   vector<Neg2LnLikContribInfo*>         m_lhContributions;
   vector<ParameterInfo*>   m_parameters;
   map<string, vector< vector<string> > > m_userKeywordMap;
-    
+  
+  static const char* kModule;
 };
 
 
@@ -847,6 +848,7 @@ private:
   bool                           m_normIntFileInput;
   int                            m_gpuDeviceNumber;
   
+  static const char* kModule;
 };
 
 
@@ -925,6 +927,7 @@ private:
   string          m_reactionName;
   string          m_sumName;
   
+  static const char* kModule;
 };
 
 
@@ -942,7 +945,9 @@ public:
   /**
    * The default constructor.
    */
-  TermInfo() { termClear(); };
+  TermInfo() { termClear(); }
+  
+  virtual ~TermInfo(){}
   
   /**
    * Every amplitude or pdf should have a reaction name.
@@ -1088,6 +1093,7 @@ private:
   vector< TermInfo* >          m_constraints;
   vector< ParameterInfo* >     m_parameters;
   
+  static const char* kModule;
 };
 
 
@@ -1245,6 +1251,7 @@ private:
   string                       m_scale;
   vector< vector<int> >        m_permutations;
   
+  static const char* kModule;
 };
 
 /**
@@ -1415,6 +1422,7 @@ private:
   bool                         m_fixed;
   string                       m_scale;
   
+  static const char* kModule;
 };
 
 
@@ -1489,6 +1497,7 @@ private:
   double m_centralValue;
   double m_gaussianError;
   
+  static const char* kModule;
 };
 
 

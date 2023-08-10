@@ -358,7 +358,7 @@ AmpToolsInterface::randomizeParameter( const string& parName, float min, float m
 
   vector<ParameterInfo*> parInfoVec = m_configurationInfo->parameterList();
 
-  auto parItr = parInfoVec.begin();
+  std::vector<ParameterInfo*>::iterator parItr = parInfoVec.begin();
   for( ; parItr != parInfoVec.end(); ++parItr ){
     
     if( (**parItr).parName() == parName ) break;
@@ -511,7 +511,7 @@ AmpToolsInterface::clear(){
       delete m_intensityManagers[i];
     }
 
-    for( auto dataReader = m_uniqueDataSets.begin();
+    for( std::set<DataReader*>::iterator dataReader = m_uniqueDataSets.begin();
         dataReader != m_uniqueDataSets.end(); ++dataReader ){
       
       if( *dataReader ) delete *dataReader;

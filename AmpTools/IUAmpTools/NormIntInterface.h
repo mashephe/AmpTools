@@ -58,19 +58,19 @@ public:
   
   NormIntInterface();
   NormIntInterface( const string& normIntFile );
-  NormIntInterface( DataReader* genMCData, DataReader* accMCData, 
-                    const IntensityManager& ampManager );
+  
+#ifndef __ACLIC__
+  NormIntInterface( DataReader* genMCData, DataReader* accMCData,
+                   const IntensityManager& ampManager );
   
   ~NormIntInterface();
-  
+#endif
+
   istream& loadNormIntCache( istream& in );
   void operator+=( const NormIntInterface& nii );
-
+  
   unsigned long int numGenEvents() const { return m_nGenEvents; }
   double numAccEvents() const { return m_sumAccWeights; }
-  
-  // does this interface have the ability to recalculate integrals?
-  bool hasAccessToMC() const;
   
   // this integral folds in detector acceptance
   virtual complex< double > normInt( string amp, string conjAmp, bool forceUseCache = false ) const;
@@ -79,10 +79,17 @@ public:
   // this purely the integral of the amplitude -- perfect acceptance
   virtual complex< double > ampInt( string amp, string conjAmp, bool forceUseCache = false ) const;
   bool hasAmpInt( string amp, string conjAmp ) const;
-  
+
+#ifndef __ACLIC__
+
+  // does this interface have the ability to recalculate integrals?
+  bool hasAccessToMC() const;
+
   // needs to be virtual so parallel implementations can properly
   // override this function
   virtual void forceCacheUpdate( bool normIntOnly = false ) const;
+
+#endif
   
   void exportNormIntCache( const string& fileName ) const;
   void exportNormIntCache( ostream& output ) const;
@@ -99,7 +106,10 @@ protected:
   
   // protected helper functions for parallel implementations
   
+#ifndef __ACLIC__
   const IntensityManager* intenManager() const { return m_pIntenManager; }
+#endif
+  
   inline int cacheSize() const { return m_cacheSize; }
   
   void setAmpIntMatrix( const double* input ) const;
@@ -108,31 +118,35 @@ protected:
 private:
   
   void initializeCache();
+  int m_cacheSize;
+  
+  vector< string > m_termNames;
+  map< string, int > m_termIndex;
+  
+  mutable double* m_normIntCache;
+  mutable double* m_ampIntCache;
+  
+  mutable bool m_emptyNormIntCache;
+  mutable bool m_emptyAmpIntCache;
+  
+  unsigned long int m_nGenEvents;
+  double m_sumAccWeights;
+  
+#ifndef __ACLIC__
   
   const IntensityManager* m_pIntenManager;
   
   DataReader* m_accMCReader;
   DataReader* m_genMCReader;
   
-  unsigned long int m_nGenEvents;
-  double m_sumAccWeights;
-  
-  vector< string > m_termNames;
-  map< string, int > m_termIndex;
-  
-  mutable bool m_emptyNormIntCache;
-  mutable bool m_emptyAmpIntCache;
-  
   // caches for MC
   mutable AmpVecs m_accMCVecs;
   mutable AmpVecs m_genMCVecs;
   
-  int m_cacheSize;
-
-  mutable double* m_normIntCache;
-  mutable double* m_ampIntCache;
-  
   static map< DataReader*, AmpVecs* > m_uniqueDataSets;
+#endif
+  
+  static const char* kModule;
 };
 
 inline istream& operator>>( istream& input, NormIntInterface& normInt ){

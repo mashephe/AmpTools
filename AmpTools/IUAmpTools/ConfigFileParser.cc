@@ -49,8 +49,8 @@
 #include "IUAmpTools/ConfigFileParser.h"
 #include "IUAmpTools/report.h"
 
-static const char* kModule = "ConfigFileParser";
-
+const char* ConfigFileParser::kModule = "ConfigFileParser";
+const char* ConfigFileLine::kModule = "ConfigFileLine";
 
 bool ConfigFileParser::m_verboseParsing = false;
 

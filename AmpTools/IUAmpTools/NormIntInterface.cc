@@ -45,25 +45,31 @@
 #include <iomanip>
 
 #include "IUAmpTools/NormIntInterface.h"
+#include "IUAmpTools/report.h"
+const char* NormIntInterface::kModule = "NormIntInterface";
+
+#ifndef __ACLIC__
 #include "IUAmpTools/AmplitudeManager.h"
 #include "IUAmpTools/Kinematics.h"
 #include "IUAmpTools/DataReader.h"
-
-#include "IUAmpTools/report.h"
-static const char* kModule = "NormIntInterface";
+#endif
 
 NormIntInterface::NormIntInterface() :
+#ifndef __ACLIC__
 m_pIntenManager( NULL ),
 m_accMCReader( NULL ),
 m_genMCReader( NULL ),
+#endif
 m_emptyNormIntCache( true ),
 m_emptyAmpIntCache( true )
 {}
 
 NormIntInterface::NormIntInterface( const string& normIntFile ) :
+#ifndef __ACLIC__
 m_pIntenManager( NULL ),
 m_accMCReader( NULL ),
 m_genMCReader( NULL ),
+#endif
 m_emptyNormIntCache( true ),
 m_emptyAmpIntCache( true )
 {
@@ -81,7 +87,7 @@ m_emptyAmpIntCache( true )
   inFile >> (*this);
 }
 
-
+#ifndef __ACLIC__
 NormIntInterface::NormIntInterface( DataReader* genMCData, 
                                    DataReader* accMCData, 
                                    const IntensityManager& intenManager ) :
@@ -96,7 +102,7 @@ m_termNames( intenManager.getTermNames() )
   
   m_termNames = intenManager.getTermNames();
   
-  auto genVecs = m_uniqueDataSets.find( m_genMCReader );
+  std::map<DataReader*,AmpVecs*>::iterator genVecs = m_uniqueDataSets.find( m_genMCReader );
   if( genVecs == m_uniqueDataSets.end() ){
   
     report( INFO, kModule ) << "Loading generated Monte Carlo from file..." << endl;
@@ -113,7 +119,7 @@ m_termNames( intenManager.getTermNames() )
   }
   m_nGenEvents = m_genMCVecs.m_iNTrueEvents;
 
-  auto accVecs = m_uniqueDataSets.find( m_accMCReader );
+  std::map<DataReader*,AmpVecs*>::iterator accVecs = m_uniqueDataSets.find( m_accMCReader );
   if( accVecs == m_uniqueDataSets.end() ){
   
     report( INFO, kModule ) << "Loading accepted Monte Carlo from file..." << endl;
@@ -141,20 +147,22 @@ NormIntInterface::~NormIntInterface(){
   // the destructor of AmpVecs will properly transfer
   // ownership of the data to one of the shared objects.
   
-  auto genVecs = m_uniqueDataSets.find( m_genMCReader );
+  std::map<DataReader*,AmpVecs*>::iterator genVecs = m_uniqueDataSets.find( m_genMCReader );
   if( genVecs != m_uniqueDataSets.end() &&
      genVecs->second == &m_genMCVecs ){
     
     m_uniqueDataSets.erase( genVecs );
   }
 
-  auto accVecs = m_uniqueDataSets.find( m_accMCReader );
+  std::map<DataReader*,AmpVecs*>::iterator accVecs = m_uniqueDataSets.find( m_accMCReader );
   if( accVecs != m_uniqueDataSets.end() &&
      accVecs->second == &m_accMCVecs ){
     
     m_uniqueDataSets.erase( accVecs );
   }
 }
+
+#endif
 
 istream&
 NormIntInterface::loadNormIntCache( istream& input )
@@ -257,15 +265,6 @@ NormIntInterface::operator+=( const NormIntInterface& nii )
 }
 
 bool
-NormIntInterface::hasAccessToMC() const
-{
-  
-  return( ( m_accMCReader != NULL ) &&
-          ( m_genMCReader != NULL ) &&
-          ( m_pIntenManager != NULL ) );
-}
-
-bool
 NormIntInterface::hasNormInt( string amp, string conjAmp ) const
 {
   
@@ -285,6 +284,10 @@ NormIntInterface::normInt( string amp, string conjAmp, bool forceUseCache ) cons
     assert( false );
   }
 
+#ifdef __ACLIC__
+  // dummy line to avoid compiler warning in ROOT applications
+  if( forceUseCache ) report( DEBUG, kModule ) << endl;
+#else
   // pass in true flag to delay computation of amplitude integrals as
   // long as possible
   
@@ -307,6 +310,7 @@ NormIntInterface::normInt( string amp, string conjAmp, bool forceUseCache ) cons
     m_pIntenManager->calcIntegrals( m_accMCVecs, m_nGenEvents );
     setNormIntMatrix( m_accMCVecs.m_pdIntegralMatrix );
   }
+#endif
   
   int n = m_termNames.size();
   int i = m_termIndex.find( amp )->second;
@@ -331,6 +335,10 @@ complex< double >
 NormIntInterface::ampInt( string amp, string conjAmp, bool forceUseCache ) const
 {
   
+#ifdef __ACLIC__
+  // dummy line to avoid compiler warning in ROOT applications
+  if( forceUseCache ) report( DEBUG, kModule ) << endl;
+#else
   if( m_emptyAmpIntCache ) forceCacheUpdate();
   
   if( !forceUseCache && ( m_pIntenManager != NULL ) &&
@@ -343,7 +351,8 @@ NormIntInterface::ampInt( string amp, string conjAmp, bool forceUseCache ) const
     << "\tthe parameter has changed since initialization."
     << endl;
   }
-  
+#endif
+
   if( !hasAmpInt( amp, conjAmp ) ){
     
     report( ERROR, kModule ) << "amplitude integral does not exist for "
@@ -357,6 +366,16 @@ NormIntInterface::ampInt( string amp, string conjAmp, bool forceUseCache ) const
   
   return complex< double >( m_ampIntCache[2*i*n+2*j],
                             m_ampIntCache[2*i*n+2*j+1] );
+}
+
+#ifndef __ACLIC__
+bool
+NormIntInterface::hasAccessToMC() const
+{
+  
+  return( ( m_accMCReader != NULL ) &&
+          ( m_genMCReader != NULL ) &&
+          ( m_pIntenManager != NULL ) );
 }
 
 void
@@ -428,6 +447,8 @@ NormIntInterface::forceCacheUpdate( bool normIntOnly ) const
   m_emptyNormIntCache = false;
 }
 
+#endif
+
 void
 NormIntInterface::exportNormIntCache( const string& fileName ) const
 {
@@ -439,7 +460,10 @@ NormIntInterface::exportNormIntCache( const string& fileName ) const
 void
 NormIntInterface::exportNormIntCache( ostream& out ) const
 {
+  
+#ifndef __ACLIC__
   if( m_emptyNormIntCache || m_emptyAmpIntCache ) forceCacheUpdate();
+#endif
   
   out << m_nGenEvents << "\t" << m_sumAccWeights << endl;
   
@@ -515,4 +539,7 @@ NormIntInterface::setNormIntMatrix( const double* input ) const {
   m_emptyNormIntCache = false;
 }
 
+#ifndef __ACLIC__
 map< DataReader*, AmpVecs* > NormIntInterface::m_uniqueDataSets;
+#endif
+

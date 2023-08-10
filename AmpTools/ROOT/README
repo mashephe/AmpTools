@@ -1,0 +1,25 @@
+
+There are some AmpTools classes that can be useful to use in the context of a ROOT session.
+
+FitResults and NormIntInterface:
+
+These provide an interface to the results of a fit and can be helpful when trying to extract
+particular numerical results, e.g., coherent sums of amplitudes and uncertainties.
+
+ConfigurationInfo:
+
+This can be useful when one wants to write complex looping structures to generate a
+config file that can then be used for a fit.
+
+In order to use these classes modify your .rootrc file in your home directory and
+edit the MacroPath variable to include the path to this directory and the top level
+AmpTools source directory.
+
+Unix.*.Root.MacroPath:   .:$(AMPTOOLS):$(AMPTOOLS)/ROOT:
+
+Inside of ROOT then execute:
+
+.x loadAmpTools.C
+
+This will make the classes above available for use on the ROOT command line.
+

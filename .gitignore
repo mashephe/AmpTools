@@ -3,6 +3,8 @@ doc/html
 *.d
 *.dep
 *.o
+*.so
+*.pcm
 *.DS_Store
 *.SYMDEF*
 *.goutputstream*

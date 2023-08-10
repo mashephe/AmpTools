@@ -71,12 +71,20 @@ the square root of the intensity computed from the parameters and the kinematics
 
 RELEASE NOTES:
 
+v0.14.5 (18-Nov-2022):
+
+This release has some small corrections to the Dalitz tutorial to make it
+more consistent with documentation.  A new reporting class for formatting
+screen output is introduced.  This makes running large-scale MPI jobs posssible
+as much of the output on follower nodes is suppressed.  Finally use of auto
+pointers is removed in some places to help with backwards compatibility for
+older compilers.  There are no functional changes to core fitting methods.
+
 v0.14.4 (19-May-2022):
 
 This is another bug fix that corrects scaling of MC histograms in the
 PlotGenerator, which was affected by rescaling of the likelihood that was
 introduced in v0.14
-
 
 v0.14.3 (18-May-2022):
 
