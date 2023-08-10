@@ -60,7 +60,7 @@ static int mpiRank_AT = 0;
 
 ostream& report( ReportLevel level ){
 
-  if( !initReportSplash && getenv("AMPTOOLS_DISABLE_SPLASH") == NULL) initReport();
+  if( !initReportSplash ) initReport();
 
 #ifdef USE_MPI
   if( mpiRank_AT > 0 && level < currentLevelMPI )
@@ -136,17 +136,24 @@ void initReport(){
   "NO";
 #endif
 
-  cout << "   "; printLine();
-  cout << setw(22) << right << "|        ^         " << setw(46) << right <<  "|" << endl;
-  cout << setw(22) << right << "|       / \\        " << setw(15) << right << "Version:  " << setw(25) << left << ATVERSION << setw(6) << right << "|" << endl;
-  cout << setw(22) << right << "|      /---\\       " << setw(46) << right << "|" << endl;
-  cout << setw(22) << right << "|     /     \\      " << setw(15) << right << "GDouble:  " << sizeof(GDouble) << setw(19) << left << " bytes" << setw(11) << right << "|" << endl;
-  cout << setw(22) << right << "|    /       \\ MP  " << setw(15) << right << "MPI:  " << setw(20) << left << mpiSupport << setw(11) << right << "|" << endl;
-  cout << setw(22) << right << "|     -------      " << setw(15) << right << "GPU:  " << setw(20) << left << gpuSupport << setw(11) << right << "|" << endl;
-  cout << setw(22) << right << "|        |         " << setw(46) << right << "|" << endl;
-  cout << setw(22) << right << "|        |         " << setw(46) << right << "doi.org/10.5281/zenodo.5039377          |" << endl;
-  cout << setw(22) << right << "|        | OOLS    " << setw(46) << right << "|" << endl;
-  cout << "   ";  printLine();
+#ifndef __ACLIC__
+  
+  if( getenv("AMPTOOLS_DISABLE_SPLASH") != NULL ){
+    
+    cout << "   "; printLine();
+    cout << setw(22) << right << "|        ^         " << setw(46) << right <<  "|" << endl;
+    cout << setw(22) << right << "|       / \\        " << setw(15) << right << "Version:  " << setw(25) << left << ATVERSION << setw(6) << right << "|" << endl;
+    cout << setw(22) << right << "|      /---\\       " << setw(46) << right << "|" << endl;
+    cout << setw(22) << right << "|     /     \\      " << setw(15) << right << "GDouble:  " << sizeof(GDouble) << setw(19) << left << " bytes" << setw(11) << right << "|" << endl;
+    cout << setw(22) << right << "|    /       \\ MP  " << setw(15) << right << "MPI:  " << setw(20) << left << mpiSupport << setw(11) << right << "|" << endl;
+    cout << setw(22) << right << "|     -------      " << setw(15) << right << "GPU:  " << setw(20) << left << gpuSupport << setw(11) << right << "|" << endl;
+    cout << setw(22) << right << "|        |         " << setw(46) << right << "|" << endl;
+    cout << setw(22) << right << "|        |         " << setw(46) << right << "doi.org/10.5281/zenodo.5039377          |" << endl;
+    cout << setw(22) << right << "|        | OOLS    " << setw(46) << right << "|" << endl;
+    cout << "   ";  printLine();
+  }
+  
+#endif
   
   initReportSplash = true;
 }

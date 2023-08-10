@@ -2,6 +2,8 @@ doc/html
 *.a
 *.d
 *.o
+*.so
+*.pcm
 *.DS_Store
 *.SYMDEF*
 *.goutputstream*

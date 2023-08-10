@@ -249,7 +249,7 @@ class ConfigFileParser
     vector<ConfigFileLine>  m_configFileLines;
     ConfigurationInfo*      m_configurationInfo;
 
-
+    static const char* kModule;
 };
 
 
@@ -273,6 +273,8 @@ class ConfigFileLine
 {
 
   public:
+  
+    ConfigFileLine(){}
 
     ConfigFileLine(const string& fileName, int lineNumber, const string& line);
 
@@ -296,6 +298,7 @@ class ConfigFileLine
     vector<string>  m_arguments;
     bool            m_comment;
 
+  static const char* kModule;
 };
 
 
