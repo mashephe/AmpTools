@@ -73,7 +73,7 @@ AmpToolsInterfaceMPI::AmpToolsInterfaceMPI(ConfigurationInfo* configurationInfo)
   }
   else{
     parameterManagerMPI = new ParameterManagerMPI( m_minuitMinimizationManager,
-                                                   m_intensityManagers, lhcontMan );
+                                                   m_intensityManagers );
     parameterManagerMPI->setNeg2LnLikContribManager(lhcontMan);
   }
   parameterManagerMPI->setupFromConfigurationInfo( m_configurationInfo );

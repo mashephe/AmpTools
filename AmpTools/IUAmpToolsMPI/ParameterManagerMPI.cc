@@ -75,41 +75,6 @@ ParameterManager( minuitManager, intenManagers )
     assert( false );
   }
 }
-/***** *****/
-ParameterManagerMPI::
-ParameterManagerMPI( MinuitMinimizationManager* minuitManager,
-                    IntensityManager* intenManager,
-                    Neg2LnLikContribManager* lhcontManager ) :
-ParameterManager( minuitManager, intenManager, lhcontManager )
-{
-  setupMPI();
-  
-  if( !m_isLeader ){
-    
-    cerr << "Instance of MinuitMinimizationManager exists on Follower node"
-    << endl;
-    
-    assert( false );
-  }
-}
-
-ParameterManagerMPI::
-ParameterManagerMPI( MinuitMinimizationManager* minuitManager,
-                    const vector<IntensityManager*>& intenManagers,
-                    Neg2LnLikContribManager* lhcontManager ) :
-ParameterManager( minuitManager, intenManagers, lhcontManager )
-{
-  setupMPI();
-  
-  if( !m_isLeader ){
-    
-    cerr << "Instance of MinuitMinimizationManager exists on Follower node"
-    << endl;
-    
-    assert( false );
-  }
-}
-/***** *****/
 
 ParameterManagerMPI::
 ParameterManagerMPI( IntensityManager* intenManager ) :

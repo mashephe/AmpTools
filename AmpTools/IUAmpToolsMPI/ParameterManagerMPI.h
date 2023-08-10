@@ -64,13 +64,6 @@ public:
   ParameterManagerMPI( MinuitMinimizationManager* minuitManager,
                       const vector< IntensityManager* >& intenManagers );
 
-  ParameterManagerMPI( MinuitMinimizationManager* minuitManager,
-                      IntensityManager* intenManager,
-                      Neg2LnLikContribManager* lhcontManager );
-  ParameterManagerMPI( MinuitMinimizationManager* minuitManager,
-                      const vector< IntensityManager* >& intenManagers,
-                      Neg2LnLikContribManager* lhcontManager );
-  
   // this constructor should be called on the follower nodes
   ParameterManagerMPI( IntensityManager* intenManager );
   ParameterManagerMPI( const vector< IntensityManager* >& intenManagers );
