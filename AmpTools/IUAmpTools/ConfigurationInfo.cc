@@ -733,7 +733,10 @@ ConfigurationInfo::write( ostream& ff ) const {
   // lhContributions
   for (unsigned int i = 0; i < lhContributions.size(); i++){
     Neg2LnLikContribInfo* lhContribution = lhContributions[i];
-    ff << "lhContribution " << lhContribution->fullName();
+    ff << "neg2LnLikContrib";
+    vector< string > args = lhContribution->args();
+    for (unsigned int k = 0; k < args.size(); k++){
+      ff << " " << args[k];}
     ff << endl;
   }
   
