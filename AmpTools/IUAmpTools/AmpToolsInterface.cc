@@ -142,9 +142,9 @@ AmpToolsInterface::resetConfigurationInfo(ConfigurationInfo* configurationInfo){
     // create a ParameterManager
     // ************************
     
-    m_parameterManager = new ParameterManager ( m_minuitMinimizationManager, m_intensityManagers, lhcontMan );
-    m_parameterManager->setupFromConfigurationInfo( m_configurationInfo );
+    m_parameterManager = new ParameterManager ( m_minuitMinimizationManager, m_intensityManagers );
     m_parameterManager->setNeg2LnLikContribManager( lhcontMan );
+    m_parameterManager->setupFromConfigurationInfo( m_configurationInfo );
   }
   
   // ************************
