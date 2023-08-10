@@ -219,7 +219,7 @@ public:
    *
    * \see Neg2LnLikContrib
    */
-  vector<Neg2LnLikContribInfo*>   Neg2LnLikContribList   (const string& lhcontName="") const;
+  vector<Neg2LnLikContribInfo*> neg2LnLikContribList(const string& lhcontName="") const;
 
   /**
    * This returns a vector of all pdfs.  Optionally the user can
@@ -346,7 +346,7 @@ public:
    *
    * \see Neg2LnLikContribList
    */
-  Neg2LnLikContribInfo*   Neg2LnLikContrib   (const string& lhcontName) const;
+  Neg2LnLikContribInfo* neg2LnLikContrib( const string& lhcontName ) const;
 
 
   /**
@@ -1313,6 +1313,8 @@ private:
   vector< ParameterInfo* >     m_parameters;
   string m_name;
   vector< string > m_args;
+  
+  static const char* kModule;
 };
 
 

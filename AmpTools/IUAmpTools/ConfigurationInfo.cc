@@ -49,6 +49,7 @@
 const char* ConfigurationInfo::kModule = "ConfigurationInfo";
 const char* ReactionInfo::kModule = "ReactionInfo";
 const char* CoherentSumInfo::kModule = "CoherentSumInfo";
+const char* Neg2LnLikContribInfo::kModule = "Neg2LnLikContribInfo";
 const char* TermInfo::kModule = "TermInfo";
 const char* AmplitudeInfo::kModule = "AmplitudeInfo";
 const char* PDFInfo::kModule = "PDFInfo";
@@ -151,12 +152,12 @@ ConfigurationInfo::pdfList  (const string& reactionName,
 }
 
 vector<Neg2LnLikContribInfo*>
-ConfigurationInfo::Neg2LnLikContribList  (const string& lhcontName) const {
+ConfigurationInfo::neg2LnLikContribList ( const string& lhcontName ) const {
   vector<Neg2LnLikContribInfo*> lhContributions;
   for (unsigned int i = 0; i < m_lhContributions.size(); i++){
-//    if ((lhcontName == "") || (m_lhContributions[i]->reactionName() == lhcontName)){
+    if ((lhcontName == "") || (m_lhContributions[i]->fullName() == lhcontName)){
       lhContributions.push_back(m_lhContributions[i]);
-//    }
+    }
   }
   return lhContributions;
 }
@@ -303,7 +304,7 @@ ConfigurationInfo::pdf  (const string& fullName) const {
 }
 
 Neg2LnLikContribInfo*
-ConfigurationInfo::Neg2LnLikContrib  (const string& lhcontName) const {
+ConfigurationInfo::neg2LnLikContrib  (const string& lhcontName) const {
   for (unsigned int i = 0; i < m_lhContributions.size(); i++){
     if (m_lhContributions[i]->fullName() == lhcontName){
       return m_lhContributions[i];
@@ -442,7 +443,7 @@ ConfigurationInfo::createPDF  (const string& reactionName,
 
 Neg2LnLikContribInfo*
 ConfigurationInfo::createNeg2LnLikContrib  (const string& lhcontName){
-  Neg2LnLikContribInfo* addNeg2LnLikContrib = Neg2LnLikContrib(lhcontName);
+  Neg2LnLikContribInfo* addNeg2LnLikContrib = neg2LnLikContrib(lhcontName);
   if (addNeg2LnLikContrib == NULL){
     addNeg2LnLikContrib = new Neg2LnLikContribInfo(lhcontName);
     m_lhContributions.push_back(addNeg2LnLikContrib);
@@ -566,7 +567,7 @@ ConfigurationInfo::removePDF   (const string& reactionName,
 
 void
 ConfigurationInfo::removeNeg2LnLikContrib   (const string& lhcontName){
-  vector<Neg2LnLikContribInfo*> removeList = Neg2LnLikContribList(lhcontName);
+  vector<Neg2LnLikContribInfo*> removeList = neg2LnLikContribList(lhcontName);
   unsigned int removeListSize = removeList.size();
   for (unsigned int i = 0; i < removeListSize; i++){
     for (unsigned int j = 0; j < m_lhContributions.size(); j++){
@@ -660,7 +661,7 @@ ConfigurationInfo::write( ostream& ff ) const {
   vector<CoherentSumInfo*> Ss   = coherentSumList();
   vector<AmplitudeInfo*>   As   = amplitudeList();
   vector<PDFInfo*>         PDFs = pdfList();
-  vector<Neg2LnLikContribInfo*>  lhContributions = Neg2LnLikContribList();
+  vector<Neg2LnLikContribInfo*>  lhContributions = neg2LnLikContribList();
   vector<ParameterInfo*>   Ps   = parameterList();
   
   ff << "### FIT CONFIGURATION ###" << endl;
@@ -927,7 +928,7 @@ ConfigurationInfo::display(string fileName, bool append){
       pdfs[k]->display(fileName,true);
     }
   }
-  vector<Neg2LnLikContribInfo*> Neg2LnLikContribs = Neg2LnLikContribList();
+  vector<Neg2LnLikContribInfo*> Neg2LnLikContribs = neg2LnLikContribList();
   for (unsigned int k = 0; k < Neg2LnLikContribs.size(); k++){
     Neg2LnLikContribs[k]->display(fileName,true);
   }

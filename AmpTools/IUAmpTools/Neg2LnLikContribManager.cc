@@ -60,7 +60,7 @@ Neg2LnLikContribManager::setParValue( const string& name, const string& parName,
 void Neg2LnLikContribManager::setupFromConfigurationInfo( const ConfigurationInfo* configInfo ){
 
 
-  vector<Neg2LnLikContribInfo*> lhcontInfoVector = configInfo->Neg2LnLikContribList();
+  vector<Neg2LnLikContribInfo*> lhcontInfoVector = configInfo->neg2LnLikContribList();
   for (unsigned int i = 0; i < lhcontInfoVector.size(); i++){
     string lhcontName = lhcontInfoVector[i]->fullName();
     vector<string> lhcontParameters = lhcontInfoVector[i]->args();

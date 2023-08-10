@@ -723,7 +723,7 @@ void ConfigFileParser::doNeg2LnLikContrib(const ConfigFileLine& line){
   vector<string> arguments = line.arguments();
   string lhContName  = arguments[0];
   vector<string> lhContargs (arguments.begin(), arguments.end());
-  Neg2LnLikContribInfo* lhContinfo = m_configurationInfo->Neg2LnLikContrib(lhContName);
+  Neg2LnLikContribInfo* lhContinfo = m_configurationInfo->neg2LnLikContrib(lhContName);
   if (!lhContinfo)
     lhContinfo = m_configurationInfo->createNeg2LnLikContrib(lhContName);
   lhContinfo->addArgs(lhContargs);

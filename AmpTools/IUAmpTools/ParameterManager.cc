@@ -158,7 +158,7 @@ ParameterManager::setupFromConfigurationInfo( ConfigurationInfo* cfgInfo ){
    */
 
 
-  vector< Neg2LnLikContribInfo* > lhconts = cfgInfo->Neg2LnLikContribList();
+  vector< Neg2LnLikContribInfo* > lhconts = cfgInfo->neg2LnLikContribList();
 
   for( vector< Neg2LnLikContribInfo* >::iterator lhcontsItr = lhconts.begin();
       lhcontsItr != lhconts.end();
