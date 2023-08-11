@@ -316,8 +316,6 @@ void ParameterManager::addNeg2LnLikContribParameter( const string& lhcontName, c
     parPtr = mapItr->second;
   }
 
-  // find the Neg2LnLikContrib Manager that has the relevant Neg2LnLikContrib
-
   if( parInfo->fixed() ){
       
     // if it is fixed just go ahead and set the parameter by value

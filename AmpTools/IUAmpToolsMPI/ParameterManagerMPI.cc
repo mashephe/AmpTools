@@ -221,8 +221,9 @@ void ParameterManagerMPI::addAmplitudeParameter( const string& termName,
   }
 }
 
-void ParameterManagerMPI::addNeg2LnLikContribParameter( const string& termName, 
-                                                 const ParameterInfo* parInfo  )
+void
+ParameterManagerMPI::addNeg2LnLikContribParameter( const string& lhContrib,
+                                                   const ParameterInfo* parInfo  )
 {
 
   const string& parName = parInfo->parName();
@@ -230,13 +231,25 @@ void ParameterManagerMPI::addNeg2LnLikContribParameter( const string& termName,
   if( m_isLeader ){
     
     // utilize the base class functionality for the Leader node
-    ParameterManager::addNeg2LnLikContribParameter( termName, parInfo );
+    ParameterManager::addNeg2LnLikContribParameter( lhContrib, parInfo );
   
     // then use member data to hang onto a pointer to the double
     m_ampParMap[parName] = getNeg2LnLikContribParPtr( parName );
   }
   else{
-    // we want to calculate the Neg2LnLikContrib only on the Leader process
+    
+    // if this is a new parameter, we need to allocate memory for it
+    if( m_ampParMap.find( parName ) == m_ampParMap.end() ){
+      
+      // need to allocate memory for this parameter
+      m_ampParMap[parName] = new double( parInfo->value() );
+    }
+    
+    // we don't need to do anything else here because the Neg2LnLikContribManager
+    // only exists and functions on the lead node -- if the parameter also
+    // exists in an amplitude then the addAmplitudeParameter method
+    // above will also get invoked and this will link the allocated
+    // memory with the pointer in the relevant amplitude
   }
 }
 
