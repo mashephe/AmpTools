@@ -52,7 +52,15 @@ AmpToolsInterfaceMPI::AmpToolsInterfaceMPI(ConfigurationInfo* configurationInfo)
     }
     
     m_intensityManagers.push_back(ampMan);
+  }
 
+  Neg2LnLikContribManager* lhcontMan = new Neg2LnLikContribManager();
+  if(m_rank == 0){
+    for (unsigned int i = 0; i < m_userNeg2LnLikContribs.size(); i++){
+      lhcontMan->registerNeg2LnLikContrib( *m_userNeg2LnLikContribs[i] );
+    }
+    Neg2LnLikContrib::setMinimizationManager(m_minuitMinimizationManager);
+    lhcontMan->setupFromConfigurationInfo( m_configurationInfo );
   }
 
     // ************************
@@ -66,6 +74,7 @@ AmpToolsInterfaceMPI::AmpToolsInterfaceMPI(ConfigurationInfo* configurationInfo)
   else{
     parameterManagerMPI = new ParameterManagerMPI( m_minuitMinimizationManager,
                                                    m_intensityManagers );
+    parameterManagerMPI->setNeg2LnLikContribManager(lhcontMan);
   }
   parameterManagerMPI->setupFromConfigurationInfo( m_configurationInfo );
   m_parameterManager = parameterManagerMPI;

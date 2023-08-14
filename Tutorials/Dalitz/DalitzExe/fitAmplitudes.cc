@@ -10,6 +10,7 @@
 #include "IUAmpTools/AmpToolsInterface.h"
 #include "DalitzDataIO/DalitzDataReader.h"
 #include "DalitzAmp/BreitWigner.h"
+#include "DalitzAmp/Constraint.h"
 
 #include "IUAmpTools/report.h"
 static const char* kModule = "fitAmplitudes";
@@ -56,6 +57,7 @@ int main( int argc, char* argv[] ){
     // ************************
 
   AmpToolsInterface::registerAmplitude(BreitWigner());
+  AmpToolsInterface::registerNeg2LnLikContrib(Constraint());
   AmpToolsInterface::registerDataReader(DalitzDataReader());
 
   AmpToolsInterface ATI(cfgInfo);

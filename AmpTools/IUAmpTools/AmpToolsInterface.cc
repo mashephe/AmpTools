@@ -53,6 +53,7 @@
 static const char* kModule = "AmpToolsInterface";
 
 vector<Amplitude*> AmpToolsInterface::m_userAmplitudes;
+vector<Neg2LnLikContrib*> AmpToolsInterface::m_userNeg2LnLikContribs;
 vector<DataReader*> AmpToolsInterface::m_userDataReaders;
 unsigned int AmpToolsInterface::m_randomSeed = 0;
 
@@ -125,6 +126,15 @@ AmpToolsInterface::resetConfigurationInfo(ConfigurationInfo* configurationInfo){
     
     m_intensityManagers.push_back(ampMan);
   }
+
+  Neg2LnLikContribManager* lhcontMan = new Neg2LnLikContribManager();
+  if( m_functionality == kFull ){
+    for (unsigned int i = 0; i < m_userNeg2LnLikContribs.size(); i++){
+      lhcontMan->registerNeg2LnLikContrib( *m_userNeg2LnLikContribs[i] );
+    }
+    Neg2LnLikContrib::setMinimizationManager( m_minuitMinimizationManager );
+    lhcontMan->setupFromConfigurationInfo( m_configurationInfo );
+  }
   
   if( m_functionality == kFull ){
     
@@ -133,8 +143,8 @@ AmpToolsInterface::resetConfigurationInfo(ConfigurationInfo* configurationInfo){
     // ************************
     
     m_parameterManager = new ParameterManager ( m_minuitMinimizationManager, m_intensityManagers );
+    m_parameterManager->setNeg2LnLikContribManager( lhcontMan );
     m_parameterManager->setupFromConfigurationInfo( m_configurationInfo );
-    
   }
   
   // ************************
@@ -464,6 +474,12 @@ AmpToolsInterface::registerAmplitude( const Amplitude& amplitude){
   
 }
 
+void
+AmpToolsInterface::registerNeg2LnLikContrib( const Neg2LnLikContrib& lhcont){
+  
+  m_userNeg2LnLikContribs.push_back(lhcont.clone());
+  
+}
 
 
 void

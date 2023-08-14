@@ -237,6 +237,7 @@ class ConfigFileParser
     void doPDFInitialize (const ConfigFileLine& line);
     void doPDFConstrain  (const ConfigFileLine& line);
     void doPDFScale      (const ConfigFileLine& line);
+    void doNeg2LnLikContrib (const ConfigFileLine& line);
     void doGPUDevice     (const ConfigFileLine& line);
 
 

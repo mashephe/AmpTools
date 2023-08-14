@@ -399,8 +399,9 @@ ConfigFileParser::setupConfigurationInfo(){
   for (vector<ConfigFileLine>::iterator lineItr = m_configFileLines.begin();
        lineItr != m_configFileLines.end(); ++lineItr){
 
-    if ((*lineItr).keyword() == "amplitude") doAmplitude(*lineItr);
-    if ((*lineItr).keyword() == "pdf")       doPDF(*lineItr);
+    if ((*lineItr).keyword() == "amplitude")         doAmplitude(*lineItr);
+    if ((*lineItr).keyword() == "pdf")               doPDF(*lineItr);
+    if ((*lineItr).keyword() == "neg2LnLikContrib")  doNeg2LnLikContrib(*lineItr);
 
   }
 
@@ -480,6 +481,7 @@ ConfigFileParser::checkSyntax() const{
   keywordParameters["pdfinitialize"] = pair<int,int>(3,4);
   keywordParameters["pdfconstrain"]  = pair<int,int>(4,100);
   keywordParameters["pdfscale"]      = pair<int,int>(3,3);
+  keywordParameters["neg2LnLikContrib"] = pair<int,int>(1,100);
   keywordParameters["parameter"]     = pair<int,int>(2,5);
   keywordParameters["gpudevice"]     = pair<int,int>(2,2);
     // these are deprecated, but print out an error message later
@@ -713,6 +715,32 @@ ConfigFileParser::doPDF(const ConfigFileLine& line){
         exit(1);
       }
       pdfinfo->addParameter(parinfo);
+    }
+  }
+}
+
+void ConfigFileParser::doNeg2LnLikContrib(const ConfigFileLine& line){
+  vector<string> arguments = line.arguments();
+  string lhContName  = arguments[0];
+  vector<string> lhContargs (arguments.begin(), arguments.end());
+  Neg2LnLikContribInfo* lhContinfo = m_configurationInfo->neg2LnLikContrib(lhContName);
+  if (!lhContinfo)
+    lhContinfo = m_configurationInfo->createNeg2LnLikContrib(lhContName);
+  lhContinfo->addArgs(lhContargs);
+  for (unsigned int i = 1; i < lhContargs.size(); i++){
+    unsigned int j = lhContargs[i].size()-1;
+    if ((lhContargs[i][0] == '[') && (lhContargs[i][j] == ']')){
+      string parname("");
+      for (unsigned int k = 1; k < j; k++){
+        parname += lhContargs[i][k];
+      }
+      ParameterInfo* parinfo = m_configurationInfo->parameter(parname);
+      if (!parinfo){
+        report( ERROR, kModule ) << "can't find parameter " << parname << endl;
+        line.printLine();
+        exit(1);
+      }
+      lhContinfo->addParameter(parinfo);
     }
   }
 }

@@ -1,6 +1,7 @@
 doc/html
 *.a
 *.d
+*.dep
 *.o
 *.so
 *.pcm

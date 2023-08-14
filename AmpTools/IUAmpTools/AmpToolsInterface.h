@@ -49,6 +49,8 @@
 #include "IUAmpTools/IntensityManager.h"
 #include "IUAmpTools/Amplitude.h"
 #include "IUAmpTools/AmpVecs.h"
+#include "IUAmpTools/Neg2LnLikContrib.h"
+#include "IUAmpTools/Neg2LnLikContribManager.h"
 #include "IUAmpTools/Kinematics.h"
 #include "IUAmpTools/NormIntInterface.h"
 #include "IUAmpTools/ConfigFileParser.h"
@@ -112,6 +114,13 @@ class AmpToolsInterface{
    */
 
     static void registerAmplitude( const Amplitude& defaultAmplitude);
+
+  /** Static function to register a user Neg2LnLikContrib class.  For example,
+   *  to register a user-defined phaseshift Neg2LnLikContrib, one would use:
+   *     AmpToolsInterface::registerAmplitude(phaseshift());
+   */
+
+    static void registerNeg2LnLikContrib( const Neg2LnLikContrib& defaulNeg2LnLikContrib);
 
   /** Static function to register a user DataReader class.  For example,
    *  to register a user-defined CLEODataReader, one would use:
@@ -458,6 +467,7 @@ class AmpToolsInterface{
     map<string,LikelihoodCalculator*> m_likCalcMap;
 
     static vector<Amplitude*>  m_userAmplitudes;
+    static vector<Neg2LnLikContrib*>  m_userNeg2LnLikContribs;
     static vector<DataReader*> m_userDataReaders;
   
   static unsigned int m_randomSeed;
