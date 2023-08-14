@@ -42,8 +42,8 @@
 #include "TLorentzVector.h"
 
 #include "IUAmpTools/report.h"
-static const char* kModule = "Kinematics";
 
+const char* Kinematics::kModule = "Kinematics";
 
 using namespace std;
 
