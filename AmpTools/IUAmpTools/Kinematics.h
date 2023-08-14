@@ -193,6 +193,8 @@ private:
   float m_weight;
   
   static int m_globalEventID;
+  
+  static const char* kModule;
 };
 
 #endif

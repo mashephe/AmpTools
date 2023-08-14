@@ -9,6 +9,9 @@
   cout << "Loading IUAmpTools/report.cc.." << endl;
   gROOT->LoadMacro( "IUAmpTools/report.cc+" );
 
+  cout << "Loading IUAmpTools/Kinematics.cc.." << endl;
+  gROOT->LoadMacro( "IUAmpTools/Kinematics.cc+" );
+
   cout << "Loading IUAmpTools/ConfigurationInfo.cc.." << endl;
   gROOT->LoadMacro( "IUAmpTools/ConfigurationInfo.cc+" );
 
