@@ -167,6 +167,7 @@ FitResults::intensity( const vector< string >& amplitudes, bool accCorrected ) c
       if( !m_warnedAboutFreeParams )
         
         report( WARNING, kModule )
+        << "\n" 
         << "***************************************************************" << endl
         << "* WARNING!:  You are calculating an intensity that depends on *" << endl
         << "*   parameters that were floating in the fit.  Unless the par-*" << endl
@@ -483,7 +484,8 @@ FitResults::ampParMap() const {
   for( vector< ParameterInfo* >::iterator par = parList.begin();
       par != parList.end(); ++par ){
     
-    if( (**par).fixed() ) continue;
+    if( (**par).fixed() ||
+        m_parIndex.find( (**par).parName() ) == m_parIndex.end() ) continue;
     
     parMap[(**par).parName()] = parValue( (**par).parName() );
   }
