@@ -389,3 +389,23 @@ URMinuit&
 MinuitMinimizationManager::minuitMinimizer()  {
    return m_fitter;
 }
+
+void 
+MinuitMinimizationManager::resetErrors()  {
+  
+  // This call to mnrset appears to reset the internal step
+  // sizes used by MINUIT in minimization.  This may be useful
+  // for sequential fits with randomly seeded parameters.
+  // There are reports that if the parameters change but the
+  // step sizes are not reset, then minimization can start with
+  // an inappropriate step size which leads to failed fits.
+  // After a call to MNRSET it is noticed that the on the MINUIT
+  // display the CURRENT GUESS ERROR printied at the start of the
+  // fit does not change but the STEP SIZE are all all zero
+  // except for one.  The fact that CURRRENT GUESS ERROR is
+  // non-zero appears to have no influence on the subsequent
+  // behavior of the fit.
+
+   m_fitter.mnrset(1);
+   return;
+}

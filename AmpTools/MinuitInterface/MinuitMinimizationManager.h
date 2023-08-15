@@ -169,6 +169,9 @@ public:
       m_newFlagFunction = newFlagFunction;
    }
    
+   // reset parameter step sizes
+   void resetErrors();
+
    // the "fcn" that URMinuit needs
    void operator()( int &npar, double *grad, double &fval, const std::vector<double>& par, int flag);
    

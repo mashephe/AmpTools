@@ -313,6 +313,8 @@ AmpToolsInterface::reinitializePars(){
     m_parameterManager->setAmpParameter( parName, value );
   }
 
+  // reset parameter steps after reinitializing parameters
+  minuitMinimizationManager()->resetErrors();
 }
 
 void
@@ -351,13 +353,16 @@ AmpToolsInterface::randomizeProductionPars( float maxFitFraction ){
     
     m_parameterManager->setProductionParameter( ampName, prodPar );
   }
+  
+  // reset parameter steps after randomizing parameters
+  minuitMinimizationManager()->resetErrors();
 }
 
 void
 AmpToolsInterface::randomizeParameter( const string& parName, float min, float max ){
-
+  
   vector<ParameterInfo*> parInfoVec = m_configurationInfo->parameterList();
-
+  
   std::vector<ParameterInfo*>::iterator parItr = parInfoVec.begin();
   for( ; parItr != parInfoVec.end(); ++parItr ){
     
@@ -373,12 +378,15 @@ AmpToolsInterface::randomizeParameter( const string& parName, float min, float m
   if( (**parItr).fixed() ){
     
     report( ERROR, kModule ) << "request to randomize a parameter named " << parName
-         << " that is fixed.  Ignoring this request." << endl;
+    << " that is fixed.  Ignoring this request." << endl;
     return;
   }
   
   double value = min + random( max - min );
   m_parameterManager->setAmpParameter( parName, value );
+  
+  // reset parameter steps after randomizing parameters
+  minuitMinimizationManager()->resetErrors();
 }
 
 void
