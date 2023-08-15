@@ -392,6 +392,7 @@ MinuitMinimizationManager::minuitMinimizer()  {
 
 void 
 MinuitMinimizationManager::resetErrors()  {
+   cout<<"----MinimizationManager::resetErrors()----"<<endl;
    m_fitter.mnrset(1);
    return;
 }

@@ -6730,6 +6730,8 @@ void URMinuit::mnrset(Int_urt iopt)
 	if (m_userParameterFlag[iext] >= 4) fLnolim = kurFALSE;
 	fErp[i-1] = 0;
 	fErn[i-1] = 0;
+	fDirin[i-1] = 0; // parameter step size
+	fWerr[i-1] = 0; // parameter error
 	fGlobcc[i-1] = 0;
     }
     if (fISW[1] >= 1) {

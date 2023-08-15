@@ -100,14 +100,25 @@ ComplexParameter::update( const MISubject* callingSubject ){
 }
 
 void
-ComplexParameter::setValue( complex< double > value ){
+ComplexParameter::setValue( complex< double > value, complex< double > error ){
   
   // the set value calls below will trigger the notify() method
   // of MISubject, which will call the update method above
   // to set the member data m_value to the new value
   
-  m_realPar->setValue( real( value ) );
-  if( !m_purelyReal ) m_imPar->setValue( imag( value ) );
+	m_realPar->setValueError( real( value ), real( error ) );
+	if( !m_purelyReal ) m_imPar->setValueError( imag( value ), real( error ) );
+}
+
+void
+ComplexParameter::setError( complex< double > error ){
+  
+  // the set value calls below will trigger the notify() method
+  // of MISubject, which will call the update method above
+  // to set the member data m_value to the new value
+  
+  m_realPar->setError( real( error ) );
+  if( !m_purelyReal ) m_imPar->setError( imag( error ) );
 }
 
 void

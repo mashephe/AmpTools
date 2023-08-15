@@ -73,7 +73,7 @@ public:
   void setupFromConfigurationInfo( ConfigurationInfo* cfgInfo );
     
   void setProductionParameter( const string& termName,
-                               complex< double > prodPar );
+                               complex< double > prodPar);
   void setAmpParameter( const string& parName, double value );
   
   // these functions provide a list of all known parameters, including those that are

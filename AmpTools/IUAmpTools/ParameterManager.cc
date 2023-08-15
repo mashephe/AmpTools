@@ -156,14 +156,17 @@ ParameterManager::setupFromConfigurationInfo( ConfigurationInfo* cfgInfo ){
 
 void
 ParameterManager::setProductionParameter( const string& termName,
-                                          complex< double > prodPar ){
-  
-  findParameter(termName)->setValue(prodPar);
+                                          complex< double > prodPar){
+    
+  complex <double> prodErr( fabs(real(prodPar)/100.), fabs(imag(prodPar)/100.) );
+  findParameter(termName)->setValue(prodPar, prodErr);
+  //findParameter(termName)->setError(prodErr);
+  cout<<prodPar<<" "<<prodErr<<endl;
 }
 
 void
 ParameterManager::setAmpParameter( const string& parName,
-                                   double value ){
+                                   double value){
 
   std::map<string,MinuitParameter*>::iterator ampParItr = m_ampParams.find( parName );
   
@@ -180,6 +183,7 @@ ParameterManager::setAmpParameter( const string& parName,
   // setting up a fit which is what this member
   // function is used for
   ampParItr->second->setValue( value, false );
+  ampParItr->second->setError( value/100., false );
 
   // but we should notify the intensity managers
   // that the parameter has been updated so that

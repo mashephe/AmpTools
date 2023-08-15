@@ -288,7 +288,7 @@ AmpToolsInterface::reinitializePars(){
     string ampName = (**ampItr).fullName();
     complex< double > prodPar = (**ampItr).value();
 
-    m_parameterManager->setProductionParameter( ampName, prodPar );
+    m_parameterManager->setProductionParameter( ampName, prodPar);
   }
 
   // reinitialize amplitude parameters
@@ -300,7 +300,7 @@ AmpToolsInterface::reinitializePars(){
     string parName = (**parItr).parName();
     double value = (**parItr).value();
 
-    m_parameterManager->setAmpParameter( parName, value );
+    m_parameterManager->setAmpParameter( parName, value);
   }
 
   // reset parameter errors after reinitializing parameters
@@ -312,9 +312,6 @@ AmpToolsInterface::randomizeProductionPars( float maxFitFraction ){
   
   // shouldn't be callin' unless you're fittin'
   if( m_functionality != kFull ) return;
-
-  // reset parameters (and errors) before randmoizing
-  reinitializePars();
   
   vector< AmplitudeInfo* > amps = m_configurationInfo->amplitudeList();
     
@@ -342,7 +339,7 @@ AmpToolsInterface::randomizeProductionPars( float maxFitFraction ){
     double prodParPhase = ( (**ampItr).real() ? 0 : random( 2*PI ) );
     
     complex< double > prodPar( prodParMag*cos( prodParPhase ),
-                              prodParMag*sin( prodParPhase ) );
+                               prodParMag*sin( prodParPhase ) );
     
     m_parameterManager->setProductionParameter( ampName, prodPar );
   }

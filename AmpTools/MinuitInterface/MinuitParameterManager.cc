@@ -138,6 +138,7 @@ MinuitParameterManager::synchronizeMinuit()
     {
       double commandParameters[]  = { static_cast<double>(minuitId), parameter->value() };
       int status;
+      //cout<<parameter->value()<<" "<<parameter->error()<<endl;
       theMinimizer.mnexcm( "SET PAR", commandParameters, 2, status );
     }
     

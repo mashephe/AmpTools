@@ -110,7 +110,14 @@ public:
    *
    * \param[in] value the desired value of the complex parameter
    */
-  void setValue( complex< double > value );
+  void setValue( complex< double > value, complex< double > error );
+
+  /**
+   * This sets the error of the parameter.
+   *
+   * \param[in] value the desired error of the complex parameter
+   */
+  void setError( complex< double > error );
   
   /**
    * This fixes the parameter at its current value.
