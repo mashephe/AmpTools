@@ -322,9 +322,6 @@ AmpToolsInterface::randomizeProductionPars( float maxFitFraction ){
   
   // shouldn't be callin' unless you're fittin'
   if( m_functionality != kFull ) return;
-
-  // reset parameters (and errors) before randmoizing
-  reinitializePars();
   
   vector< AmplitudeInfo* > amps = m_configurationInfo->amplitudeList();
     
@@ -356,6 +353,9 @@ AmpToolsInterface::randomizeProductionPars( float maxFitFraction ){
     
     m_parameterManager->setProductionParameter( ampName, prodPar );
   }
+  
+  // reset parameter errors after reinitializing parameters
+  minuitMinimizationManager()->resetErrors();
 }
 
 void
