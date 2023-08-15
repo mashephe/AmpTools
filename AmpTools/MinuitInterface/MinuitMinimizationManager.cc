@@ -389,3 +389,9 @@ URMinuit&
 MinuitMinimizationManager::minuitMinimizer()  {
    return m_fitter;
 }
+
+void 
+MinuitMinimizationManager::resetErrors()  {
+   m_fitter.mnrset(1);
+   return;
+}
