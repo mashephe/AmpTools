@@ -98,6 +98,8 @@ public:
 
   map< string, Neg2LnLikContrib* > m_registeredNeg2LnLikContribs;
   map< string, Neg2LnLikContrib* > m_mapNameToNeg2LnLikContribs;
+  
+  static const char* kModule;
 };
 
 #endif

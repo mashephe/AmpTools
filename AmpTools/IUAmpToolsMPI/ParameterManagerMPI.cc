@@ -42,7 +42,7 @@
 #include "IUAmpToolsMPI/MPITag.h"
 
 #include "IUAmpTools/report.h"
-static const char* kModule = "ParameterManagerMPI";
+const char* ParameterManagerMPI::kModule = "ParameterManagerMPI";
 
 ParameterManagerMPI::
 ParameterManagerMPI( MinuitMinimizationManager* minuitManager,

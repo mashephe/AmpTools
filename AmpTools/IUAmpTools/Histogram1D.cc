@@ -43,7 +43,7 @@
 #include "IUAmpTools/Histogram1D.h"
 
 #include "IUAmpTools/report.h"
-static const char* kModule = "Histogram1D";
+const char* Histogram1D::kModule = "Histogram1D";
 
 using namespace std;
 

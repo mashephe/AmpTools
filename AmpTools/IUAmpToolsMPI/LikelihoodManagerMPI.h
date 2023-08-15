@@ -83,6 +83,8 @@ class LikelihoodManagerMPI
 
   static map< int, LikelihoodCalculatorMPI* > m_calcMap;
   static FitCommand m_lastCommand;
+  
+  static const char* kModule;
 };
 
 #endif

@@ -49,7 +49,7 @@
 
 using namespace std;
 
-static const char* kModule = "report";
+static const char* kReportModule = "report";
 
 static ofstream nullStream;
 static bool initReportSplash = false;
@@ -109,7 +109,7 @@ void initReport(){
     else if( strcmp( envLevel, "NOTICE" ) == 0 ) currentLevel = NOTICE;
     else if( strcmp( envLevel, "WARNING" ) == 0 ) currentLevel = WARNING;
     else if( strcmp( envLevel, "ERROR" ) == 0 ) currentLevel = ERROR;
-    else report( WARNING, kModule ) << "Unknown report level:  " << envLevel << endl;
+    else report( WARNING, kReportModule ) << "Unknown report level:  " << envLevel << endl;
   }
   
 #ifdef USE_MPI
@@ -122,7 +122,7 @@ void initReport(){
     else if( strcmp( envLevel, "NOTICE" ) == 0 ) currentLevelMPI = NOTICE;
     else if( strcmp( envLevel, "WARNING" ) == 0 ) currentLevelMPI = WARNING;
     else if( strcmp( envLevel, "ERROR" ) == 0 ) currentLevelMPI = ERROR;
-    else report( WARNING, kModule ) << "Unknown MPI report level:  " << envLevel << endl;
+    else report( WARNING, kReportModule ) << "Unknown MPI report level:  " << envLevel << endl;
   }
   if( mpiRank_AT > 0 ) return;
 #else

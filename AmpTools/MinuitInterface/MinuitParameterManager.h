@@ -52,65 +52,67 @@ using namespace std;
 
 class MinuitParameterManager : public std::list<MinuitParameter*> 
 {
-   friend class MinuitParameter;
-   friend class MinuitMinimizationManager;
-   
+  friend class MinuitParameter;
+  friend class MinuitMinimizationManager;
+  
 public:
-
-   // con/destructors
-   MinuitParameterManager( MinuitMinimizationManager& aManager );
-   ~MinuitParameterManager();
-
-   // update parameter-related values
-   void update(); // central values only
-   void updateErrors();  // will only update if a fit is not in progress
-      
-   // synchronize minuit to current parameter states (fixed, floating, etc.)
-   void synchronizeMinuit();
-   
-   // to be implemented
-   // vector<ValuePair> scanParameter(int numberPointsInScan);
-   // vector<ParameterPair> scanParameterPair( int numberPointsInScan, 
-   //                                          double deltaFunction=1 );
-
-   // could use some external matrix class... this works for now
-   vector< vector< double > > covarianceMatrix();
-   vector< vector< double > > correlationMatrix();
-
-   // dump the list of parameters to an ostream.  It will generally be more
-   // convenient to use the << operator defined as an inline below
-   std::ostream& dump( std::ostream& s ) const;
   
-   int numFloatingPars() const { return m_numFloatingPars; }
+  // con/destructors
+  MinuitParameterManager( MinuitMinimizationManager& aManager );
+  ~MinuitParameterManager();
   
-   // ------------ static member functions ---------------------
-   
+  // update parameter-related values
+  void update(); // central values only
+  void updateErrors();  // will only update if a fit is not in progress
+  
+  // synchronize minuit to current parameter states (fixed, floating, etc.)
+  void synchronizeMinuit();
+  
+  // to be implemented
+  // vector<ValuePair> scanParameter(int numberPointsInScan);
+  // vector<ParameterPair> scanParameterPair( int numberPointsInScan,
+  //                                          double deltaFunction=1 );
+  
+  // could use some external matrix class... this works for now
+  vector< vector< double > > covarianceMatrix();
+  vector< vector< double > > correlationMatrix();
+  
+  // dump the list of parameters to an ostream.  It will generally be more
+  // convenient to use the << operator defined as an inline below
+  std::ostream& dump( std::ostream& s ) const;
+  
+  int numFloatingPars() const { return m_numFloatingPars; }
+  
+  // ------------ static member functions ---------------------
+  
 protected:
-   // allow a MinuitParameter to register itself
-   bool registerParameter( MinuitParameter* newParameter );
-   
-   // allow a MinuitParameter to remove itself from management
-   void removeParameter( MinuitParameter* aParameter );
-   
-   // to maintain efficiency, MinuitMinimizationManager can inform when a fit is in progress
-   void fitInProgress() { m_fitInProgress = true;}
-   void noFitInProgress() { m_fitInProgress = false;}
-   
-private:
-   // make default constructor private: must pass in a MinuitMinimizationManager object
-   MinuitParameterManager();
-
-   // no defaulted copy constructor or assignment operators
-   MinuitParameterManager( const MinuitParameterManager& );
-   
-   // ----------------------- member items --------------------------
-   
-   MinuitMinimizationManager& m_minimizationManager; // the controlling minimization manager   
-   bool m_fitInProgress;
+  // allow a MinuitParameter to register itself
+  bool registerParameter( MinuitParameter* newParameter );
   
-   int m_numFloatingPars;
-   
-   // ------------ static data members -------------------------
+  // allow a MinuitParameter to remove itself from management
+  void removeParameter( MinuitParameter* aParameter );
+  
+  // to maintain efficiency, MinuitMinimizationManager can inform when a fit is in progress
+  void fitInProgress() { m_fitInProgress = true;}
+  void noFitInProgress() { m_fitInProgress = false;}
+  
+private:
+  // make default constructor private: must pass in a MinuitMinimizationManager object
+  MinuitParameterManager();
+  
+  // no defaulted copy constructor or assignment operators
+  MinuitParameterManager( const MinuitParameterManager& );
+  
+  // ----------------------- member items --------------------------
+  
+  MinuitMinimizationManager& m_minimizationManager; // the controlling minimization manager
+  bool m_fitInProgress;
+  
+  int m_numFloatingPars;
+  
+  // ------------ static data members -------------------------
+  
+  static const char* kModule;
 };
 
 inline  std::ostream& operator<<( std::ostream& aStream, 

@@ -6,7 +6,7 @@
 #include "IUAmpTools/Neg2LnLikContribManager.h"
 #include "IUAmpTools/report.h"
 
-static const char* kModule = "Neg2LnLikContribManager";
+const char* Neg2LnLikContribManager::kModule = "Neg2LnLikContribManager";
 
 using namespace std;
 

@@ -6,7 +6,7 @@ $(error Use the mpi target 'make mpi' rather than setting MPI=1.)
 endif
 
 ifdef GPU
-$(error Use the mpi target 'make gpu' rather than setting GPU=1.)
+$(error Use the gpu target 'make gpu' rather than setting GPU=1.)
 endif
 
 AMPTOOLS_HOME := $(shell pwd)

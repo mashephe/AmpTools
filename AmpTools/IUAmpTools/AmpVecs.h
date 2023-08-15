@@ -314,6 +314,8 @@ private:
   
   int m_lastWeightSign;
   set< AmpVecs* > m_sharedDataFriends;
+  
+  static const char* kModule;
 };
 
 #endif 

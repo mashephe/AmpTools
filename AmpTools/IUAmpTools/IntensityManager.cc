@@ -54,7 +54,7 @@
 #include "IUAmpTools/Kinematics.h"
 
 #include "IUAmpTools/report.h"
-static const char* kModule = "IntensityManager";
+const char* IntensityManager::kModule = "IntensityManager";
 
 IntensityManager::IntensityManager( const vector< string >& reaction,
                                    const string& reactionName) :

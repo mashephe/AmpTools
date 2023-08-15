@@ -479,6 +479,8 @@ private:
   vector< AmpParameter* > m_registeredParams;
   
   mutable vector< int > m_currentPermutation;
+  
+  static const char* kModule;
 };
 
 

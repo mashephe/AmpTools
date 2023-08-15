@@ -49,7 +49,7 @@
 #include "AmpPlotter/PlotComponentManager.h"
 
 #include "IUAmpTools/report.h"
-static const char* kModule = "PlotterMainWindow";
+const char* PlotterMainWindow::kModule = "PlotterMainWindow";
 
 using namespace std;
 

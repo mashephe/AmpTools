@@ -210,5 +210,7 @@ private:
    int m_eMatrixStat;
   
   int m_functionCallCounter;
+  
+  static const char* kModule;
 };
 #endif

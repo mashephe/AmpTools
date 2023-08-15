@@ -52,6 +52,7 @@ private:
   
   double m_weight;
 
+  static const char* kModule;
 };
 
 #endif

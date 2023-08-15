@@ -151,6 +151,8 @@ private:
   string m_name;
   
   bool m_hasExternalPtr;
+  
+  static const char* kModule;
 };
 
 #endif

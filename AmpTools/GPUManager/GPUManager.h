@@ -168,6 +168,7 @@ private:
 
   void calcCUDADims();
   
+  static const char* kModule;
 };
 
 #endif //__GPU_MANAGER_H__

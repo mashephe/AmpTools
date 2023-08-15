@@ -104,6 +104,7 @@ private:
   map< string, complex< double >* > m_prodParMap;
   map< string, double* > m_ampParMap;
   
+  static const char* kModule;
 };
 
 #endif

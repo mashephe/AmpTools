@@ -51,7 +51,7 @@
 #include "GPUManager/GPUManager.h"
 
 #include "IUAmpTools/report.h"
-static const char* kModule = "GPUManager";
+const char* GPUManager::kModule = "GPUManager";
 
 #ifdef SCOREP
 #include <scorep/SCOREP_User.h>

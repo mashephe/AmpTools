@@ -68,6 +68,8 @@ private:
     double m_yLow;
     double m_yHigh;
     double m_binSizeY;
+  
+  static const char* kModule;
 };
 
 #endif

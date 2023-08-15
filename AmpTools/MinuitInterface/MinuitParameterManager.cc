@@ -48,7 +48,7 @@
 #include "MinuitInterface/MIPointerListIterator.h"
 
 #include "IUAmpTools/report.h"
-static const char* kModule = "MinuitParameterManager";
+const char* MinuitParameterManager::kModule = "MinuitParameterManager";
 
 using namespace std;
 
