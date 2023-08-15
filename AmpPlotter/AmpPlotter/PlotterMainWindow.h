@@ -134,6 +134,8 @@ class PlotterMainWindow : public TGMainFrame
 	
   PlotComponentManager& m_componentManager;
   PlotGenerator& m_generator;
+  
+  static const char* kModule;
 };
 
 #endif

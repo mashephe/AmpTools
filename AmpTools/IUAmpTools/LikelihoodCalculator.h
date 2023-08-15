@@ -132,6 +132,8 @@ private:
   double m_numBkgEvents;
   double m_sumDataWeights;
   double m_numDataEvents;
+  
+  static const char* kModule;
 };
 
 #endif

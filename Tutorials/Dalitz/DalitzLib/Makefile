@@ -17,24 +17,22 @@ include $(AMPTOOLS_HOME)/Makefile.settings
 # Most things below here probably don't need to be changed
 #
 # (expert option for profile and tracing)
-# to build code instrumented for Vampir Trace use VTRACE=1
+# to build code instrumented for Score-P use SCOREP=1
+
+INC_DIR :=  -I$(PROJECT_HOME)/$(PROJECT)Lib -I$(shell root-config --incdir) -I$(AMPTOOLS)
+CXX_FLAGS += $(shell root-config --cflags)
+
+ifdef SCOREP
+CXX := scorep-g++ --user
+CXX_FLAGS += -DSCOREP_USER_ENABLE
+INC_DIR += -I$(SCOREP_INC)
+endif
 
 ifndef INSTALL_LIB
 INSTALL_LIB = $(PROJECT_HOME)/lib
 endif
 
-ifdef VTRACE
-CXX := vtcxx -vt:inst manual
-
-NVCC := vtnvcc
-CXX_FLAGS += -DVTRACE
-endif
-
-INC_DIR :=  -I$(PROJECT_HOME)/$(PROJECT)Lib -I$(shell root-config --incdir) -I$(AMPTOOLS)
-CXX_FLAGS += $(shell root-config --cflags)
-
 SRCDIRS := $(PROJECT)DataIO $(PROJECT)Amp $(PROJECT)Plot
-
 
 # check if GPU build is requested
 ifdef GPU

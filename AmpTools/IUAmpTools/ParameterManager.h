@@ -152,6 +152,8 @@ protected:
   vector< GaussianBound* > m_boundPtrCache;
   
   map <string, vector<string> > m_constraintMap;
+  
+  static const char* kModule;
 };
 
 #endif

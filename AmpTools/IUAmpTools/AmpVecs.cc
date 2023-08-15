@@ -42,7 +42,7 @@
 #include "IUAmpTools/Kinematics.h"
 
 #include "IUAmpTools/report.h"
-static const char* kModule = "AmpVecs";
+const char* AmpVecs::kModule = "AmpVecs";
 
 #ifdef GPU_ACCELERATION
 #include "GPUManager/GPUManager.h"

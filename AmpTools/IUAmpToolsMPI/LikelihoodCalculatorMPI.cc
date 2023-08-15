@@ -41,7 +41,7 @@
 #include "IUAmpToolsMPI/LikelihoodManagerMPI.h"
 
 #include "IUAmpTools/report.h"
-static const char* kModule = "LikelihoodCalculatorMPI";
+const char* LikelihoodCalculatorMPI::kModule = "LikelihoodCalculatorMPI";
 
 LikelihoodCalculatorMPI::
 LikelihoodCalculatorMPI( const IntensityManager& intenManager,

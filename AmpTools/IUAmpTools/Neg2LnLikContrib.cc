@@ -6,10 +6,6 @@
 
 #include "IUAmpTools/Neg2LnLikContrib.h"
 
-#ifdef VTRACE
-#include "vt_user.h"
-#endif
-
 MinuitMinimizationManager* Neg2LnLikContrib::m_minManager;
 
 double Neg2LnLikContrib::operator()(){
@@ -90,15 +86,6 @@ Neg2LnLikContrib::setParValue( const string& name, double val ) const {
 
 bool
 Neg2LnLikContrib::updatePar( const string& name ) const {
-  
-#ifdef VTRACE
-  string info = (*this).name();
-  info += "::updatePar [";
-  info += name.c_str();
-  info += "]";
-  VT_TRACER( info.c_str() );
-#endif
-
   
   bool foundPar = false;
   

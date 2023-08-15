@@ -49,7 +49,7 @@
 #include "GPUManager/GPUCustomTypes.h"
 
 #include "IUAmpTools/report.h"
-static const char* kModule = "ParameterManager";
+const char* ParameterManager::kModule = "ParameterManager";
 
 ParameterManager::ParameterManager( MinuitMinimizationManager* minuitManager,
                                     IntensityManager* intenManager ) :
@@ -172,7 +172,6 @@ ParameterManager::setupFromConfigurationInfo( ConfigurationInfo* cfgInfo ){
       addNeg2LnLikContribParameter( (**lhcontsItr).fullName(), *parItr );
     }
   }
-
 }
 
 void

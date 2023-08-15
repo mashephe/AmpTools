@@ -50,7 +50,7 @@
 #include "MinuitInterface/MinuitParameter.h"
 
 #include "IUAmpTools/report.h"
-static const char* kModule = "LikelihoodCalculator";
+const char* LikelihoodCalculator::kModule = "LikelihoodCalculator";
 
 #ifdef SCOREP
 #include <scorep/SCOREP_User.h>

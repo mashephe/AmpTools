@@ -23,6 +23,7 @@ private:
   int m_rank;
   int m_numProc;
   
+  static const char* kModule;
 };
 
 

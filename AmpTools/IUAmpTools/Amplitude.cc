@@ -45,7 +45,7 @@
 #include "IUAmpTools/Kinematics.h"
 
 #include "IUAmpTools/report.h"
-static const char* kModule = "Amplitude";
+const char* Amplitude::kModule = "Amplitude";
 
 #ifdef SCOREP
 #include <scorep/SCOREP_User.h>

@@ -200,6 +200,8 @@ private:
   mutable double m_currentEventWeight;
   
   string m_currentConfiguration;
+  
+  static const char* kModule;
 };
 
 #endif

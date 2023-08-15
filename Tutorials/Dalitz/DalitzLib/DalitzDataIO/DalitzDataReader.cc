@@ -12,7 +12,7 @@
 #include "TSystem.h"
 
 #include "IUAmpTools/report.h"
-static const char* kModule = "DalitzDataReader";
+const char* DalitzDataReader::kModule = "DalitzDataReader";
 
 using namespace std;
 

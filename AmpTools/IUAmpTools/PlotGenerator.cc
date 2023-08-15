@@ -49,7 +49,7 @@
 #include "IUAmpTools/FitResults.h"
 
 #include "IUAmpTools/report.h"
-static const char* kModule = "PlotGenerator";
+const char* PlotGenerator::kModule = "PlotGenerator";
 
 PlotGenerator::PlotGenerator( const FitResults& results, Option opt ) :
 m_fitResults( results ),

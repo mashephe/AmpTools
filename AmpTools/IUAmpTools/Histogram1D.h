@@ -63,8 +63,7 @@ public:
     
 private:
 
-   
-    
+  static const char* kModule;
 };
 
 #endif

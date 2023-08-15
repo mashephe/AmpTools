@@ -43,7 +43,7 @@
 #include <sys/time.h>
 
 #include "IUAmpTools/report.h"
-static const char* kModule = "MinuitMinimizationManager";
+const char* MinuitMinimizationManager::kModule = "MinuitMinimizationManager";
 
 using namespace std;
 

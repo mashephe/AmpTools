@@ -50,7 +50,7 @@
 
 #include "IUAmpTools/report.h"
 
-static const char* kModule = "AmpToolsInterface";
+const char* AmpToolsInterface::kModule = "AmpToolsInterface";
 
 vector<Amplitude*> AmpToolsInterface::m_userAmplitudes;
 vector<Neg2LnLikContrib*> AmpToolsInterface::m_userNeg2LnLikContribs;

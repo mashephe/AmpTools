@@ -42,7 +42,7 @@
 #include "IUAmpTools/AmpParameter.h"
 #include "IUAmpTools/report.h"
 
-static const char* kModule = "AmpParameter";
+const char* AmpParameter::kModule = "AmpParameter";
 
 AmpParameter::AmpParameter( const string& arg ) :
 m_valPtr( &m_defaultValue ),

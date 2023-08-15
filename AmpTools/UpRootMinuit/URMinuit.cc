@@ -25,7 +25,7 @@
 
 #include "IUAmpTools/report.h"
 
-static const char* kModule = "Minuit";
+const char* URMinuit::kModule = "Minuit";
 
 //#include "TError.h"
 //#include "TPluginManager.h"

@@ -484,6 +484,7 @@ class AmpToolsInterface{
   
     float random( float randMax );
 
+  static const char* kModule;
 };
 
 

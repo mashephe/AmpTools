@@ -58,9 +58,9 @@ class LikelihoodCalculatorMPI : public LikelihoodCalculator
 {
   
   friend class LikelihoodManagerMPI;
-
- public:
-
+  
+public:
+  
   /**
    * This enum allows multiple instances of the likelihoodCalculatorMPI to
    * synchronize themselves across many processes.  One instance of the
@@ -71,18 +71,18 @@ class LikelihoodCalculatorMPI : public LikelihoodCalculator
    */
   
   enum { kFirstId = MPITag::kMaxTags };
-
+  
   /**
    * This is the constructor.  On all nodes setupMPI() is called first to
    * define the rank and number of processes.  On the follower nodes, each
-   * instance of LikelihoodCalulatorMPI registers itself with the 
+   * instance of LikelihoodCalulatorMPI registers itself with the
    * LikelihoodManagerMPI.  Each instance on the follower nodes has a unique
    * ID which is derived from the current value of the static member data
    * m_idCounter.
    *
    * Arguments to this constructor are similar to those for LikelihoodCalculator.
    * This helps to maintain a familar interface for the user.
-   * 
+   *
    * \param[in] ampManager A reference to the amplitude manager that this
    * likelihood calculator should use for amplitude calculations
    * \param[in] normInt A reference to the appropriate normalization integral
@@ -97,10 +97,10 @@ class LikelihoodCalculatorMPI : public LikelihoodCalculator
    */
   
   LikelihoodCalculatorMPI( const IntensityManager& intenManager,
-                           const NormIntInterface& normInt,
-                           DataReader* dataReaderSignal,
-                           DataReader* dataReaderBkgnd,
-                           ParameterManagerMPI& parManager );
+                          const NormIntInterface& normInt,
+                          DataReader* dataReaderSignal,
+                          DataReader* dataReaderBkgnd,
+                          ParameterManagerMPI& parManager );
   
   /**
    * This is the destructor.  When the instance of LikelihoodCalculatorMPI
@@ -110,14 +110,14 @@ class LikelihoodCalculatorMPI : public LikelihoodCalculator
    */
   
   ~LikelihoodCalculatorMPI();
-
+  
   /**
    * The following operator should only ever be called on the leader.  It
    * overrides the operator()() that is called from MIFunctionContribution class.
    * Using the LikelihoodManagerMPI, it directs all of the followers to compute
    * and then send partial contributions of the sum of log intensities.  The
    * routine on the leader collects and sums the contributions from the followers.
-   * It then, if necessary, triggers an update of the normalization integral 
+   * It then, if necessary, triggers an update of the normalization integral
    * calculculation on the followers.  Finally it provides the new
    * -2 ln( likelihood ) for the fit.
    */
@@ -139,27 +139,29 @@ class LikelihoodCalculatorMPI : public LikelihoodCalculator
   double numSignalEvents();
   
 private:
-
+  
   // the following functions are used by the LikelihoodManager to trigger
   // portions of the likeihood calculation -- they should only be called
   // on the follower nodes
   void updateParameters();
   void updateAmpParameter();
   void computeLikelihood();
-
+  
   static int m_idCounter;
-
+  
   void setupMPI();
   
   const IntensityManager& m_intenManager;
-
+  
   ParameterManagerMPI& m_parManager;
   int m_thisId;
-
+  
   int m_rank;
   int m_numProc;
   bool m_isLeader;
   bool m_firstPass;
+  
+  static const char* kModule;
 };
 
 #endif

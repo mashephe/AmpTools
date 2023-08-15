@@ -41,7 +41,7 @@
 #include "IUAmpTools/Histogram2D.h"
 
 #include "IUAmpTools/report.h"
-static const char* kModule = "Histogram2D";
+const char* Histogram2D::kModule = "Histogram2D";
 
 using namespace std;
 

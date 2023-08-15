@@ -2,7 +2,7 @@
 //
 // See individual source files for license information.
 // 
-// This software written by Matthew Shepherd, Ryan Mitchell, and 
+// This software is written by Matthew Shepherd, Ryan Mitchell, and 
 //                  Hrayr Matevosyan at Indiana University, Bloomington and
 //                  Lawrence Gibbons at Cornell University
 //
@@ -29,10 +29,11 @@ files, it is recommended one add the path to this top level directory in the
 for example, '#include "IUAmpTools/AmplitudeManager.h"'.
 
 Support for computing amplitudes on graphics cards can be enabled by
-typing 'make GPU=1'.  In this case CUDA_INSTALL_PATH should point to your
+typing 'make GPU=1'.  If the build is initiated from AMPTOOLS_HOME then
+GPU=1 is set for gpu targets -- type 'make gpu' from AMPTOOLS_HOME.
+For GPU enbaled builds, the CUDA_INSTALL_PATH should point to your
 installation of CUDA and you may need to adjust the CUDA_FLAGS variable in 
-the Makefile for your particular hardware.  If the build is initiated from
-AMPTOOLS_HOME then GPU=1 is set for gpu targets.
+the Makefile for your particular hardware.
 
 MPI support can be enabled when building from this directory by passing
 MPI=1 in as an argument to the make command.  (This happens automatically
@@ -65,7 +66,7 @@ propagation will be handled correctly in the computation of the intensity.
 (3) Support for moment/pdf fits: a future version will include the capability
 to fit data to a sum of moments.  Currently the only supported scheme
 is fitting to multiple coherent sums of amplitudes.  It is possible to obtain
-some equivalent behavior of by fitting using a signle sum and single amplitude
+some equivalent behavior of by fitting using a single sum and single amplitude
 with parameters of interest emedded in the amplitude.  The amplitude returns
 the square root of the intensity computed from the parameters and the kinematics.
 

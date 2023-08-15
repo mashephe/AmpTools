@@ -16,7 +16,7 @@
 #include "IUAmpToolsMPI/AmpToolsInterfaceMPI.h"
 
 #include "IUAmpTools/report.h"
-static const char* kModule = "AmpToolsInterfaceMPI";
+const char* AmpToolsInterfaceMPI::kModule = "AmpToolsInterfaceMPI";
 
 AmpToolsInterfaceMPI::AmpToolsInterfaceMPI(ConfigurationInfo* configurationInfo){
 

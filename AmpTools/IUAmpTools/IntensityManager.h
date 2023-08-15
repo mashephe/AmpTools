@@ -444,6 +444,8 @@ private:
   map< string, complex< double > > m_defaultProdFactor;
   
   vector< AmpParameter > m_termScaleVec;
+  
+  static const char* kModule;
 };
 
 

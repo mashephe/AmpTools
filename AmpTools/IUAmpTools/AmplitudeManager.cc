@@ -46,7 +46,7 @@ using namespace std;
 #include "IUAmpTools/NormIntInterface.h"
 #include "IUAmpTools/report.h"
 
-static const char* kModule = "AmplitudeManager";
+const char* AmplitudeManager::kModule = "AmplitudeManager";
 
 #ifdef SCOREP
 #include <scorep/SCOREP_User.h>

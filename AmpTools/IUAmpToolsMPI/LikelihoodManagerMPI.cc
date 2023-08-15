@@ -44,7 +44,7 @@
 #include "IUAmpToolsMPI/MPITag.h"
 
 #include "IUAmpTools/report.h"
-static const char* kModule = "LikelihoodManagerMPI";
+const char* LikelihoodManagerMPI::kModule = "LikelihoodManagerMPI";
 
 void
 LikelihoodManagerMPI::registerCalculator( int id, 
