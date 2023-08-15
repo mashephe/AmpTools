@@ -169,7 +169,7 @@ public:
       m_newFlagFunction = newFlagFunction;
    }
    
-   // reset parameter errors
+   // reset parameter step sizes
    void resetErrors();
 
    // the "fcn" that URMinuit needs
