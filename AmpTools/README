@@ -72,6 +72,29 @@ the square root of the intensity computed from the parameters and the kinematics
 
 RELEASE NOTES:
 
+v0.15.0 (16-Aug-2023):
+
+This new version now supports the ability for users to write a customized
+contribution to the calculation of -2 ln( L ).  (Thanks to Nils Huesken
+for developing this capability.)  Users can create a class that inherits
+from Neg2LnLikContrib in much the same way that user Amplitude classes
+are created.  This contribution is then initalized with a neg2LnLik
+keyword in the config file and parameters can be included.  This may be
+useful to use external data, e.g., published data with errors, to
+provide additional constraints on parameters in the context of the
+main unbinned likelihood fit.  An example is included with the Constraint
+class in the Dalitz tutorial.
+
+Additionally, a script is now provided in the ROOT directory that will
+load a subset of AmpTools modules into ROOT.  Of particular use are the
+FitResults and ConfigurationInfo objects.
+
+Finally, the only other significant functional change is that when
+parameters are reinitialized or randomized (using the AmpToolsInterface)
+an underlying call to MNRSET in Minuit is made.  This forces MINUIT to
+redetermine step sizes in minimization.  This may lead to better outcomes
+when repeated fits are performed with randomized parameters.
+
 v0.14.5 (18-Nov-2022):
 
 This release has some small corrections to the Dalitz tutorial to make it
