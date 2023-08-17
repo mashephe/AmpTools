@@ -34,7 +34,7 @@ public:
    * The default constructor.  The user's derived class should contain a
    * default constructor that calls this constructor.
    */
-  Neg2LnLikContrib(  ) : m_isDefault(true), MIFunctionContribution(m_minManager) {
+ Neg2LnLikContrib(  ) : MIFunctionContribution(m_minManager), m_isDefault(true) {
     
   }
   
@@ -43,8 +43,8 @@ public:
    * Neg2LnLikContrib and then stores them.  The user's derived class should
    * contain a similar constructor that calls this one.
    */
-  Neg2LnLikContrib( const vector< string >& args ) : m_isDefault(false),
-  m_args(args), MIFunctionContribution(m_minManager){ }
+ Neg2LnLikContrib( const vector< string >& args ) : MIFunctionContribution(m_minManager),
+    m_isDefault(false), m_args( args ){ }
   
   /**
    * This is the destructor.
@@ -194,12 +194,11 @@ private:
   
   bool m_isDefault;
   
-  vector<string> m_args;
-  
-  vector< AmpParameter* > m_registeredParams;
-
   static MinuitMinimizationManager *m_minManager;
-  
+
+  vector<string> m_args; 
+  vector< AmpParameter* > m_registeredParams;
+ 
 };
 
 
