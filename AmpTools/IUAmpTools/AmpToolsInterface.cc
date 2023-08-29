@@ -318,6 +318,46 @@ AmpToolsInterface::reinitializePars(){
 }
 
 void
+AmpToolsInterface::randomizeProductionPars( vector<string> ampNames, float maxFitFraction ){
+
+  // shouldn't be callin' unless you're fittin'
+  if( m_functionality != kFull ) return;
+
+  vector< AmplitudeInfo* > amps = m_configurationInfo->amplitudeList();
+
+  for( vector< AmplitudeInfo* >::iterator ampItr = amps.begin();ampItr != amps.end();++ampItr ){
+    if( (**ampItr).fixed() ) continue;
+    bool skip=true;
+    for(unsigned int i=0;i<ampNames.size();i++){
+      if((**ampItr).fullName().find(ampNames.at(i).c_str())!=string::npos){
+	skip = false; break;
+      }
+    }
+    if(skip)
+      continue;
+
+    string ampName = (**ampItr).fullName();
+    string reac = (**ampItr).reactionName();
+
+    double numSignalEvents = likelihoodCalculator(reac)->numSignalEvents();
+    // for the NI interface to use the cache to avoid a mess with MPI jobs and
+    // retrigging of NI calculation -- we don't require a precise number
+    // for this anyway!
+    double normInt = normIntInterface(reac)->normInt(ampName,ampName,true).real();
+    double ampScale = intensityManager(reac)->getScale(ampName);
+    // fit fraction = ( scale^2 * prodPar^2 * normInt ) / numSignalEvents
+    double fitFraction = random( maxFitFraction );
+    double prodParMag = sqrt( ( numSignalEvents * fitFraction ) /( ampScale * ampScale * normInt ) );
+    double prodParPhase = ( (**ampItr).real() ? 0 : random( 2*PI ) );
+    complex< double > prodPar( prodParMag*cos( prodParPhase ),prodParMag*sin( prodParPhase ) );
+    m_parameterManager->setProductionParameter( ampName, prodPar );
+  }
+
+  // reset parameter steps after randomizing parameters
+  minuitMinimizationManager()->resetErrors();
+}
+
+void
 AmpToolsInterface::randomizeProductionPars( float maxFitFraction ){
   
   // shouldn't be callin' unless you're fittin'
