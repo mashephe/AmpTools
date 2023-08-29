@@ -455,6 +455,9 @@ public:
    */
   void rotateResults();
 
+  void writeFitResults( const string& fileName );
+  void setProductionParameter( const string& ampName, complex<double> value );
+
 protected:
   
   /**

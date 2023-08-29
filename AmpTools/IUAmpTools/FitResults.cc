@@ -502,6 +502,12 @@ FitResults::productionParameter( const string& ampName ) const {
   return complex< double >( m_parValues[iRe], m_parValues[iIm] );
 }
 
+void FitResults::setProductionParameter( const string& ampName, complex<double> value ) {
+  int iRe = m_parIndex.find( realProdParName( ampName ) )->second;
+  int iIm = m_parIndex.find( imagProdParName( ampName ) )->second;
+  m_parValues.at(iRe) = value.real();
+  m_parValues.at(iIm) = value.imag();
+}
 
 complex< double >
 FitResults::scaledProductionParameter( const string& ampName ) const {
@@ -611,6 +617,43 @@ FitResults::ampList( const string& reaction ) const {
   }
   
   return m_ampNames[reacIndex->second];
+}
+
+void
+FitResults::writeFitResults( const string& outFile ){
+
+  ofstream output( outFile.c_str() );
+
+  output << m_numAmps[0]/4. << "\t0" << endl;
+
+  for( unsigned int i = 0; i < m_parNames.size()-1; i++ ){
+    string reactName = m_parNames[i].substr( 8, 4 );
+    if( strcmp( reactName.c_str(), "amp1" ) != 0 ) continue;
+    string lastChars = m_parNames[i].substr( m_parNames[i].size() - 2, 2 );
+    if( strcmp( lastChars.c_str(), "im" ) == 0 ){
+      output << m_parNames[i].substr( 0, m_parNames[i].size() - 3 );
+      if( m_parValues[i] == 0 && m_covMatrix[i][i] == 0 ) output << "+";
+      output << "\t(" << m_parValues[i-1] << "," << m_parValues[i] << ")" << endl;
+    }
+  }
+
+  for( unsigned int i = 0; i < m_parNames.size()-1; i++ ){
+    string reactNamei = m_parNames[i].substr( 8, 4 );
+    if( strcmp( reactNamei.c_str(), "amp1" ) != 0 ) continue;
+    string lastCharsi = m_parNames[i].substr( m_parNames[i].size() - 2, 2 );
+    if( strcmp( lastCharsi.c_str(), "im" ) == 0 && m_parValues[i] == 0 && m_covMatrix[i][i] == 0 ) continue;
+    for( unsigned int j = 0; j < m_parNames.size()-1; j++ ){
+      string reactNamej = m_parNames[j].substr( 8, 4 );
+      if( strcmp( reactNamej.c_str(), "amp1" ) == 0 ){
+        string lastCharsj = m_parNames[j].substr( m_parNames[j].size() - 2, 2 );
+        if( strcmp( lastCharsj.c_str(), "im" ) == 0 && m_parValues[j] == 0 && m_covMatrix[j][j] == 0 ) continue;
+        output << m_covMatrix[i][j] << "\t";
+      }
+    }
+    output << endl;
+  }
+
+  output.close();
 }
 
 void

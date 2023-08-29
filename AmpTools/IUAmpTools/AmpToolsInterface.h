@@ -241,6 +241,16 @@ class AmpToolsInterface{
 
   void reinitializePars( );
 
+  /** This function will randomly set the production parameters containing a string in ampNames in   
+   * the likelihood calculator.  It is useful when searching for multiple  
+   * ambiguous solutions.  Production parameters will be set such that 
+   * starting fit fraction varies between zero and fraction specified 
+   * by the optional argument.  The phase will be set randomly between
+   * zero and 2 pi.
+   */
+
+  void randomizeProductionPars( vector<string> ampNames, float maxFitFraction = 1 );
+
   /** This function will randomly set the production parameters in
    * the likelihood calculator.  It is useful when searching for multiple
    * ambiguous solutions.  Production parameters will be set such that
