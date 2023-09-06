@@ -138,7 +138,7 @@ void initReport(){
 
 #ifndef __ACLIC__
   
-  if( getenv("AMPTOOLS_DISABLE_SPLASH") != NULL ){
+  if( getenv("AMPTOOLS_DISABLE_SPLASH") == NULL ){
     
     cout << "   "; printLine();
     cout << setw(22) << right << "|        ^         " << setw(46) << right <<  "|" << endl;
