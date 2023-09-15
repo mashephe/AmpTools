@@ -130,6 +130,8 @@ AmpParameter::operator==( const AmpParameter& otherPar ) const {
 
 void 
 AmpParameter::setExternalValue( const double* ptr ){
+
+  report( DEBUG, kModule ) << "Setting " << m_name << " by reference to " << *ptr << endl;
   
   m_valPtr = ptr;
   m_hasExternalPtr = true;
@@ -137,6 +139,8 @@ AmpParameter::setExternalValue( const double* ptr ){
 
 void
 AmpParameter::setValue( double val ){
+  
+  report( DEBUG, kModule ) << "Setting " << m_name << " by value to " << val << endl;
   
   m_defaultValue = val;
   m_valPtr = &m_defaultValue;

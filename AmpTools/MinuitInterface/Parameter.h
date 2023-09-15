@@ -66,5 +66,7 @@ private:
   std::string m_name;
   double m_value;
   double m_error;
+  
+  static const char* kModule;
 };
 #endif
