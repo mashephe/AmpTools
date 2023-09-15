@@ -58,7 +58,11 @@ const char* IntensityManager::kModule = "IntensityManager";
 
 IntensityManager::IntensityManager( const vector< string >& reaction,
                                    const string& reactionName) :
-m_reactionName(reactionName)
+m_reactionName( reactionName) ,
+m_needsUserVarsOnly( true ),
+m_optimizeParIteration( false ),
+m_flushFourVecsIfPossible( false ),
+m_forceUserVarRecalculation( false )
 {
 
 }

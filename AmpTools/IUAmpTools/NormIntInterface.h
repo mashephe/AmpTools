@@ -88,6 +88,8 @@ public:
   // needs to be virtual so parallel implementations can properly
   // override this function
   virtual void forceCacheUpdate( bool normIntOnly = false ) const;
+  
+  void invalidateTerms();
 
 #endif
   

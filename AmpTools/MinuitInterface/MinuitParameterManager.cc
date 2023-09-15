@@ -118,6 +118,8 @@ MinuitParameterManager::synchronizeMinuit()
   
   m_numFloatingPars = 0;
   
+  report( DEBUG, kModule ) << "Synchronizing parameters with MINUIT." << endl;
+  
   // check that minuit has each parameter's status correct
   for ( ParamIter parameter = begin(); parameter != end(); ++parameter ) 
   {
@@ -176,15 +178,17 @@ MinuitParameterManager::synchronizeMinuit()
         theMinimizer.mnexcm( limCommand, commandParameters, 3,  status );
       }
     }
-    
   } // end of loop over parameters
+  
+  report( DEBUG, kModule ) << "Finished synchronizing -- " << m_numFloatingPars
+                           << " parameters are floating in the fit." << endl;
 }
 
 bool
 MinuitParameterManager::registerParameter( MinuitParameter* newParameter ) 
 {
 
-   
+  report( DEBUG, kModule ) << "Registering new parameter:  " << newParameter->name() << endl;
    // the minuit user Id for this parameter
    unsigned int newParameterMinuitId = size(); 
    ++newParameterMinuitId;

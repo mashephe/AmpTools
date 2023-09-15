@@ -423,6 +423,48 @@ public:
    */
   void resetProductionFactors();
   
+  /**
+   * This function can be used to set a flag to optimize subsequent
+   * calls to calcTerms in the case that amplitudes have free parameters.
+   * It uses functionality in the updatePar function to only force a
+   * recalculation of the amplitude for a particular AmpVecs class if
+   * one of the AmpParameters for that amplitude has changed since
+   * the last calculation.  This should signficiantly enhance the speed
+   * for fits with parameters floating in amplitudes, since there will
+   * only be an expensive recomputation when MINUIT changes the parameter.
+   *
+   * \param[in] flag set to true to enable the optimization
+   */
+  void setOptimizeParIteration( bool flag ) { m_optimizeParIteration = flag; }
+  
+  /**
+   * This function will allow the AmplitudeManager to clear four vectors
+   * from memory if all amplitudes can be calculated from user variables.
+   *
+   * \param[in] flag set to true to enable the optimization
+   */
+  void setFlushFourVecsIfPossible( bool flag ) { m_flushFourVecsIfPossible = flag; }
+  
+  /**
+   * If set to true, this flag will force the recalculation of the user
+   * data every time that calcTerms is called.  This is needed in cases
+   * where one reuses a common memory block multiple times with different
+   * kinematics, like what happens in MC generation.
+   *
+   * \param[in] flag set to true to enable the optimization
+   */
+  void setForceUserVarRecalculation( bool flag ) {
+    m_forceUserVarRecalculation = flag;
+    m_flushFourVecsIfPossible = false;
+  }
+  
+protected:
+  
+  // some internal members to optimize term recalculation
+  bool m_needsUserVarsOnly;
+  bool m_optimizeParIteration;
+  bool m_flushFourVecsIfPossible;
+  bool m_forceUserVarRecalculation;
   
 private:
   

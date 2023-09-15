@@ -37,8 +37,11 @@
 #include <string>
 
 #include "MinuitInterface/Parameter.h"
+#include "IUAmpTools/report.h"
 
 using namespace std;
+
+const char* Parameter::kModule = "Parameter";
 
 Parameter::Parameter(  const string& name, double initialValue, double initialError ) :
 m_name( name ),
@@ -52,6 +55,9 @@ void
 Parameter::setValue( double newValue, bool doNotify ) {
 
   if( m_value != newValue ){
+    
+    report( DEBUG, kModule ) << "Parameter " << m_name <<
+    " value changed;  doNotify = " << doNotify << endl;
 
     // In practice the comparison above could probably "safely" be
     // done within some tolerance, but set to exact comparison for now.

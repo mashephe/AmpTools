@@ -315,6 +315,11 @@ AmpToolsInterface::reinitializePars(){
 
   // reset parameter steps after reinitializing parameters
   minuitMinimizationManager()->resetErrors();
+  
+  // reset flags in AmpVecs which will trigger recalculation of all
+  // the terms -- this is necessary for example, in cases where
+  // pre-calculated user data depends on parameters that might change
+  invalidateAmps();
 }
 
 void
@@ -387,6 +392,11 @@ AmpToolsInterface::randomizeParameter( const string& parName, float min, float m
   
   // reset parameter steps after randomizing parameters
   minuitMinimizationManager()->resetErrors();
+  
+  // reset flags in AmpVecs which will trigger recalculation of all
+  // the terms -- this is necessary for example, in cases where
+  // pre-calculated user data depends on parameters that might change
+  invalidateAmps();
 }
 
 void
@@ -882,11 +892,47 @@ AmpToolsInterface::printEventDetails(string reactionName, Kinematics* kin) const
   printKinematics(reactionName,kin);
   printAmplitudes(reactionName,kin);
   printIntensity(reactionName,kin);
+}
+
+void
+AmpToolsInterface::forceUserVarRecalculation( bool state ){
   
+  for( unsigned int i = 0; i < m_intensityManagers.size(); ++i ){
+    
+    m_intensityManagers[i]->setForceUserVarRecalculation( state );
+  }
 }
 
 float
-AmpToolsInterface::random( float randMax ){
+AmpToolsInterface::random( float randMax ) const {
   
   return ( (float) rand() / RAND_MAX ) * randMax;
+}
+
+void
+AmpToolsInterface::invalidateAmps(){
+  
+  report( DEBUG, kModule ) << "Invalidating terms and integrals for all data sets." << endl;
+  
+  // it is not necessary to check if the AmpVecs objects
+  // are actually used... the vector holds the default
+  // objects which are lightweight and have the booleans
+  
+  for( int i = 0; i < MAXAMPVECS; ++i ){
+    
+    m_ampVecs[i].m_termsValid = false;
+    m_ampVecs[i].m_integralValid = false;
+  }
+  
+  for( map<string,NormIntInterface*>::iterator mapItr = m_normIntMap.begin();
+      mapItr != m_normIntMap.end(); ++mapItr ){
+    
+    (*mapItr).second->invalidateTerms();
+  }
+
+  for( map<string,LikelihoodCalculator*>::iterator mapItr = m_likCalcMap.begin();
+      mapItr != m_likCalcMap.end(); ++mapItr ){
+    
+    (*mapItr).second->invalidateTerms();
+  }  
 }

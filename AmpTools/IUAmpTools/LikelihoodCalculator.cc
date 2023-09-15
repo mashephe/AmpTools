@@ -97,7 +97,10 @@ LikelihoodCalculator::operator()(){
   // integral sums -- this provides parallel implementations with the
   // methods they need to compute these terms individually
   
-  return -2 * ( dataTerm() - normIntTerm() );
+  double neg2LnLik =  -2 * ( dataTerm() - normIntTerm() );
+  report( DEBUG, kModule ) << "Returning -2 ln( L ) = " << neg2LnLik << endl;
+  
+  return neg2LnLik;
 }
 
 double
@@ -298,5 +301,16 @@ SCOREP_USER_REGION_BEGIN( dataTerm, "dataTerm", SCOREP_USER_REGION_TYPE_COMMON )
 SCOREP_USER_REGION_END( dataTerm )
 #endif
   
+  report( DEBUG, kModule ) << "Sum_data of ln( I ):  " << sumLnI << endl;
+  
   return sumLnI;
+}
+
+void
+LikelihoodCalculator::invalidateTerms(){
+  
+  m_ampVecsSignal.m_termsValid = false;
+  m_ampVecsSignal.m_integralValid = false;
+  m_ampVecsBkgnd.m_termsValid = false;
+  m_ampVecsBkgnd.m_integralValid = false;
 }

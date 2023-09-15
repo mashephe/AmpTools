@@ -413,6 +413,9 @@ SCOREP_USER_REGION_BEGIN( updatePar, "updatePar", SCOREP_USER_REGION_TYPE_COMMON
     
     if( (**parItr).name().compare( name ) == 0 ){
       
+      report( DEBUG, kModule ) << "Calling updatePar for " << this->name() << " with "
+      << (**parItr).name() << " as the argument." << endl;
+      
       // The const_cast is a little bit undesirable here.  It can be removed
       // at the expensive of requiring the user to declare all member data in
       // the Amplitude class that is updated on a parameter update "mutable."

@@ -209,6 +209,8 @@ MinuitMinimizationManager::migradMinimization() {
   timeval tStart,tStop,tSpan;
   double dTime;
   
+  report( DEBUG, kModule ) << "Running migradMinimization()..." << endl;
+  
   gettimeofday( &(tStart), NULL );
   
    int dummyI;
