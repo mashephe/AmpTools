@@ -72,6 +72,15 @@ the square root of the intensity computed from the parameters and the kinematics
 
 RELEASE NOTES:
 
+v0.15.1 (15-Sep-2023):
+
+This version fixes a bug in the splash screen logic.  It also provides
+the user an option to trigger recalculation of user data by invalidating
+the calculations that are stored in the AmpVecs cache.  This is necessary
+in the case that one wants to scan parameters and user data depends on
+the value of some fixed parameter.  Finally, there is an option to turn
+off the warning about intensity errors in FitResults.
+
 v0.15.0 (16-Aug-2023):
 
 This new version now supports the ability for users to write a customized
