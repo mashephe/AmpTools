@@ -552,6 +552,8 @@ NormIntInterface::setNormIntMatrix( const double* input ) const {
   m_emptyNormIntCache = false;
 }
 
+
+#ifndef __ACLIC__
 void
 NormIntInterface::invalidateTerms(){
   
@@ -562,7 +564,6 @@ NormIntInterface::invalidateTerms(){
   m_genMCVecs.m_integralValid = false;
 }
 
-#ifndef __ACLIC__
 map< DataReader*, AmpVecs* > NormIntInterface::m_uniqueDataSets;
 #endif
 

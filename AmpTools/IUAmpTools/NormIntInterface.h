@@ -88,6 +88,8 @@ public:
   // needs to be virtual so parallel implementations can properly
   // override this function
   virtual void forceCacheUpdate( bool normIntOnly = false ) const;
+  
+  void invalidateTerms();
 
 #endif
   
@@ -101,8 +103,6 @@ public:
   
   void setGenEvents( unsigned long int events ) { m_nGenEvents = events; }
   void setAccEvents( double sumWeights ) { m_sumAccWeights = sumWeights; }
-  
-  void invalidateTerms();
   
 protected:
   
