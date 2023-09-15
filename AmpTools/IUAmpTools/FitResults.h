@@ -110,7 +110,7 @@ public:
    *
    * \param[in] inFile the name of the input file
    */
-  FitResults( const string& inFile );
+  FitResults( const string& inFile, bool muteWarning = false );
   
   /**
    * The destructor.

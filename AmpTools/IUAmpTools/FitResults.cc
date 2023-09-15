@@ -78,9 +78,9 @@ m_isValid( true ){
 #endif
 
 
-FitResults::FitResults( const string& inFile ) :
+FitResults::FitResults( const string& inFile, bool muteWarning ) :
 m_createdFromFile( true ),
-m_warnedAboutFreeParams( false ),
+m_warnedAboutFreeParams( muteWarning ),
 m_isValid( false ){
   
   loadResults( inFile );
