@@ -54,11 +54,7 @@ const char* AmplitudeManager::kModule = "AmplitudeManager";
 
 AmplitudeManager::AmplitudeManager( const vector< string >& reaction,
                                     const string& reactionName) :
-IntensityManager( reaction, reactionName ),
-m_needsUserVarsOnly( true ),
-m_optimizeParIteration( false ),
-m_flushFourVecsIfPossible( false ),
-m_forceUserVarRecalculation( false )
+IntensityManager( reaction, reactionName )
 {
   report( INFO, kModule ) << "Creating AmplitudeManager for the reaction:  " << reactionName << endl;
   
@@ -430,12 +426,16 @@ SCOREP_USER_REGION_DEFINE( calcTerms )
 SCOREP_USER_REGION_BEGIN( calcTerms, "calcTerms", SCOREP_USER_REGION_TYPE_COMMON )                           
 #endif
   
+  report( DEBUG, kModule ) << "Calculating terms...     termsValid = "
+  << a.m_termsValid << endl;
+  
   // on the first pass through this data set be sure to calculate
   // the user data first, if needed, before doing term calculations
   if( !a.m_termsValid && a.m_userVarsPerEvent > 0 ){
     
     calcUserVars( a );
-    if( m_needsUserVarsOnly && m_flushFourVecsIfPossible ) a.clearFourVecs();
+    if( m_needsUserVarsOnly && !m_forceUserVarRecalculation
+       && m_flushFourVecsIfPossible ) a.clearFourVecs();
   }
 
   const vector< string >& ampNames = getTermNames();
@@ -450,6 +450,9 @@ SCOREP_USER_REGION_BEGIN( calcTerms, "calcTerms", SCOREP_USER_REGION_TYPE_COMMON
   int iAmpIndex;
   for( iAmpIndex = 0; iAmpIndex < iNAmps; iAmpIndex++ )
   {
+    
+    report( DEBUG, kModule ) << "Checking factors for amplitude "
+                             << ampNames[iAmpIndex] << endl;
     
     map< string, vector< vector< int > > >::const_iterator permItr =
     m_ampPermutations.find( ampNames[iAmpIndex] );
@@ -488,6 +491,9 @@ SCOREP_USER_REGION_BEGIN( calcTerms, "calcTerms", SCOREP_USER_REGION_TYPE_COMMON
 
       if( !( a.m_termsValid && m_optimizeParIteration &&
             m_dataAmpIteration[&a][pCurrAmp] == m_ampIteration[pCurrAmp] ) ){
+        
+        report( DEBUG, kModule ) << "Factor " << pCurrAmp->name()
+        << " changed -- recalculating" << endl;
 
         recalculateFactors = true;
       }
@@ -816,6 +822,8 @@ SCOREP_USER_REGION_DEFINE( calcIntegralsB )
 SCOREP_USER_REGION_BEGIN( calcIntegralsA, "calcIntegralsA", SCOREP_USER_REGION_TYPE_COMMON )
 #endif
 
+  report( DEBUG, kModule ) << "Calculating integrals." << endl;
+  
   double* integralMatrix = a.m_pdIntegralMatrix;
   
   // amp -> amp* -> value
@@ -884,6 +892,9 @@ SCOREP_USER_REGION_BEGIN( calcIntegralsA, "calcIntegralsA", SCOREP_USER_REGION_T
       }
       else{
         
+        report( DEBUG, kModule ) << "Requesting recomputation of NI term ( "
+        << i << ", " << j << " )" << endl;
+        
         // if we get to this point, we need to compute a value
         // for the integral matrix
         
@@ -927,12 +938,18 @@ SCOREP_USER_REGION_BEGIN( calcIntegralsA, "calcIntegralsA", SCOREP_USER_REGION_T
   
 #endif
     
+  report( DEBUG, kModule ) << "NI terms will be renoramlized by 1 / "
+  << iNGenEvents << endl;
+  
   // now we want to renormalize and complex congugate while
   // filling the integral matrix data structure
   for( int iTerm = 0; iTerm < nCompute; ++iTerm ){
     
     int i = iIndex[iTerm];
     int j = jIndex[iTerm];
+    
+    report( DEBUG, kModule ) << "NI result for ( " << i << ", " << j << " ) = "
+    << complex<double>( result[2*iTerm], result[2*iTerm+1] ) << endl;
 	
     integralMatrix[2*i*iNAmps+2*j] = result[2*iTerm] /
       static_cast< double >( iNGenEvents );
@@ -1212,6 +1229,8 @@ AmplitudeManager::setParValue( const string& name, const string& parName,
 
 void
 AmplitudeManager::updatePar( const string& parName ) const {
+  
+  report( DEBUG, kModule ) << "Received signal that " << parName << " changed." << endl;
   
   for( map< string, vector< const Amplitude* > >::const_iterator mapItr = m_mapNameToAmps.begin();
       mapItr != m_mapNameToAmps.end();
