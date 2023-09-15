@@ -307,6 +307,9 @@ NormIntInterface::normInt( string amp, string conjAmp, bool forceUseCache ) cons
   if( !forceUseCache && hasAccessToMC() && 
      ( m_pIntenManager != NULL ) && m_pIntenManager->hasTermWithFreeParam() ){
     
+    report( DEBUG, kModule ) << "Request for normInt ( " << amp << ", " << conjAmp
+    << " ) asking IntensityManager to calculate integrals." << endl;
+    
     m_pIntenManager->calcIntegrals( m_accMCVecs, m_nGenEvents );
     setNormIntMatrix( m_accMCVecs.m_pdIntegralMatrix );
   }
@@ -381,6 +384,10 @@ NormIntInterface::hasAccessToMC() const
 void
 NormIntInterface::forceCacheUpdate( bool normIntOnly ) const
 {
+ 
+  report( DEBUG, kModule ) << "Update of the NI cache -- normIntOnly = "
+  << normIntOnly << ", emptyNormIntCache = " << m_emptyNormIntCache
+  << ", emptyAmpIntCache = " << m_emptyAmpIntCache << endl;
   
   // if the accepted MC is not available, then the data have likely
   // not been loaded into AmpVecs and we can't reclaculate the integrals
@@ -396,7 +403,10 @@ NormIntInterface::forceCacheUpdate( bool normIntOnly ) const
   // on the first pass through the data -- for subsequent passes
   // (during fitting) the loop below will execute and return
   if( !m_emptyNormIntCache && normIntOnly ){
-        
+
+    report( DEBUG, kModule ) << "Asking IntensityManager to update integrals "
+    << "using the accepted MC." << endl;
+    
     m_pIntenManager->calcIntegrals( m_accMCVecs, m_nGenEvents );
     setNormIntMatrix( m_accMCVecs.m_pdIntegralMatrix );
     
@@ -422,6 +432,9 @@ NormIntInterface::forceCacheUpdate( bool normIntOnly ) const
     // where forceCacheUpdate is only called on follower nodes, as it
     // avoids big memory allocations on the lead nodes
     if( m_genMCVecs.m_iNTerms == 0 ) m_genMCVecs.allocateTerms( *m_pIntenManager );
+    
+    report( DEBUG, kModule ) << "Asking IntensityManager to calculate integrals "
+    << "using the generated MC." << endl;
     
     m_pIntenManager->calcIntegrals( m_genMCVecs, m_nGenEvents );
     setAmpIntMatrix( m_genMCVecs.m_pdIntegralMatrix );
@@ -537,6 +550,16 @@ NormIntInterface::setNormIntMatrix( const double* input ) const {
   
   memcpy( m_normIntCache, input, m_cacheSize * sizeof( double ) );
   m_emptyNormIntCache = false;
+}
+
+void
+NormIntInterface::invalidateTerms(){
+  
+  m_accMCVecs.m_termsValid = false;
+  m_accMCVecs.m_integralValid = false;
+  
+  m_genMCVecs.m_termsValid = false;
+  m_genMCVecs.m_integralValid = false;
 }
 
 #ifndef __ACLIC__

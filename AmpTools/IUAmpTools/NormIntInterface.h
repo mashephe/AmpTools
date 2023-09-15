@@ -102,6 +102,8 @@ public:
   void setGenEvents( unsigned long int events ) { m_nGenEvents = events; }
   void setAccEvents( double sumWeights ) { m_sumAccWeights = sumWeights; }
   
+  void invalidateTerms();
+  
 protected:
   
   // protected helper functions for parallel implementations

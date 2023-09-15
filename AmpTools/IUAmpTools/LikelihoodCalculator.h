@@ -86,6 +86,8 @@ public:
   
   virtual double numSignalEvents();
   
+  void invalidateTerms();
+  
 protected:
   
   // helper functions -- also useful for pulling parts of the
