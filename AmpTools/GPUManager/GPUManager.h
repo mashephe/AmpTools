@@ -132,8 +132,6 @@ private:
   unsigned int m_iNICalcSize;
   
   //Host Arrays
-  GDouble* m_pcCalcAmp;
-  
   GDouble* m_pfVVStar;
   double* m_pdRes;
   
