@@ -507,8 +507,6 @@ AmpToolsInterface::registerDataReader( const DataReader& dataReader){
   
 }
 
-
-
 void
 AmpToolsInterface::clear(){
   
@@ -550,9 +548,13 @@ AmpToolsInterface::clear(){
     m_ampVecs[i].deallocAmpVecs();
     m_ampVecsReactionName[i] = "";
   }
+
+  // NOTE:  order matters here -- the ParameterManagers need to be deleted
+  // before the MinuitMinimizationManager as some types of parameter constraints
+  // like GaussianBound, need to detach themselves from the minimizaiton manager
   
-  if (minuitMinimizationManager()) delete minuitMinimizationManager();
   if (parameterManager()) delete parameterManager();
+  if (minuitMinimizationManager()) delete minuitMinimizationManager();
   if (fitResults()) delete fitResults();
 }
 
