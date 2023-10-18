@@ -640,15 +640,19 @@ void GPUManager::clearAll()
   if(m_pfDevAmps)
     cudaFree(m_pfDevAmps);
   m_pfDevAmps=0;
-  
+
   if(m_pfDevVVStar)
     cudaFree(m_pfDevVVStar);
   m_pfDevVVStar=0;
-  
+
+  if(m_pdDevNICalc)
+    cudaFree(m_pdDevNICalc);
+  m_pdDevNICalc=0;
+
   if(m_pfDevWeights)
     cudaFree(m_pfDevWeights);
   m_pfDevWeights=0;
-  
+
   if(m_pdDevRes)
     cudaFree(m_pdDevRes);
   m_pdDevRes=0;
