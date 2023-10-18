@@ -307,9 +307,16 @@ struct AmpVecs
    * data containers specified by the argument.
    */
   void claimDataOwnership( set< AmpVecs* > sharedFriends );
+
+  /**
+   * This function will remove a shared data friend from the set
+   * which is necessary, e.g., if the friend goes out of scope.
+   */
+  void removeFriend( AmpVecs* dataFriend );
   
   bool m_usesSharedData;
-
+  AmpVecs* m_sharedDataHost;
+  
 private:
   
   int m_lastWeightSign;
