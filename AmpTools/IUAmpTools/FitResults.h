@@ -315,7 +315,7 @@ public:
    *        0 = normal
    *        1 = blank command
    *        2 = unreadable command
-   *        3 = unkown command
+   *        3 = unknown command
    *        4 = abnormal termination (e.g., MIGRAD not converged)
    *
    * \see MinuitMinimizationManager::MinuitStatus
@@ -327,7 +327,7 @@ public:
     * by the MinuitMinimizationManager.  The return value has the
     * following meaning:
     *
-    *       0 = unkown
+    *       0 = unknown
     *       1 = migrad
     *       2 = minos
     *       3 = hesse

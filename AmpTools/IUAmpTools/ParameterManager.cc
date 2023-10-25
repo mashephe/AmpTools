@@ -189,7 +189,7 @@ ParameterManager::setAmpParameter( const string& parName,
   
   if( ampParItr == m_ampParams.end() ){
     
-    report( WARNING, kModule ) << "request to set value of unkown parameter named "
+    report( WARNING, kModule ) << "request to set value of unknown parameter named "
          << parName << " -- ignoring request." << endl;
     return;
   }

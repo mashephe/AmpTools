@@ -308,7 +308,7 @@ FitResults::phaseDiff( const string& amp1, const string& amp2 ) const {
   if( ( find( knownAmps.begin(), knownAmps.end(), amp1 ) == knownAmps.end() ) ||
      ( find( knownAmps.begin(), knownAmps.end(), amp2 ) == knownAmps.end() ) ){
     
-    report( ERROR, kModule ) << "unkown amplitude(s) in phase difference calculation\n\t"
+    report( ERROR, kModule ) << "unknown amplitude(s) in phase difference calculation\n\t"
     << amp1 << " and/or " << amp2 << endl;
     assert( false );
   }
@@ -539,7 +539,7 @@ FitResults::covariance( const string& par1, const string& par2 ) const {
   
   if( par1Pair == m_parIndex.end() || par2Pair == m_parIndex.end() ){
     
-    report( ERROR, kModule ) << "request for covaraince of unkown parameters "
+    report( ERROR, kModule ) << "request for covaraince of unknown parameters "
     << par1 << ", " << par2 << endl
     << "                     returning nan" << endl;
     return sqrt( -1 );
@@ -606,7 +606,7 @@ FitResults::ampList( const string& reaction ) const {
   
   if( reacIndex == m_reacIndex.end() ){
     
-    report( ERROR, kModule ) << "unkown reaction: " << reaction << endl;
+    report( ERROR, kModule ) << "unknown reaction: " << reaction << endl;
     assert( false );
   }
   
