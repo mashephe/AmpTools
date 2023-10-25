@@ -284,6 +284,8 @@ AmpToolsInterface::likelihood () const {
 void
 AmpToolsInterface::reinitializePars(){
   
+  // is this fully robust for MPI?  what if it is called on lead only? invalidate will be problematic?
+  
   // shouldn't be callin' unless you're fittin'
   if( m_functionality != kFull ) return;
 

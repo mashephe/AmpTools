@@ -64,7 +64,7 @@ MIFunctionContribution::contribution() {
    return m_contribution;
 }
 
-// default unkown derviative -- can be overriden by user
+// default unknown derviative -- can be overriden by user
 double
 MIFunctionContribution::derivative( const MinuitParameter& par ){
     

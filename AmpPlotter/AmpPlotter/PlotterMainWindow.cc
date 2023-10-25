@@ -385,7 +385,7 @@ PlotterMainWindow::ProcessMessage( long mes, long p1, long p2 )
               
             default:
 							
-              report( ERROR, kModule ) << "Unkown button click!" << endl;
+              report( ERROR, kModule ) << "Unknown button click!" << endl;
               break;
           } // end of check buttons
           break;
@@ -417,7 +417,7 @@ PlotterMainWindow::ProcessMessage( long mes, long p1, long p2 )
               
             default:
               
-              report( ERROR, kModule ) << "Unkown listbox!" << endl;
+              report( ERROR, kModule ) << "Unknown listbox!" << endl;
               break;
           } // end of listboxes
           break;
