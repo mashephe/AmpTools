@@ -442,7 +442,7 @@ PlotGenerator::haveAmp( const string& amp ) const {
 void 
 PlotGenerator::disableAmp( unsigned int uniqueAmpIndex ){
   
-  string amp = m_uniqueAmplitudes[uniqueAmpIndex];
+  string amp = m_uniqueAmplitudes.at(uniqueAmpIndex);
   
   for( map< string, unsigned int >::iterator mapItr = m_ampIndex.begin();
       mapItr != m_ampIndex.end();
@@ -466,7 +466,7 @@ PlotGenerator::disableAmp( unsigned int uniqueAmpIndex ){
 void
 PlotGenerator::enableAmp( unsigned int uniqueAmpIndex ){
   
-  string amp = m_uniqueAmplitudes[uniqueAmpIndex];
+  string amp = m_uniqueAmplitudes.at(uniqueAmpIndex);
   
   for( map< string, unsigned int >::iterator mapItr = m_ampIndex.begin();
       mapItr != m_ampIndex.end();
@@ -497,7 +497,7 @@ PlotGenerator::enableAmp( unsigned int uniqueAmpIndex ){
 void 
 PlotGenerator::disableSum( unsigned int uniqueSumIndex ){
   
-  string sum = m_uniqueSums[uniqueSumIndex];
+  string sum = m_uniqueSums.at(uniqueSumIndex);
   
   for( map< string, unsigned int >::iterator mapItr = m_ampIndex.begin();
       mapItr != m_ampIndex.end();
@@ -522,7 +522,7 @@ PlotGenerator::disableSum( unsigned int uniqueSumIndex ){
 void
 PlotGenerator::enableSum( unsigned int uniqueSumIndex ){
   
-  string sum = m_uniqueSums[uniqueSumIndex];
+  string sum = m_uniqueSums.at(uniqueSumIndex);
   
   for( map< string, unsigned int >::iterator mapItr = m_ampIndex.begin();
       mapItr != m_ampIndex.end();
@@ -555,7 +555,7 @@ bool
 PlotGenerator::isAmpEnabled( unsigned int uniqueIndex ) const {
   
   map< string, bool >::const_iterator itr = 
-  m_ampEnabled.find( m_uniqueAmplitudes[uniqueIndex] );
+  m_ampEnabled.find( m_uniqueAmplitudes.at(uniqueIndex) );
   
   assert( itr != m_ampEnabled.end() );
   
@@ -566,7 +566,7 @@ bool
 PlotGenerator::isSumEnabled( unsigned int uniqueIndex ) const {
   
   map< string, bool >::const_iterator itr = 
-  m_sumEnabled.find( m_uniqueSums[uniqueIndex] );
+  m_sumEnabled.find( m_uniqueSums.at(uniqueIndex) );
   
   assert( itr != m_sumEnabled.end() );
   
