@@ -938,7 +938,7 @@ SCOREP_USER_REGION_BEGIN( calcIntegralsA, "calcIntegralsA", SCOREP_USER_REGION_T
   
 #endif
     
-  report( DEBUG, kModule ) << "NI terms will be renoramlized by 1 / "
+  report( DEBUG, kModule ) << "NI terms will be renormalized by 1 / "
   << iNGenEvents << endl;
   
   // now we want to renormalize and complex congugate while
