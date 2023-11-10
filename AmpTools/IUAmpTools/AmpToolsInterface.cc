@@ -261,24 +261,20 @@ AmpToolsInterface::resetConfigurationInfo(ConfigurationInfo* configurationInfo){
   // of an output of the interface
 }
 
-
-
 double
-AmpToolsInterface::likelihood (const string& reactionName) const {
+AmpToolsInterface::likelihood( const string& reactionName ) const {
   LikelihoodCalculator* likCalc = likelihoodCalculator(reactionName);
   if (likCalc) return (*likCalc)();
   return 0.0;
 }
 
-
 double
-AmpToolsInterface::likelihood () const {
-  double L = 0.0;
-  for (unsigned int irct = 0; irct < m_configurationInfo->reactionList().size(); irct++){
-    ReactionInfo* reaction = m_configurationInfo->reactionList()[irct];
-    L += likelihood(reaction->reactionName());
+AmpToolsInterface::likelihood() const {
+  if( m_minuitMinimizationManager ){
+    m_minuitMinimizationManager->parameterManager().synchronizeMinuit();
+    return m_minuitMinimizationManager->evaluateFunction();
   }
-  return L;
+  return 0.0;
 }
 
 void
