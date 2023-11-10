@@ -30,22 +30,22 @@ using namespace std;
 
 
 void compareFitFractions( string genCfgFile, string fitFile ){
-
+  
   FitResults fr( fitFile );
   
   ConfigFileParser cfParser( genCfgFile );
   ConfigurationInfo* cfgInfo = cfParser.getConfigurationInfo();
-
+  
   vector< ReactionInfo* > reactions = cfgInfo->reactionList();
-
+  
   for( vector< ReactionInfo* >::iterator reacInfo = reactions.begin();
-       reacInfo != reactions.end(); ++reacInfo ){
-
+      reacInfo != reactions.end(); ++reacInfo ){
+    
     string reaction = (*reacInfo)->reactionName();
     
     vector< AmplitudeInfo* > ampList = cfgInfo->amplitudeList( reaction );
     const NormIntInterface* ni = fr.normInt( reaction );
-
+    
     // ** first nested loop over the generated production parameters and
     //    the results of the normalization integrals to pick out all
     //    of the relevant info needed to construct the generated fit
@@ -59,71 +59,71 @@ void compareFitFractions( string genCfgFile, string fitFile ){
     vector< string > ampNameVec;
     
     for( vector< AmplitudeInfo* >::iterator ampInfo = ampList.begin();
-	 ampInfo != ampList.end(); ++ampInfo ){
-
+        ampInfo != ampList.end(); ++ampInfo ){
+      
       string ampName = (**ampInfo).fullName();
       ampNameVec.push_back( ampName );
       
       complex< double > inputProdAmp = atof( (**ampInfo).scale().c_str() ) * (**ampInfo).value();
-
+      
       // this is the unnormalized generated intensity
       nameGenFrac[ampName] = abs( inputProdAmp * conj( inputProdAmp ) *
-				  ni->ampInt( ampName, ampName ) );
-   
+                                 ni->ampInt( ampName, ampName ) );
+      
       // need to compute the "generated total" in order to renormalize
       // the generated production parameters
       for( vector< AmplitudeInfo* >::iterator conjAmpInfo = ampList.begin();
-	   conjAmpInfo != ampList.end(); ++conjAmpInfo ){
-
-	complex< double > inputConjProdAmp = atof( (**conjAmpInfo).scale().c_str() ) *
-	  (**conjAmpInfo).value();
-
-	inputTotal += inputProdAmp * conj( inputConjProdAmp ) *
-	  ni->ampInt( ampName, (**conjAmpInfo).fullName() );
+          conjAmpInfo != ampList.end(); ++conjAmpInfo ){
+        
+        complex< double > inputConjProdAmp = atof( (**conjAmpInfo).scale().c_str() ) *
+        (**conjAmpInfo).value();
+        
+        inputTotal += inputProdAmp * conj( inputConjProdAmp ) *
+        ni->ampInt( ampName, (**conjAmpInfo).fullName() );
       }
     }
-
+    
     // do a check to see if this looks like a real number
     if( imag( inputTotal ) > 1E-6 ){
-
+      
       cout << "WARNING:  normalization factor should be real: " << inputTotal << endl;
     }
-
+    
     // ** second loop over the amplitude names -- renormalize to produce
     //    the fit fractions and print things to the screen
     
     pair< double, double > fitTotal = fr.intensity( ampNameVec );
-
+    
     cout << setw(90) << setfill( '*' ) << "\n" << setfill( ' ' );
     cout << "REACTION:  " << reaction << endl << endl;
     
     cout << setw( 40 ) << left << " "
-	 << setw( 13 ) << right <<  "Generated  "
-	 << setw( 20 ) << "Fit Result "
-	 << setw( 12 ) << endl;
+    << setw( 13 ) << right <<  "Generated  "
+    << setw( 20 ) << "Fit Result "
+    << setw( 12 ) << endl;
     
     cout << setw( 40 ) << left << "Amplitude"
-	 << setw( 13 ) << right << "Fraction [%]"
-	 << setw( 20 ) << "Fraction [%]"
-	 << setw( 12 ) << "Pull" << endl;
-
+    << setw( 13 ) << right << "Fraction [%]"
+    << setw( 20 ) << "Fraction [%]"
+    << setw( 12 ) << "Pull" << endl;
+    
     cout << setw(90) << setfill( '-' ) << "\n" << setfill( ' ' );
-
+    
     for( vector< string >::iterator name = ampNameVec.begin();
-	 name != ampNameVec.end(); ++name ) {
-
+        name != ampNameVec.end(); ++name ) {
+      
       // now record the fit fractions
       pair<double,double> fitFrac = fr.intensity( *name );
       fitFrac.first /= fitTotal.first * 0.01;
       fitFrac.second /= fitTotal.first * 0.01;
-
+      
       nameGenFrac[*name] /= abs( inputTotal ) * 0.01;
-
-      cout << setw( 40 ) << left <<  *name 
-	   << setw( 10 ) << right << fixed << setprecision( 2 ) << nameGenFrac[*name] 
-	   << setw( 15 ) << fitFrac.first << " +/- " << fitFrac.second 
-	   << setw( 12 ) << ( fitFrac.first - nameGenFrac[*name] ) / fitFrac.second
-	   << endl;	 
+      
+      cout << setw( 40 ) << left <<  *name
+      << setw( 10 ) << right << fixed << setprecision( 2 ) << nameGenFrac[*name]
+      << setw( 15 ) << fitFrac.first << " +/- " << fitFrac.second
+      << setw( 12 ) << ( fitFrac.first - nameGenFrac[*name] ) / fitFrac.second
+      << endl;
     }
     
     cout << setw(90) << setfill( '*' ) << "\n" << setfill( ' ' );
