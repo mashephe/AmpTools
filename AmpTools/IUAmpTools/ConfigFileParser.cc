@@ -908,6 +908,11 @@ ConfigFileParser::doInitialize(const ConfigFileLine& line){
   if (fixtype1 == "floating") {
   }
   else if (fixtype1 == "real"){
+    if( value2 != 0 ){
+      report( ERROR, kModule ) << "inconsistency:  initializing real amplitude but imaginary part is nonzero" << endl;
+      line.printLine();
+      exit(1);
+    }
     amplitude->setReal(true);
   }
   else if (fixtype1 == "fixed"){
