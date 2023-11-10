@@ -189,6 +189,9 @@ public:
    */
   pair< double, double > intensity( const vector< string >& amplitudes,
                                     bool accCorrected = true ) const;
+
+  pair< double, double > intensity( const string& amplitude,
+                                    bool accCorrected = true ) const;
   
   /**
    * Return the pahse difference (first) and its error (second) in radians

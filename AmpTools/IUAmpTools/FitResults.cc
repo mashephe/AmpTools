@@ -120,6 +120,14 @@ FitResults::intensity( bool accCorrected ) const {
   return intensity( ampList(), accCorrected );
 }
 
+pair< double, double > 
+FitResults::intensity( const string& amplitude, bool accCorrected ) const {
+  
+  vector< string > ampVec;
+  ampVec.push_back( amplitude );
+  return intensity( ampVec, accCorrected );
+}
+
 pair< double, double >
 FitResults::intensity( const vector< string >& amplitudes, bool accCorrected ) const {
   
@@ -1086,6 +1094,9 @@ FitResults::rotateResults()
       // if not, move on to the next sum
       if( rotate == false && reflect == false ) continue;
       
+      report( DEBUG, kModule ) << "sum:  " << sumNames[sum] << "; rotate:  "
+                               << rotate << "; reflect: " << reflect << endl;
+      
       // loop over amplitudes and make any necessary changes
       for( unsigned int amp = 0; amp < ampNames.size(); amp++ ){
         
@@ -1095,11 +1106,21 @@ FitResults::rotateResults()
         int reIndex = m_parIndex.find( reParName )->second;
         int imIndex = m_parIndex.find( imParName )->second;
         
-        if( rotate == true )
-          m_parValues[reIndex] *= -1.0;
+        if( rotate == true ){
         
-        if( reflect == true && m_parValues[imIndex] != 0.0 )
+          report( DEBUG, kModule ) << "rotate flips the sign of " << reParName
+          << " with index: " << reIndex << endl;
+          
+          m_parValues[reIndex] *= -1.0;
+        }
+        
+        if( reflect == true && m_parValues[imIndex] != 0.0 ){
+          
+          report( DEBUG, kModule ) << "reflect flips the sign of " << imParName
+          << " with index: " << imIndex << endl;
+
           m_parValues[imIndex] *= -1.0;
+        }
         
         // Get the sum name for this amp.
         // This is used when flipping the scale elements of
@@ -1118,6 +1139,10 @@ FitResults::rotateResults()
           if(scConjParName != "-") scConjIndex = m_parIndex.find( scConjParName )->second;
           
           if( rotate == true ){
+            
+            report( DEBUG, kModule ) << "rotate:  flipping the sign of covariance matrix elements in "
+            << reIndex << ", " << imConjIndex << " position and transpose" << endl;
+
             m_covMatrix[reIndex][imConjIndex] *= -1.0;
             m_covMatrix[imConjIndex][reIndex] *= -1.0;
             
@@ -1146,6 +1171,10 @@ FitResults::rotateResults()
           int reConjIndex = m_parIndex.find( reConjParName )->second;
           
           if( reflect == true ){
+
+            report( DEBUG, kModule ) << "reflect:  flipping the sign of covariance matrix elements in "
+            << imIndex << ", " << reConjIndex << " position and transpose" << endl;
+
             m_covMatrix[imIndex][reConjIndex] *= -1.0;
             m_covMatrix[reConjIndex][imIndex] *= -1.0;
             
