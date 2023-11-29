@@ -72,6 +72,16 @@ the square root of the intensity computed from the parameters and the kinematics
 
 RELEASE NOTES:
 
+v0.15.2 (29-Nov-2023):
+
+A number of bug fixes have been made in this version.  One of the most
+significant issues is to modify the likelihood() method of the AmpToolsInterface
+class to fetch the likelihood using the same mechanism as is used by MINUIT.
+This guarantees that the likelihood includes extra contributions beyond
+those provided by the LikelihoodCalculator (e.g., Gaussian bounds or
+user defined likelihoood contributions).  A few other memory mangement issues
+were fixed.
+
 v0.15.1 (15-Sep-2023):
 
 This version fixes a bug in the splash screen logic.  It also provides
