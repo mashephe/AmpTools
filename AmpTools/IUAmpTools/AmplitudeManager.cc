@@ -632,12 +632,14 @@ SCOREP_USER_REGION_BEGIN( calcIntensities, "calcIntensities", SCOREP_USER_REGION
 
   // check to be sure destination memory has been allocated
   assert( a.m_pdIntensity );
+  memset( a.m_pdIntensity, 0, a.m_iNEvents*sizeof( GDouble ) );
   
   double maxInten = 0;
   
   // first update the amplitudes
   calcTerms( a );
-  
+
+#ifdef GPU_ACCELERATION
   // In GPU running mode amplitudes are maintained on the GPU and
   // the sum of the logs of intensities are calculated directly.
   // This is a CPU calculation that was likely called from the
@@ -647,7 +649,6 @@ SCOREP_USER_REGION_BEGIN( calcIntensities, "calcIntensities", SCOREP_USER_REGION
   // GPU accelerated intensity calculation, just a GPU accelerated
   // log( intensity ) calculation.
   
-#ifdef GPU_ACCELERATION
   if( a.m_pdAmps == NULL ) a.allocateCPUAmpStorage( *this );
   a.m_gpuMan.copyAmpsFromGPU( a );
 #endif
@@ -655,80 +656,61 @@ SCOREP_USER_REGION_BEGIN( calcIntensities, "calcIntensities", SCOREP_USER_REGION
   const vector< string >& ampNames = getTermNames();
   
   int iNAmps = ampNames.size();
-  
-  //Now pre-calculate ViVj* and include factor of 2 for off-diagonal elements
-  double* pdViVjRe = new double[iNAmps*(iNAmps+1)/2];
-  double* pdViVjIm = new double[iNAmps*(iNAmps+1)/2];
-  
-  int i,j;
+    
+  int i,j,iEvent;
   complex< double > cTmp;
+  double cViVjRe, cViVjIm, cAiAjRe, cAiAjIm;
+  
   for( i = 0; i < iNAmps; i++ ){
     for( j = 0; j <= i; j++ ){
       
+      if( !m_sumCoherently[i][j] ) continue;
+      
       cTmp = productionFactor( i ) * conj( productionFactor( j ) );
-
+      
       // This is a scaling of the intensity so that the "data term"
       // in the ln likelihood grows like N instead of N*ln(N) -- this
       // makes the scaling consistent with the norm int term, but
       // shifts the likelihood at minimum.  This may be bothersome
       // to users comparing across versions so leave an option for
       // turning it off at compile time.
-
+      
 #ifndef USE_LEGACY_LN_LIK_SCALING
       cTmp /= a.m_iNTrueEvents;
 #endif
       
-      pdViVjRe[i*(i+1)/2+j] = cTmp.real();
-      pdViVjIm[i*(i+1)/2+j] = cTmp.imag();
+      cViVjRe = cTmp.real();
+      cViVjIm = cTmp.imag();
       
       if( i != j ) {
         
-        pdViVjRe[i*(i+1)/2+j] *= 2;
-        pdViVjIm[i*(i+1)/2+j] *= 2;
+        cViVjRe *= 2;
+        cViVjIm *= 2;
       }
-    }
-  }
-  
-  double dIntensity;
-  double cAiAjRe,cAiAjIm;
-  
-  //Re-ordering of data will be useful to not fall out of (CPU) memory cache!!!
-  //Only sum over the true events from data and skip paddings
-  int iEvent;
-  for( iEvent=0; iEvent < a.m_iNTrueEvents; iEvent++ )
-  {
-    dIntensity = 0;
-    for( i = 0; i < iNAmps; i++ ){
-      for( j = 0; j <= i; j++ ){
+      
+      for( iEvent=0; iEvent < a.m_iNTrueEvents; iEvent++ ) {
         
-        // remove cross terms from incoherent amplitudes
-        if( !m_sumCoherently[i][j] ) continue;
-        
-        //AiAj*
         cAiAjRe = a.m_pdAmps[2*a.m_iNEvents*i+2*iEvent] *
         a.m_pdAmps[2*a.m_iNEvents*j+2*iEvent] +
         a.m_pdAmps[2*a.m_iNEvents*i+2*iEvent+1] *
         a.m_pdAmps[2*a.m_iNEvents*j+2*iEvent+1];
         
-        cAiAjIm= -a.m_pdAmps[2*a.m_iNEvents*i+2*iEvent] *
+        cAiAjIm = -a.m_pdAmps[2*a.m_iNEvents*i+2*iEvent] *
         a.m_pdAmps[2*a.m_iNEvents*j+2*iEvent+1] +
         a.m_pdAmps[2*a.m_iNEvents*i+2*iEvent+1] *
         a.m_pdAmps[2*a.m_iNEvents*j+2*iEvent];
         
-        dIntensity += pdViVjRe[i*(i+1)/2+j] * cAiAjRe -
-        pdViVjIm[i*(i+1)/2+j] * cAiAjIm;
+        a.m_pdIntensity[iEvent] += ( cViVjRe * cAiAjRe - cViVjIm * cAiAjIm );
       }
     }
+  }
     
-    dIntensity *= a.m_pdWeights[iEvent];
+  for( iEvent=0; iEvent < a.m_iNTrueEvents; iEvent++ ) {
     
-    a.m_pdIntensity[iEvent] = dIntensity;
-    if( dIntensity > maxInten ) maxInten = dIntensity;
+    a.m_pdIntensity[iEvent] *= a.m_pdWeights[iEvent];
+    if( a.m_pdIntensity[iEvent] > maxInten ) maxInten = a.m_pdIntensity[iEvent];
   }
   
-  delete[] pdViVjRe;
-  delete[] pdViVjIm;
-
 #ifdef SCOREP
 SCOREP_USER_REGION_END( calcIntensities )
 #endif
