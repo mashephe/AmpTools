@@ -72,6 +72,13 @@ the square root of the intensity computed from the parameters and the kinematics
 
 RELEASE NOTES:
 
+v0.15.3 (11-Apr-2024):
+
+Reorder looping structures in the Amplitude and AmplitudeManager classes
+to avoid CPU cache misses when fetching from memory.  This version
+should be functionally identical to previous versions but provides some
+significant peformance improvements for some CPU fits.
+
 v0.15.2 (29-Nov-2023):
 
 A number of bug fixes have been made in this version.  One of the most
