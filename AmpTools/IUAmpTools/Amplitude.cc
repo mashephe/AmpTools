@@ -99,25 +99,26 @@ SCOREP_USER_REGION_BEGIN( calcUserVarsAll, "calcUserVarsAll", SCOREP_USER_REGION
   
   GDouble** pKin = new GDouble*[iNParticles];
   
-  int i, iEvent;
-  for( iEvent=0; iEvent<iNEvents; iEvent++ ){
-    
-    for( iPermutation = 0; iPermutation < iNPermutations; iPermutation++ ){
-      
-      m_currentPermutation = (*pvPermutations)[iPermutation];
+  int i, j, iEvent;
+  for( iPermutation = 0; iPermutation < iNPermutations; iPermutation++ ){
+
+    m_currentPermutation = (*pvPermutations)[iPermutation];
+
+    for( iEvent=0; iEvent<iNEvents; iEvent++ ){
 
       // pKin is an array of pointers to the particle four-momentum
       // that gets reordered for each permutation so the user
       // doesn't need to deal with permutations in their calcAmplitude
       // routine
+
+      unsigned int eventOffset = 4*iNParticles*iEvent;
       
       for( i = 0; i < iNParticles; i++ ){
-        
-        int j = (*pvPermutations)[iPermutation][i];
-        pKin[i] = &(pdData[4*iNParticles*iEvent+4*j]);
-        
+
+        j = m_currentPermutation[i];
+        pKin[i] = &(pdData[eventOffset+4*j]);
       }
-      
+
       unsigned int userIndex = iNEvents*iPermutation*numVars + iEvent*numVars;
       calcUserVars( pKin, &(pdUserVars[userIndex]) );
     }
@@ -153,25 +154,26 @@ SCOREP_USER_REGION_BEGIN( calcAmplitudeAll, "calcAmplitudeAll", SCOREP_USER_REGI
   
   GDouble** pKin = new GDouble*[iNParticles];
   
-  int i, iEvent;
-  for( iEvent = 0; iEvent < iNEvents; iEvent++ ){
-    
-    for( iPermutation = 0; iPermutation < iNPermutations; iPermutation++ ){
-      
-      m_currentPermutation = (*pvPermutations)[iPermutation];
-      
-      for( i = 0; i < iNParticles; i++ ){
-        
-        int j = (*pvPermutations)[iPermutation][i];
-        pKin[i] = &(pdData[4*iNParticles*iEvent+4*j]);
-        
-      }
-      
+   int i, j, iEvent;
+  for( iPermutation = 0; iPermutation < iNPermutations; iPermutation++ ){
+
+    m_currentPermutation = (*pvPermutations)[iPermutation];
+
+    for( iEvent=0; iEvent<iNEvents; iEvent++ ){
+
       // pKin is an array of pointers to the particle four-momentum
       // that gets reordered for each permutation so the user
       // doesn't need to deal with permutations in their calcAmplitude
       // routine
-      
+
+      unsigned int eventOffset = 4*iNParticles*iEvent;
+
+      for( i = 0; i < iNParticles; i++ ){
+
+        j = m_currentPermutation[i];
+        pKin[i] = &(pdData[eventOffset+4*j]);
+      }
+
       unsigned int userIndex = iNEvents*iPermutation*numVars + iEvent*numVars;
 
       if( numVars != 0 ){
