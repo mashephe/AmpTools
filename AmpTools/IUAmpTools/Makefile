@@ -18,6 +18,6 @@ DEPFILES := $(SRCFILES:%.cc=.%$(SUFFIX).d)
 $(DEPFILES):
 
 clean:
-	$(Q)-rm -f .*.o .*.d *.a
+	$(Q)-rm -f .*.o .*.d *.a *.pcm *.so *.d
 
 -include $(DEPFILES)
