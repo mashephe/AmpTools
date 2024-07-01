@@ -1,0 +1,83 @@
+Whenever anybody pushes to any branch, the action found in .github/actions/unit_tests.yaml will be run in a container hosted on gpu1. The action builds AmpTools from the latest version of the branch modified by the push that triggered the action. The following AmpTools classes are tested:
+
+
+ConfigFileParser (All constructors):
+Tested Features:
+*   include
+*   define
+*   parameter
+*   Multiple reactions
+*   Multiple amplitudes in same sum
+*   Constraining amplitudes in different reactions
+*   Scale
+*   permute
+*   Implicit permute (using identical particle names)
+*   loop
+Checks:
+*   Number of lines in parsed file exactly matches model
+*   Parsed file exactly matches model
+
+
+ConfigurationInfo (from ConfigFileParser.getConfigurationInfo())
+Tested Features:
+*   fitName()
+*   fitOutputFileName()
+*   userKeywords()
+*   reactionList()
+*   amplitudeList()
+*   coherentSumList()
+*   neg2LnLikContribList()
+*   pdfList()
+*   termList()
+*   parameterList()
+Checks:
+*   Fit name matches model fit name
+*   Fit output file name matches model fit output file name
+*   Keywords vector size matches model vector size
+*   Reaction vector size matches model vector size
+*   Amplitude vector size matches model vector size
+*   Coherent sum vector size matches model vector size
+*   Neg2LnLikContrib vector size matches model vector size
+*   PDF vector size matches model vector size
+*   Term vector size matches model vector size
+*   Parameter vector size matches model vector size
+
+
+AmpToolsInterface/AmpToolsInterfaceMPI (from ConfigurationInfo*)
+Tested Features:
+*   AmpToolsInterface::registerAmplitude
+*   AmpToolsInterface::registerNeg2LnLikContrib
+*   AmpToolsInterface::registerDataReader
+*   likelihood()
+*   minuitMinimizationManager()
+Checks (All floating point checks have a precision of 0.1):
+*   Likelihood before fit matches model
+*   Likelihood after fit matches model
+*   Likelihood of base reaction after fit matches model
+*   Likelihood of constrained reaction after fit matches model
+*   Likelihood of symmetrized (implicit) reaction after fit matches model
+*   Likelihood of symmetrized (explicit) reaction after fit matches model
+
+
+fitResults (from .fit file and from AmpToolsInterface.fitResults())
+Tested Features:
+*   intensity()
+*   phaseDiff()
+*   productionParameter()
+*   bestMinimum()
+*   parNameList()
+*   parValueList()
+Checks (all have a precision of 0.01 unless noted otherwise):
+*   Intensity matches model (precision of 1)
+*   Intensity error matches model (precision of 10)
+*   Phase difference matches model
+*   Phase difference error matches model (precision of 1)
+*   Real part of base reaction production parameter matches model
+*   Imaginary part of base reaction production parameter matches model
+*   Real part of constrained reaction production parameter matches model
+*   Imaginary part of constrained reaction production parameter matches model
+*   Real part of symmetrized reaction production parameter matches model
+*   Imaginary part of symmetrized reaction production parameter matches model
+*   Best minimum matches model
+*   Number of parameter names matches model (exact match- integer values)
+*   All fit parameters match model 

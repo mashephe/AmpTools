@@ -1,0 +1,171 @@
+name: Unit Tests
+run-name: Unit tests for changes made by @${{ github.actor }}
+on: [push]
+jobs:
+    Unit-Test-Base:
+        runs-on: self-hosted
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+            - name: Building AmpTools
+              run: |
+                mkdir Tutorials/Dalitz/lib
+                mkdir Tutorials/Dalitz/bin
+                make
+                export AMPTOOLS_HOME=$(pwd)
+                echo "AMPTOOLS_HOME=$AMPTOOLS_HOME" >> $GITHUB_ENV
+                echo "AMPTOOLS=$AMPTOOLS_HOME/AmpTools" >> $GITHUB_ENV
+                echo "AMPPLOTTER=$AMPTOOLS_HOME/AmpPlotter" >> $GITHUB_ENV
+                echo "DALITZ=$AMPTOOLS_HOME/Tutorials/Dalitz" >> $GITHUB_ENV
+                echo "UNIT_TESTS=$AMPTOOLS_HOME/UnitTests" >> $GITHUB_ENV
+            - name: ConfigFileParser
+              if: success() || failure()
+              run: |
+                cd $UNIT_TESTS
+                $DALITZ/bin/generatePhaseSpace phasespace.gen.root 100000
+                $DALITZ/bin/toyAcceptance phasespace.gen.root phasespace.acc.root
+                $DALITZ/bin/generatePhysics parserTest.cfg physics.gen.root 100000
+                $DALITZ/bin/toyAcceptance physics.gen.root physics.acc.root
+                $DALITZ/bin/fitAmplitudes parserTest.cfg
+                ./parserTest
+            - name: ConfigurationInfo
+              if: success() || failure()
+              run: |
+                cd $UNIT_TESTS
+                ./configurationInfoTest
+            - name: AmpToolsInterface
+              if: success() || failure()
+              run: |
+                cd $UNIT_TESTS
+                ./AmpToolsInterfaceTest
+            - name: FitResults
+              if: success() || failure()
+              run: |
+                cd $UNIT_TESTS
+                ./fitResultsTest base
+
+    Unit-Test-MPI:
+        runs-on: self-hosted
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+            - name: Building AmpTools
+              run: |
+                mkdir Tutorials/Dalitz/lib
+                mkdir Tutorials/Dalitz/bin
+                make mpi
+                export AMPTOOLS_HOME=$(pwd)
+                echo "AMPTOOLS_HOME=$AMPTOOLS_HOME" >> $GITHUB_ENV
+                echo "AMPTOOLS=$AMPTOOLS_HOME/AmpTools" >> $GITHUB_ENV
+                echo "AMPPLOTTER=$AMPTOOLS_HOME/AmpPlotter" >> $GITHUB_ENV
+                echo "DALITZ=$AMPTOOLS_HOME/Tutorials/Dalitz" >> $GITHUB_ENV
+                echo "UNIT_TESTS=$AMPTOOLS_HOME/UnitTests" >> $GITHUB_ENV
+            - name: ConfigFileParser
+              if: success() || failure()
+              run: |
+                cd $UNIT_TESTS
+                $DALITZ/bin/generatePhaseSpace phasespace.gen.root 100000
+                $DALITZ/bin/toyAcceptance phasespace.gen.root phasespace.acc.root
+                $DALITZ/bin/generatePhysics parserTest.cfg physics.gen.root 100000
+                $DALITZ/bin/toyAcceptance physics.gen.root physics.acc.root
+                $DALITZ/bin/fitAmplitudes parserTest.cfg
+                ./parserTest
+            - name: ConfigurationInfo
+              if: success() || failure()
+              run: |
+                cd $UNIT_TESTS
+                ./configurationInfoTest
+            - name: AmpToolsInterface
+              if: success() || failure()
+              run: |
+                cd $UNIT_TESTS
+                mpirun -n 3 ./AmpToolsInterfaceTestMPI
+            - name: FitResults
+              if: success() || failure()
+              run: |
+                cd $UNIT_TESTS
+                mpirun -n 3 ./fitResultsTestMPI mpi
+
+    Unit-Test-GPU:
+        runs-on: self-hosted
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+            - name: Building AmpTools
+              run: |
+                mkdir Tutorials/Dalitz/lib
+                mkdir Tutorials/Dalitz/bin
+                make gpu
+                export AMPTOOLS_HOME=$(pwd)
+                echo "AMPTOOLS_HOME=$AMPTOOLS_HOME" >> $GITHUB_ENV
+                echo "AMPTOOLS=$AMPTOOLS_HOME/AmpTools" >> $GITHUB_ENV
+                echo "AMPPLOTTER=$AMPTOOLS_HOME/AmpPlotter" >> $GITHUB_ENV
+                echo "DALITZ=$AMPTOOLS_HOME/Tutorials/Dalitz" >> $GITHUB_ENV
+                echo "UNIT_TESTS=$AMPTOOLS_HOME/UnitTests" >> $GITHUB_ENV
+            - name: ConfigFileParser
+              if: success() || failure()
+              run: |
+                cd $UNIT_TESTS
+                $DALITZ/bin/generatePhaseSpace_GPU phasespace.gen.root 100000
+                $DALITZ/bin/toyAcceptance_GPU phasespace.gen.root phasespace.acc.root
+                $DALITZ/bin/generatePhysics_GPU parserTest.cfg physics.gen.root 100000
+                $DALITZ/bin/toyAcceptance_GPU physics.gen.root physics.acc.root
+                $DALITZ/bin/fitAmplitudes_GPU parserTest.cfg
+                ./parserTest_GPU
+            - name: ConfigurationInfo
+              if: success() || failure()
+              run: |
+                cd $UNIT_TESTS
+                ./configurationInfoTest_GPU
+            - name: AmpToolsInterface
+              if: success() || failure()
+              run: |
+                cd $UNIT_TESTS
+                ./AmpToolsInterfaceTest_GPU
+            - name: FitResults
+              if: success() || failure()
+              run: |
+                cd $UNIT_TESTS
+                ./fitResultsTest_GPU gpu
+
+    Unit-Test-MPI-GPU:
+        runs-on: self-hosted
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+            - name: Building AmpTools
+              run: |
+                mkdir Tutorials/Dalitz/lib
+                mkdir Tutorials/Dalitz/bin
+                make mpigpu
+                export AMPTOOLS_HOME=$(pwd)
+                echo "AMPTOOLS_HOME=$AMPTOOLS_HOME" >> $GITHUB_ENV
+                echo "AMPTOOLS=$AMPTOOLS_HOME/AmpTools" >> $GITHUB_ENV
+                echo "AMPPLOTTER=$AMPTOOLS_HOME/AmpPlotter" >> $GITHUB_ENV
+                echo "DALITZ=$AMPTOOLS_HOME/Tutorials/Dalitz" >> $GITHUB_ENV
+                echo "UNIT_TESTS=$AMPTOOLS_HOME/UnitTests" >> $GITHUB_ENV
+            - name: ConfigFileParser
+              if: success() || failure()
+              run: |
+                cd $UNIT_TESTS
+                $DALITZ/bin/generatePhaseSpace_GPU phasespace.gen.root 100000
+                $DALITZ/bin/toyAcceptance_GPU phasespace.gen.root phasespace.acc.root
+                $DALITZ/bin/generatePhysics_GPU parserTest.cfg physics.gen.root 100000
+                $DALITZ/bin/toyAcceptance_GPU physics.gen.root physics.acc.root
+                mpirun -n 3 $DALITZ/bin/fitAmplitudesMPI_GPU parserTest.cfg
+                ./parserTest_GPU
+            - name: ConfigurationInfo
+              if: success() || failure()
+              run: |
+                cd $UNIT_TESTS
+                ./configurationInfoTest_GPU
+            - name: AmpToolsInterface
+              if: success() || failure()
+              run: |
+                cd $UNIT_TESTS
+                mpirun -n 3 ./AmpToolsInterfaceTestMPI_GPU
+            - name: FitResults
+              if: success() || failure()
+              run: |
+                cd $UNIT_TESTS
+                mpirun -n 3 ./fitResultsTestMPI_GPU mpigpu
