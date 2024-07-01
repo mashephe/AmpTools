@@ -1,0 +1,45 @@
+name: Write Models
+run-name: Writing Models
+on: [workflow_dispatch]
+permissions:
+  contents: write
+jobs:
+    Write-Models:
+        runs-on: self-hosted
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+            - name: Building AmpTools
+              run: |
+                mkdir Tutorials/Dalitz/lib
+                mkdir Tutorials/Dalitz/bin
+                make
+                export AMPTOOLS_HOME=$(pwd)
+                echo "AMPTOOLS_HOME=$AMPTOOLS_HOME" >> $GITHUB_ENV
+                echo "AMPTOOLS=$AMPTOOLS_HOME/AmpTools" >> $GITHUB_ENV
+                echo "AMPPLOTTER=$AMPTOOLS_HOME/AmpPlotter" >> $GITHUB_ENV
+                echo "DALITZ=$AMPTOOLS_HOME/Tutorials/Dalitz" >> $GITHUB_ENV
+                echo "UNIT_TESTS=$AMPTOOLS_HOME/UnitTests" >> $GITHUB_ENV
+            - name: Generating files
+              run: |
+                cd $UNIT_TESTS
+                $DALITZ/bin/generatePhaseSpace phasespace.gen.root 100000
+                $DALITZ/bin/toyAcceptance phasespace.gen.root phasespace.acc.root
+                $DALITZ/bin/generatePhysics parserTest.cfg physics.gen.root 100000
+                $DALITZ/bin/toyAcceptance physics.gen.root physics.acc.root
+                $DALITZ/bin/fitAmplitudes parserTest.cfg
+            - name: Writing Models
+              run: |
+                cd $UNIT_TESTS
+                ./writeModels
+            - name: Committing changes
+              run: |
+                git config --local user.email "action@github.com"	                
+                git config --local user.name "github-actions"
+                cd $UNIT_TESTS
+                git add models
+                git commit -m "Updated models" 
+            - name: Push changes
+              uses: ad-m/github-push-action@master
+              with:
+                github_token: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,126 @@
+#####################################
+####    THIS IS A CONFIG FILE    ####
+#####################################
+##
+##  Blank lines or lines beginning with a "#" are ignored.
+##
+##  Double colons (::) are treated like a space.
+##  This is sometimes useful for grouping (for example,
+##  grouping strings like "reaction::sum::amplitudeName")
+##
+##  All non-comment lines must begin with one of the following keywords.
+##
+##  (note:  <word> means necessary
+##       (word) means optional)
+##
+##  include     <file>
+##  define      <word> (defn1) (defn2) (defn3) ...
+##  loop        <word> <value1> <value2> (value3) ...
+##  fit         <fitname>
+##  keyword     <keyword> <min arguments> <max arguments>
+##  reaction     <reaction> <particle1> <particle2> (particle3) ...
+##  data         <reaction> <class> (arg1) (arg2) (arg3) ...
+##  genmc        <reaction> <class> (arg1) (arg2) (arg3) ...
+##  accmc        <reaction> <class> (arg1) (arg2) (arg3) ...
+##  (optional:  bkgnd         <reaction> <class> (arg1) (arg2) (arg3) ... )
+##  normintfile  <reaction> <file> ("input")
+##  sum          <reaction> <sum> (sum2) (sum3) ...
+##  amplitude    <reaction> <sum> <amp> <class> (arg1) (arg2) ([par]) ...
+##  initialize    <reaction> <sum> <amp> <"events"/"polar"/"cartesian">
+##       <value1> <value2> ("fixed"/"real")
+##  scale        <reaction> <sum> <amp> <value or [parameter]>
+##  constrain    <reaction1> <sum1> <amp1> <reaction2> <sum2> <amp2> ...
+##  parameter    <par> <value> ("fixed"/"bounded"/"gaussian")
+##       (lower/central) (upper/error)
+##  neg2LnLikContrib <class> (arg1) (arg2) ...
+##    FUTURE - NOT YET SUPPORTED:
+##  pdf          <reaction> <pdf> <class> (arg1) (arg2) ([par]) ...
+##  pdfinitialize <reaction> <pdf> <value> ("fixed")
+##  pdfscale     <reaction> <pdf> <value or [parameter]>
+##  pdfconstrain <reaction1> <pdf1> <reaction2> <pdf2> ...
+##  gpudevice    <reaction> <device number>
+##    DEPRECATED:
+##  datafile      <reaction> <file> (file2) (file3) ...
+##  genmcfile     <reaction> <file> (file2) (file3) ...
+##  accmcfile     <reaction> <file> (file2) (file3) ...
+##
+#####################################
+
+define P12 1.000 0.200
+define P13 1.500 0.150
+
+parameter A 5
+parameter BKG 2.5
+parameter M12 1.000
+parameter G12 0.200
+parameter M13 1.500
+parameter G13 0.150
+
+fit fitTest
+
+#Base reaction
+##########  INCLUDE FILE includeTest.cfg  ########
+reaction base p1 p2 p3
+sum base s1
+amplitude base::s1::R12 BreitWigner [M12]  [G12]  1 2
+amplitude base::s1::R13 BreitWigner [M13]  [G13]  1 3
+initialize base::s1::R12  cartesian 1.0 0.0
+initialize base::s1::R13  cartesian 1.0 0.0 real
+
+#Constrained reaction
+reaction constrained p1 p2 p3
+sum constrained s2
+sum constrained s3
+amplitude constrained::s2::RC12 BreitWigner [M12]  [G12]  1 2
+amplitude constrained::s3::RC13 BreitWigner [M13]  [G13]  1 3
+scale constrained::s2::RC12  3
+constrain constrained::s2::RC12 base::s1::R12
+constrain constrained::s3::RC13 base::s1::R13
+initialize constrained::s2::RC12  cartesian 1.0 0.0
+initialize constrained::s3::RC13  cartesian 1.0 0.0 real
+
+#Symmetrized reactions
+reaction symmetrized_implicit p1 p2 p2
+reaction symmetrized_explicit p1 p2 p3
+sum symmetrized_explicit s4
+sum symmetrized_implicit s5
+
+amplitude symmetrized_explicit::s4::RSE12 BreitWigner  P12   1 2
+amplitude symmetrized_explicit::s4::RSE13 BreitWigner  P13   1 3
+permute symmetrized_explicit::s4::RSE12 0 2 1
+permute symmetrized_explicit::s4::RSE13 0 2 1
+
+amplitude symmetrized_implicit::s5::RSI12 BreitWigner  P12   1 2
+amplitude symmetrized_implicit::s5::RSI13 BreitWigner  P13   1 3
+
+initialize symmetrized_explicit::s4::RSE12  cartesian 1.0 0.0
+initialize symmetrized_explicit::s4::RSE13  cartesian 1.0 0.0 real
+
+initialize symmetrized_implicit::s5::RSI12  cartesian 1.0 0.0
+initialize symmetrized_implicit::s5::RSI13  cartesian 1.0 0.0 real
+
+loop for_each_reaction base constrained symmetrized_implicit symmetrized_explicit
+
+##########  INSERTING A LOOP  ########
+genmc   for_each_reaction DalitzDataReader phasespace.gen.root
+genmc   for_each_reaction DalitzDataReader phasespace.gen.root
+genmc   for_each_reaction DalitzDataReader phasespace.gen.root
+genmc   for_each_reaction DalitzDataReader phasespace.gen.root
+##########  INSERTING A LOOP  ########
+accmc   for_each_reaction DalitzDataReader phasespace.acc.root
+accmc   for_each_reaction DalitzDataReader phasespace.acc.root
+accmc   for_each_reaction DalitzDataReader phasespace.acc.root
+accmc   for_each_reaction DalitzDataReader phasespace.acc.root
+##########  INSERTING A LOOP  ########
+data    for_each_reaction DalitzDataReader physics.acc.root
+data    for_each_reaction DalitzDataReader physics.acc.root
+data    for_each_reaction DalitzDataReader physics.acc.root
+data    for_each_reaction DalitzDataReader physics.acc.root
+normintfile base  base.ni
+normintfile constrained constrained.ni
+normintfile symmetrized_implicit symmetrized_implicit.ni
+normintfile symmetrized_explicit symmetrized_explicit.ni
+
+neg2LnLikContrib Constraint [A] [M12] [G12] [BKG]
+
+
