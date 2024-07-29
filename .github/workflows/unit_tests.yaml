@@ -63,6 +63,9 @@ jobs:
                 echo "AMPPLOTTER=$AMPTOOLS_HOME/AmpPlotter" >> $GITHUB_ENV
                 echo "DALITZ=$AMPTOOLS_HOME/Tutorials/Dalitz" >> $GITHUB_ENV
                 echo "UNIT_TESTS=$AMPTOOLS_HOME/UnitTests" >> $GITHUB_ENV
+                cd $UNIT_TESTS
+                make mpi
+                cd ..
             - name: ConfigFileParser
               if: success() || failure()
               run: |
@@ -105,6 +108,9 @@ jobs:
                 echo "AMPPLOTTER=$AMPTOOLS_HOME/AmpPlotter" >> $GITHUB_ENV
                 echo "DALITZ=$AMPTOOLS_HOME/Tutorials/Dalitz" >> $GITHUB_ENV
                 echo "UNIT_TESTS=$AMPTOOLS_HOME/UnitTests" >> $GITHUB_ENV
+                cd $UNIT_TESTS
+                make gpu
+                cd ..
             - name: ConfigFileParser
               if: success() || failure()
               run: |
@@ -147,6 +153,9 @@ jobs:
                 echo "AMPPLOTTER=$AMPTOOLS_HOME/AmpPlotter" >> $GITHUB_ENV
                 echo "DALITZ=$AMPTOOLS_HOME/Tutorials/Dalitz" >> $GITHUB_ENV
                 echo "UNIT_TESTS=$AMPTOOLS_HOME/UnitTests" >> $GITHUB_ENV
+                cd $UNIT_TESTS
+                make mpigpu
+                cd ..
             - name: ConfigFileParser
               if: success() || failure()
               run: |
