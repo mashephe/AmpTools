@@ -13,12 +13,16 @@ jobs:
                 mkdir Tutorials/Dalitz/bin
                 make
                 export AMPTOOLS_HOME=$(pwd)
+                export AMPTOOLS="$AMPTOOLS_HOME/AmpTools"
+                export AMPPLOTTER="$AMPTOOLS_HOME/AmpPlotter"
+                export DALITZ="$AMPTOOLS_HOME/Tutorials/Dalitz"
+                export UNIT_TESTS="$AMPTOOLS_HOME/UnitTests"
                 echo "AMPTOOLS_HOME=$AMPTOOLS_HOME" >> $GITHUB_ENV
                 echo "AMPTOOLS=$AMPTOOLS_HOME/AmpTools" >> $GITHUB_ENV
                 echo "AMPPLOTTER=$AMPTOOLS_HOME/AmpPlotter" >> $GITHUB_ENV
                 echo "DALITZ=$AMPTOOLS_HOME/Tutorials/Dalitz" >> $GITHUB_ENV
                 echo "UNIT_TESTS=$AMPTOOLS_HOME/UnitTests" >> $GITHUB_ENV
-                cd $AMPTOOLS_HOME/UnitTests
+                cd $UNIT_TESTS
                 make
                 cd ..
             - name: ConfigFileParser
@@ -58,6 +62,10 @@ jobs:
                 mkdir Tutorials/Dalitz/bin
                 make mpi
                 export AMPTOOLS_HOME=$(pwd)
+                export AMPTOOLS="$AMPTOOLS_HOME/AmpTools"
+                export AMPPLOTTER="$AMPTOOLS_HOME/AmpPlotter"
+                export DALITZ="$AMPTOOLS_HOME/Tutorials/Dalitz"
+                export UNIT_TESTS="$AMPTOOLS_HOME/UnitTests"
                 echo "AMPTOOLS_HOME=$AMPTOOLS_HOME" >> $GITHUB_ENV
                 echo "AMPTOOLS=$AMPTOOLS_HOME/AmpTools" >> $GITHUB_ENV
                 echo "AMPPLOTTER=$AMPTOOLS_HOME/AmpPlotter" >> $GITHUB_ENV
@@ -103,6 +111,10 @@ jobs:
                 mkdir Tutorials/Dalitz/bin
                 make gpu
                 export AMPTOOLS_HOME=$(pwd)
+                export AMPTOOLS="$AMPTOOLS_HOME/AmpTools"
+                export AMPPLOTTER="$AMPTOOLS_HOME/AmpPlotter"
+                export DALITZ="$AMPTOOLS_HOME/Tutorials/Dalitz"
+                export UNIT_TESTS="$AMPTOOLS_HOME/UnitTests"
                 echo "AMPTOOLS_HOME=$AMPTOOLS_HOME" >> $GITHUB_ENV
                 echo "AMPTOOLS=$AMPTOOLS_HOME/AmpTools" >> $GITHUB_ENV
                 echo "AMPPLOTTER=$AMPTOOLS_HOME/AmpPlotter" >> $GITHUB_ENV
@@ -148,6 +160,10 @@ jobs:
                 mkdir Tutorials/Dalitz/bin
                 make mpigpu
                 export AMPTOOLS_HOME=$(pwd)
+                export AMPTOOLS="$AMPTOOLS_HOME/AmpTools"
+                export AMPPLOTTER="$AMPTOOLS_HOME/AmpPlotter"
+                export DALITZ="$AMPTOOLS_HOME/Tutorials/Dalitz"
+                export UNIT_TESTS="$AMPTOOLS_HOME/UnitTests"
                 echo "AMPTOOLS_HOME=$AMPTOOLS_HOME" >> $GITHUB_ENV
                 echo "AMPTOOLS=$AMPTOOLS_HOME/AmpTools" >> $GITHUB_ENV
                 echo "AMPPLOTTER=$AMPTOOLS_HOME/AmpPlotter" >> $GITHUB_ENV
