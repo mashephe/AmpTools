@@ -65,7 +65,7 @@ public:
    * This is the default constructor.  It should be called in the default
    * constructor of the user's derived class.
    */
-        UserDataReader< T >() : DataReader() { }
+        UserDataReader() : DataReader() { }
 
 
   /**
@@ -73,13 +73,13 @@ public:
    * be a corresponding constructor in the user's derived class that calls
    * this constructor.
    */
-        UserDataReader< T >( const vector< string >& args ) : DataReader( args ) { }
+        UserDataReader( const vector< string >& args ) : DataReader( args ) { }
 
 
   /**
    * This is the destructor.
    */
-        virtual ~UserDataReader< T >() { }
+        virtual ~UserDataReader() { }
 
 
   /**

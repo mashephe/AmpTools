@@ -63,7 +63,7 @@ public:
    * This is the default constructor.  It should be called in the default
    * constructor of the user's derived class.
    */
-  UserAmplitude< T >() : Amplitude() { }
+  UserAmplitude() : Amplitude() { }
   
   
   /**
@@ -71,13 +71,13 @@ public:
    * be a corresponding constructor in the user's derived class that calls
    * this constructor.
    */
-  UserAmplitude< T >( const vector< string >& args ) : Amplitude( args ) { }
+  UserAmplitude( const vector< string >& args ) : Amplitude( args ) { }
   
   
   /**
    * This is the destructor.
    */
-   ~UserAmplitude< T >() {
+   ~UserAmplitude() {
     
     for( typename map< string, T* >::iterator amp = m_ampInstances.begin();
          amp != m_ampInstances.end(); ++amp ){
