@@ -18,7 +18,7 @@ public:
    * This is the default constructor.  It should be called in the default
    * constructor of the user's derived class.
    */
-  UserNeg2LnLikContrib< T >() : Neg2LnLikContrib() { }
+  UserNeg2LnLikContrib() : Neg2LnLikContrib() { }
   
   
   /**
@@ -26,13 +26,13 @@ public:
    * be a corresponding constructor in the user's derived class that calls
    * this constructor.
    */
-  UserNeg2LnLikContrib< T >( const vector< string >& args ) : Neg2LnLikContrib( args ) { }
+  UserNeg2LnLikContrib( const vector< string >& args ) : Neg2LnLikContrib( args ) { }
   
   
   /**
    * This is the destructor.
    */
-   ~UserNeg2LnLikContrib< T >() {
+   ~UserNeg2LnLikContrib() {
     
     for( typename map< string, T* >::iterator amp = m_ampInstances.begin();
          amp != m_ampInstances.end(); ++amp ){
