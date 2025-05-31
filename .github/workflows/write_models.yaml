@@ -23,23 +23,34 @@ jobs:
             - name: Generating files
               run: |
                 cd $UNIT_TESTS
-                $DALITZ/bin/generatePhaseSpace phasespace.gen.root 100000
-                $DALITZ/bin/toyAcceptance phasespace.gen.root phasespace.acc.root
-                $DALITZ/bin/generatePhysics parserTest.cfg physics.gen.root 100000
-                $DALITZ/bin/toyAcceptance physics.gen.root physics.acc.root
+                $DALITZ/bin/generatePhaseSpace phasespace.gen.root 100000 12345
+                $DALITZ/bin/toyAcceptance phasespace.gen.root phasespace.acc.root 12345
+                $DALITZ/bin/generatePhysics parserTest.cfg physics.gen.root 100000 12345
+                $DALITZ/bin/toyAcceptance physics.gen.root physics.acc.root 12345
                 $DALITZ/bin/fitAmplitudes parserTest.cfg
             - name: Writing Models
               run: |
                 cd $UNIT_TESTS
+                if [ ! -d "models" ]; then
+                  mkdir -p "models"
+                fi
                 ./writeModels
-            - name: Committing changes
+            - name: Commit Changes
+              id: commit_changes 
               run: |
                 git config --local user.email "action@github.com"	                
                 git config --local user.name "github-actions"
                 cd $UNIT_TESTS
-                git add models
-                git commit -m "Updated models" 
+                git add models/
+                if git diff --cached --quiet; then
+                  echo "No changes to commit."
+                  echo "push_required=false" >> $GITHUB_OUTPUT
+                else
+                  git commit -m "Updated models"
+                  echo "push_required=true" >> $GITHUB_OUTPUT
+                fi
             - name: Push changes
+              if: steps.commit_changes.outputs.push_required == 'true'
               uses: ad-m/github-push-action@master
               with:
                 github_token: ${{ secrets.GITHUB_TOKEN }}
