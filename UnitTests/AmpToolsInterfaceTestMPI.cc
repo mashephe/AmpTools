@@ -30,10 +30,22 @@ class unitTest {
             failedTests.push_back(name);
         }
     }
+    void add(double valModel, double val, double tolerance, string name) {
+        bool expr = abs(valModel-val)<= tolerance;
+        passed = passed && expr;
+        if (expr) {
+            passedTests.push_back(name + "(diff="+to_string(abs(valModel-val)) +")");
+        } else {
+            failedTests.push_back(name + "(diff="+to_string(abs(valModel-val)) +")");
+        }
+    }
     bool summary() {
         assert(passed || failedTests.size() > 0);
         if (passed) {
             cout << "All unit tests passed." << endl;
+            for (const string& passedTest : passedTests) {
+                cout << "* " << passedTest << endl;
+            }
         } else {
             cout << "The following unit tests failed:" << endl;
             for (const string& failedTest : failedTests) {
@@ -65,6 +77,7 @@ int main( int argc, char* argv[] ) {
     AmpToolsInterfaceMPI::registerNeg2LnLikContrib(Constraint());
     AmpToolsInterfaceMPI::registerDataReader(DataReaderMPI<DalitzDataReader>());
     AmpToolsInterfaceMPI ATI(cfgInfo);
+    AmpToolsInterfaceMPI::setRandomSeed(12345);
     if (rank == 0){
     cout << "________________________________________" << endl;
     cout << "Testing AmpToolsInterface from ConfigurationInfo:" << endl;
@@ -76,7 +89,7 @@ int main( int argc, char* argv[] ) {
 
     double neg2LL_before;
     fin >> neg2LL_before;
-    unit_test.add(abs(ATI.likelihood()-neg2LL_before)<= 1, "Likelihood before fit matches model");
+    unit_test.add(neg2LL_before, ATI.likelihood(), 1e-1, "Likelihood before fit matches model");
     MinuitMinimizationManager* fitManager = ATI.minuitMinimizationManager();
     fitManager->setStrategy(1);
 
@@ -84,20 +97,19 @@ int main( int argc, char* argv[] ) {
 
     double neg2LL_after;
     fin >> neg2LL_after;
-    unit_test.add(abs(ATI.likelihood()-neg2LL_after)<= 1e-01, "Likelihood after fit matches model");
+    unit_test.add(neg2LL_after, ATI.likelihood(), 1e-1, "Likelihood after fit matches model");
     double neg2LL_base;
     fin >> neg2LL_base;
-    cout << ATI.likelihood("base") << endl;
-    unit_test.add(abs(ATI.likelihood("base")-neg2LL_base)<= 1e-1, "Likelihood of base reaction after fit matches model");
+    unit_test.add(neg2LL_base, ATI.likelihood("base"), 1e-3, "Likelihood of base reaction after fit matches model");
     double neg2LL_constrained;
     fin >> neg2LL_constrained;
-    unit_test.add(abs(ATI.likelihood("constrained")-neg2LL_constrained)<= 1e-1, "Likelihood of constrained reaction after fit matches model");
+    unit_test.add(neg2LL_constrained, ATI.likelihood("constrained"),1e-3, "Likelihood of constrained reaction after fit matches model");
     double neg2LL_symmetrized_implicit;
     fin >> neg2LL_symmetrized_implicit;
-    unit_test.add(abs(ATI.likelihood("symmetrized_implicit")-neg2LL_symmetrized_implicit)<= 1e-1, "Likelihood of symmetrized (implicit) reaction after fit matches model");
+    unit_test.add(neg2LL_symmetrized_implicit,ATI.likelihood("symmetrized_implicit"),1e-4, "Likelihood of symmetrized (implicit) reaction after fit matches model");
     double neg2LL_symmetrized_explicit;
     fin >> neg2LL_symmetrized_explicit;
-    unit_test.add(abs(ATI.likelihood("symmetrized_explicit")-neg2LL_symmetrized_explicit)<= 1e-1, "Likelihood of symmetrized (explicit) reaction after fit matches model");
+    unit_test.add(neg2LL_symmetrized_explicit, ATI.likelihood("symmetrized_explicit"), 1e-4, "Likelihood of symmetrized (explicit) reaction after fit matches model");
     result = unit_test.summary();
     if (!result) {
         throw runtime_error("Unit Tests Failed. See previous logs for more information.");
