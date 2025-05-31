@@ -21,7 +21,12 @@ int main(int argc, char** argv){
   if (argc <= 2){
     report( NOTICE, kModule ) << "Usage:" << endl << endl;
     report( NOTICE, kModule ) << "\ttoyAcceptance <input file name> <output file name>" << endl << endl;
+    report( NOTICE, kModule ) << "\ttoyAcceptance <input file name> <output file name> <seed>" << endl << endl;
     return 0;
+  }
+  if (argc == 4) {
+    int seed = stoi(argv[3]);
+    srand48(seed);
   }
 
   report( INFO, kModule ) << endl << " *** Simulating Detector Effects *** " << endl << endl;
