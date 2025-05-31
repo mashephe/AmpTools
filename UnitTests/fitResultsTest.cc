@@ -8,6 +8,7 @@
 #include "IUAmpTools/ConfigFileParser.h"
 #include "IUAmpTools/ConfigurationInfo.h"
 #include "IUAmpTools/AmpToolsInterface.h"
+#include "IUAmpTools/DataReader.h"
 #include "IUAmpTools/FitResults.h"
 #include "DalitzDataIO/DalitzDataReader.h"
 #include "DalitzAmp/BreitWigner.h"
@@ -17,7 +18,6 @@
 static const char* kModule = "fitResultsTest";
 
 using namespace std;
-
 
 class unitTest {
     public:
@@ -32,10 +32,22 @@ class unitTest {
             failedTests.push_back(name);
         }
     }
+    void add(double valModel, double val, double tolerance, string name) {
+        bool expr = abs(valModel-val)<= tolerance;
+        passed = passed && expr;
+        if (expr) {
+            passedTests.push_back(name + "(diff="+to_string(abs(valModel-val)) +")");
+        } else {
+            failedTests.push_back(name + "(diff="+to_string(abs(valModel-val)) +")");
+        }
+    }
     bool summary() {
         assert(passed || failedTests.size() > 0);
         if (passed) {
             cout << "All unit tests passed." << endl;
+            for (const string& passedTest : passedTests) {
+                cout << "* " << passedTest << endl;
+            }
         } else {
             cout << "The following unit tests failed:" << endl;
             for (const string& failedTest : failedTests) {
@@ -52,7 +64,8 @@ class unitTest {
     }
 };
 
-bool testFitResults(const FitResults* fitResults) {
+bool testFitResults(const FitResults* fitResults)
+{
     string fitResultsFile = "models/fitResults.txt";
     unitTest unit_test;
     ifstream fin;
@@ -81,30 +94,31 @@ bool testFitResults(const FitResults* fitResults) {
     fin >> ppSymm_imag;
     fin >> bestMinimum;
     fin >> num_parameters;
-    unit_test.add(abs(intensity_first-fitResults->intensity().first)<= 1, "Intensity matches model");
-    unit_test.add(abs(intensity_second-fitResults->intensity().second)<= 1e1, "Intensity error matches model");
-    unit_test.add(abs(pd_first-fitResults->phaseDiff("base::s1::R12","base::s1::R13").first)<= 1e-02, "Phase difference between amplitudes matches model");
-    unit_test.add(abs(pd_second-fitResults->phaseDiff("base::s1::R12","base::s1::R13").second)<= 1, "Phase difference error between amplitudes matches model");
-    unit_test.add(abs(ppBase_real-fitResults->productionParameter("base::s1::R12").real())<= 1e-02, "Real part of base reaction production parameter matches model");
-    unit_test.add(abs(ppBase_imag-fitResults->productionParameter("base::s1::R12").imag())<= 1e-02, "Imaginary part of base reaction production parameter matches model");
-    unit_test.add(abs(ppConstrained_real-fitResults->productionParameter("constrained::s2::RC12").real())<= 1e-02, "Real part of constrained reaction production parameter matches model");
-    unit_test.add(abs(ppConstrained_imag-fitResults->productionParameter("constrained::s2::RC12").imag())<= 1e-02, "Imaginary part of constrained reaction production parameter matches model");
-    unit_test.add(abs(ppSymm_real-fitResults->productionParameter("symmetrized_explicit::s4::RSE12").real())<= 1e-02, "Real part of symmetrized reaction production parameter matches model");
-    unit_test.add(abs(ppSymm_imag-fitResults->productionParameter("symmetrized_explicit::s4::RSE12").imag())<= 1e-02, "Imaginary part of symmetrized reaction production parameter matches model");
-    unit_test.add(abs(bestMinimum-fitResults->bestMinimum())<=1e-2,"Best minimum matches model");
+    unit_test.add(intensity_first, fitResults->intensity().first, 1e-2, "Intensity matches model");
+    unit_test.add(intensity_second, fitResults->intensity().second, 1e-2, "Intensity error matches model");
+    unit_test.add(pd_first, fitResults->phaseDiff("base::s1::R12", "base::s1::R13").first, 1e-4, "Phase difference between amplitudes matches model");
+    unit_test.add(pd_second,fitResults->phaseDiff("base::s1::R12", "base::s1::R13").second,1e-4,"Phase difference error between amplitudes matches model");
+    unit_test.add(ppBase_real,fitResults->productionParameter("base::s1::R12").real(),1e-4,"Real part of base reaction production parameter matches model");
+    unit_test.add(ppBase_imag,fitResults->productionParameter("base::s1::R12").imag(),1e-4,"Imaginary part of base reaction production parameter matches model");
+    unit_test.add(ppConstrained_real,fitResults->productionParameter("constrained::s2::RC12").real(),1e-4,"Real part of constrained reaction production parameter matches model");
+    unit_test.add(ppConstrained_imag,fitResults->productionParameter("constrained::s2::RC12").imag(),1e-4,"Imaginary part of constrained reaction production parameter matches model");
+    unit_test.add(ppSymm_real,fitResults->productionParameter("symmetrized_explicit::s4::RSE12").real(),1e-4,"Real part of symmetrized reaction production parameter matches model");
+    unit_test.add(ppSymm_imag,fitResults->productionParameter("symmetrized_explicit::s4::RSE12").imag(),1e-4,"Imaginary part of symmetrized reaction production parameter matches model");
+    unit_test.add(bestMinimum,fitResults->bestMinimum(),1e-3,"Best minimum matches model");
     vector<string> parNames = fitResults->parNameList();
     int sz = parNames.size();
-    unit_test.add(abs(num_parameters-sz)==0, "Number of parameter names matches model");
+    unit_test.add(abs(num_parameters - sz) == 0, "Number of parameter names matches model");
     vector<double> parVals = fitResults->parValueList();
-    for (int i = 0; i< sz; i++) {
+    for (int i = 0; i < sz; i++) {
         double parValModel;
         fin >> parValModel;
-        unit_test.add(abs(parValModel-parVals[i])<=1e-02, parNames[i] + " value matches model value");    
+        unit_test.add(parValModel, parVals[i], 1e-4, parNames[i] + " value matches model value");
     }
     return unit_test.summary();
 }
 
-int main() {
+int main()
+{
     vector<bool> results;
     string cfgname = "parserTest.cfg";
     ConfigFileParser parser(cfgname);
@@ -113,10 +127,10 @@ int main() {
     AmpToolsInterface::registerNeg2LnLikContrib(Constraint());
     AmpToolsInterface::registerDataReader(DalitzDataReader());
     AmpToolsInterface ATI(cfgInfo);
+    AmpToolsInterface::setRandomSeed(12345);
     cout << "________________________________________" << endl;
     cout << "Testing FitResults from AmpToolsInterface:" << endl;
     cout << "________________________________________" << endl;
-    
 
     MinuitMinimizationManager* fitManager = ATI.minuitMinimizationManager();
     fitManager->setStrategy(1);
@@ -134,9 +148,9 @@ int main() {
     const FitResults* fr_ff = &fitResults_from_file;
     results.push_back(testFitResults(fr_ff));
     for (const bool result : results) {
-    if (!result) {
-        throw runtime_error("Unit Tests Failed. See previous logs for more information.");
+        if (!result) {
+            throw runtime_error("Unit Tests Failed. See previous logs for more information.");
+        }
     }
-  }
     return 0;
 }
