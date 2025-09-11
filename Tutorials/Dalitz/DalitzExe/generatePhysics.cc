@@ -31,7 +31,12 @@ int main(int argc, char** argv){
   if (argc <= 3){
     report( NOTICE, kModule ) << "Usage:" << endl;
     report( NOTICE, kModule ) << "\tgeneratePhysics <config file name> <output file name> <number of events>" << endl << endl;
+    report( NOTICE, kModule ) << "\tgeneratePhysics <config file name> <output file name> <number of events> <seed>" << endl << endl;
     return 0;
+  }
+  if (argc == 5) {
+    int seed = stoi(argv[4]);
+    srand48(seed);
   }
 
   report( INFO, kModule ) << endl << " *** Generating Events According to Amplitudes *** " << endl << endl;

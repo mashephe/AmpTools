@@ -25,7 +25,12 @@ int main(int argc, char** argv){
   if (argc <= 2){
     report( NOTICE, kModule ) << "Usage:" << endl << endl;
     report( NOTICE, kModule ) << "\tgeneratePhaseSpace <output file name> <number of events>" << endl << endl;
+    report( NOTICE, kModule ) << "\tgeneratePhaseSpace <output file name> <number of events> <seed>" << endl << endl;
     return 0;
+  }
+  if (argc == 4) {
+    int seed = stoi(argv[3]);
+    srand48(seed);
   }
 
   cout << endl << " *** Generate Phase Space *** " << endl << endl;

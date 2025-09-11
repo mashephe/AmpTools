@@ -24,12 +24,16 @@ default:
 	@$(MAKE) -C AmpPlotter
 	@echo "=== Building Dalitz tutorial ==="
 	@$(MAKE) -C Tutorials/Dalitz
+	@echo "=== Building UnitTests ==="
+	@$(MAKE) -C UnitTests
 
 mpi: default
 	@echo "=== Building AmpTools with MPI ==="
 	@$(MAKE) -C AmpTools MPI=1
 	@echo "=== Building Dalitz tutorial with MPI ==="
 	@$(MAKE) -C Tutorials/Dalitz MPI=1
+	@echo "=== Building UnitTests with MPI ==="
+	@$(MAKE) -C UnitTests MPI=1
 
 gpu:
 	@echo "=== Building AmpTools with GPU acceleration ==="
@@ -38,6 +42,8 @@ gpu:
 	@$(MAKE) -C AmpPlotter
 	@echo "=== Building Dalitz tutorial with GPU acceleration ==="
 	@$(MAKE) -C Tutorials/Dalitz GPU=1
+	@echo "=== Building UnitTests with GPU acceleration ==="
+	@$(MAKE) -C UnitTests GPU=1
 
 mpigpu: gpu
 	@echo "=== Building AmpTools with MPI and GPU acceleration ==="
@@ -46,6 +52,8 @@ mpigpu: gpu
 	@$(MAKE) -C AmpPlotter
 	@echo "=== Building Dalitz tutorial with MPI and GPU acceleration ==="
 	@$(MAKE) -C Tutorials/Dalitz MPI=1 GPU=1
+	@echo "=== Building UnitTests with MPI and GPU acceleration ==="
+	@$(MAKE) -C UnitTests MPI=1 GPU=1
 
 gpumpi: mpigpu
 
@@ -53,4 +61,5 @@ clean:
 	@$(MAKE) -C AmpTools clean
 	@$(MAKE) -C AmpPlotter clean
 	@$(MAKE) -C Tutorials/Dalitz clean
+	@$(MAKE) -C UnitTests clean
 
