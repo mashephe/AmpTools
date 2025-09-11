@@ -72,6 +72,13 @@ the square root of the intensity computed from the parameters and the kinematics
 
 RELEASE NOTES:
 
+v0.15.4 (11-Sep-2025):
+
+This release should have no functional changes for users from previous releases. 
+Some small modifications have been made for C++ 20 support. In addition 
+significant additions to the package were made to enable unit testing on 
+GitHub for developers.
+
 v0.15.3 (11-Apr-2024):
 
 Reorder looping structures in the Amplitude and AmplitudeManager classes
