@@ -260,6 +260,15 @@ public:
   
   void randomizeParameter( const string& parName, float min = 0, float max = 1 );
   
+  
+  /** Enable bootstrapping of data for all reactions.  This will cause
+   * the likelihood calculator to use bootstrapped data for the fit.
+   *
+   * \param[in] bootstrapSeed
+   */
+  void bootstrapData( const uint bootstrapSeed );
+
+  
   /** Print final fit results to a file.  The tag can be used to
    *  generate a unique name in the case that multiple results are
    *  written for a singele fit job.

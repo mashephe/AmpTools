@@ -78,6 +78,11 @@ AmpVecs::AmpVecs(){
   m_hasNonUnityWeights = false;
   m_hasMixedSignWeights = false;
   m_lastWeightSign = 0;
+  
+  m_pdOriginalData = NULL;
+  m_pdOriginalWeights = NULL;
+  m_pdOriginalUserVars = NULL;
+  m_hasOriginalData = false;
 }
 
 void 
@@ -122,6 +127,18 @@ AmpVecs::deallocAmpVecs()
   m_pdUserVars=0;
   
   m_userVarsOffset.clear();
+  
+  if( m_pdOriginalData ) 
+    delete[] m_pdOriginalData;
+  if( m_pdOriginalWeights ) 
+    delete[] m_pdOriginalWeights;
+  if( m_pdOriginalUserVars ) 
+    delete[] m_pdOriginalUserVars;
+  
+  m_pdOriginalData = NULL;
+  m_pdOriginalWeights = NULL;
+  m_pdOriginalUserVars = NULL;
+  m_hasOriginalData = false;
   
 #ifndef GPU_ACCELERATION
   
@@ -379,6 +396,103 @@ AmpVecs::allocateCPUAmpStorage( const IntensityManager& intenMan ){
   }
 }
 #endif
+
+
+void
+AmpVecs::bootstrapData( unsigned int seed ){
+  
+  if( !m_dataLoaded ){
+
+    report( ERROR, kModule ) << "Cannot bootstrap data before it is loaded" << endl;
+    assert( false );
+  }
+  
+  // Store original data on first bootstrap call
+  if( !m_hasOriginalData ){
+
+    m_pdOriginalData = new GDouble[4*m_iNParticles*m_iNEvents];
+    m_pdOriginalWeights = new GDouble[m_iNEvents];
+    memcpy( m_pdOriginalData, m_pdData, 4*m_iNParticles*m_iNTrueEvents*sizeof(GDouble) );
+    memcpy( m_pdOriginalWeights, m_pdWeights, m_iNTrueEvents*sizeof(GDouble) );
+
+    if( m_userVarsPerEvent > 0 && m_pdUserVars ){
+
+      m_pdOriginalUserVars = new GDouble[m_iNEvents*m_userVarsPerEvent];
+      memcpy( m_pdOriginalUserVars, m_pdUserVars, 
+              m_iNTrueEvents*m_userVarsPerEvent*sizeof(GDouble) );
+    }
+    m_hasOriginalData = true;
+  }
+  
+  srand( seed );
+  
+  // Create bootstrap indices
+  int bootstrapIndices[m_iNTrueEvents];  
+  for (int iEvent = 0; iEvent < m_iNTrueEvents; ++iEvent ){
+    bootstrapIndices[iEvent] = rand() % m_iNTrueEvents;
+  }
+  
+  // Bootstrap from original dataset
+  for (int iEvent = 0; iEvent < m_iNTrueEvents; ++iEvent){
+    int sourceIdx = bootstrapIndices[iEvent];
+    
+    // Copy four-vectors
+    for (int iParticle = 0; iParticle < m_iNParticles; ++iParticle){
+      m_pdData[4*iEvent*m_iNParticles+4*iParticle+0] = m_pdOriginalData[4*sourceIdx*m_iNParticles+4*iParticle+0];
+      m_pdData[4*iEvent*m_iNParticles+4*iParticle+1] = m_pdOriginalData[4*sourceIdx*m_iNParticles+4*iParticle+1];
+      m_pdData[4*iEvent*m_iNParticles+4*iParticle+2] = m_pdOriginalData[4*sourceIdx*m_iNParticles+4*iParticle+2];
+      m_pdData[4*iEvent*m_iNParticles+4*iParticle+3] = m_pdOriginalData[4*sourceIdx*m_iNParticles+4*iParticle+3];        
+    }
+    
+    // Copy weights
+    m_pdWeights[iEvent] = m_pdOriginalWeights[sourceIdx];
+    
+    // Copy user variables if they exist
+    if( m_userVarsPerEvent > 0 && m_pdUserVars && m_pdOriginalUserVars ){
+
+      for (int j = 0; j < m_userVarsPerEvent; ++j){
+        m_pdUserVars[iEvent * m_userVarsPerEvent + j] = 
+          m_pdOriginalUserVars[sourceIdx * m_userVarsPerEvent + j];
+      }
+    }
+
+    // Copy mapping of amplitude identifiers to data memory
+    // TODO: If we run m_userVarsOffset.clear() we can get changed likelihood values,
+    // suggesting that the bootstrapping is working, but the userVars get recalculated,
+    // which is our slowest point. In debugging, the 
+    // AmplitudeManager:calcSumLogIntensity function had nan values due to 
+    // a.m_pdIntensity[iEvent] being zero, and appeared to be linked in some way to this
+    // offset not being mapped properly.
+    for( map< string, unsigned long long >::iterator it = m_originalUserVarsOffset.begin();
+         it != m_originalUserVarsOffset.end(); ++it ){
+      continue; // TODO: Figure out the proper mapping for bootstrapped data
+    }
+  }
+  
+  // Fill remaining padded events with last event's data
+  for (int iEvent = m_iNTrueEvents; iEvent < m_iNEvents; ++iEvent){
+    for (int iParticle = 0; iParticle < m_iNParticles; ++iParticle){
+      m_pdData[4*iEvent*m_iNParticles+4*iParticle+0] = m_pdData[4*(m_iNTrueEvents-1)*m_iNParticles+4*iParticle+0];
+      m_pdData[4*iEvent*m_iNParticles+4*iParticle+1] = m_pdData[4*(m_iNTrueEvents-1)*m_iNParticles+4*iParticle+1];
+      m_pdData[4*iEvent*m_iNParticles+4*iParticle+2] = m_pdData[4*(m_iNTrueEvents-1)*m_iNParticles+4*iParticle+2];
+      m_pdData[4*iEvent*m_iNParticles+4*iParticle+3] = m_pdData[4*(m_iNTrueEvents-1)*m_iNParticles+4*iParticle+3];        
+    }
+    m_pdWeights[iEvent] = m_pdWeights[m_iNTrueEvents-1];
+    
+    if( m_userVarsPerEvent > 0 && m_pdUserVars ){
+      
+      for (int j = 0; j < m_userVarsPerEvent; ++j){
+        m_pdUserVars[iEvent * m_userVarsPerEvent + j] = 
+          m_pdUserVars[(m_iNTrueEvents-1) * m_userVarsPerEvent + j];
+      }
+    }
+  }
+  
+  // Invalidate terms since data has changed
+  m_termsValid = false;
+  m_integralValid = false;
+}
+
 
 Kinematics*
 AmpVecs::getEvent( int iEvent ){

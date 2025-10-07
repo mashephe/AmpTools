@@ -87,6 +87,21 @@ public:
   virtual double numSignalEvents();
   
   void invalidateTerms();
+
+  /**
+   * Enable bootstrap resampling for this calculator
+   *
+   * \param[in] seed random seed for bootstrap resampling
+   */
+  void enableBootstrap( unsigned int seed ) { 
+    m_bootstrapEnabled = true; 
+    m_bootstrapSeed = seed;
+  }
+  
+  /**
+   * Disable bootstrap resampling for this calculator
+   */
+  void disableBootstrap() { m_bootstrapEnabled = false; }
   
 protected:
   
@@ -134,6 +149,9 @@ private:
   double m_numBkgEvents;
   double m_sumDataWeights;
   double m_numDataEvents;
+  
+  bool m_bootstrapEnabled;
+  unsigned int m_bootstrapSeed;
   
   static const char* kModule;
 };

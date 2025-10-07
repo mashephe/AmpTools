@@ -71,7 +71,9 @@ m_firstNormIntCalc( true ),
 m_sumBkgWeights( 0 ),
 m_numBkgEvents( 0 ),
 m_sumDataWeights( 0 ),
-m_numDataEvents( 0 )
+m_numDataEvents( 0 ),
+m_bootstrapEnabled( false ),
+m_bootstrapSeed( 0 )
 {
   
   m_hasBackground = ( dataReaderBkgnd != NULL );
@@ -282,6 +284,16 @@ SCOREP_USER_REGION_BEGIN( dataTerm, "dataTerm", SCOREP_USER_REGION_TYPE_COMMON )
     }
     
     report( DEBUG, kModule ) << "\tDone." << endl;
+  }
+  
+  // TODO: this will probably bootstrap every time the likelihood is run. Fine for 
+  // testing right now, but should include some flag like m_firstDataCalc to only do it once
+  if( m_bootstrapEnabled ){ 
+
+    m_ampVecsSignal.bootstrapData( m_bootstrapSeed );
+    if( m_hasBackground ){
+      m_ampVecsBkgnd.bootstrapData( m_bootstrapSeed );
+    }
   }
   
   double sumLnI = m_intenManager.calcSumLogIntensity( m_ampVecsSignal );

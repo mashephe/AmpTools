@@ -275,6 +275,16 @@ struct AmpVecs
                   unsigned long long iNTrueEvents = 1 );
   
   /**
+   * Bootstrap the existing data by resampling events with replacement.
+   * This preserves the user variables and correctly reorders all arrays.
+   * Must be called after data is loaded and user variables are calculated for original
+   * dataset.
+   *
+   * \param[in] seed random seed for bootstrap resampling
+   */
+  void bootstrapData( unsigned int seed );
+  
+  /**
    * A helper routine to get an event i from the array of data and weights.
    * This routine allows the AmpVecs class to behave in the same way that
    * a DataReader would.
@@ -321,6 +331,13 @@ private:
   
   int m_lastWeightSign;
   set< AmpVecs* > m_sharedDataFriends;
+  
+  // These variables only used for bootstrapping 
+  GDouble* m_pdOriginalData;
+  GDouble* m_pdOriginalWeights;
+  GDouble* m_pdOriginalUserVars;
+  bool m_hasOriginalData;
+  map< string, unsigned long long > m_originalUserVarsOffset;
   
   static const char* kModule;
 };

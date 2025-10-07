@@ -397,6 +397,18 @@ AmpToolsInterface::randomizeParameter( const string& parName, float min, float m
   invalidateAmps();
 }
 
+void 
+AmpToolsInterface::bootstrapData( const uint bootstrapSeed ){
+  for (unsigned int irct = 0; irct < m_configurationInfo->reactionList().size(); irct++){
+      
+      ReactionInfo* reaction = m_configurationInfo->reactionList()[irct];
+      string reactionName(reaction->reactionName());
+      
+      if (likelihoodCalculator(reactionName))
+        likelihoodCalculator(reactionName)->enableBootstrap(bootstrapSeed);
+  }
+}
+
 void
 AmpToolsInterface::finalizeFit( const string& tag ){
   
