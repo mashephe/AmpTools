@@ -71,14 +71,14 @@ struct AmpVecs
   /**
    * An integer that stores the number of events.
    */
-  unsigned long m_iNEvents;
+  unsigned int m_iNEvents;
   
   /**
    * An integer that stores the true number of events.  For GPU calculations
    * it is necessary to pad iNEvents up to the next power of 2.  This integer
    * stores the actual number of unique events.
    */
-  unsigned long m_iNTrueEvents;
+  unsigned int m_iNTrueEvents;
   
   /**
    * A double that stores the absolute value of the sum of the weights.  (For
@@ -182,7 +182,7 @@ struct AmpVecs
    * utilized by the AmplitudeManager, but the values are tied
    * to the data set so it resides in the AmpVecs struct.
    */
-  map< string, unsigned long long > m_userVarsOffset;
+  map< string, unsigned int > m_userVarsOffset;
 
   /**
    * These booleans track features of the set of weights are are adjusted
@@ -226,9 +226,14 @@ struct AmpVecs
    *
    * \param[in] bAllocIntensity if set to true this will allocate space for
    * the intensity calculation
+   *
+   * \param[in] chunkSize is useful if one wants to compute amplitude
+   * integrals in chunks rather the entire data set -- this functionality allows
+   * for reduced memory consumption in some applications
    */
   void allocateTerms( const IntensityManager& intenMan,
-                      bool bAllocIntensity = false );
+                      bool bAllocIntensity = false,
+                      unsigned int chunkSize = 0 );
   
 #ifdef GPU_ACCELERATION
   /**
@@ -271,8 +276,8 @@ struct AmpVecs
    *
    * \see loadData
    */
-  void loadEvent( const Kinematics* pKinematics, unsigned long long iEvent = 0,
-                  unsigned long long iNTrueEvents = 1 );
+  void loadEvent( const Kinematics* pKinematics, unsigned int iEvent = 0,
+                  unsigned int iNTrueEvents = 1 );
   
   /**
    * A helper routine to get an event i from the array of data and weights.
