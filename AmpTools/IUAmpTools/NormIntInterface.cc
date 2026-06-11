@@ -428,15 +428,21 @@ NormIntInterface::forceCacheUpdate( bool normIntOnly ) const
     // MC in order to be able to continue
     assert( m_genMCVecs.m_dataLoaded );
 
+    // computing integrals of the generated MC can be done in chunks
+    // to avoid exhausting memory on CPU or GPU -- there is never a need
+    // to have the entire generated MC in memory at once
+    unsigned int chunkSize = genMCChunkSize();
+    
     // do "lazy" allocation of memory here -- this is important for MPI jobs
     // where forceCacheUpdate is only called on follower nodes, as it
     // avoids big memory allocations on the lead nodes
-    if( m_genMCVecs.m_iNTerms == 0 ) m_genMCVecs.allocateTerms( *m_pIntenManager );
+    if( m_genMCVecs.m_iNTerms == 0 ) m_genMCVecs.allocateTerms( *m_pIntenManager, chunkSize );
     
     report( DEBUG, kModule ) << "Asking IntensityManager to calculate integrals "
     << "using the generated MC." << endl;
     
-    m_pIntenManager->calcIntegrals( m_genMCVecs, m_nGenEvents );
+    m_pIntenManager->calcIntegrals( m_genMCVecs, m_nGenEvents, chunkSize );
+    
     setAmpIntMatrix( m_genMCVecs.m_pdIntegralMatrix );
   
     m_emptyAmpIntCache = false;
@@ -552,6 +558,28 @@ NormIntInterface::setNormIntMatrix( const double* input ) const {
   m_emptyNormIntCache = false;
 }
 
+
+unsigned int
+NormIntInterface::genMCChunkSize() const {
+  
+  // need to know the sizes of the data sets
+  assert( m_accMCVecs.m_dataLoaded && m_genMCVecs.m_dataLoaded );
+  
+  unsigned long nGen = m_genMCVecs.m_iNEvents;
+  unsigned long nAcc = m_accMCVecs.m_iNEvents;
+  
+  // get the chunk size by doing integer division by 2
+  // until the size of the generated MC is less than the
+  // accepted MC -- for GPU fits this should return a
+  // chunk size that is a power of 2, which is required
+  
+  int iPow = 0;
+  while( ( nGen >> iPow ) > nAcc ) ++iPow;
+  
+  report( DEBUG, kModule ) << "Chunk size for generated MC:  " << ( nGen >> iPow ) << endl;
+  
+  return( nGen >> iPow );
+}
 
 #ifndef __ACLIC__
 void
