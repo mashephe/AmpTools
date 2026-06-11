@@ -78,19 +78,22 @@ public:
   ~GPUManager();
   
   void clearAll();
-  void clearAmpCalc();
-  void clearLikeCalc();
+  void clearData();
+  void clearTerms();
   
   void init( const AmpVecs& a, bool use4Vectors = true );
+  
+  void initData( const AmpVecs& a, bool use4Vectors = true );
+  void initTerms( const AmpVecs& a, unsigned long chunkSize = 0 );
   
   // Interface Utils
   // First Amplitude calculation interface
   void copyDataToGPU( const AmpVecs& a, bool use4Vectors = true  );
   void copyUserVarsToGPU( const AmpVecs& a );
   
-  void calcAmplitudeAll( const Amplitude* amp, unsigned long long offset,
+  void calcAmplitudeAll( const Amplitude* amp, unsigned long offset,
                          const vector< vector< int > >* pvPermutations,
-			 unsigned long long userVarsOffset );
+                         unsigned long userVarsOffset );
   
   void assembleTerms( int iAmpInd, int nFact, int nPerm );
   
@@ -124,10 +127,10 @@ private:
   unsigned int m_iNUserVars;
   
   // array sizes
-  unsigned long long m_iGDoubleEventArrSize;
-  unsigned long long m_iDoubleEventArrSize;
-  unsigned long long m_iDoubleTrueEventArrSize;
-  unsigned long long m_iAmpArrSize;
+  unsigned long m_iGDoubleDataArrSize;
+  unsigned long m_iDoubleEventArrSize;
+  unsigned long m_iDoubleTrueEventArrSize;
+  unsigned long m_iAmpArrSize;
   unsigned int m_iVArrSize;
   unsigned int m_iNICalcSize;
   

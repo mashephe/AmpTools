@@ -70,7 +70,7 @@ GPUManager::GPUManager()
   m_iNAmps=0;
   m_iNUserVars=0;
   
-  m_iGDoubleEventArrSize=0;
+  m_iGDoubleDataArrSize=0;
   m_iDoubleEventArrSize=0;
   m_iAmpArrSize=0;
   m_iVArrSize=0;
@@ -173,27 +173,71 @@ GPUManager::~GPUManager()
 
 // Initialization routines:
 
-void 
-GPUManager::init( const AmpVecs& a, bool use4Vectors )
+void
+GPUManager::initData( const AmpVecs& a, bool use4Vectors  )
 {
-  clearAll();
-
+  clearData();
+  
   // copy over some info from the AmpVecs object for array dimensions
   m_iNTrueEvents = a.m_iNTrueEvents;
   m_iNEvents     = a.m_iNEvents;
   m_iNParticles  = a.m_iNParticles;
+
+  // the rest of the data are derived:
+  m_iGDoubleDataArrSize     = sizeof(GDouble) * m_iNEvents;
+  
+  double totalMemory = 0;
+
+  totalMemory += m_iGDoubleDataArrSize;
+  if( use4Vectors ) totalMemory += 4 * m_iNParticles * m_iGDoubleDataArrSize;
+  totalMemory += m_iNUserVars * m_iGDoubleDataArrSize;
+  totalMemory += m_iNParticles * sizeof( int );
+
+  totalMemory /= (1024*1024);
+  
+  report( INFO, kModule ) << "Attempting to allocate " << (int)totalMemory << " MB of global GPU memory." << endl;
+  
+  gpuErrChk( cudaMalloc( (void**)&m_pfDevWeights , m_iGDoubleDataArrSize      ) ) ;
+
+  // allocate device memory needed for amplitude calculations
+  if( use4Vectors ) gpuErrChk( cudaMalloc(  (void**)&m_pfDevData ,
+              4 * m_iNParticles * m_iGDoubleDataArrSize    ) ) ;
+  gpuErrChk( cudaMalloc(  (void**)&m_pfDevUserVars, m_iNUserVars * m_iGDoubleDataArrSize ) ) ;
+
+  report( INFO, kModule ) << "GPU memory allocated for storage of "
+       << m_iNEvents << " events (" << m_iNTrueEvents << " actual events)."
+       << endl;
+  
+  //CUDA Dims
+  calcCUDADims();
+}
+
+
+void
+GPUManager::initTerms( const AmpVecs& a, unsigned long chunkSize )
+{
+  clearTerms();
+
+  // chunkSize must be power of 2 when provided
+  assert( chunkSize == 0 || ( (chunkSize & (chunkSize - 1)) == 0 ) );
+
+  // use all events or the specified size of a chunk of events
+  long int iNEvents = ( chunkSize == 0 ? m_iNevents : chunkSize );
+
   m_iNAmps       = a.m_iNTerms;
   m_iNUserVars   = a.m_userVarsPerEvent;
   
-  // the rest of the data are derived:
-  m_iGDoubleEventArrSize     = sizeof(GDouble) * m_iNEvents;
+  // double precision intensity calculation
+  m_iDoubleTrueIntenArrSize = sizeof(double) * m_iNTrueEvents;
+  m_iDoubleIntenArrSize = sizeof(double) * m_iNEvents;
+
+  // GDouble precision for factors and amplitudes
+  // ... and use the chunkSize for these (iNEvents) when it is provided
   
-  // double precision
-  m_iDoubleTrueEventArrSize = sizeof(double) * m_iNTrueEvents;
-  m_iDoubleEventArrSize = sizeof(double) * m_iNEvents;
-  
+  m_iGDoubleFactArrSize = sizeof(GDouble) * a.m_maxFactPerEvent * iNEvents;
+
   // size needed to store amplitudes for each event
-  m_iAmpArrSize = 2 * sizeof(GDouble) * m_iNEvents * m_iNAmps;
+  m_iAmpArrSize = 2 * sizeof(GDouble) * iNEvents * m_iNAmps;
   
   // size of upper half of ViVj* matrix
   m_iVArrSize   = 2 * sizeof(GDouble) * m_iNAmps * ( m_iNAmps + 1 ) / 2;
@@ -212,40 +256,29 @@ GPUManager::init( const AmpVecs& a, bool use4Vectors )
   
   totalMemory += m_iVArrSize;
   totalMemory += m_iNICalcSize;
-  totalMemory += m_iGDoubleEventArrSize;
-  totalMemory += 2*m_iDoubleEventArrSize;
-  if( use4Vectors ) totalMemory += 4 * m_iNParticles * m_iGDoubleEventArrSize;
-  totalMemory += m_iNUserVars * m_iGDoubleEventArrSize;
-  totalMemory += m_iNParticles * sizeof( int );
-  totalMemory += a.m_maxFactPerEvent * m_iGDoubleEventArrSize;
+  totalMemory += 2*m_iDoubleIntenArrSize;
+  totalMemory += m_iGDoubleFactArrSize;
   totalMemory += m_iAmpArrSize;
+  totalMemory += m_iNParticles * sizeof( int );
 
   totalMemory /= (1024*1024);
   
-  report( INFO, kModule ) << "Attempting to allocate " << (int)totalMemory << " MB of global GPU memory." << endl;
+  report( INFO, kModule ) << "Attempting to allocate " << (int)totalMemory
+                          << " MB of global GPU memory." << endl;
   
   // device memory needed for intensity or integral calculation and sum
-  gpuErrChk( cudaMalloc( (void**)&m_pfDevVVStar  , m_iVArrSize                 ) ) ;
-  gpuErrChk( cudaMalloc( (void**)&m_pdDevNICalc  , m_iNICalcSize               ) ) ;
-  gpuErrChk( cudaMalloc( (void**)&m_pfDevWeights , m_iGDoubleEventArrSize      ) ) ;
-  gpuErrChk( cudaMalloc( (void**)&m_pdDevRes     , m_iDoubleEventArrSize       ) ) ;
-  gpuErrChk( cudaMalloc( (void**)&m_pdDevREDUCE  , m_iDoubleEventArrSize       ) ) ;
-  
-  // allocate device memory needed for amplitude calculations
-  if( use4Vectors ) gpuErrChk( cudaMalloc(  (void**)&m_pfDevData ,
-					    4 * m_iNParticles * m_iGDoubleEventArrSize    ) ) ;
-  gpuErrChk( cudaMalloc(  (void**)&m_pfDevUserVars, m_iNUserVars * m_iGDoubleEventArrSize ) ) ;
-  gpuErrChk( cudaMalloc(  (void**)&m_piDevPerm    , m_iNParticles * sizeof( int )         ) ) ;
-  gpuErrChk( cudaMalloc(  (void**)&m_pcDevCalcAmp ,
-			  a.m_maxFactPerEvent * m_iGDoubleEventArrSize                    ) ) ;
-  gpuErrChk( cudaMalloc(  (void**)&m_pfDevAmps    , m_iAmpArrSize                         ) ) ;
-  
-  report( INFO, kModule ) << "GPU memory allocated for " << m_iNAmps << " amplitudes and "
-       << m_iNEvents << " events (" << m_iNTrueEvents << " actual events)."
+  gpuErrChk( cudaMalloc( (void**)&m_pfDevVVStar  , m_iVArrSize           ) ) ;
+  gpuErrChk( cudaMalloc( (void**)&m_pdDevNICalc  , m_iNICalcSize         ) ) ;
+  gpuErrChk( cudaMalloc( (void**)&m_pdDevRes     , m_iDoubleIntenArrSize ) ) ;
+  gpuErrChk( cudaMalloc( (void**)&m_pdDevREDUCE  , m_iDoubleIntenArrSize ) ) ;
+  gpuErrChk( cudaMalloc( (void**)&m_pcDevCalcAmp , m_iGDoubleFactArrSize ) ) ;
+  gpuErrChk( cudaMalloc( (void**)&m_pfDevAmps    , m_iAmpArrSize         ) ) ;
+
+  gpuErrChk( cudaMalloc(  (void**)&m_piDevPerm   , m_iNParticles * sizeof( int ) ) ) ;
+
+  report( INFO, kModule ) << "GPU memory allocated for " << m_iNAmps << " amplitudes for "
+       << iNEvents << " events (" << m_iNTrueEvents << " total events)."
        << endl;
-  
-  //CUDA Dims
-  calcCUDADims();
 }
 
 
@@ -259,7 +292,7 @@ GPUManager::copyDataToGPU( const AmpVecs& a, bool use4Vectors )
   
   // copy the weights to the GPU
   gpuErrChk( cudaMemcpy( m_pfDevWeights, a.m_pdWeights,
-                         m_iGDoubleEventArrSize, cudaMemcpyHostToDevice ) );
+                         m_iGDoubleDataArrSize, cudaMemcpyHostToDevice ) );
   
   // we only need to copy the four vectors to the GPU if the
   // amplitude evaulation kernels need them -- this is done by
@@ -304,7 +337,7 @@ GPUManager::copyDataToGPU( const AmpVecs& a, bool use4Vectors )
     
     // copy the data into the device
     gpuErrChk( cudaMemcpy( m_pfDevData, tmpStorage,
-                          4 * m_iNParticles * m_iGDoubleEventArrSize,
+                          4 * m_iNParticles * m_iGDoubleDataArrSize,
                           cudaMemcpyHostToDevice ) );
 
     delete[] tmpStorage;
@@ -327,8 +360,8 @@ GPUManager::copyUserVarsToGPU( const AmpVecs& a )
 
   // copy the data into the device
   gpuErrChk( cudaMemcpy( m_pfDevUserVars, a.m_pdUserVars,
-                        m_iNUserVars * m_iGDoubleEventArrSize,
-                        cudaMemcpyHostToDevice ) );
+                         m_iNUserVars * m_iGDoubleDataArrSize,
+                         cudaMemcpyHostToDevice ) );
   #ifdef SCOREP
   SCOREP_USER_REGION_END( copyUserVarsToGPU ) 
   #endif
@@ -352,7 +385,7 @@ GPUManager::copyAmpsFromGPU( AmpVecs& a )
                          cudaMemcpyDeviceToHost ) );
 
   gpuErrChk( cudaMemcpy( a.m_pdAmpFactors, m_pcDevCalcAmp,
-                         a.m_maxFactPerEvent * m_iGDoubleEventArrSize,
+                         m_iGDoubleFactArrSize,
                          cudaMemcpyDeviceToHost ) );
   #ifdef SCOREP
   SCOREP_USER_REGION_END( copyAmpsFromGPU )
@@ -360,9 +393,9 @@ GPUManager::copyAmpsFromGPU( AmpVecs& a )
 }
 
 void 
-GPUManager::calcAmplitudeAll( const Amplitude* amp, unsigned long long offset,
+GPUManager::calcAmplitudeAll( const Amplitude* amp, unsigned long offset,
                               const vector< vector< int > >* pvPermutations,
-                              unsigned long long iUserVarsOffset )
+                              unsigned long iUserVarsOffset )
 {
   #ifdef SCOREP
   SCOREP_USER_REGION_DEFINE( calcAmplitudeAll_gpuMgr )                                                                                    
@@ -379,8 +412,8 @@ GPUManager::calcAmplitudeAll( const Amplitude* amp, unsigned long long offset,
   // if this is not true, AmplitudeManager hasn't been setup properly
   assert( permItr->size() == m_iNParticles );
   
-  unsigned long long udLocalOffset = 0;
-  unsigned long long permOffset = 0;
+  unsigned long udLocalOffset = 0;
+  unsigned long permOffset = 0;
   for( ; permItr != pvPermutations->end(); ++permItr ){
     
     // copy the permutation to global memory
@@ -541,7 +574,7 @@ GPUManager::calcSumLogIntensity( const vector< complex< double > >& prodCoef,
 
 void
 GPUManager::calcIntegrals( double* result, int nElements,
-			   const vector<int>& iIndex,
+                           const vector<int>& iIndex,
                            const vector<int>& jIndex ){
 
   unsigned int resultSize = 2*sizeof(double)*nElements;
@@ -594,14 +627,46 @@ GPUManager::calcIntegrals( double* result, int nElements,
 
 // Methods to clear memory:
 
-void GPUManager::clearAll()
-{
+void
+GPUManager::clearAll() {
+
+  clearData();
+  clearTerms();
+}
+
+void
+GPUManager::clearData(){
+  
   m_iNParticles=0;
   m_iNEvents=0;
   m_iNTrueEvents=0;
-  m_iGDoubleEventArrSize=0;
+
+  m_iGDoubleDataArrSize=0;
   m_iDoubleEventArrSize=0;
   m_iDoubleTrueEventArrSize=0;
+
+  if(m_pfDevData)
+    cudaFree(m_pfDevData);
+  m_pfDevData=0;
+  
+  if(m_pfDevUserVars)
+    cudaFree(m_pfDevUserVars);
+  m_pfDevUserVars=0;
+
+  if(m_pfDevWeights)
+    cudaFree(m_pfDevWeights);
+  m_pfDevWeights=0;
+
+  
+  //CUDA Thread and Grid sizes
+  m_iDimGridX=0;
+  m_iDimGridY=0;
+  m_iDimThreadX=0;
+  m_iDimThreadY=0;
+}
+
+void
+GPUManager::clearTerms(){
 
   m_iNAmps=0;  
   m_iAmpArrSize=0;
@@ -621,14 +686,6 @@ void GPUManager::clearAll()
   
   //Device Memory
   
-  if(m_pfDevData)
-    cudaFree(m_pfDevData);
-  m_pfDevData=0;
-  
-  if(m_pfDevUserVars)
-    cudaFree(m_pfDevUserVars);
-  m_pfDevUserVars=0;
-
   if(m_pcDevCalcAmp)
     cudaFree(m_pcDevCalcAmp);
   m_pcDevCalcAmp=0;
@@ -649,9 +706,6 @@ void GPUManager::clearAll()
     cudaFree(m_pdDevNICalc);
   m_pdDevNICalc=0;
 
-  if(m_pfDevWeights)
-    cudaFree(m_pfDevWeights);
-  m_pfDevWeights=0;
 
   if(m_pdDevRes)
     cudaFree(m_pdDevRes);
@@ -660,12 +714,6 @@ void GPUManager::clearAll()
   if(m_pdDevREDUCE)
     cudaFree(m_pdDevREDUCE);
   m_pdDevREDUCE=0;
-  
-  //CUDA Thread and Grid sizes
-  m_iDimGridX=0;
-  m_iDimGridY=0;
-  m_iDimThreadX=0;
-  m_iDimThreadY=0;
 }
 
 // Internal utilities:
