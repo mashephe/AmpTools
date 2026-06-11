@@ -169,7 +169,8 @@ public:
    * \see calcAmplitudes
    * \see calcIntensities
    */
-  virtual void calcIntegrals( AmpVecs& ampVecs, int iNGenEvents ) const = 0;
+  virtual void calcIntegrals( AmpVecs& ampVecs, unsigned int iNGenEvents,
+                              unsigned int chunkSize = 0 ) const = 0;
  
   /**
    * This function calculates the intensity for one event using a Kinematics

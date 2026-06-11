@@ -273,7 +273,7 @@ SCOREP_USER_REGION_BEGIN( calcUserVars, "calcUserVars", SCOREP_USER_REGION_TYPE_
   int iNAmps = ampNames.size();
 
   int iAmpIndex;
-  unsigned long long iUserVarsOffset = 0;
+  unsigned int iUserVarsOffset = 0;
   for( iAmpIndex = 0; iAmpIndex < iNAmps; iAmpIndex++ )
   {
     
@@ -300,7 +300,7 @@ SCOREP_USER_REGION_BEGIN( calcUserVars, "calcUserVars", SCOREP_USER_REGION_TYPE_
       int iNData = iNVars * a.m_iNEvents * iNPerms;
       
       // we will set this based on the algorithm below
-      unsigned long long thisOffset = 0;
+      unsigned int thisOffset = 0;
 
       if( pCurrAmp->areUserVarsStatic() ){
         
@@ -309,7 +309,7 @@ SCOREP_USER_REGION_BEGIN( calcUserVars, "calcUserVars", SCOREP_USER_REGION_TYPE_
         // object and see if there is one associated with this
         // amplitude name
         
-        map< string, unsigned long long >::const_iterator offsetItr =
+        map< string, unsigned int >::const_iterator offsetItr =
         a.m_userVarsOffset.find( pCurrAmp->name() );
         
         if( offsetItr == a.m_userVarsOffset.end() ){
@@ -337,7 +337,7 @@ SCOREP_USER_REGION_BEGIN( calcUserVars, "calcUserVars", SCOREP_USER_REGION_TYPE_
         // the variables are not static, repeat the algorithm
         // above but search based on identifier of the amplitude
         
-        map< string, unsigned long long >::const_iterator offsetItr =
+        map< string, unsigned int >::const_iterator offsetItr =
         a.m_userVarsOffset.find( pCurrAmp->identifier() );
         
         if( offsetItr == a.m_userVarsOffset.end() ){
@@ -384,9 +384,9 @@ SCOREP_USER_REGION_BEGIN( calcUserVars, "calcUserVars", SCOREP_USER_REGION_TYPE_
         for( int iEvt = 0; iEvt < a.m_iNEvents; ++iEvt ){
           for( int iVar = 0; iVar < iNVars; ++iVar ){
             
-            unsigned long long cpuIndex =
+            unsigned int cpuIndex =
               thisOffset + iPerm*a.m_iNEvents*iNVars + iEvt*iNVars + iVar;
-            unsigned long long gpuIndex =
+            unsigned int gpuIndex =
               iPerm*a.m_iNEvents*iNVars + iVar*a.m_iNEvents + iEvt;
             
             tmpVarStorage[gpuIndex] = a.m_pdUserVars[cpuIndex];
@@ -417,21 +417,37 @@ SCOREP_USER_REGION_END( calcUserVars )
   return;
 }
 
-
 vector<bool>
 AmplitudeManager::calcTerms( AmpVecs& a ) const
 {
+  // this function satisfies the requirement of the base class --
+  // in cases where the user is not calculating a chunk of terms use the
+  // specialized function below with default arguments
+
+  vector<bool> result = calcTerms( a, 0, 0 );
+    
+  return result;
+}
+
+vector<bool>
+AmplitudeManager::calcTerms( AmpVecs& a, unsigned int startEvent, unsigned int chunkSize ) const
+{
+  
 #ifdef SCOREP
 SCOREP_USER_REGION_DEFINE( calcTerms )
 SCOREP_USER_REGION_BEGIN( calcTerms, "calcTerms", SCOREP_USER_REGION_TYPE_COMMON )                           
 #endif
+ 
+  unsigned int nEvents = ( chunkSize == 0 ? a.m_iNEvents : chunkSize );
   
   report( DEBUG, kModule ) << "Calculating terms...     termsValid = "
   << a.m_termsValid << endl;
   
   // on the first pass through this data set be sure to calculate
   // the user data first, if needed, before doing term calculations
-  if( !a.m_termsValid && a.m_userVarsPerEvent > 0 ){
+  // the last criteria will make sure that userData is only computed
+  // once for the first chunk in sequential calls of calcTerms
+  if( !a.m_termsValid && a.m_userVarsPerEvent > 0 && startEvent == 0 ){
     
     calcUserVars( a );
     if( m_needsUserVarsOnly && !m_forceUserVarRecalculation
@@ -446,7 +462,7 @@ SCOREP_USER_REGION_BEGIN( calcTerms, "calcTerms", SCOREP_USER_REGION_TYPE_COMMON
 #ifndef GPU_ACCELERATION
   assert( a.m_pdAmps && a.m_pdAmpFactors);
 #endif
-  
+    
   int iAmpIndex;
   for( iAmpIndex = 0; iAmpIndex < iNAmps; iAmpIndex++ )
   {
@@ -508,15 +524,15 @@ SCOREP_USER_REGION_BEGIN( calcTerms, "calcTerms", SCOREP_USER_REGION_TYPE_COMMON
     
     // calculate all the factors that make up an amplitude for
     // for all events serially on CPU or in parallel on GPU
-    unsigned long long iLocalOffset = 0;
+    unsigned int iLocalOffset = 0;
     for( iFactor=0; iFactor < iNFactors;
-         iFactor++, iLocalOffset += 2 * a.m_iNEvents * iNPermutations ){
+         iFactor++, iLocalOffset += 2 * nEvents * iNPermutations ){
       
       pCurrAmp = vAmps.at( iFactor );
       
       // if we have static user data, look up the location in the data array
       // if not, then look up by identifier
-      unsigned long long uOffset =
+      unsigned int uOffset =
       ( pCurrAmp->areUserVarsStatic() ?
         a.m_userVarsOffset[pCurrAmp->name()] :
         a.m_userVarsOffset[pCurrAmp->identifier()] );
@@ -526,7 +542,8 @@ SCOREP_USER_REGION_BEGIN( calcTerms, "calcTerms", SCOREP_USER_REGION_TYPE_COMMON
       calcAmplitudeAll( a.m_pdData,
                         a.m_pdAmpFactors + iLocalOffset,
                         a.m_iNEvents, &vvPermuations,
-                        a.m_pdUserVars + uOffset );
+                        a.m_pdUserVars + uOffset,
+                        startEvent, nEvents );
 #else
       a.m_gpuMan.calcAmplitudeAll( pCurrAmp, iLocalOffset,
                                    &vvPermuations,
@@ -543,29 +560,28 @@ SCOREP_USER_REGION_BEGIN( calcTerms, "calcTerms", SCOREP_USER_REGION_TYPE_COMMON
     GDouble dSymmFactor = 1.0f/sqrt( iNPermutations );
     GDouble dAmpFacRe, dAmpFacIm, dTRe, dTIm;
     int iEvent, iPerm;
-    unsigned long long iOffsetA, iOffsetP, iOffsetF;
+    unsigned int iOffsetA, iOffsetP, iOffsetF;
     
     // re-ordering of data will be useful to not fall out of (CPU) memory cache!!!
     
     // zeroing out the entire range
-    memset( (void*)( a.m_pdAmps + 2 * a.m_iNEvents * iAmpIndex ), 0,
-           2 * a.m_iNEvents * sizeof(GDouble) );
+    memset( (void*)( a.m_pdAmps + 2 * nEvents * iAmpIndex ), 0,
+           2 * nEvents * sizeof(GDouble) );
     
-    // only sum over the true events from data and skip paddings
-    for( iEvent=0; iEvent < a.m_iNTrueEvents; iEvent++ )
+    for( iEvent=0; iEvent < nEvents; iEvent++ )
     {
-      iOffsetA = 2 * a.m_iNEvents * iAmpIndex + 2 * iEvent;
+      iOffsetA = 2 * nEvents * iAmpIndex + 2 * iEvent;
       
       for( iPerm = 0; iPerm < iNPermutations; iPerm++ )
       {
-        iOffsetP = 2 * a.m_iNEvents * iPerm + 2 * iEvent;
+        iOffsetP = 2 * nEvents * iPerm + 2 * iEvent;
         
         dAmpFacRe = a.m_pdAmpFactors[iOffsetP];
         dAmpFacIm = a.m_pdAmpFactors[iOffsetP+1];
         
         for( iFactor = 1; iFactor < iNFactors; iFactor++ )
         {
-          iOffsetF = iOffsetP + 2 * a.m_iNEvents * iNPermutations * iFactor;
+          iOffsetF = iOffsetP + 2 * nEvents * iNPermutations * iFactor;
           
           dTRe = dAmpFacRe;
           dTIm = dAmpFacIm;
@@ -592,7 +608,7 @@ SCOREP_USER_REGION_BEGIN( calcTerms, "calcTerms", SCOREP_USER_REGION_TYPE_COMMON
 #endif
     
   }
-  
+
   a.m_termsValid = true;
 
   // finally make a loop and record the iteration of parameters
@@ -796,7 +812,8 @@ SCOREP_USER_REGION_END( calcSumLogIntensity )
 
 
 void
-AmplitudeManager::calcIntegrals( AmpVecs& a, int iNGenEvents ) const
+AmplitudeManager::calcIntegrals( AmpVecs& a, unsigned int iNGenEvents,
+                                 unsigned int chunkSize ) const
 {
 #ifdef SCOREP
 SCOREP_USER_REGION_DEFINE( calcIntegralsA )                                                                                    
@@ -808,32 +825,14 @@ SCOREP_USER_REGION_BEGIN( calcIntegralsA, "calcIntegralsA", SCOREP_USER_REGION_T
   
   double* integralMatrix = a.m_pdIntegralMatrix;
   
-  // amp -> amp* -> value
   assert( iNGenEvents );
-  // this returns a vector indicating which terms have changed
-  const vector<bool>& termChanged = calcTerms( a );
-  
-#ifdef SCOREP
-  SCOREP_USER_REGION_END( calcIntegralsA )
-#endif
 
-  bool anyTermChanged =
-  ( find( termChanged.begin(), termChanged.end(), true ) != termChanged.end() );
-  
-  // if nothing changed and it isn't the first pass, return
-  if( !anyTermChanged && a.m_integralValid ) return;
-    
-#ifdef SCOREP
-  SCOREP_USER_REGION_BEGIN( calcIntegralsB, "calcIntegralsB", SCOREP_USER_REGION_TYPE_COMMON )
-#endif
+  // figure out the number of chunks needed to go through the data
+  unsigned int nChunk = ( chunkSize == 0 ? 1 : iNGenEvents / chunkSize );
+  if( ( chunkSize !=0 ) && ( iNGenEvents % chunkSize != 0 ) ) ++nChunk;
   
   int iNAmps = a.m_iNTerms;
   
-  // this must match the dimension of the coherence matrix or
-  // else there is a coding mistake somewhere
-  assert( iNAmps == m_sumCoherently.size() );
-  assert( iNAmps == termChanged.size() );
-
   int maxNIElements = uniqueNIElements();
   
   // use these vectors to store the amp indices of unique terms
@@ -843,85 +842,138 @@ SCOREP_USER_REGION_BEGIN( calcIntegralsA, "calcIntegralsA", SCOREP_USER_REGION_T
   
   // this stores the real and imaginary parts of the term calculations
   vector<double> result(maxNIElements*2);
-  
-  // now figure out which elements of the NI matrix need to be computed
-  int i, j;
-  int nCompute = 0;
-  for( i = 0; i < iNAmps;i++ ) {
-    for( j = 0; j <= i; j++ ) {
-      
-      // if the two amplitudes do not interfere then set the integral to zero
-      // and move on to the next pair of amplitudes
-      if( !m_sumCoherently[i][j] ){
-        
-        integralMatrix[2*i*iNAmps+2*j] = 0;
-        integralMatrix[2*i*iNAmps+2*j+1] = 0;
 
-	// must also set the complex conjugate to zero because complex
-	// conjugation is only done for terms that are actually computed
-	integralMatrix[2*j*iNAmps+2*i] = 0;
-	integralMatrix[2*j*iNAmps+2*i+1] = 0;
-	
-        continue;
-      }
-        
-      if( a.m_integralValid && !termChanged.at(i) && !termChanged.at(j) ){
-                      
-        // if the amplitude hasn't changed and it isn't the first pass
-        // through these data, then its integral can't change
+  // a variable to track how many elements need computing
+  int nCompute;
 
-        continue;
-      }
-      else{
+  for( unsigned int iChunk = 0; iChunk < nChunk; ++iChunk ){
         
-        report( DEBUG, kModule ) << "Requesting recomputation of NI term ( "
-        << i << ", " << j << " )" << endl;
-        
-        // if we get to this point, we need to compute a value
-        // for the integral matrix
-        
-        iIndex[nCompute] = i;
-        jIndex[nCompute] = j;
-        
-        ++nCompute;
-      }
+    unsigned int startEvent = iChunk * chunkSize;
+    unsigned int nEvents = iNGenEvents;
+    // for  chuncked calculation:
+    // the number of events to process is the chunk size unless
+    // it is the last chunk then it is the remainder
+    if( chunkSize != 0 ){
+      nEvents = chunkSize;
+      if( iChunk - nChunk == 1 ) nEvents = iNGenEvents % chunkSize;
     }
-  }
-  
-#ifndef GPU_ACCELERATION
-  for( int iTerm = 0; iTerm < nCompute; ++iTerm ){
     
-    int i = iIndex[iTerm];
-    int j = jIndex[iTerm];
+    // this returns a vector indicating which terms have changed
+    const vector<bool>& termChanged = calcTerms( a, startEvent, chunkSize );
     
-    for( int iEvent = 0; iEvent < a.m_iNTrueEvents; iEvent++ ) {
-
-      //AiAj*
-      result[2*iTerm] += a.m_pdWeights[iEvent] *
-      ( a.m_pdAmps[2*a.m_iNEvents*i+2*iEvent] *
-       a.m_pdAmps[2*a.m_iNEvents*j+2*iEvent] +
-       a.m_pdAmps[2*a.m_iNEvents*i+2*iEvent+1] *
-       a.m_pdAmps[2*a.m_iNEvents*j+2*iEvent+1] );
-
-      if( i == j ) continue;  // diagonal elements are real
-      
-      result[2*iTerm+1] += a.m_pdWeights[iEvent] *
-      ( -a.m_pdAmps[2*a.m_iNEvents*i+2*iEvent] *
-       a.m_pdAmps[2*a.m_iNEvents*j+2*iEvent+1] +
-       a.m_pdAmps[2*a.m_iNEvents*i+2*iEvent+1] *
-       a.m_pdAmps[2*a.m_iNEvents*j+2*iEvent] );
-    }
-  }
-
-#else
-  
-  // use the GPU manager to compute the result
-  a.m_gpuMan.calcIntegrals( &(result[0]), nCompute, iIndex, jIndex );
-  
+    // if we are doing a "chunked" calculation, we should invalidate the
+    // termsValid boolean since the terms array will only hold a fraction
+    // of the terms
+    if( chunkSize != 0 ) a.m_termsValid = false;
+    
+#ifdef SCOREP
+    SCOREP_USER_REGION_END( calcIntegralsA )
 #endif
     
+    bool anyTermChanged =
+    ( find( termChanged.begin(), termChanged.end(), true ) != termChanged.end() );
+    
+    // if nothing changed and it isn't the first pass, return
+    if( !anyTermChanged && a.m_integralValid ) return;
+    
+#ifdef SCOREP
+    SCOREP_USER_REGION_BEGIN( calcIntegralsB, "calcIntegralsB", SCOREP_USER_REGION_TYPE_COMMON )
+#endif
+    
+    // this must match the dimension of the coherence matrix or
+    // else there is a coding mistake somewhere
+    assert( iNAmps == m_sumCoherently.size() );
+    
+    // we need a bool for every amp or else there is a mistake
+    assert( iNAmps == termChanged.size() );
+    
+    // now figure out which elements of the NI matrix need to be computed
+    nCompute = 0;
+    for( int i = 0; i < iNAmps;i++ ) {
+      for( int j = 0; j <= i; j++ ) {
+        
+        // if the two amplitudes do not interfere then set the integral to zero
+        // and move on to the next pair of amplitudes
+        if( !m_sumCoherently[i][j] ){
+          
+          integralMatrix[2*i*iNAmps+2*j] = 0;
+          integralMatrix[2*i*iNAmps+2*j+1] = 0;
+          
+          // must also set the complex conjugate to zero because complex
+          // conjugation is only done for terms that are actually computed
+          integralMatrix[2*j*iNAmps+2*i] = 0;
+          integralMatrix[2*j*iNAmps+2*i+1] = 0;
+          
+          continue;
+        }
+        
+        if( a.m_integralValid && !termChanged.at(i) && !termChanged.at(j) ){
+          
+          // if the amplitude hasn't changed and it isn't the first pass
+          // through these data, then its integral can't change
+          
+          continue;
+        }
+        else{
+          
+          report( DEBUG, kModule ) << "Requesting recomputation of NI term ( "
+          << i << ", " << j << " )" << endl;
+          
+          // if we get to this point, we need to compute a value
+          // for the integral matrix
+          
+          iIndex[nCompute] = i;
+          jIndex[nCompute] = j;
+          
+          ++nCompute;
+        }
+      }
+    }
+    
+#ifndef GPU_ACCELERATION
+    for( int iTerm = 0; iTerm < nCompute; ++iTerm ){
+      
+      int i = iIndex[iTerm];
+      int j = jIndex[iTerm];
+      
+      for( int iEvent = 0; iEvent < nEvents; iEvent++ ) {
+        
+        //AiAj*
+        result[2*iTerm] += a.m_pdWeights[iEvent+startEvent] *
+        ( a.m_pdAmps[2*nEvents*i+2*iEvent] *
+         a.m_pdAmps[2*nEvents*j+2*iEvent] +
+         a.m_pdAmps[2*nEvents*i+2*iEvent+1] *
+         a.m_pdAmps[2*nEvents*j+2*iEvent+1] );
+        
+        if( i == j ) continue;  // diagonal elements are real
+        
+        result[2*iTerm+1] += a.m_pdWeights[iEvent] *
+        ( -a.m_pdAmps[2*nEvents*i+2*iEvent] *
+         a.m_pdAmps[2*nEvents*j+2*iEvent+1] +
+         a.m_pdAmps[2*nEvents*i+2*iEvent+1] *
+         a.m_pdAmps[2*nEvents*j+2*iEvent] );
+      }
+    }
+    
+#else
+    
+    // this needs to be fixed:  needs a temporary vector for the chunk result
+    // and the calcIntegral GPU method needs to be "chunked"
+    
+    // use the GPU manager to compute the result
+    a.m_gpuMan.calcIntegrals( &(result[0]), nCompute, iIndex, jIndex );
+    
+    // result += tempResult
+#endif
+    
+  }
+  
+  // in a "chuncked" calculation nCompute, iIndex, and jIndex get reset
+  // in the above loop, but they are set to the same values every time so
+  // at loop exit they are suitable for use in the code that follows
+  
   report( DEBUG, kModule ) << "NI terms will be renormalized by 1 / "
-  << iNGenEvents << endl;
+                           << iNGenEvents << endl;
   
   // now we want to renormalize and complex congugate while
   // filling the integral matrix data structure
@@ -932,11 +984,11 @@ SCOREP_USER_REGION_BEGIN( calcIntegralsA, "calcIntegralsA", SCOREP_USER_REGION_T
     
     report( DEBUG, kModule ) << "NI result for ( " << i << ", " << j << " ) = "
     << complex<double>( result[2*iTerm], result[2*iTerm+1] ) << endl;
-	
+    
     integralMatrix[2*i*iNAmps+2*j] = result[2*iTerm] /
-      static_cast< double >( iNGenEvents );
+    static_cast< double >( iNGenEvents );
     integralMatrix[2*i*iNAmps+2*j+1] = result[2*iTerm+1] /
-      static_cast< double >( iNGenEvents );
+    static_cast< double >( iNGenEvents );
     
     if( i != j ) {
       
