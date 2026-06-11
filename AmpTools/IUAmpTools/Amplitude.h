@@ -292,9 +292,10 @@ public:
    * \see calcAmplitudeAll
    * \see AmplitudeManager::addAmpPermutation
    */
-  virtual void calcAmplitudeAll( GDouble* pdData, GDouble* pdAmps, int iNEvents,
+  virtual void calcAmplitudeAll( GDouble* pdData, GDouble* pdAmps, unsigned int iNEvents,
                                 const vector< vector< int > >* pvPermutations,
-                                GDouble* pdUserVars = 0 ) const;
+                                GDouble* pdUserVars = 0, unsigned int startEvent = 0,
+                                unsigned int chunkSize = 0 ) const;
   
   
   /**

@@ -132,9 +132,10 @@ SCOREP_USER_REGION_END( calcUserVarsAll )
 }
 
 void
-Amplitude::calcAmplitudeAll( GDouble* pdData, GDouble* pdAmps, int iNEvents,
-                            const vector< vector< int > >* pvPermutations,
-                             GDouble* pdUserVars ) const
+Amplitude::calcAmplitudeAll( GDouble* pdData, GDouble* pdAmps, unsigned int iNEvents,
+                             const vector< vector< int > >* pvPermutations,
+                             GDouble* pdUserVars, unsigned int startEvent,
+                             unsigned int chunkSize ) const
 {
 
 #ifdef SCOREP
@@ -154,19 +155,23 @@ SCOREP_USER_REGION_BEGIN( calcAmplitudeAll, "calcAmplitudeAll", SCOREP_USER_REGI
   
   GDouble** pKin = new GDouble*[iNParticles];
   
-   int i, j, iEvent;
+  // this is the size of the chunk in the pdAmps array that we
+  // are going to compute amplitdues for
+  unsigned int nEvents = ( chunkSize == 0 ? iNEvents : chunkSize );
+  
+  int i, j, iEvent;
   for( iPermutation = 0; iPermutation < iNPermutations; iPermutation++ ){
 
     m_currentPermutation = (*pvPermutations)[iPermutation];
 
-    for( iEvent=0; iEvent<iNEvents; iEvent++ ){
+    for( iEvent=0; iEvent<nEvents; iEvent++ ){
 
       // pKin is an array of pointers to the particle four-momentum
       // that gets reordered for each permutation so the user
       // doesn't need to deal with permutations in their calcAmplitude
       // routine
 
-      unsigned int eventOffset = 4*iNParticles*iEvent;
+      unsigned int eventOffset = 4*iNParticles*(iEvent + startEvent);
 
       for( i = 0; i < iNParticles; i++ ){
 
@@ -174,7 +179,7 @@ SCOREP_USER_REGION_BEGIN( calcAmplitudeAll, "calcAmplitudeAll", SCOREP_USER_REGI
         pKin[i] = &(pdData[eventOffset+4*j]);
       }
 
-      unsigned int userIndex = iNEvents*iPermutation*numVars + iEvent*numVars;
+      unsigned int userIndex = iNEvents*iPermutation*numVars + (iEvent + startEvent)*numVars;
 
       if( numVars != 0 ){
       
@@ -184,8 +189,8 @@ SCOREP_USER_REGION_BEGIN( calcAmplitudeAll, "calcAmplitudeAll", SCOREP_USER_REGI
         cRes = calcAmplitude( pKin );
       }
       
-      pdAmps[2*iNEvents*iPermutation+2*iEvent] = cRes.real();
-      pdAmps[2*iNEvents*iPermutation+2*iEvent+1] = cRes.imag();
+      pdAmps[2*nEvents*iPermutation+2*iEvent] = cRes.real();
+      pdAmps[2*nEvents*iPermutation+2*iEvent+1] = cRes.imag();
     }
   }
 
