@@ -78,8 +78,6 @@ Amplitude::calcUserVarsAll( GDouble* pdData, GDouble* pdUserVars, int iNEvents,
 SCOREP_USER_REGION_DEFINE( calcUserVarsAll )
 #endif
 
-
-  
   report( DEBUG, kModule ) << "Caculating user data for " << name() << endl;
   
   unsigned int numVars = numUserVars();
@@ -132,7 +130,7 @@ SCOREP_USER_REGION_END( calcUserVarsAll )
 }
 
 void
-Amplitude::calcAmplitudeAll( GDouble* pdData, GDouble* pdAmps, unsigned int iNEvents,
+Amplitude::calcAmplitudeAll( GDouble* pdData, GDouble* pdAmpFact, unsigned int iNEvents,
                              const vector< vector< int > >* pvPermutations,
                              GDouble* pdUserVars, unsigned int startEvent,
                              unsigned int chunkSize ) const
@@ -155,7 +153,7 @@ SCOREP_USER_REGION_BEGIN( calcAmplitudeAll, "calcAmplitudeAll", SCOREP_USER_REGI
   
   GDouble** pKin = new GDouble*[iNParticles];
   
-  // this is the size of the chunk in the pdAmps array that we
+  // this is the size of the chunk in the pdAmpFact array that we
   // are going to compute amplitdues for
   unsigned int nEvents = ( chunkSize == 0 ? iNEvents : chunkSize );
   
@@ -189,15 +187,18 @@ SCOREP_USER_REGION_BEGIN( calcAmplitudeAll, "calcAmplitudeAll", SCOREP_USER_REGI
         cRes = calcAmplitude( pKin );
       }
       
-      pdAmps[2*nEvents*iPermutation+2*iEvent] = cRes.real();
-      pdAmps[2*nEvents*iPermutation+2*iEvent+1] = cRes.imag();
+      pdAmpFact[2*nEvents*iPermutation+2*iEvent] = cRes.real();
+      pdAmpFact[2*nEvents*iPermutation+2*iEvent+1] = cRes.imag();
     }
   }
-
+  
 #ifdef SCOREP
 SCOREP_USER_REGION_END( calcAmplitudeAll )
 #endif
   
+  report( DEBUG, kModule ) << "First event and permutation amplitude: ( "
+                           << pdAmpFact[0] << ", " << pdAmpFact[1] << " )" << endl;
+
   delete[] pKin;
 }
 
