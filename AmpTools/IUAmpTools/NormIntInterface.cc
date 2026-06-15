@@ -450,7 +450,7 @@ NormIntInterface::forceCacheUpdate( bool normIntOnly ) const
   
   // first trip through or forced update...
   // we either copy the generated MC integrals to accepted or
-  // compute thm directly:
+  // compute them directly:
   if( ( m_accMCReader == m_genMCReader ) && !m_emptyAmpIntCache ) {
     
     // optimization for perfect acceptance  
