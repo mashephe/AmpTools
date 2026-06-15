@@ -316,7 +316,7 @@ AmpVecs::loadData( DataReader* pDataReader ){
 void
 AmpVecs::allocateTerms( const IntensityManager& intenMan, bool bAllocIntensity, unsigned int chunkSize ){
 
-  unsigned int iNEvents = ( chunkSize == 0 ? m_iNEvents : chunkSize );
+  unsigned int ampsEvents = ( chunkSize == 0 ? m_iNEvents : chunkSize );
   
   m_iNTerms           = intenMan.getTermNames().size();
   m_maxFactPerEvent   = intenMan.maxFactorStoragePerEvent();
@@ -355,12 +355,14 @@ AmpVecs::allocateTerms( const IntensityManager& intenMan, bool bAllocIntensity, 
   
 #ifndef GPU_ACCELERATION
   
-  m_pdAmps = new GDouble[iNEvents * intenMan.termStoragePerEvent()];
-  m_pdAmpFactors = new GDouble[iNEvents * m_maxFactPerEvent];
+  // these use reduced size arrays when a non-zero chunk size is provided:
+  
+  m_pdAmps = new GDouble[ampsEvents * intenMan.termStoragePerEvent()];
+  m_pdAmpFactors = new GDouble[ampsEvents * m_maxFactPerEvent];
   
 #else
   
-  m_gpuMan.initTerms( *this, iNEvents );
+  m_gpuMan.initTerms( *this, ampsEvents );
 
 #endif // GPU_ACCELERATION
   
