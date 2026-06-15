@@ -424,9 +424,7 @@ AmplitudeManager::calcTerms( AmpVecs& a ) const
   // in cases where the user is not calculating a chunk of terms use the
   // specialized function below with default arguments
 
-  vector<bool> result = calcTerms( a, 0, 0 );
-    
-  return result;
+  return calcTerms( a, 0, 0 );
 }
 
 vector<bool>
@@ -550,8 +548,7 @@ SCOREP_USER_REGION_BEGIN( calcTerms, "calcTerms", SCOREP_USER_REGION_TYPE_COMMON
                                    uOffset );
 #endif//GPU_ACCELERATION
     }
-    
-    
+        
     // now assemble all the factors in an amplitude into a single
     // symmetrized amplitude for each event
     
@@ -561,9 +558,7 @@ SCOREP_USER_REGION_BEGIN( calcTerms, "calcTerms", SCOREP_USER_REGION_TYPE_COMMON
     GDouble dAmpFacRe, dAmpFacIm, dTRe, dTIm;
     int iEvent, iPerm;
     unsigned int iOffsetA, iOffsetP, iOffsetF;
-    
-    // re-ordering of data will be useful to not fall out of (CPU) memory cache!!!
-    
+        
     // zeroing out the entire range
     memset( (void*)( a.m_pdAmps + 2 * nEvents * iAmpIndex ), 0,
            2 * nEvents * sizeof(GDouble) );
@@ -599,6 +594,9 @@ SCOREP_USER_REGION_BEGIN( calcTerms, "calcTerms", SCOREP_USER_REGION_TYPE_COMMON
       a.m_pdAmps[iOffsetA]   *= dSymmFactor;
       a.m_pdAmps[iOffsetA+1] *= dSymmFactor;
     }
+    
+    report( DEBUG, kModule ) << "Amplitude index " << iAmpIndex << ", event 0:  (" <<
+    a.m_pdAmps[2*nEvents*iAmpIndex] << ", " << a.m_pdAmps[2*nEvents*iAmpIndex+1] << " )" << endl;
     
 #else
     // on the GPU the terms are assembled and never copied out
@@ -828,8 +826,8 @@ SCOREP_USER_REGION_BEGIN( calcIntegralsA, "calcIntegralsA", SCOREP_USER_REGION_T
   assert( iNGenEvents );
 
   // figure out the number of chunks needed to go through the data
-  unsigned int nChunk = ( chunkSize == 0 ? 1 : iNGenEvents / chunkSize );
-  if( ( chunkSize !=0 ) && ( iNGenEvents % chunkSize != 0 ) ) ++nChunk;
+  unsigned int nChunk = ( chunkSize == 0 ? 1 : a.m_iNEvents / chunkSize );
+  if( ( chunkSize !=0 ) && ( a.m_iNEvents % chunkSize != 0 ) ) ++nChunk;
   
   int iNAmps = a.m_iNTerms;
   
@@ -849,13 +847,13 @@ SCOREP_USER_REGION_BEGIN( calcIntegralsA, "calcIntegralsA", SCOREP_USER_REGION_T
   for( unsigned int iChunk = 0; iChunk < nChunk; ++iChunk ){
         
     unsigned int startEvent = iChunk * chunkSize;
-    unsigned int nEvents = iNGenEvents;
+    unsigned int nEvents = a.m_iNEvents;
     // for  chuncked calculation:
     // the number of events to process is the chunk size unless
     // it is the last chunk then it is the remainder
     if( chunkSize != 0 ){
       nEvents = chunkSize;
-      if( iChunk - nChunk == 1 ) nEvents = iNGenEvents % chunkSize;
+      if( iChunk - nChunk == 1 ) nEvents = a.m_iNEvents % chunkSize;
     }
     
     // this returns a vector indicating which terms have changed
@@ -947,12 +945,15 @@ SCOREP_USER_REGION_BEGIN( calcIntegralsA, "calcIntegralsA", SCOREP_USER_REGION_T
         
         if( i == j ) continue;  // diagonal elements are real
         
-        result[2*iTerm+1] += a.m_pdWeights[iEvent] *
+        result[2*iTerm+1] += a.m_pdWeights[iEvent+startEvent] *
         ( -a.m_pdAmps[2*nEvents*i+2*iEvent] *
          a.m_pdAmps[2*nEvents*j+2*iEvent+1] +
          a.m_pdAmps[2*nEvents*i+2*iEvent+1] *
          a.m_pdAmps[2*nEvents*j+2*iEvent] );
       }
+      
+      report( DEBUG, kModule ) << "NI Term Sum ( " << i << ", " << j << " ) =  ( " <<
+      result[2*iTerm] << ", " << result[2*iTerm+1] << ")" << endl;
     }
     
 #else
@@ -968,7 +969,7 @@ SCOREP_USER_REGION_BEGIN( calcIntegralsA, "calcIntegralsA", SCOREP_USER_REGION_T
     
   }
   
-  // in a "chuncked" calculation nCompute, iIndex, and jIndex get reset
+  // in a "chunked" calculation nCompute, iIndex, and jIndex get reset
   // in the above loop, but they are set to the same values every time so
   // at loop exit they are suitable for use in the code that follows
   
