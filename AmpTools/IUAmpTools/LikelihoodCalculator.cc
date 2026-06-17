@@ -225,7 +225,7 @@ SCOREP_USER_REGION_BEGIN( dataTerm, "dataTerm", SCOREP_USER_REGION_TYPE_COMMON )
     report( DEBUG, kModule ) << "Allocating Data and Amplitude Array in LikelihoodCalculator for "
       << m_intenManager.reactionName() << "..." << endl;
     
-    m_ampVecsSignal.loadData( m_dataReaderSignal );
+    m_ampVecsSignal.loadData( m_dataReaderSignal, m_intenManager.needsUserVarsOnly() );
     m_ampVecsSignal.allocateTerms( m_intenManager, true );
 
     m_numDataEvents = m_ampVecsSignal.m_iNTrueEvents;
@@ -247,7 +247,7 @@ SCOREP_USER_REGION_BEGIN( dataTerm, "dataTerm", SCOREP_USER_REGION_TYPE_COMMON )
     
     if( m_hasBackground ){
           
-      m_ampVecsBkgnd.loadData( m_dataReaderBkgnd );
+      m_ampVecsBkgnd.loadData( m_dataReaderBkgnd, m_intenManager.needsUserVarsOnly() );
       m_ampVecsBkgnd.allocateTerms( m_intenManager, true );
 
       if( m_ampVecsBkgnd.m_hasMixedSignWeights ){
