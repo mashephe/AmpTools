@@ -106,7 +106,7 @@ m_termNames( intenManager.getTermNames() )
   if( genVecs == m_uniqueDataSets.end() ){
   
     report( INFO, kModule ) << "Loading generated Monte Carlo from file..." << endl;
-    m_genMCVecs.loadData( m_genMCReader );
+    m_genMCVecs.loadData( m_genMCReader, intenManager.needsUserVarsOnly() );
     
     m_uniqueDataSets[m_genMCReader] = &m_genMCVecs;
   }
@@ -123,7 +123,7 @@ m_termNames( intenManager.getTermNames() )
   if( accVecs == m_uniqueDataSets.end() ){
   
     report( INFO, kModule ) << "Loading accepted Monte Carlo from file..." << endl;
-    m_accMCVecs.loadData( m_accMCReader );
+    m_accMCVecs.loadData( m_accMCReader, intenManager.needsUserVarsOnly() );
     
     m_uniqueDataSets[m_accMCReader] = &m_accMCVecs;
   }
