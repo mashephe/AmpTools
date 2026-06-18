@@ -37,6 +37,8 @@
 #ifndef __CUDA_COMPLEX__H__
 #define __CUDA_COMPLEX__H__
 
+#include <math.h>
+
 #include "GPUManager/GPUCustomTypes.h"
 
 #ifdef __CUDACC__
