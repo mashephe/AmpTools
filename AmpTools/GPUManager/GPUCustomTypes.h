@@ -50,12 +50,15 @@ using namespace std;
 
 // a few helpers to make operations on GPU a little more user friendly
 
-// standard arguments to kernel launches
+// standard arguments to ampliutde kernel launches
 #define GPU_AMP_PROTO GDouble* pfDevData, GDouble* pfDevUserVars, \
-                      WCUComplex* pcDevAmp, int* piDevPerm, int iNParticles, int iNEvents
-#define GPU_AMP_ARGS  pfDevData, pfDevUserVars, pcDevAmp, piDevPerm, iNParticles, iNEvents
+                      WCUComplex* pcDevAmp, int* piDevPerm, unsigned int iNParticles, \
+                      unsigned int iNEvents, unsigned int startEvent
+#define GPU_AMP_ARGS  pfDevData, pfDevUserVars, pcDevAmp, piDevPerm, iNParticles, \
+                      iNEvents, startEvent                   
 
-// how to get the event we are working with:
+// how to get the event we are working with -- this is within a chunk and is typically
+// set to iEvent by the user
 #define GPU_THIS_EVENT threadIdx.x + GPU_BLOCK_SIZE_X * threadIdx.y + \
                       ( blockIdx.x + blockIdx.y * gridDim.x ) * GPU_BLOCK_SIZE_SQ
 
@@ -65,11 +68,13 @@ using namespace std;
 #define GPU_PY 2
 #define GPU_PZ 3
 
-#define GPU_KIN(id,val) pfDevData[ ( piDevPerm[id] * 4 + val ) * iNEvents + iEvent]
+// both the data and user vars are always stored for the entire data set so the indices
+// need to be adjusted by startEvent when doing a chunked amplitude calculation
+#define GPU_KIN(id,val) pfDevData[ ( piDevPerm[id] * 4 + val ) * iNEvents + iEvent + startEvent ]
 #define GPU_P4(id) { GPU_KIN(id,GPU_E)  , GPU_KIN(id,GPU_PX), \
                      GPU_KIN(id,GPU_PY) , GPU_KIN(id,GPU_PZ)}
 
-#define GPU_UVARS(val) pfDevUserVars[val*iNEvents+iEvent]
+#define GPU_UVARS(val) pfDevUserVars[val*iNEvents + iEvent + startEvent]
 
 #define COPY_P4(a1,a2) GDouble a2[4]; for( int zzz = 0; zzz < 4; ++zzz ) a2[zzz] = a1[zzz];
 
