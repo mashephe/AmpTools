@@ -436,7 +436,7 @@ NormIntInterface::forceCacheUpdate( bool normIntOnly ) const
     // do "lazy" allocation of memory here -- this is important for MPI jobs
     // where forceCacheUpdate is only called on follower nodes, as it
     // avoids big memory allocations on the lead nodes
-    if( m_genMCVecs.m_iNTerms == 0 ) m_genMCVecs.allocateTerms( *m_pIntenManager, chunkSize );
+    if( m_genMCVecs.m_iNTerms == 0 ) m_genMCVecs.allocateTerms( *m_pIntenManager, false, chunkSize );
     
     report( DEBUG, kModule ) << "Asking IntensityManager to calculate integrals "
     << "using the generated MC." << endl;
@@ -570,11 +570,11 @@ NormIntInterface::genMCChunkSize() const {
   
   // get the chunk size by doing integer division by 2
   // until the size of the generated MC is less than the
-  // accepted MC -- for GPU fits this should return a
+  // 1/2 of the accepted MC -- for GPU fits this should return a
   // chunk size that is a power of 2, which is required
   
   int iPow = 0;
-  while( ( nGen >> iPow ) > nAcc ) ++iPow;
+  while( ( nGen >> iPow ) > nAcc/4 ) ++iPow;
   
   report( DEBUG, kModule ) << "Chunk size for generated MC:  " << ( nGen >> iPow ) << endl;
   
