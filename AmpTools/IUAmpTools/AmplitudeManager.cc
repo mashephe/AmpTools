@@ -522,15 +522,15 @@ SCOREP_USER_REGION_BEGIN( calcTerms, "calcTerms", SCOREP_USER_REGION_TYPE_COMMON
     
     // calculate all the factors that make up an amplitude for
     // for all events serially on CPU or in parallel on GPU
-    unsigned int iLocalOffset = 0;
+    unsigned int uAmpFactOffset = 0;
     for( iFactor=0; iFactor < iNFactors;
-         iFactor++, iLocalOffset += 2 * nEvents * iNPermutations ){
+         iFactor++, uAmpFactOffset += 2 * nEvents * iNPermutations ){
       
       pCurrAmp = vAmps.at( iFactor );
       
       // if we have static user data, look up the location in the data array
       // if not, then look up by identifier
-      unsigned int uOffset =
+      unsigned int userVarsOffset =
       ( pCurrAmp->areUserVarsStatic() ?
         a.m_userVarsOffset[pCurrAmp->name()] :
         a.m_userVarsOffset[pCurrAmp->identifier()] );
@@ -538,14 +538,14 @@ SCOREP_USER_REGION_BEGIN( calcTerms, "calcTerms", SCOREP_USER_REGION_TYPE_COMMON
 #ifndef GPU_ACCELERATION
       pCurrAmp->
       calcAmplitudeAll( a.m_pdData,
-                        a.m_pdAmpFactors + iLocalOffset,
+                        a.m_pdAmpFactors + uAmpFactOffset,
                         a.m_iNEvents, &vvPermuations,
-                        a.m_pdUserVars + uOffset,
+                        a.m_pdUserVars + userVarsOffset,
                         startEvent, nEvents );
 #else
-      a.m_gpuMan.calcAmplitudeAll( pCurrAmp, iLocalOffset,
+      a.m_gpuMan.calcAmplitudeAll( pCurrAmp, uAmpFactOffset,
                                    &vvPermuations,
-                                   uOffset );
+                                   userVarsOffset, startEvent );
 #endif//GPU_ACCELERATION
     }
         
@@ -602,7 +602,7 @@ SCOREP_USER_REGION_BEGIN( calcTerms, "calcTerms", SCOREP_USER_REGION_TYPE_COMMON
     // on the GPU the terms are assembled and never copied out
     // of GPU memory
     
-    a.m_gpuMan.assembleTerms( iAmpIndex, iNFactors, iNPermutations );
+    a.m_gpuMan.assembleTerms( iAmpIndex, iNFactors, iNPermutations, nEvents );
 #endif
     
   }
@@ -957,14 +957,23 @@ SCOREP_USER_REGION_BEGIN( calcIntegralsA, "calcIntegralsA", SCOREP_USER_REGION_T
     }
     
 #else
-    
-    // this needs to be fixed:  needs a temporary vector for the chunk result
-    // and the calcIntegral GPU method needs to be "chunked"
-    
-    // use the GPU manager to compute the result
-    a.m_gpuMan.calcIntegrals( &(result[0]), nCompute, iIndex, jIndex );
-    
-    // result += tempResult
+      
+    vector<double> temp(maxNIElements*2);
+
+    // use the GPU manager to compute the result for the chunk
+    a.m_gpuMan.calcIntegrals( &(temp[0]), nCompute, iIndex, jIndex, 
+                              startEvent, nEvents );
+
+    // add the to the result array that is accumulting the sum
+    for( int iTerm = 0; iTerm < nCompute; ++iTerm ){
+      result[2*iTerm] += temp[2*iTerm];
+      result[2*iTerm+1] += temp[2*iTerm+1];
+
+      report( DEBUG, kModule ) << "NI Term Sum ( " << iIndex[iTerm] << ", " 
+                               << jIndex[iTerm] << " ) =  ( " 
+                               << result[2*iTerm] << ", " << result[2*iTerm+1] 
+                               << ")" << endl;
+    }
 #endif
     
   }
