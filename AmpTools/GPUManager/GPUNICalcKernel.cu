@@ -40,7 +40,8 @@
 __global__ void
 ni_calc_kernel( int nElements, double* pdDevNICalc,
                 GDouble* pfDevAmps, GDouble* pfDevWeights,
-                int nEvents, int nTrueEvents )
+                unsigned int startEvent, unsigned int nEvents, 
+                unsigned int nTrueEvents )
 {
 
   // used shared memory block for amplitude indices and results
@@ -73,9 +74,12 @@ ni_calc_kernel( int nElements, double* pdDevNICalc,
   
   __syncthreads();
   
-  // this is the overall event index
-  int iEvt = iThread +
+  // this is the event index in the chunk
+  unsigned int iEvtChunk = iThread +
             ( blockIdx.x + blockIdx.y * gridDim.x ) * GPU_BLOCK_SIZE_SQ;
+
+  // this is the event index in the overall set of events 
+  unsigned int iEvt = iEvtChunk + startEvent;  
 
   if( iEvt < nTrueEvents ){ // do not compute for the padding events
 
@@ -85,8 +89,8 @@ ni_calc_kernel( int nElements, double* pdDevNICalc,
   
       // these are the indices to the
       // relevant amplitudes in the amplitude array
-      int aInd = 2*iEvt + 2*nEvents*iIndex[i];
-      int bInd = 2*iEvt + 2*nEvents*jIndex[i];
+      int aInd = 2*iEvtChunk + 2*nEvents*iIndex[i];
+      int bInd = 2*iEvtChunk + 2*nEvents*jIndex[i];
 
       GDouble aRe = pfDevAmps[aInd];
       GDouble aIm = pfDevAmps[aInd+1];
@@ -124,15 +128,16 @@ ni_calc_kernel( int nElements, double* pdDevNICalc,
 
 
 extern "C" void GPU_ExecNICalcKernel( dim3 dimGrid, dim3 dimBlock,
-       	   			      unsigned int sharedSize,
+       	   			                      unsigned int sharedSize,
                                       int nElements, double* pdDevNICalc,
                                       GDouble* pfDevAmps, GDouble* pfDevWeights,
-                                      int nEvents, int nTrueEvents, unsigned int maxSize )
+                                      unsigned int startEvent, unsigned int nEvents, 
+                                      unsigned int nTrueEvents, unsigned int maxSize )
 {
 
    if( maxSize )
       cudaFuncSetAttribute( ni_calc_kernel, cudaFuncAttributeMaxDynamicSharedMemorySize, maxSize );
 
    ni_calc_kernel<<< dimGrid, dimBlock, sharedSize >>>
-     ( nElements, pdDevNICalc, pfDevAmps, pfDevWeights, nEvents, nTrueEvents );
+     ( nElements, pdDevNICalc, pfDevAmps, pfDevWeights, startEvent, nEvents, nTrueEvents );
 }
