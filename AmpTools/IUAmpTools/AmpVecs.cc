@@ -199,10 +199,10 @@ AmpVecs::clearFourVecs(){
 
 void
 AmpVecs::loadEvent( const Kinematics* pKinematics, unsigned int iEvent,
-                    unsigned int iNTrueEvents ){
+                    unsigned int iNTrueEvents, bool needsUserVarsOnly ){
   
   // allocate memory and set variables
-  //  if this is the first call to this method
+  // if this is the first call to this method
   
   if (m_pdData == NULL){
     
@@ -218,6 +218,10 @@ AmpVecs::loadEvent( const Kinematics* pKinematics, unsigned int iEvent,
     
     m_pdData = new GDouble[4*m_iNParticles*m_iNEvents];
     m_pdWeights = new GDouble[m_iNEvents];
+
+#ifdef GPU_ACCELERATION  
+    m_gpuMan.initData( *this, !needsUserVarsOnly );  
+#endif
   }
   
   // check to be sure we won't exceed the bounds of the array
@@ -232,6 +236,7 @@ AmpVecs::loadEvent( const Kinematics* pKinematics, unsigned int iEvent,
 
   m_pdWeights[iEvent] = pKinematics->weight();
   
+
   m_termsValid = false;
   m_integralValid = false;
   m_dataLoaded = true;
@@ -240,7 +245,7 @@ AmpVecs::loadEvent( const Kinematics* pKinematics, unsigned int iEvent,
 
 
 void
-AmpVecs::loadData( DataReader* pDataReader ){
+AmpVecs::loadData( DataReader* pDataReader, bool needsUserVarsOnly ){
   
   //  Make sure no data is already loaded
   
@@ -274,7 +279,7 @@ AmpVecs::loadData( DataReader* pDataReader ){
   Kinematics* pKinematics;
   for(unsigned int iEvent = 0; iEvent < m_iNTrueEvents; iEvent++){
     pKinematics = pDataReader->getEvent();
-    loadEvent(pKinematics, iEvent, m_iNTrueEvents );
+    loadEvent(pKinematics, iEvent, m_iNTrueEvents, needsUserVarsOnly );
 
     float weight = pKinematics->weight();
     
@@ -293,19 +298,18 @@ AmpVecs::loadData( DataReader* pDataReader ){
   // Fill any remaining space in the data array with the last event's kinematics
   
   for (unsigned int iEvent = m_iNTrueEvents; iEvent < m_iNEvents; iEvent++){
-    loadEvent(pKinematics, iEvent, m_iNTrueEvents );
+    loadEvent(pKinematics, iEvent, m_iNTrueEvents, needsUserVarsOnly );
   }
 
   if( m_iNTrueEvents )
   	delete pKinematics;
-  
+   
 #ifdef GPU_ACCELERATION
-  
-  m_gpuMan.initData( *this, !intenMan.needsUserVarsOnly() );
-  m_gpuMan.copyDataToGPU( *this, !intenMan.needsUserVarsOnly() );
-  
-#endif
-  
+
+  m_gpuMan.copyDataToGPU( *this, !needsUserVarsOnly );
+
+#endif  
+
   m_termsValid = false;
   m_integralValid = false;
   m_dataLoaded = true;
@@ -362,7 +366,7 @@ AmpVecs::allocateTerms( const IntensityManager& intenMan, bool bAllocIntensity, 
   
 #else
   
-  m_gpuMan.initTerms( *this, ampsEvents );
+  m_gpuMan.initTerms( *this, chunkSize );
 
 #endif // GPU_ACCELERATION
   
@@ -372,16 +376,14 @@ AmpVecs::allocateTerms( const IntensityManager& intenMan, bool bAllocIntensity, 
 
 #ifdef GPU_ACCELERATION
 void
-AmpVecs::allocateCPUAmpStorage( const IntensityManager& intenMan, unsigned int chunkSize ){
+AmpVecs::allocateCPUAmpStorage( const IntensityManager& intenMan ){
   
-  unsigned int iNEvents = ( chunkSize == 0 ? m_iNEvents : chunkSize );
-
   // we should start with unallocated memory
   assert( m_pdAmps == NULL && m_pdAmpFactors == NULL );
   
   // allocate as "pinned memory" for fast CPU<->GPU memcopies
-  cudaMallocHost( (void**)&m_pdAmps, iNEvents * intenMan.termStoragePerEvent() * sizeof(GDouble) );
-  cudaMallocHost( (void**)&m_pdAmpFactors, iNEvents * m_maxFactPerEvent * sizeof(GDouble));
+  cudaMallocHost( (void**)&m_pdAmps, m_iNEvents * intenMan.termStoragePerEvent() * sizeof(GDouble) );
+  cudaMallocHost( (void**)&m_pdAmpFactors, 2 * m_iNEvents * m_maxFactPerEvent * sizeof(GDouble));
 
   cudaError_t cudaErr = cudaGetLastError();
   if( cudaErr != cudaSuccess  ){

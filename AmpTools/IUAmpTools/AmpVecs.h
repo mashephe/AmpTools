@@ -245,6 +245,7 @@ struct AmpVecs
    *
    * \param[in] intenMan a reference to the IntensityManager to use as a guide
    * for allocating the arrays for terms, factors, and intensities
+   * 
    */
   void allocateCPUAmpStorage( const IntensityManager& intenMan );
 #endif
@@ -256,11 +257,13 @@ struct AmpVecs
    * a null pointer is provided (signaling the end of the source).
    *
    * \param[in] pDataReader a pointer to a user-defined data reader
+   * \param[in] needsUserVarsOnly if set to true, this will allow memory
+   * saving by only copying user variables
    *
    * \see DataReader::resetSource
    * \see DataReader::getEvent
    */
-  void loadData( DataReader* pDataReader );
+  void loadData( DataReader* pDataReader, bool needsUserVarsOnly = false );
   
   /**
    * This routine fills the arrays of data and weights event by event
@@ -277,7 +280,7 @@ struct AmpVecs
    * \see loadData
    */
   void loadEvent( const Kinematics* pKinematics, unsigned int iEvent = 0,
-                  unsigned int iNTrueEvents = 1 );
+                  unsigned int iNTrueEvents = 1, bool needsUserVarsOnly = false );
   
   /**
    * A helper routine to get an event i from the array of data and weights.
