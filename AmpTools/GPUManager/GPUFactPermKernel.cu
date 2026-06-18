@@ -37,8 +37,8 @@
 #include "GPUCustomTypes.h"
 
 __global__ void
-fact_perm_kernel( GDouble* pfDevAmps, GDouble* pcDevCalcAmp, int nFact,
-                  int nPerm, int nEvents )
+fact_perm_kernel( GDouble* pfDevAmps, GDouble* pcDevAmpFact, int nFact,
+                  int nPerm, unsigned int nEvents )
 {
 
 	int i = threadIdx.x + GPU_BLOCK_SIZE_X * threadIdx.y + 
@@ -46,20 +46,20 @@ fact_perm_kernel( GDouble* pfDevAmps, GDouble* pcDevCalcAmp, int nFact,
 
   for( int iPerm = 0; iPerm < nPerm; ++iPerm ){
   
-    int offsetP = 2*nEvents*iPerm + 2*i;
+    unsigned int offsetP = 2*nEvents*iPerm + 2*i;
     
-    double ampRe = pcDevCalcAmp[offsetP];
-    double ampIm = pcDevCalcAmp[offsetP+1];
+    GDouble ampRe = pcDevAmpFact[offsetP];
+    GDouble ampIm = pcDevAmpFact[offsetP+1];
 
     for( int iFactor = 1; iFactor < nFact; ++iFactor ){
     
-       int offsetF = 2*nEvents*nPerm*iFactor + offsetP;
+       unsigned int offsetF = 2*nEvents*nPerm*iFactor + offsetP;
 
-       double re = ampRe;
-       double im = ampIm;
+       GDouble re = ampRe;
+       GDouble im = ampIm;
        
-       ampRe = re * pcDevCalcAmp[offsetF] - im * pcDevCalcAmp[offsetF+1];
-       ampIm = re * pcDevCalcAmp[offsetF+1] + im * pcDevCalcAmp[offsetF];
+       ampRe = re * pcDevAmpFact[offsetF] - im * pcDevAmpFact[offsetF+1];
+       ampIm = re * pcDevAmpFact[offsetF+1] + im * pcDevAmpFact[offsetF];
     }
     
     pfDevAmps[2*i]   += ampRe;
@@ -71,8 +71,8 @@ fact_perm_kernel( GDouble* pfDevAmps, GDouble* pcDevCalcAmp, int nFact,
 }
 
 extern "C" void GPU_ExecFactPermKernel( dim3 dimGrid, dim3 dimBlock,
-    GDouble* pfDevAmps, GDouble* pcDevCalcAmp, int nFact, int nPerm, int nEvents )
+    GDouble* pfDevAmps, GDouble* pcDevAmpFact, int nFact, int nPerm, unsigned int nEvents )
 {
-  fact_perm_kernel<<< dimGrid, dimBlock >>>( pfDevAmps, pcDevCalcAmp, 
+  fact_perm_kernel<<< dimGrid, dimBlock >>>( pfDevAmps, pcDevAmpFact, 
                                              nFact, nPerm, nEvents );
 }
