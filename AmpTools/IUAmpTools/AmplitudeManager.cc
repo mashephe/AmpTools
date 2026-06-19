@@ -123,8 +123,9 @@ IntensityManager( reaction, reactionName )
   
   if( m_symmCombos.size() > 1 ){
     
-    report( INFO, kModule ) << "The following " << numberOfCombos << " orderings of the particles are" << endl
-    << "indistinguishable and will be permuted when computing amplitudes." << endl;
+    report( INFO, kModule ) << "The following " << numberOfCombos 
+                            << " orderings of the particles are indistinguishable" << endl;
+    report( INFO, kModule ) << "and will be permuted when computing amplitudes." << endl;
     
     for( unsigned int i = 0; i < m_symmCombos.size(); ++i ){
       
@@ -543,9 +544,8 @@ SCOREP_USER_REGION_BEGIN( calcTerms, "calcTerms", SCOREP_USER_REGION_TYPE_COMMON
                         a.m_pdUserVars + userVarsOffset,
                         startEvent, nEvents );
 #else
-      a.m_gpuMan.calcAmplitudeAll( pCurrAmp, uAmpFactOffset,
-                                   &vvPermuations,
-                                   userVarsOffset, startEvent );
+      a.m_gpuMan.calcAmplitudeAll( pCurrAmp, uAmpFactOffset, &vvPermuations,
+                                   userVarsOffset, startEvent, nEvents );
 #endif//GPU_ACCELERATION
     }
         

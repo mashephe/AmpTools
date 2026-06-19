@@ -78,7 +78,7 @@ Amplitude::calcUserVarsAll( GDouble* pdData, GDouble* pdUserVars, int iNEvents,
 SCOREP_USER_REGION_DEFINE( calcUserVarsAll )
 #endif
 
-  report( DEBUG, kModule ) << "Caculating user data for " << name() << endl;
+  report( DEBUG, kModule ) << "Caculating user data for " << identifier() << endl;
   
   unsigned int numVars = numUserVars();
   

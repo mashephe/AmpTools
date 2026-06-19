@@ -84,7 +84,7 @@ public:
   void calcAmplitudeAll( const Amplitude* amp, unsigned int uAmpFactOffset,
                          const vector< vector< int > >* pvPermutations,
                          unsigned int userVarsOffset,
-                         unsigned int startEvent );
+                         unsigned int startEvent = 0, unsigned int chunkSize = 0 );
   
   void assembleTerms( int iAmpInd, int nFact, int nPerm, unsigned int nEvents );
   

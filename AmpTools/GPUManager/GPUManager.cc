@@ -290,10 +290,15 @@ GPUManager::initTerms( const AmpVecs& a, unsigned int chunkSize )
                            << m_iAmpArrSize/sizeof(GDouble) << " elements )" << endl;
   report( DEBUG, kModule ) << "\tsize of factor array: " << m_iGDoubleFactArrSize / 1024 << " kB ( " 
                            << m_iGDoubleFactArrSize/sizeof(GDouble) << " elements )" << endl;
-  report( DEBUG, kModule ) << "\tsize of VV* array: " << m_iVArrSize / 1024 << " kB ( " 
+  report( DEBUG, kModule ) << "\tsize of VV* array: " << m_iVArrSize << " B ( " 
                            << m_iVArrSize/sizeof(GDouble) << " elements )" << endl;
-  report( DEBUG, kModule ) << "\tsize of NICalc array: " << m_iNICalcSize / 1024 << " kB ( " 
+  report( DEBUG, kModule ) << "\tsize of NICalc array: " << m_iNICalcSize  << " B ( " 
                            << m_iNICalcSize/sizeof(double) << " elements )" << endl;
+  report( DEBUG, kModule ) << "\tsize of permutation array: " << m_iNParticles * sizeof( int ) << " B ( " 
+                           << m_iNParticles << " elements )" << endl;
+
+   // allocate device memory needed for amplitude calculations
+   // ... and use the chunkSize for these (iNAmpEvents) when it is provided 
 
   // device memory needed for intensity or integral calculation and sum
   gpuErrChk( cudaMalloc( (void**)&m_pfDevUserVars, m_iNUserVars * m_iGDoubleDataArrSize ) ) ;
@@ -419,14 +424,6 @@ GPUManager::copyAmpsFromGPU( AmpVecs& a )
 
   report( DEBUG, kModule ) << "Copying amplitudes and factors from GPU to CPU for " << m_iNAmps << " amplitudes and "
        << m_iNEvents << " events." << endl;
-  report( DEBUG, kModule ) << "\tdevice pointer for amplitude: " << m_pfDevAmps << endl;
-  report( DEBUG, kModule ) << "\tdevice pointer for factors: " << m_pcDevAmpFact << endl;
-  report( DEBUG, kModule ) << "\thost pointer for amplitude: " << a.m_pdAmps << endl;
-  report( DEBUG, kModule ) << "\thost pointer for factors: " << a.m_pdAmpFactors << endl;
-  report( DEBUG, kModule ) << "\tsize of amplitude array: " << m_iAmpArrSize << " bytes" << endl;
-  report( DEBUG, kModule ) << "\tsize of factor array: " << m_iGDoubleFactArrSize << " bytes" << endl;
-
-  cudaDeviceSynchronize();
 
   gpuErrChk( cudaMemcpy( a.m_pdAmps, m_pfDevAmps,
                          m_iAmpArrSize,
@@ -444,7 +441,7 @@ void
 GPUManager::calcAmplitudeAll( const Amplitude* amp, unsigned int uAmpFactOffset,
                               const vector< vector< int > >* pvPermutations,
                               unsigned int userVarsOffset,
-                              unsigned int startEvent )
+                              unsigned int startEvent, unsigned int chunkSize )
 {
   #ifdef SCOREP
   SCOREP_USER_REGION_DEFINE( calcAmplitudeAll_gpuMgr )                                                                                    
@@ -454,7 +451,9 @@ GPUManager::calcAmplitudeAll( const Amplitude* amp, unsigned int uAmpFactOffset,
   dim3 dimBlock( m_iDimThreadX, m_iDimThreadY );
   dim3 dimGrid( m_iDimGridXAmpFact, m_iDimGridYAmpFact );
 
-  report( DEBUG, kModule ) << "Calculating amplitude factors for amplitude " << amp->name() << endl;
+  unsigned int nEvents = ( chunkSize == 0 ? m_iNEvents : chunkSize );
+
+  report( DEBUG, kModule ) << "Calculating amplitude factors for amplitude " << amp->identifier() << endl;
 
   // do the computation for all events for each permutation in the
   // vector of permunations
@@ -466,7 +465,7 @@ GPUManager::calcAmplitudeAll( const Amplitude* amp, unsigned int uAmpFactOffset,
   unsigned int udLocalOffset = 0;
   unsigned int permOffset = 0;
   for( ; permItr != pvPermutations->end(); ++permItr ){
-    
+
     // copy the permutation to global memory
     gpuErrChk( cudaMemcpy( m_piDevPerm, &((*permItr)[0]),
                            m_iNParticles * sizeof( int ),
@@ -493,8 +492,8 @@ GPUManager::calcAmplitudeAll( const Amplitude* amp, unsigned int uAmpFactOffset,
             
     // increment the offset so that we place the computation for the
     // next permutation after the previous in pcResAmp
-    permOffset += 2 * m_iNEvents;
-    udLocalOffset += amp->numUserVars() * m_iNEvents;
+    permOffset += 2 * nEvents;
+    udLocalOffset += amp->numUserVars() * nEvents;
   }    
   #ifdef SCOREP
   SCOREP_USER_REGION_END( calcAmplitudeAll_gpuMgr )
@@ -517,8 +516,6 @@ GPUManager::assembleTerms( int iAmpInd, int nFact, int nPerm, unsigned int nEven
   report( DEBUG, kModule ) << "Assembling terms for amplitude index " << iAmpInd
        << " with " << nFact << " factors and " << nPerm << " permutations for "
        << nEvents << " events." << endl;
-  report( DEBUG, kModule ) << "\tdevice pointer for amplitude: " << &(m_pfDevAmps[2*nEvents*iAmpInd]) << endl;
-  report( DEBUG, kModule ) << "\tdevice pointer for factors: " << m_pcDevAmpFact << endl;
 
   GPU_ExecFactPermKernel( dimGrid, dimBlock, &(m_pfDevAmps[2*nEvents*iAmpInd]),
                           m_pcDevAmpFact, nFact, nPerm, nEvents );
