@@ -251,14 +251,13 @@ SCOREP_USER_REGION_BEGIN( dataTerm, "dataTerm", SCOREP_USER_REGION_TYPE_COMMON )
       m_ampVecsBkgnd.allocateTerms( m_intenManager, true );
 
       if( m_ampVecsBkgnd.m_hasMixedSignWeights ){
-        report( NOTICE, kModule ) << "\n"
-        << "***************************************************************\n"
-        << "* NOTICE:  Weights with both positive and negative signs were *\n"
-        << "* detected in the background file.  This may be desirable for *\n"
-        << "* some applications.  Older versions of AmpTools (v0.10.x and *\n"
-        << "* prior) will not properly handle this case and will also not *\n"
-        << "* print this notification to the screen.                      *\n"
-        << "***************************************************************\n" << endl;
+        report( NOTICE, kModule ) << "***************************************************************" << endl;
+        report( NOTICE, kModule ) << "* NOTICE:  Weights with both positive and negative signs were *" << endl;
+        report( NOTICE, kModule ) << "* detected in the background file.  This may be desirable for *" << endl;
+        report( NOTICE, kModule ) << "* some applications.  Older versions of AmpTools (v0.10.x and *" << endl;
+        report( NOTICE, kModule ) << "* prior) will not properly handle this case and will also not *" << endl;
+        report( NOTICE, kModule ) << "* print this notification to the screen.                      *" << endl;
+        report( NOTICE, kModule ) << "***************************************************************" << endl;
       }
       
       m_sumBkgWeights = m_ampVecsBkgnd.m_dSumWeights;
@@ -267,14 +266,14 @@ SCOREP_USER_REGION_BEGIN( dataTerm, "dataTerm", SCOREP_USER_REGION_TYPE_COMMON )
       // may fail on one of the follower nodes if the background sample
       // is sparse
       if( m_sumBkgWeights < 0 && !suppressError ){
-        report( ERROR, kModule ) << "\n"
-        << "****************************************************************\n"
-        << "* ERROR: The sum of all background weights is negative.  This  *\n"
-        << "*   implies a negative background in the signal region, which  *\n"
-        << "*   unphysical.  The weighted sum of the background events     *\n"
-        << "*   should represent the background contribution to the signal *\n"
-        << "*   region.                                                    *\n"
-        << "****************************************************************\n" << endl;
+        report( ERROR, kModule ) << "****************************************************************" << endl;
+        report( ERROR, kModule ) << "* ERROR: The sum of all background weights is negative.  This  *" << endl;
+        report( ERROR, kModule ) << "*   implies a negative background in the signal region, which  *" << endl;
+        report( ERROR, kModule ) << "*   unphysical.  The weighted sum of the background events     *" << endl;
+        report( ERROR, kModule ) << "*   should represent the background contribution to the signal *" << endl;
+        report( ERROR, kModule ) << "*   region.                                                    *" << endl;
+        report( ERROR, kModule ) << "****************************************************************" << endl;
+        
         assert( false );
       }
       
