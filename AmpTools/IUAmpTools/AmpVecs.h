@@ -307,7 +307,7 @@ struct AmpVecs
    * This function will share this classes data four vectors with the
    * with the targetAmpVecs object specified by the argument.
    */
-  void shareDataWith( AmpVecs* targetAmpVecs );
+  void shareDataWith( AmpVecs* targetAmpVecs, bool needsUserVarsOnly = false );
 
   /**
    * This function will allow this class to take ownership of the

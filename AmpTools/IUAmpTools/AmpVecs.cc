@@ -209,19 +209,19 @@ AmpVecs::loadEvent( const Kinematics* pKinematics, unsigned int iEvent,
     m_iNTrueEvents = iNTrueEvents;
     m_iNEvents = iNTrueEvents;
     
-#ifdef GPU_ACCELERATION
-    m_iNEvents = GPUManager::calcNEventsGPU(iNTrueEvents);
-#endif
-    
     m_iNParticles = pKinematics->particleList().size();
     assert(m_iNParticles);
-    
-    m_pdData = new GDouble[4*m_iNParticles*m_iNEvents];
-    m_pdWeights = new GDouble[m_iNEvents];
 
-#ifdef GPU_ACCELERATION  
+#ifdef GPU_ACCELERATION
+    m_iNEvents = GPUManager::calcNEventsGPU(iNTrueEvents);
     m_gpuMan.initData( *this, !needsUserVarsOnly );  
 #endif
+
+    report( DEBUG, kModule ) << "Allocating CPU memory for " << m_iNEvents
+                             << " events with " << m_iNParticles << " particles" << endl;
+
+    m_pdData = new GDouble[4*m_iNParticles*m_iNEvents];
+    m_pdWeights = new GDouble[m_iNEvents];        
   }
   
   // check to be sure we won't exceed the bounds of the array
@@ -413,7 +413,7 @@ AmpVecs::getEvent( int iEvent ){
 }
 
 void
-AmpVecs::shareDataWith( AmpVecs* targetAmpVecs ){
+AmpVecs::shareDataWith( AmpVecs* targetAmpVecs, bool needsUserVarsOnly ){
 
   // if this object is already using shared data
   // then it should rely on the host to distribute
@@ -421,7 +421,7 @@ AmpVecs::shareDataWith( AmpVecs* targetAmpVecs ){
   // the set of shared data friends complete
   if( m_usesSharedData ){
     
-    m_sharedDataHost->shareDataWith( targetAmpVecs );
+    m_sharedDataHost->shareDataWith( targetAmpVecs, needsUserVarsOnly );
     return;
   }
   
@@ -440,7 +440,7 @@ AmpVecs::shareDataWith( AmpVecs* targetAmpVecs ){
   // while we are really going to share the four-vectors,
   // we will give the target a copy of the weights -- this
   // avoids complications if the four-vectors can later
-  // be flusehd from memory but the weights need to remain
+  // be flushed from memory but the weights need to remain
   // for the fit
 
   targetAmpVecs->m_pdWeights = new GDouble[m_iNEvents];
@@ -454,6 +454,14 @@ AmpVecs::shareDataWith( AmpVecs* targetAmpVecs ){
   m_sharedDataFriends.insert( targetAmpVecs );
   targetAmpVecs->m_usesSharedData = true;
   targetAmpVecs->m_sharedDataHost = this;
+
+  // even when using shared data the class will have its
+  // own GPU manager so we need to initialize it and
+  // copy the data to the GPU for the new object 
+#ifdef GPU_ACCELERATION
+    targetAmpVecs->m_gpuMan.initData( *targetAmpVecs, !needsUserVarsOnly );  
+    targetAmpVecs->m_gpuMan.copyDataToGPU( *targetAmpVecs, !needsUserVarsOnly );
+#endif
 }
 
 void
