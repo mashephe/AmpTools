@@ -459,6 +459,9 @@ GPUManager::calcAmplitudeAll( const Amplitude* amp, unsigned int uAmpFactOffset,
   // vector of permunations
   vector< vector< int > >::const_iterator permItr = pvPermutations->begin();
   
+  report( DEBUG, kModule ) << "\tSize of permutation elements: " << permItr->size() << endl;
+  report( DEBUG, kModule ) << "\tNumber of permutations: " << pvPermutations->size() << endl;
+  report( DEBUG, kModule ) << "\tNumber of particles: " << m_iNParticles << endl;
   // if this is not true, AmplitudeManager hasn't been setup properly
   assert( permItr->size() == m_iNParticles );
   
