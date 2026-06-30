@@ -205,7 +205,7 @@ GPUManager::initData( const AmpVecs& a, bool use4Vectors  )
   totalMemory /= (1024*1024);
   
   report( INFO, kModule ) << "Attempting to allocate " << (int)totalMemory 
-                          << " MB of global GPU memory for data." << endl;
+                          << " MB of global GPU memory for event data." << endl;
   report( DEBUG, kModule ) << "AmpVecs details (initData): " << endl;
   report( DEBUG, kModule ) << "\tiNEvents: " << m_iNEvents << endl;
   report( DEBUG, kModule ) << "\tiNTrueEvents: " << m_iNTrueEvents << endl;
