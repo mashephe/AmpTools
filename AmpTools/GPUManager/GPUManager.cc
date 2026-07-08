@@ -462,7 +462,7 @@ GPUManager::copyAmpsFromGPU( AmpVecs& a )
 void 
 GPUManager::calcAmplitudeAll( const Amplitude* amp, unsigned int uAmpFactOffset,
                               const vector< vector< int > >* pvPermutations,
-                              unsigned int userVarsOffset,
+                              unsigned int userVarsOffset, 
                               unsigned int startEvent, unsigned int chunkSize )
 {
   #ifdef SCOREP
@@ -518,7 +518,11 @@ GPUManager::calcAmplitudeAll( const Amplitude* amp, unsigned int uAmpFactOffset,
     // increment the offset so that we place the computation for the
     // next permutation after the previous in pcResAmp
     permOffset += 2 * nEvents;
-    udLocalOffset += amp->numUserVars() * nEvents;
+
+    // unlike the amplitude factor array the user variable array is not "chunked"
+    // when doing a chunked calculation, so we need to increment the offset by the
+    // the number of user variables times the total number of events, not the chunk size
+    udLocalOffset += amp->numUserVars() * m_iNEvents;
   }    
   #ifdef SCOREP
   SCOREP_USER_REGION_END( calcAmplitudeAll_gpuMgr )
