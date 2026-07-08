@@ -234,6 +234,13 @@ struct AmpVecs
   void allocateTerms( const IntensityManager& intenMan,
                       bool bAllocIntensity = false,
                       unsigned int chunkSize = 0 );
+
+  /** 
+   * This routine deallocates the arrays that hold the calculated terms and
+   * (optionally) the calculated intensities.  It should be called before
+   * the AmpVecs object is destroyed or before reallocation of the arrays.
+   */
+  void deallocTerms();
   
 #ifdef GPU_ACCELERATION
   /**

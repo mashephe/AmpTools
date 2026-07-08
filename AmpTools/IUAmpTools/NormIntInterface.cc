@@ -413,7 +413,11 @@ NormIntInterface::forceCacheUpdate( bool normIntOnly ) const
     m_pIntenManager->calcIntegrals( m_genMCVecs, m_nGenEvents, chunkSize );
     
     setAmpIntMatrix( m_genMCVecs.m_pdIntegralMatrix );
-  
+
+    // try to keep memory usage down by freeing the memory needed to calculate the
+    // integrals -- the data will remain in memory
+    m_genMCVecs.deallocTerms();
+
     m_emptyAmpIntCache = false;
   }
   

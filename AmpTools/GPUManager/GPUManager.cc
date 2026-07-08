@@ -63,7 +63,7 @@ bool GPUManager::m_cudaDisplay = false;
 template <class T>
 void reduce(int size, int threads, int blocks, T *d_idata, T *d_odata);
 
-GPUManager::GPUManager()
+GPUManager::GPUManager() : m_ownsData( true )
 {
   m_iNEvents=0;
   m_iNTrueEvents=0;
@@ -225,6 +225,28 @@ GPUManager::initData( const AmpVecs& a, bool use4Vectors  )
   calcCUDADims();
 }
 
+void
+GPUManager::useDataFrom( const AmpVecs& a ){
+  
+  clearData();
+
+  report( DEBUG, kModule ) << "Using shared GPU device arrays." << endl;
+
+  m_ownsData = false;
+  
+  // copy over some info from the AmpVecs object for array dimensions
+  m_iNTrueEvents = a.m_iNTrueEvents;
+  m_iNEvents     = a.m_iNEvents;
+  m_iNParticles  = a.m_iNParticles;
+
+  // the rest of the data are derived:
+  m_iGDoubleDataArrSize     = sizeof(GDouble) * m_iNEvents;
+
+  m_pfDevWeights = a.m_gpuMan.m_pfDevWeights;
+  m_pfDevData    = a.m_gpuMan.m_pfDevData;
+
+  calcCUDADims();
+}
 
 void
 GPUManager::initTerms( const AmpVecs& a, unsigned int chunkSize )
@@ -710,11 +732,11 @@ GPUManager::clearData(){
   m_iGDoubleDataArrSize=0;
 
   if(m_pfDevData)
-    cudaFree(m_pfDevData);
+    if( m_ownsData )cudaFree(m_pfDevData);
   m_pfDevData=0;
   
   if(m_pfDevWeights)
-    cudaFree(m_pfDevWeights);
+    if( m_ownsData ) cudaFree(m_pfDevWeights);
   m_pfDevWeights=0;
 
   //CUDA Thread and Grid sizes

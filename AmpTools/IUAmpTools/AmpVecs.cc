@@ -88,12 +88,7 @@ AmpVecs::deallocAmpVecs()
   m_iNTrueEvents    = 0 ;
   m_dSumWeights     = 0 ;
   m_iNParticles     = 0 ;
-  m_iNTerms         = 0 ;
-  m_maxFactPerEvent = 0 ;
-  m_userVarsPerEvent = 0;
-  
-  m_termsValid    = false ;
-  m_integralValid = false ;
+
   m_dataLoaded    = false ;
 
   m_hasNonUnityWeights = false;
@@ -109,31 +104,9 @@ AmpVecs::deallocAmpVecs()
     delete[] m_pdWeights;
   m_pdWeights=0;
   
-  if(m_pdIntensity)
-    delete[] m_pdIntensity;
-  m_pdIntensity=0; 
-  
-  if(m_pdIntegralMatrix)
-    delete[] m_pdIntegralMatrix;
-  m_pdIntegralMatrix=0;
+  deallocTerms();
 
-  if(m_pdUserVars)
-    delete[] m_pdUserVars;
-  m_pdUserVars=0;
-  
-  m_userVarsOffset.clear();
-  
-#ifndef GPU_ACCELERATION
-  
-  if(m_pdAmps)
-    delete[] m_pdAmps;
-  m_pdAmps=0;
-  
-  if(m_pdAmpFactors)
-    delete[] m_pdAmpFactors;
-  m_pdAmpFactors=0;
-
-#else
+#ifdef GPU_ACCELERATION
   //Deallocate "pinned memory"
   if(m_pdAmps)
     cudaFreeHost(m_pdAmps);
@@ -374,6 +347,47 @@ AmpVecs::allocateTerms( const IntensityManager& intenMan, bool bAllocIntensity, 
   m_integralValid = false;
 }
 
+void
+AmpVecs::deallocTerms(){
+
+  m_iNTerms = 0;
+  m_maxFactPerEvent = 0;
+  m_userVarsPerEvent = 0;
+
+  m_termsValid = false;
+  m_integralValid = false;
+
+  if( m_pdIntegralMatrix )
+    delete[] m_pdIntegralMatrix;
+  m_pdIntegralMatrix = 0;
+
+  if( m_pdIntensity )
+    delete[] m_pdIntensity;
+  m_pdIntensity = 0;
+
+  if( m_pdUserVars )
+    delete[] m_pdUserVars;
+  m_pdUserVars = 0;
+
+  m_userVarsOffset.clear();
+
+#ifndef GPU_ACCELERATION
+
+if( m_pdAmps )
+    delete[] m_pdAmps;
+  m_pdAmps = 0;
+  if( m_pdAmpFactors )
+    delete[] m_pdAmpFactors;
+  m_pdAmpFactors = 0;
+
+#else
+
+  m_gpuMan.clearTerms();
+
+#endif // GPU_ACCELERATION
+
+}
+
 #ifdef GPU_ACCELERATION
 void
 AmpVecs::allocateCPUAmpStorage( const IntensityManager& intenMan ){
@@ -392,7 +406,7 @@ AmpVecs::allocateCPUAmpStorage( const IntensityManager& intenMan ){
     assert( false );
   }
 }
-#endif
+#endif // GPU_ACCELERATION
 
 Kinematics*
 AmpVecs::getEvent( int iEvent ){
@@ -459,8 +473,7 @@ AmpVecs::shareDataWith( AmpVecs* targetAmpVecs, bool needsUserVarsOnly ){
   // own GPU manager so we need to initialize it and
   // copy the data to the GPU for the new object 
 #ifdef GPU_ACCELERATION
-    targetAmpVecs->m_gpuMan.initData( *targetAmpVecs, !needsUserVarsOnly );  
-    targetAmpVecs->m_gpuMan.copyDataToGPU( *targetAmpVecs, !needsUserVarsOnly );
+    targetAmpVecs->m_gpuMan.useDataFrom( *this );
 #endif
 }
 
@@ -483,4 +496,9 @@ AmpVecs::claimDataOwnership( set< AmpVecs* > sharedFriends ){
 
     (*avItr)->m_sharedDataHost = this;
   }
+
+#ifdef GPU_ACCELERATION
+  m_gpuMan.m_ownsData = true;
+#endif
+
 }

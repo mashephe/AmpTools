@@ -76,6 +76,7 @@ public:
   void init( const AmpVecs& a, bool use4Vectors = true );
   
   void initData( const AmpVecs& a, bool use4Vectors = true );
+  void useDataFrom( const AmpVecs& a );
   void initTerms( const AmpVecs& a, unsigned int chunkSize = 0 );
   
   void copyDataToGPU( const AmpVecs& a, bool use4Vectors = true  );
@@ -107,6 +108,8 @@ public:
     return(  (1<<iPow) < GPU_BLOCK_SIZE_SQ ? GPU_BLOCK_SIZE_SQ : (1<<iPow) );
   }
   
+  bool m_ownsData;
+
 private:
   
   static bool m_cudaDisplay;
