@@ -975,7 +975,8 @@ SCOREP_USER_REGION_BEGIN( calcIntegralsA, "calcIntegralsA", SCOREP_USER_REGION_T
                                << ")" << endl;
     }
 #endif
-    
+    if( nChunk > 1 ) report( DEBUG, kModule ) << "Integral calculation:  chunk " 
+                     << iChunk << " of " << nChunk << " complete." << endl;
   }
   
   // in a "chunked" calculation nCompute, iIndex, and jIndex get reset
