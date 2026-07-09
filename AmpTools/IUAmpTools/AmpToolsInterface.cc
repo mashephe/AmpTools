@@ -830,8 +830,8 @@ AmpToolsInterface::printAmplitudes(string reactionName, Kinematics* kin) const {
     vector< const Amplitude* > ampFactors = ampMan->getFactors(ampNames[iamp]);
     vector <vector <int> > permutations = ampMan->getPermutations(ampNames[iamp]);
     
-    report( INFO, kModule ) << "      PRODUCT OF FACTORS" << endl
-                            << "      SUMMED OVER PERMUTATIONS = ( "
+    report( INFO, kModule ) << "      PRODUCT OF FACTORS" << endl;
+    report( INFO, kModule ) << "      SUMMED OVER PERMUTATIONS = ( "
                             << aVecs.m_pdAmps[iamp*2] << ", "
                             << aVecs.m_pdAmps[iamp*2+1] << " )" << endl << endl;
     
@@ -845,7 +845,7 @@ AmpToolsInterface::printAmplitudes(string reactionName, Kinematics* kin) const {
       
       for (unsigned int iperm = 0; iperm < nPerm; iperm++){
         
-        report( INFO, kModule ) << "        PERMUTATION = ";
+        report( INFO, kModule ) << "      PERMUTATION = ";
         for (unsigned int ipar = 0; ipar < permutations[iperm].size(); ipar++){
           report( INFO, kModule ) << permutations[iperm][ipar] << " ";
         }

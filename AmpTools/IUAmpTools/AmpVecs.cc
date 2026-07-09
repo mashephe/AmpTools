@@ -88,12 +88,7 @@ AmpVecs::deallocAmpVecs()
   m_iNTrueEvents    = 0 ;
   m_dSumWeights     = 0 ;
   m_iNParticles     = 0 ;
-  m_iNTerms         = 0 ;
-  m_maxFactPerEvent = 0 ;
-  m_userVarsPerEvent = 0;
-  
-  m_termsValid    = false ;
-  m_integralValid = false ;
+
   m_dataLoaded    = false ;
 
   m_hasNonUnityWeights = false;
@@ -109,31 +104,9 @@ AmpVecs::deallocAmpVecs()
     delete[] m_pdWeights;
   m_pdWeights=0;
   
-  if(m_pdIntensity)
-    delete[] m_pdIntensity;
-  m_pdIntensity=0; 
-  
-  if(m_pdIntegralMatrix)
-    delete[] m_pdIntegralMatrix;
-  m_pdIntegralMatrix=0;
+  deallocTerms();
 
-  if(m_pdUserVars)
-    delete[] m_pdUserVars;
-  m_pdUserVars=0;
-  
-  m_userVarsOffset.clear();
-  
-#ifndef GPU_ACCELERATION
-  
-  if(m_pdAmps)
-    delete[] m_pdAmps;
-  m_pdAmps=0;
-  
-  if(m_pdAmpFactors)
-    delete[] m_pdAmpFactors;
-  m_pdAmpFactors=0;
-
-#else
+#ifdef GPU_ACCELERATION
   //Deallocate "pinned memory"
   if(m_pdAmps)
     cudaFreeHost(m_pdAmps);
@@ -198,26 +171,30 @@ AmpVecs::clearFourVecs(){
 }
 
 void
-AmpVecs::loadEvent( const Kinematics* pKinematics, unsigned long long iEvent,
-                    unsigned long long iNTrueEvents ){
+AmpVecs::loadEvent( const Kinematics* pKinematics, unsigned int iEvent,
+                    unsigned int iNTrueEvents, bool needsUserVarsOnly ){
   
   // allocate memory and set variables
-  //  if this is the first call to this method
+  // if this is the first call to this method
   
   if (m_pdData == NULL){
     
     m_iNTrueEvents = iNTrueEvents;
     m_iNEvents = iNTrueEvents;
     
-#ifdef GPU_ACCELERATION
-    m_iNEvents = GPUManager::calcNEventsGPU(iNTrueEvents);
-#endif
-    
     m_iNParticles = pKinematics->particleList().size();
     assert(m_iNParticles);
-    
+
+#ifdef GPU_ACCELERATION
+    m_iNEvents = GPUManager::calcNEventsGPU(iNTrueEvents);
+    m_gpuMan.initData( *this, !needsUserVarsOnly );  
+#endif
+
+    report( DEBUG, kModule ) << "Allocating CPU memory for " << m_iNEvents
+                             << " events with " << m_iNParticles << " particles" << endl;
+
     m_pdData = new GDouble[4*m_iNParticles*m_iNEvents];
-    m_pdWeights = new GDouble[m_iNEvents];
+    m_pdWeights = new GDouble[m_iNEvents];        
   }
   
   // check to be sure we won't exceed the bounds of the array
@@ -232,6 +209,7 @@ AmpVecs::loadEvent( const Kinematics* pKinematics, unsigned long long iEvent,
 
   m_pdWeights[iEvent] = pKinematics->weight();
   
+
   m_termsValid = false;
   m_integralValid = false;
   m_dataLoaded = true;
@@ -240,7 +218,7 @@ AmpVecs::loadEvent( const Kinematics* pKinematics, unsigned long long iEvent,
 
 
 void
-AmpVecs::loadData( DataReader* pDataReader ){
+AmpVecs::loadData( DataReader* pDataReader, bool needsUserVarsOnly ){
   
   //  Make sure no data is already loaded
   
@@ -272,9 +250,9 @@ AmpVecs::loadData( DataReader* pDataReader ){
   // Loop over events and load each one individually
   
   Kinematics* pKinematics;
-  for(unsigned long long iEvent = 0; iEvent < m_iNTrueEvents; iEvent++){
+  for(unsigned int iEvent = 0; iEvent < m_iNTrueEvents; iEvent++){
     pKinematics = pDataReader->getEvent();
-    loadEvent(pKinematics, iEvent, m_iNTrueEvents );
+    loadEvent(pKinematics, iEvent, m_iNTrueEvents, needsUserVarsOnly );
 
     float weight = pKinematics->weight();
     
@@ -292,13 +270,19 @@ AmpVecs::loadData( DataReader* pDataReader ){
   
   // Fill any remaining space in the data array with the last event's kinematics
   
-  for (unsigned long long iEvent = m_iNTrueEvents; iEvent < m_iNEvents; iEvent++){
-    loadEvent(pKinematics, iEvent, m_iNTrueEvents );
+  for (unsigned int iEvent = m_iNTrueEvents; iEvent < m_iNEvents; iEvent++){
+    loadEvent(pKinematics, iEvent, m_iNTrueEvents, needsUserVarsOnly );
   }
 
   if( m_iNTrueEvents )
   	delete pKinematics;
-  
+   
+#ifdef GPU_ACCELERATION
+
+  m_gpuMan.copyDataToGPU( *this, !needsUserVarsOnly );
+
+#endif  
+
   m_termsValid = false;
   m_integralValid = false;
   m_dataLoaded = true;
@@ -307,8 +291,10 @@ AmpVecs::loadData( DataReader* pDataReader ){
 
 
 void
-AmpVecs::allocateTerms( const IntensityManager& intenMan, bool bAllocIntensity ){
+AmpVecs::allocateTerms( const IntensityManager& intenMan, bool bAllocIntensity, unsigned int chunkSize ){
 
+  unsigned int ampsEvents = ( chunkSize == 0 ? m_iNEvents : chunkSize );
+  
   m_iNTerms           = intenMan.getTermNames().size();
   m_maxFactPerEvent   = intenMan.maxFactorStoragePerEvent();
   m_userVarsPerEvent  = intenMan.userVarsPerEvent();
@@ -346,18 +332,60 @@ AmpVecs::allocateTerms( const IntensityManager& intenMan, bool bAllocIntensity )
   
 #ifndef GPU_ACCELERATION
   
-  m_pdAmps = new GDouble[m_iNEvents * intenMan.termStoragePerEvent()];
-  m_pdAmpFactors = new GDouble[m_iNEvents * m_maxFactPerEvent];
+  // these use reduced size arrays when a non-zero chunk size is provided:
+  
+  m_pdAmps = new GDouble[ampsEvents * intenMan.termStoragePerEvent()];
+  m_pdAmpFactors = new GDouble[ampsEvents * m_maxFactPerEvent];
   
 #else
   
-  m_gpuMan.init( *this, !intenMan.needsUserVarsOnly() );
-  m_gpuMan.copyDataToGPU( *this, !intenMan.needsUserVarsOnly() );
+  m_gpuMan.initTerms( *this, chunkSize );
 
 #endif // GPU_ACCELERATION
   
   m_termsValid    = false;
   m_integralValid = false;
+}
+
+void
+AmpVecs::deallocTerms(){
+
+  m_iNTerms = 0;
+  m_maxFactPerEvent = 0;
+  m_userVarsPerEvent = 0;
+
+  m_termsValid = false;
+  m_integralValid = false;
+
+  if( m_pdIntegralMatrix )
+    delete[] m_pdIntegralMatrix;
+  m_pdIntegralMatrix = 0;
+
+  if( m_pdIntensity )
+    delete[] m_pdIntensity;
+  m_pdIntensity = 0;
+
+  if( m_pdUserVars )
+    delete[] m_pdUserVars;
+  m_pdUserVars = 0;
+
+  m_userVarsOffset.clear();
+
+#ifndef GPU_ACCELERATION
+
+if( m_pdAmps )
+    delete[] m_pdAmps;
+  m_pdAmps = 0;
+  if( m_pdAmpFactors )
+    delete[] m_pdAmpFactors;
+  m_pdAmpFactors = 0;
+
+#else
+
+  m_gpuMan.clearTerms();
+
+#endif // GPU_ACCELERATION
+
 }
 
 #ifdef GPU_ACCELERATION
@@ -369,7 +397,7 @@ AmpVecs::allocateCPUAmpStorage( const IntensityManager& intenMan ){
   
   // allocate as "pinned memory" for fast CPU<->GPU memcopies
   cudaMallocHost( (void**)&m_pdAmps, m_iNEvents * intenMan.termStoragePerEvent() * sizeof(GDouble) );
-  cudaMallocHost( (void**)&m_pdAmpFactors, m_iNEvents * m_maxFactPerEvent * sizeof(GDouble));
+  cudaMallocHost( (void**)&m_pdAmpFactors, 2 * m_iNEvents * m_maxFactPerEvent * sizeof(GDouble));
 
   cudaError_t cudaErr = cudaGetLastError();
   if( cudaErr != cudaSuccess  ){
@@ -378,7 +406,7 @@ AmpVecs::allocateCPUAmpStorage( const IntensityManager& intenMan ){
     assert( false );
   }
 }
-#endif
+#endif // GPU_ACCELERATION
 
 Kinematics*
 AmpVecs::getEvent( int iEvent ){
@@ -399,7 +427,7 @@ AmpVecs::getEvent( int iEvent ){
 }
 
 void
-AmpVecs::shareDataWith( AmpVecs* targetAmpVecs ){
+AmpVecs::shareDataWith( AmpVecs* targetAmpVecs, bool needsUserVarsOnly ){
 
   // if this object is already using shared data
   // then it should rely on the host to distribute
@@ -407,7 +435,7 @@ AmpVecs::shareDataWith( AmpVecs* targetAmpVecs ){
   // the set of shared data friends complete
   if( m_usesSharedData ){
     
-    m_sharedDataHost->shareDataWith( targetAmpVecs );
+    m_sharedDataHost->shareDataWith( targetAmpVecs, needsUserVarsOnly );
     return;
   }
   
@@ -426,7 +454,7 @@ AmpVecs::shareDataWith( AmpVecs* targetAmpVecs ){
   // while we are really going to share the four-vectors,
   // we will give the target a copy of the weights -- this
   // avoids complications if the four-vectors can later
-  // be flusehd from memory but the weights need to remain
+  // be flushed from memory but the weights need to remain
   // for the fit
 
   targetAmpVecs->m_pdWeights = new GDouble[m_iNEvents];
@@ -440,6 +468,13 @@ AmpVecs::shareDataWith( AmpVecs* targetAmpVecs ){
   m_sharedDataFriends.insert( targetAmpVecs );
   targetAmpVecs->m_usesSharedData = true;
   targetAmpVecs->m_sharedDataHost = this;
+
+  // even when using shared data the class will have its
+  // own GPU manager so we need to initialize it and
+  // copy the data to the GPU for the new object 
+#ifdef GPU_ACCELERATION
+    targetAmpVecs->m_gpuMan.useDataFrom( *this );
+#endif
 }
 
 void
@@ -461,4 +496,9 @@ AmpVecs::claimDataOwnership( set< AmpVecs* > sharedFriends ){
 
     (*avItr)->m_sharedDataHost = this;
   }
+
+#ifdef GPU_ACCELERATION
+  m_gpuMan.m_ownsData = true;
+#endif
+
 }

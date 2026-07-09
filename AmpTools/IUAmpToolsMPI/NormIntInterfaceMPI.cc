@@ -96,22 +96,22 @@ NormIntInterfaceMPI::setupMPI()
   m_isLeader = ( m_rank == 0 );
   
   // this is unsigned elsewhere, but MPI
-  unsigned long int totalGenEvents = 0;
+  unsigned int totalGenEvents = 0;
   double totalAccWeights = 0;
     
   if( m_isLeader ){
     
     for( int i = 1; i < m_numProc; ++i ){
       
-      unsigned long int thisEvents;
+      unsigned int thisEvents;
       double thisWeights;
 
       // trigger sending of events from followers -- data is irrelevant
-      MPI_Send( &thisEvents, 1, MPI_UNSIGNED_LONG, i, MPITag::kAcknowledge,
+      MPI_Send( &thisEvents, 1, MPI_UNSIGNED, i, MPITag::kAcknowledge,
                MPI_COMM_WORLD );
       
       // now receive actual data
-      MPI_Recv( &thisEvents, 1, MPI_UNSIGNED_LONG, i, MPITag::kLongIntSend,
+      MPI_Recv( &thisEvents, 1, MPI_UNSIGNED, i, MPITag::kIntSend,
                MPI_COMM_WORLD, &status );
       totalGenEvents += thisEvents;
       
@@ -120,7 +120,7 @@ NormIntInterfaceMPI::setupMPI()
       totalAccWeights += thisWeights;
       
       // send acknowledgment 
-      MPI_Send( &thisEvents, 1, MPI_UNSIGNED_LONG, i, MPITag::kAcknowledge,
+      MPI_Send( &thisEvents, 1, MPI_UNSIGNED, i, MPITag::kAcknowledge,
                MPI_COMM_WORLD );
     }
     
@@ -129,7 +129,11 @@ NormIntInterfaceMPI::setupMPI()
   }
   else{
     
-    unsigned long int thisEvents;
+    // load the MC into CPU memory on the follower nodes -- this is effectively
+    // a copy from the DataReaderMPI cache to the AmpVecs structure
+    loadMC();
+
+    unsigned int thisEvents;
     double thisWeights;
 
     // if we are not the leader, send generated and accepted events
@@ -140,16 +144,16 @@ NormIntInterfaceMPI::setupMPI()
     // to signal that it is ready to accept numbers of events
 
     // data is irrelevant for this receive
-    MPI_Recv( &thisEvents, 1, MPI_UNSIGNED_LONG, 0, MPITag::kAcknowledge, MPI_COMM_WORLD,
+    MPI_Recv( &thisEvents, 1, MPI_UNSIGNED, 0, MPITag::kAcknowledge, MPI_COMM_WORLD,
               &status );
 
     thisEvents = numGenEvents();
-    MPI_Send( &thisEvents, 1, MPI_UNSIGNED_LONG, 0, MPITag::kLongIntSend, MPI_COMM_WORLD );
+    MPI_Send( &thisEvents, 1, MPI_UNSIGNED, 0, MPITag::kIntSend, MPI_COMM_WORLD );
     
     thisWeights = numAccEvents();
     MPI_Send( &thisWeights, 1, MPI_DOUBLE, 0, MPITag::kDoubleSend, MPI_COMM_WORLD );
     
-    MPI_Recv( &thisEvents, 1, MPI_UNSIGNED_LONG, 0, MPITag::kAcknowledge, MPI_COMM_WORLD,
+    MPI_Recv( &thisEvents, 1, MPI_UNSIGNED, 0, MPITag::kAcknowledge, MPI_COMM_WORLD,
              &status );
   }
 }

@@ -274,7 +274,7 @@ public:
    * of GDoubles E, px, py, pz repeated sequentially for each particle in 
    * the event and then the series repeated for each event in the data set.
    *
-   * \param[out] pdAmps a pointer to a block of memory where the calculated
+   * \param[out] pdAmpFact a pointer to a block of memory where the calculated
    * amplitudes should go.  The values are stored as real and imaginary parts
    * repeated for each permutation and then for each event.  
    * Total length of memory needed is 2 * sizeof( GDDouble ) * N_evts * N_perms
@@ -292,9 +292,10 @@ public:
    * \see calcAmplitudeAll
    * \see AmplitudeManager::addAmpPermutation
    */
-  virtual void calcAmplitudeAll( GDouble* pdData, GDouble* pdAmps, int iNEvents,
+  virtual void calcAmplitudeAll( GDouble* pdData, GDouble* pdAmpFact, unsigned int iNEvents,
                                 const vector< vector< int > >* pvPermutations,
-                                GDouble* pdUserVars = 0 ) const;
+                                GDouble* pdUserVars = 0, unsigned int startEvent = 0,
+                                unsigned int chunkSize = 0 ) const;
   
   
   /**

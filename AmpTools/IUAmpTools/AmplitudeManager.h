@@ -159,7 +159,8 @@ public:
    * This function caculates the amplitudes for each data event and stores
    * them in the AmpVecs structure.  It returns true if it alters the
    * terms in the structure (helpful to see if an update actually
-   * happenend when recalculating).
+   * happenend when recalculating).  This function satisfies the need
+   * of the base class and uses the more complex calcTerms function below.
    *
    * \param[in,out] ampVecs a reference to the AmpVecs storage structure, four vectors
    * will be read from this class and amplitude caculations will be written to
@@ -169,7 +170,9 @@ public:
    * \see calcSumLogIntensity
    * \see calcIntegrals
    */
+  
   vector<bool> calcTerms( AmpVecs& ampVecs ) const;
+  
   
   /**
    * This function calculates the intensity (one number) for all events and
@@ -227,7 +230,8 @@ public:
    * \see calcAmplitudes
    * \see calcIntensities
    */
-  void calcIntegrals( AmpVecs& ampVecs, int iNGenEvents ) const;
+  void calcIntegrals( AmpVecs& ampVecs, unsigned int iNGenEvents,
+                     unsigned int chunkSize = 0 ) const;
 
   /**
    * The function returns a list of permutations that will be performed on
@@ -427,9 +431,34 @@ public:
   void updatePar( const string& parName ) const;
   
   
-
-
 private:
+  
+
+  /**
+   * This function is private because it can likely only safely be used by
+   * an implementation of calcIntegrals that reduces memory.  It doesn't
+   * seem necessary to expose this function outside the class.
+   *
+   * This function caculates the amplitudes for each data event and stores
+   * them in the AmpVecs structure.  It returns true if it alters the
+   * terms in the structure (helpful to see if an update actually
+   * happenend when recalculating).
+   *
+   * \param[in,out] ampVecs a reference to the AmpVecs storage structure, four vectors
+   * will be read from this class and amplitude caculations will be written to
+   * this class
+   * \param[in] startEvent is index of the event in the data and user variables
+   * array to start the computaiton with if the terms are a partial set
+   * \param[in] chunkSize is the number of terms to compute when startEvent
+   * is not equal to zero
+   *
+   * \see calcIntensities
+   * \see calcSumLogIntensity
+   * \see calcIntegrals
+   */
+  vector<bool> calcTerms( AmpVecs& ampVecs, unsigned int startEvent,
+                          unsigned int chunkSize ) const;
+  
   
   // recursive routine to symmetrize final state
   void generateSymmetricCombos( const vector< pair< int, int > >& prevSwaps,
@@ -465,7 +494,7 @@ private:
     
   mutable map< const Amplitude*, int > m_ampIteration;
   mutable map< AmpVecs*, map< const Amplitude*, int > > m_dataAmpIteration;
-  mutable map< string, unsigned long long > m_staticUserVarsOffset;
+  mutable map< string, unsigned int > m_staticUserVarsOffset;
   
   static const char* kModule;
 };

@@ -101,41 +101,7 @@ m_termNames( intenManager.getTermNames() )
   assert( ( m_accMCReader != NULL ) && ( m_genMCReader != NULL ) );
   
   m_termNames = intenManager.getTermNames();
-  
-  std::map<DataReader*,AmpVecs*>::iterator genVecs = m_uniqueDataSets.find( m_genMCReader );
-  if( genVecs == m_uniqueDataSets.end() ){
-  
-    report( INFO, kModule ) << "Loading generated Monte Carlo from file..." << endl;
-    m_genMCVecs.loadData( m_genMCReader );
-    
-    m_uniqueDataSets[m_genMCReader] = &m_genMCVecs;
-  }
-  else{
-    
-    report( NOTICE, kModule ) << "Duplicated Monte Carlo set detected, "
-         << "using previously loaded version" << endl;
-    
-    genVecs->second->shareDataWith( &m_genMCVecs );
-  }
-  m_nGenEvents = m_genMCVecs.m_iNTrueEvents;
-
-  std::map<DataReader*,AmpVecs*>::iterator accVecs = m_uniqueDataSets.find( m_accMCReader );
-  if( accVecs == m_uniqueDataSets.end() ){
-  
-    report( INFO, kModule ) << "Loading accepted Monte Carlo from file..." << endl;
-    m_accMCVecs.loadData( m_accMCReader );
-    
-    m_uniqueDataSets[m_accMCReader] = &m_accMCVecs;
-  }
-  else{
-    
-    report( NOTICE, kModule ) << "Duplicated Monte Carlo set detected, "
-         << "using previously loaded version" << endl;
-    
-    accVecs->second->shareDataWith( &m_accMCVecs );
-  }
-  m_sumAccWeights = m_accMCVecs.m_dSumWeights;
-  
+   
   initializeCache();
 }
 
@@ -386,26 +352,29 @@ NormIntInterface::forceCacheUpdate( bool normIntOnly ) const
 {
  
   report( DEBUG, kModule ) << "Update of the NI cache -- normIntOnly = "
-  << normIntOnly << ", emptyNormIntCache = " << m_emptyNormIntCache
-  << ", emptyAmpIntCache = " << m_emptyAmpIntCache << endl;
-  
-  // if the accepted MC is not available, then the data have likely
-  // not been loaded into AmpVecs and we can't reclaculate the integrals
-  // below
-  assert( m_accMCVecs.m_dataLoaded );
-  
+                           << normIntOnly << ", emptyNormIntCache = " << m_emptyNormIntCache
+                           << ", emptyAmpIntCache = " << m_emptyAmpIntCache << endl;
+    
   // do "lazy" allocation of memory here -- this is important for MPI jobs
   // where forceCacheUpdate is only called on follower nodes, as it
   // avoids big memory allocations on the lead nodes
+
+  // this will load both the accepted and generated MC into memory
+  // (For MPI jobs, loadMC is called explicitly on the follower nodes
+  // during the steup step, so this will not be called again on those nodes
+  // and forceCacheUpdate is never called on the MPI lead node)
+  if( !m_accMCVecs.m_dataLoaded ) loadMC();
+
+  // allocate the space for calculating the amplitudes
   if( m_accMCVecs.m_iNTerms == 0 ) m_accMCVecs.allocateTerms( *m_pIntenManager );
-  
+
   // we won't enter here if the cache is empty, which can happen
   // on the first pass through the data -- for subsequent passes
   // (during fitting) the loop below will execute and return
   if( !m_emptyNormIntCache && normIntOnly ){
 
     report( DEBUG, kModule ) << "Asking IntensityManager to update integrals "
-    << "using the accepted MC." << endl;
+                             << "using the accepted MC." << endl;
     
     m_pIntenManager->calcIntegrals( m_accMCVecs, m_nGenEvents );
     setNormIntMatrix( m_accMCVecs.m_pdIntegralMatrix );
@@ -428,23 +397,33 @@ NormIntInterface::forceCacheUpdate( bool normIntOnly ) const
     // MC in order to be able to continue
     assert( m_genMCVecs.m_dataLoaded );
 
+    // computing integrals of the generated MC can be done in chunks
+    // to avoid exhausting memory on CPU or GPU -- there is never a need
+    // to have the entire generated MC in memory at once
+    unsigned int chunkSize = genMCChunkSize();
+    
     // do "lazy" allocation of memory here -- this is important for MPI jobs
     // where forceCacheUpdate is only called on follower nodes, as it
     // avoids big memory allocations on the lead nodes
-    if( m_genMCVecs.m_iNTerms == 0 ) m_genMCVecs.allocateTerms( *m_pIntenManager );
+    if( m_genMCVecs.m_iNTerms == 0 ) m_genMCVecs.allocateTerms( *m_pIntenManager, false, chunkSize );
     
     report( DEBUG, kModule ) << "Asking IntensityManager to calculate integrals "
     << "using the generated MC." << endl;
     
-    m_pIntenManager->calcIntegrals( m_genMCVecs, m_nGenEvents );
+    m_pIntenManager->calcIntegrals( m_genMCVecs, m_nGenEvents, chunkSize );
+    
     setAmpIntMatrix( m_genMCVecs.m_pdIntegralMatrix );
-  
+
+    // try to keep memory usage down by freeing the memory needed to calculate the
+    // integrals -- the data will remain in memory
+    m_genMCVecs.deallocTerms();
+
     m_emptyAmpIntCache = false;
   }
   
   // first trip through or forced update...
   // we either copy the generated MC integrals to accepted or
-  // compute thm directly:
+  // compute them directly:
   if( ( m_accMCReader == m_genMCReader ) && !m_emptyAmpIntCache ) {
     
     // optimization for perfect acceptance  
@@ -552,8 +531,68 @@ NormIntInterface::setNormIntMatrix( const double* input ) const {
   m_emptyNormIntCache = false;
 }
 
-
 #ifndef __ACLIC__
+
+unsigned int
+NormIntInterface::genMCChunkSize() const {
+  
+  // need to know the sizes of the data sets
+  assert( m_accMCVecs.m_dataLoaded && m_genMCVecs.m_dataLoaded );
+  
+  unsigned int nGen = m_genMCVecs.m_iNEvents;
+  unsigned int nAcc = m_accMCVecs.m_iNEvents;
+  
+  // get the chunk size by doing integer division by 2
+  // until the size of the generated MC is less than the
+  // 1/2 of the accepted MC -- for GPU fits this should return a
+  // chunk size that is a power of 2, which is required
+  
+  int iPow = 0;
+  while( ( nGen >> iPow ) > nAcc/4 ) ++iPow;
+  
+  report( DEBUG, kModule ) << "Chunk size for generated MC:  " << ( nGen >> iPow ) << endl;
+  
+  return( nGen >> iPow );
+}
+
+void
+NormIntInterface::loadMC() const {
+  
+  std::map<DataReader*,AmpVecs*>::iterator genVecs = m_uniqueDataSets.find( m_genMCReader );
+  if( genVecs == m_uniqueDataSets.end() ){
+  
+    report( INFO, kModule ) << "Loading generated Monte Carlo from file..." << endl;
+    m_genMCVecs.loadData( m_genMCReader, m_pIntenManager->needsUserVarsOnly() );
+    
+    m_uniqueDataSets[m_genMCReader] = &m_genMCVecs;
+  }
+  else{
+    
+    report( NOTICE, kModule ) << "Duplicated Monte Carlo set detected, "
+         << "using previously loaded version" << endl;
+    
+    genVecs->second->shareDataWith( &m_genMCVecs, m_pIntenManager->needsUserVarsOnly() );
+  }
+  m_nGenEvents = m_genMCVecs.m_iNTrueEvents;
+
+  std::map<DataReader*,AmpVecs*>::iterator accVecs = m_uniqueDataSets.find( m_accMCReader );
+  if( accVecs == m_uniqueDataSets.end() ){
+  
+    report( INFO, kModule ) << "Loading accepted Monte Carlo from file..." << endl;
+    m_accMCVecs.loadData( m_accMCReader, m_pIntenManager->needsUserVarsOnly() );
+    
+    m_uniqueDataSets[m_accMCReader] = &m_accMCVecs;
+  }
+  else{
+    
+    report( NOTICE, kModule ) << "Duplicated Monte Carlo set detected, "
+         << "using previously loaded version" << endl;
+    
+    accVecs->second->shareDataWith( &m_accMCVecs, m_pIntenManager->needsUserVarsOnly() );
+  }
+  m_sumAccWeights = m_accMCVecs.m_dSumWeights;
+}
+
 void
 NormIntInterface::invalidateTerms(){
   

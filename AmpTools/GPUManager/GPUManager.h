@@ -46,19 +46,11 @@
 #include <stdio.h>
 
 #include "GPUManager/GPUCustomTypes.h"
+#include "IUAmpTools/report.h"
 
 #include "cuda_runtime.h"
 
 #define gpuErrChk(ans) { gpuAssert((ans), __FILE__, __LINE__); }
-
-inline void gpuAssert(cudaError_t code, const char *file, int line, bool abort=true)
-{
-  if (code != cudaSuccess)
-  {
-    fprintf(stderr,"GPU ERROR: %s %s %d\n", cudaGetErrorString(code), file, line);
-    if (abort) exit(code);
-  }
-}
 
 using namespace std;
 // using namespace __gnu_cxx;
@@ -78,21 +70,24 @@ public:
   ~GPUManager();
   
   void clearAll();
-  void clearAmpCalc();
-  void clearLikeCalc();
+  void clearData();
+  void clearTerms();
   
   void init( const AmpVecs& a, bool use4Vectors = true );
   
-  // Interface Utils
-  // First Amplitude calculation interface
+  void initData( const AmpVecs& a, bool use4Vectors = true );
+  void useDataFrom( const AmpVecs& a );
+  void initTerms( const AmpVecs& a, unsigned int chunkSize = 0 );
+  
   void copyDataToGPU( const AmpVecs& a, bool use4Vectors = true  );
   void copyUserVarsToGPU( const AmpVecs& a );
   
-  void calcAmplitudeAll( const Amplitude* amp, unsigned long long offset,
+  void calcAmplitudeAll( const Amplitude* amp, unsigned int uAmpFactOffset,
                          const vector< vector< int > >* pvPermutations,
-			 unsigned long long userVarsOffset );
+                         unsigned int userVarsOffset,
+                         unsigned int startEvent = 0, unsigned int chunkSize = 0 );
   
-  void assembleTerms( int iAmpInd, int nFact, int nPerm );
+  void assembleTerms( int iAmpInd, int nFact, int nPerm, unsigned int nEvents );
   
   void copyAmpsFromGPU( AmpVecs& a );
 
@@ -100,8 +95,9 @@ public:
   double calcSumLogIntensity( const vector< complex< double > >& prodCoef,
                               const vector< vector< bool > >& cohMtx );
 
-  void calcIntegrals( double* result, int nElements, const vector<int>& iIndex,
-                      const vector<int>& jIndex );
+  void calcIntegrals( double* result, int nElements, 
+                      const vector<int>& iIndex, const vector<int>& jIndex, 
+                      unsigned int startEvent, unsigned int nEvents );
   
   // General utils:
   static int calcNEventsGPU( int iNEvents ){
@@ -112,25 +108,29 @@ public:
     return(  (1<<iPow) < GPU_BLOCK_SIZE_SQ ? GPU_BLOCK_SIZE_SQ : (1<<iPow) );
   }
   
+  bool m_ownsData;
+
 private:
   
   static bool m_cudaDisplay;
   
   // array dimensions
   unsigned int m_iNParticles;
-  unsigned long m_iNEvents;
-  unsigned long m_iNTrueEvents;
+  unsigned int m_iNEvents;
+  unsigned int m_iNTrueEvents;
   unsigned int m_iNAmps;
   unsigned int m_iNUserVars;
   
-  // array sizes
-  unsigned long long m_iGDoubleEventArrSize;
-  unsigned long long m_iDoubleEventArrSize;
-  unsigned long long m_iDoubleTrueEventArrSize;
-  unsigned long long m_iAmpArrSize;
+  // array sizes (data)
+  unsigned int m_iGDoubleDataArrSize;
+  
+  // array sizes (terms)
+  unsigned int m_iDoubleIntenArrSize;
+  unsigned int m_iGDoubleFactArrSize;
+  unsigned int m_iAmpArrSize;
   unsigned int m_iVArrSize;
   unsigned int m_iNICalcSize;
-  
+
   //Host Arrays
   GDouble* m_pfVVStar;
   double* m_pdRes;
@@ -139,7 +139,7 @@ private:
   GDouble* m_pfDevData;
   GDouble* m_pfDevUserVars;
   GDouble* m_pfDevWeights;
-  GDouble* m_pcDevCalcAmp;
+  GDouble* m_pcDevAmpFact;
   int*     m_piDevPerm;
   
   GDouble* m_pfDevAmps;
@@ -152,10 +152,12 @@ private:
   // CUDA Thread and Grid sizes
   unsigned int m_iDimGridX;
   unsigned int m_iDimGridY;
+  unsigned int m_iDimGridXAmpFact;
+  unsigned int m_iDimGridYAmpFact;
   unsigned int m_iDimThreadX;
   unsigned int m_iDimThreadY;
   
-  unsigned int m_iNBlocks; 
+  unsigned int m_iNBlocks;
   unsigned int m_iNThreads;
   
   // Internal Utils
@@ -165,8 +167,20 @@ private:
   unsigned int m_maxShared_bytes;
 
   void calcCUDADims();
-  
+  void calcCUDADimsAmpFact( unsigned int chunkSize = 0 );
+
   static const char* kModule;
 };
+
+inline void gpuAssert(cudaError_t code, const char *file, int line, bool abort=true)
+{
+  if (code != cudaSuccess) {
+
+    report( ERROR, "GPUManager" ) << "CUDA ERROR: " << cudaGetErrorString( code ) << " in " 
+                                  << file << " at line " << line << endl;
+
+    if (abort) exit(code);
+  }
+}
 
 #endif //__GPU_MANAGER_H__
