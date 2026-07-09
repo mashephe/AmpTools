@@ -848,7 +848,7 @@ SCOREP_USER_REGION_BEGIN( calcIntegralsA, "calcIntegralsA", SCOREP_USER_REGION_T
         
     unsigned int startEvent = iChunk * chunkSize;
     unsigned int nEvents = a.m_iNEvents;
-    // for  chuncked calculation:
+    // for  chunked calculation:
     // the number of events to process is the chunk size unless
     // it is the last chunk then it is the remainder
     if( chunkSize != 0 ){
