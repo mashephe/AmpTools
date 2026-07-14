@@ -72,6 +72,34 @@ the square root of the intensity computed from the parameters and the kinematics
 
 RELEASE NOTES:
 
+v0.16.0 (14-Jul-2026):
+
+This is a completely backwards-compatible revision of some of the core AmpTools 
+libraries to improve memory consumption (both CPU and GPU) for fits.  This is 
+particularly beneficial for users that have large generated MC samples used 
+to compute acceptance-corrected amplitude integrals.
+
+There are no changes to the user interface or user code needed to take advantage 
+of these improvements.
+
+Here are the major changes:
+
+* fixed a bug that resulted in the lead node in an MPI job allocating much 
+more memory than it needs -- this won't produce incorrect results, it just 
+results in unnecessary memory consumption 
+* Version 0.14.0 introduced functionality so that MC doesn't have to be 
+loaded multiple times.  At the time, the limiting factor was I/O, so the 
+four-vectors were replicated in GPU global memory to make the implementation 
+simpler.  With the new revision, the four-vectors in GPU memory are shared. 
+* the most significant change:   at the end of the fit, one needs to calculate 
+amplitude integrals for the generated MC in order to have acceptance-corrected 
+quantities.  Since this is a one-time summing operation, there is no need to 
+allocate RAM to do this computation for every event, it can be done in 
+chunks.  The algorithm is to use chunks of generated MC that are less than 
+half of the size of the accepted MC, which will still result in some memory 
+footprint increase at the end of the fit, but hopefully can avoid annoying 
+out of memory faults at the end of the job.
+
 v0.15.4 (11-Sep-2025):
 
 This release should have no functional changes for users from previous releases. 
