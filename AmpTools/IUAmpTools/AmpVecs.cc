@@ -171,8 +171,8 @@ AmpVecs::clearFourVecs(){
 }
 
 void
-AmpVecs::loadEvent( const Kinematics* pKinematics, unsigned int iEvent,
-                    unsigned int iNTrueEvents, bool needsUserVarsOnly ){
+AmpVecs::loadEvent( const Kinematics* pKinematics, size_t iEvent,
+                    size_t iNTrueEvents, bool needsUserVarsOnly ){
   
   // allocate memory and set variables
   // if this is the first call to this method
@@ -250,7 +250,7 @@ AmpVecs::loadData( DataReader* pDataReader, bool needsUserVarsOnly ){
   // Loop over events and load each one individually
   
   Kinematics* pKinematics;
-  for(unsigned int iEvent = 0; iEvent < m_iNTrueEvents; iEvent++){
+  for(size_t iEvent = 0; iEvent < m_iNTrueEvents; iEvent++){
     pKinematics = pDataReader->getEvent();
     loadEvent(pKinematics, iEvent, m_iNTrueEvents, needsUserVarsOnly );
 
@@ -270,7 +270,7 @@ AmpVecs::loadData( DataReader* pDataReader, bool needsUserVarsOnly ){
   
   // Fill any remaining space in the data array with the last event's kinematics
   
-  for (unsigned int iEvent = m_iNTrueEvents; iEvent < m_iNEvents; iEvent++){
+  for (size_t iEvent = m_iNTrueEvents; iEvent < m_iNEvents; iEvent++){
     loadEvent(pKinematics, iEvent, m_iNTrueEvents, needsUserVarsOnly );
   }
 
@@ -291,12 +291,12 @@ AmpVecs::loadData( DataReader* pDataReader, bool needsUserVarsOnly ){
 
 
 void
-AmpVecs::allocateTerms( const IntensityManager& intenMan, bool bAllocIntensity, unsigned int chunkSize ){
+AmpVecs::allocateTerms( const IntensityManager& intenMan, bool bAllocIntensity, size_t chunkSize ){
 
-  unsigned int ampsEvents = ( chunkSize == 0 ? m_iNEvents : chunkSize );
+  size_t ampsEvents = ( chunkSize == 0 ? m_iNEvents : chunkSize );
   
   m_iNTerms           = intenMan.getTermNames().size();
-  m_maxFactPerEvent   = intenMan.maxFactorStoragePerEvent();
+  m_maxFactPerEvent   = intenMan.maxFactorStoragePerEvent(); // in units of doubles; includes factor of 2 for complex numbers
   m_userVarsPerEvent  = intenMan.userVarsPerEvent();
   
   if( m_pdAmps!=0 || m_pdAmpFactors!=0 || m_pdUserVars!=0 || m_pdIntensity!=0 )

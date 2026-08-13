@@ -109,7 +109,7 @@ SCOREP_USER_REGION_BEGIN( calcUserVarsAll, "calcUserVarsAll", SCOREP_USER_REGION
       // doesn't need to deal with permutations in their calcAmplitude
       // routine
 
-      unsigned int eventOffset = 4*iNParticles*iEvent;
+      size_t eventOffset = 4*iNParticles*iEvent;
       
       for( i = 0; i < iNParticles; i++ ){
 
@@ -117,7 +117,7 @@ SCOREP_USER_REGION_BEGIN( calcUserVarsAll, "calcUserVarsAll", SCOREP_USER_REGION
         pKin[i] = &(pdData[eventOffset+4*j]);
       }
 
-      unsigned int userIndex = iNEvents*iPermutation*numVars + iEvent*numVars;
+      size_t userIndex = iNEvents*iPermutation*numVars + iEvent*numVars;
       calcUserVars( pKin, &(pdUserVars[userIndex]) );
     }
   }
@@ -130,10 +130,10 @@ SCOREP_USER_REGION_END( calcUserVarsAll )
 }
 
 void
-Amplitude::calcAmplitudeAll( GDouble* pdData, GDouble* pdAmpFact, unsigned int iNEvents,
+Amplitude::calcAmplitudeAll( GDouble* pdData, GDouble* pdAmpFact, size_t iNEvents,
                              const vector< vector< int > >* pvPermutations,
-                             GDouble* pdUserVars, unsigned int startEvent,
-                             unsigned int chunkSize ) const
+                             GDouble* pdUserVars, size_t startEvent,
+                             size_t chunkSize ) const
 {
 
 #ifdef SCOREP
@@ -155,7 +155,7 @@ SCOREP_USER_REGION_BEGIN( calcAmplitudeAll, "calcAmplitudeAll", SCOREP_USER_REGI
   
   // this is the size of the chunk in the pdAmpFact array that we
   // are going to compute amplitdues for
-  unsigned int nEvents = ( chunkSize == 0 ? iNEvents : chunkSize );
+  size_t nEvents = ( chunkSize == 0 ? iNEvents : chunkSize );
   
   int i, j, iEvent;
   for( iPermutation = 0; iPermutation < iNPermutations; iPermutation++ ){
@@ -169,7 +169,7 @@ SCOREP_USER_REGION_BEGIN( calcAmplitudeAll, "calcAmplitudeAll", SCOREP_USER_REGI
       // doesn't need to deal with permutations in their calcAmplitude
       // routine
 
-      unsigned int eventOffset = 4*iNParticles*(iEvent + startEvent);
+      size_t eventOffset = 4*iNParticles*(iEvent + startEvent);
 
       for( i = 0; i < iNParticles; i++ ){
 
@@ -177,7 +177,7 @@ SCOREP_USER_REGION_BEGIN( calcAmplitudeAll, "calcAmplitudeAll", SCOREP_USER_REGI
         pKin[i] = &(pdData[eventOffset+4*j]);
       }
 
-      unsigned int userIndex = iNEvents*iPermutation*numVars + (iEvent + startEvent)*numVars;
+      size_t userIndex = iNEvents*iPermutation*numVars + (iEvent + startEvent)*numVars;
 
       if( numVars != 0 ){
       

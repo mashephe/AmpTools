@@ -124,7 +124,7 @@ private:
   void initializeCache();
   int m_cacheSize;
   
-  unsigned int genMCChunkSize() const;
+  size_t genMCChunkSize() const;
   
   vector< string > m_termNames;
   map< string, int > m_termIndex;

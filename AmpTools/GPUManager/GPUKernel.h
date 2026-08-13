@@ -41,16 +41,16 @@
 
 extern "C" void GPU_ExecAmpKernel(dim3 dimGrid,dim3 dimBlock,GDouble* pfDevAmps,
                                   GDouble* pfDevVVStar, GDouble* pfDevWeights,
-                                  int nAmps, unsigned int nEvents, double* pfDevRes);
+                                  int nAmps, size_t nEvents, double* pfDevRes);
 
 extern "C" void GPU_ExecFactPermKernel( dim3 dimGrid, dim3 dimBlock,
                                         GDouble* pfDevAmps, GDouble* pcDevAmpFact,
-                                        int nFact, int nPerm, unsigned int nEvents );
+                                        int nFact, int nPerm, size_t nEvents );
 
-extern "C" void GPU_ExecNICalcKernel( dim3 dimGrid, dim3 dimBlock, unsigned int sharedSize,
+extern "C" void GPU_ExecNICalcKernel( dim3 dimGrid, dim3 dimBlock, size_t sharedSize,
                                       int nElements, double* pdDevNICalc,
                                       GDouble* pfDevAmps, GDouble* pfDevWeights,
-                                      unsigned int startEvent, unsigned int nEvents, 
-                                      unsigned int nTrueEvents, unsigned int maxSize );
+                                      size_t startEvent, size_t nEvents, 
+                                      size_t nTrueEvents, size_t maxSize );
 
 #endif //__GPU_KERNEL__H__

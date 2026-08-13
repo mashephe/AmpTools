@@ -249,7 +249,7 @@ GPUManager::useDataFrom( const AmpVecs& a ){
 }
 
 void
-GPUManager::initTerms( const AmpVecs& a, unsigned int chunkSize )
+GPUManager::initTerms( const AmpVecs& a, size_t chunkSize )
 {
   clearTerms();
 
@@ -259,7 +259,7 @@ GPUManager::initTerms( const AmpVecs& a, unsigned int chunkSize )
   assert( chunkSize == 0 || ( (chunkSize & (chunkSize - 1)) == 0 ) );
 
   // use all events or the specified size of a chunk of events
-  unsigned int iNAmpEvents = ( chunkSize == 0 ? a.m_iNEvents : chunkSize );
+  size_t iNAmpEvents = ( chunkSize == 0 ? a.m_iNEvents : chunkSize );
 
   report( DEBUG, kModule ) << "\tChunk size for amplitude calculations:  " << iNAmpEvents << endl;
 
@@ -460,10 +460,10 @@ GPUManager::copyAmpsFromGPU( AmpVecs& a )
 }
 
 void 
-GPUManager::calcAmplitudeAll( const Amplitude* amp, unsigned int uAmpFactOffset,
+GPUManager::calcAmplitudeAll( const Amplitude* amp, size_t uAmpFactOffset,
                               const vector< vector< int > >* pvPermutations,
-                              unsigned int userVarsOffset, 
-                              unsigned int startEvent, unsigned int chunkSize )
+                              size_t userVarsOffset, 
+                              size_t startEvent, size_t chunkSize )
 {
   #ifdef SCOREP
   SCOREP_USER_REGION_DEFINE( calcAmplitudeAll_gpuMgr )                                                                                    
@@ -473,7 +473,7 @@ GPUManager::calcAmplitudeAll( const Amplitude* amp, unsigned int uAmpFactOffset,
   dim3 dimBlock( m_iDimThreadX, m_iDimThreadY );
   dim3 dimGrid( m_iDimGridXAmpFact, m_iDimGridYAmpFact );
 
-  unsigned int nEvents = ( chunkSize == 0 ? m_iNEvents : chunkSize );
+  size_t nEvents = ( chunkSize == 0 ? m_iNEvents : chunkSize );
 
   report( DEBUG, kModule ) << "Calculating amplitude factors for amplitude " << amp->identifier() << endl;
 
@@ -487,8 +487,8 @@ GPUManager::calcAmplitudeAll( const Amplitude* amp, unsigned int uAmpFactOffset,
   // if this is not true, AmplitudeManager hasn't been setup properly
   assert( permItr->size() == m_iNParticles );
   
-  unsigned int udLocalOffset = 0;
-  unsigned int permOffset = 0;
+  size_t udLocalOffset = 0;
+  size_t permOffset = 0;
   for( ; permItr != pvPermutations->end(); ++permItr ){
 
     // copy the permutation to global memory
@@ -530,7 +530,7 @@ GPUManager::calcAmplitudeAll( const Amplitude* amp, unsigned int uAmpFactOffset,
 }
 
 void
-GPUManager::assembleTerms( int iAmpInd, int nFact, int nPerm, unsigned int nEvents ){
+GPUManager::assembleTerms( int iAmpInd, int nFact, int nPerm, size_t nEvents ){
   #ifdef SCOREP
   SCOREP_USER_REGION_DEFINE( assembleTerms )                                                                                    
   SCOREP_USER_REGION_BEGIN( assembleTerms, "assembleTerms", SCOREP_USER_REGION_TYPE_COMMON )                           
@@ -572,7 +572,7 @@ GPUManager::calcSumLogIntensity( const vector< complex< double > >& prodCoef,
   SCOREP_USER_REGION_BEGIN( calcSumLogIntensity_gpuMgr, "calcSumLogIntensity_gpuMgr", SCOREP_USER_REGION_TYPE_COMMON )                           
   #endif
 
-  unsigned int i,j;
+  size_t i,j;
   
   // precompute the real and imaginary parts of ViVj* and copy to 
   // GPU global memory
@@ -664,11 +664,11 @@ void
 GPUManager::calcIntegrals( double* result, int nElements,
                            const vector<int>& iIndex,
                            const vector<int>& jIndex,
-                           unsigned int startEvent, unsigned int nEvents ){
+                           size_t startEvent, size_t nEvents ){
 
-  unsigned int resultSize = 2*sizeof(double)*nElements;
-  unsigned int indexSize = sizeof(int)*nElements;
-  unsigned int totalSize = resultSize + 2*indexSize;
+  size_t resultSize = 2*sizeof(double)*nElements;
+  size_t indexSize = sizeof(int)*nElements;
+  size_t totalSize = resultSize + 2*indexSize;
 
   dim3 dimBlock( m_iDimThreadX, m_iDimThreadY );
   dim3 dimGrid( m_iDimGridXAmpFact, m_iDimGridYAmpFact );
@@ -819,8 +819,8 @@ void GPUManager::calcCUDADims()
   m_iDimThreadX=GPU_BLOCK_SIZE_X;
   m_iDimThreadY=GPU_BLOCK_SIZE_Y; 
   
-  unsigned int iBlockSizeSq=GPU_BLOCK_SIZE_SQ;
-  unsigned int iNBlocks=m_iNEvents/iBlockSizeSq;
+  size_t iBlockSizeSq=GPU_BLOCK_SIZE_SQ;
+  size_t iNBlocks=m_iNEvents/iBlockSizeSq;
   if(iNBlocks<=1)
   {
     m_iDimGridX=1;
@@ -828,7 +828,7 @@ void GPUManager::calcCUDADims()
   }
   else
   {
-    unsigned int iDivLo=1,iDivHi=iNBlocks;
+    size_t iDivLo=1,iDivHi=iNBlocks;
     for(iDivLo=static_cast<int>(sqrt(iNBlocks));iDivLo>=1;iDivLo--)
     {
       iDivHi=iNBlocks/iDivLo;
@@ -843,8 +843,8 @@ void GPUManager::calcCUDADims()
   report( DEBUG, kModule ) << "\tGrid dimensions:  ("<<m_iDimGridX<<","<<m_iDimGridY<<")\n";
   
   //Reduction Parameters
-  unsigned int maxThreads = ( m_devProp_major >= 2 ? 1024 : 512 );  // number of threads per block
-  unsigned int maxBlocks = 1024;  
+  size_t maxThreads = ( m_devProp_major >= 2 ? 1024 : 512 );  // number of threads per block
+  size_t maxBlocks = 1024;  
   
   if (m_iNEvents == 1) 
     m_iNThreads = 1;
@@ -859,10 +859,10 @@ void GPUManager::calcCUDADims()
   report( DEBUG, kModule ) << "\tNumber of blocks:   "<<m_iNBlocks<<"\n\n\n"<<flush;
 }
 
-void GPUManager::calcCUDADimsAmpFact( unsigned int chunkSize )
+void GPUManager::calcCUDADimsAmpFact( size_t chunkSize )
 {
-  unsigned int iBlockSizeSq = GPU_BLOCK_SIZE_SQ;
-  unsigned int iNBlocksAmpFact = chunkSize / iBlockSizeSq;
+  size_t iBlockSizeSq = GPU_BLOCK_SIZE_SQ;
+  size_t iNBlocksAmpFact = chunkSize / iBlockSizeSq;
   if( iNBlocksAmpFact <= 1 )
   {
     m_iDimGridXAmpFact = 1;
@@ -870,7 +870,7 @@ void GPUManager::calcCUDADimsAmpFact( unsigned int chunkSize )
   }
   else
   {
-    unsigned int iDivLo=1,iDivHi=iNBlocksAmpFact;
+    size_t iDivLo=1,iDivHi=iNBlocksAmpFact;
     for(iDivLo=static_cast<int>(sqrt(iNBlocksAmpFact));iDivLo>=1;iDivLo--)
     {
       iDivHi=iNBlocksAmpFact/iDivLo;

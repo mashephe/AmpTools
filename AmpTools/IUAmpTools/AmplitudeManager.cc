@@ -62,11 +62,11 @@ IntensityManager( reaction, reactionName )
   // group the switches by particle type
   // dump out some information
   map< string, vector< pair< int, int > > > swapsByType;
-  for( unsigned int i = 0; i < reaction.size(); ++i ){
+  for( size_t i = 0; i < reaction.size(); ++i ){
     
     report( INFO, kModule ) << "\t particle index assignment:  " << reaction[i] << " -> " << i << endl;
     
-    for( unsigned int j = i + 1; j < reaction.size(); ++j ){
+    for( size_t j = i + 1; j < reaction.size(); ++j ){
       
       if( reaction[i] == reaction[j] ){
         
@@ -228,13 +228,13 @@ AmplitudeManager::userVarsPerEvent() const {
   return userStorage;
 }
 
-unsigned int
+size_t
 AmplitudeManager::uniqueNIElements() const {
 
   // find the number of nontrival amplitude products
   // in the expression for the intensity
   
-  unsigned int num = 0;
+  size_t num = 0;
   int N = m_sumCoherently.size();
   for( int i = 0; i < N; ++i ){
     for( int j = 0; j <= i; ++j ){

@@ -400,7 +400,7 @@ NormIntInterface::forceCacheUpdate( bool normIntOnly ) const
     // computing integrals of the generated MC can be done in chunks
     // to avoid exhausting memory on CPU or GPU -- there is never a need
     // to have the entire generated MC in memory at once
-    unsigned int chunkSize = genMCChunkSize();
+    size_t chunkSize = genMCChunkSize();
     
     // do "lazy" allocation of memory here -- this is important for MPI jobs
     // where forceCacheUpdate is only called on follower nodes, as it
@@ -533,14 +533,14 @@ NormIntInterface::setNormIntMatrix( const double* input ) const {
 
 #ifndef __ACLIC__
 
-unsigned int
+size_t
 NormIntInterface::genMCChunkSize() const {
   
   // need to know the sizes of the data sets
   assert( m_accMCVecs.m_dataLoaded && m_genMCVecs.m_dataLoaded );
   
-  unsigned int nGen = m_genMCVecs.m_iNEvents;
-  unsigned int nAcc = m_accMCVecs.m_iNEvents;
+  size_t nGen = m_genMCVecs.m_iNEvents;
+  size_t nAcc = m_accMCVecs.m_iNEvents;
   
   // get the chunk size by doing integer division by 2
   // until the size of the generated MC is less than the

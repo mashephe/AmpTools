@@ -38,7 +38,7 @@
 
 __global__ void
 fact_perm_kernel( GDouble* pfDevAmps, GDouble* pcDevAmpFact, int nFact,
-                  int nPerm, unsigned int nEvents )
+                  int nPerm, size_t nEvents )
 {
 
 	int i = threadIdx.x + GPU_BLOCK_SIZE_X * threadIdx.y + 
@@ -46,14 +46,14 @@ fact_perm_kernel( GDouble* pfDevAmps, GDouble* pcDevAmpFact, int nFact,
 
   for( int iPerm = 0; iPerm < nPerm; ++iPerm ){
   
-    unsigned int offsetP = 2*nEvents*iPerm + 2*i;
+    size_t offsetP = 2*nEvents*iPerm + 2*i;
     
     GDouble ampRe = pcDevAmpFact[offsetP];
     GDouble ampIm = pcDevAmpFact[offsetP+1];
 
     for( int iFactor = 1; iFactor < nFact; ++iFactor ){
     
-       unsigned int offsetF = 2*nEvents*nPerm*iFactor + offsetP;
+       size_t offsetF = 2*nEvents*nPerm*iFactor + offsetP;
 
        GDouble re = ampRe;
        GDouble im = ampIm;
@@ -71,7 +71,7 @@ fact_perm_kernel( GDouble* pfDevAmps, GDouble* pcDevAmpFact, int nFact,
 }
 
 extern "C" void GPU_ExecFactPermKernel( dim3 dimGrid, dim3 dimBlock,
-    GDouble* pfDevAmps, GDouble* pcDevAmpFact, int nFact, int nPerm, unsigned int nEvents )
+    GDouble* pfDevAmps, GDouble* pcDevAmpFact, int nFact, int nPerm, size_t nEvents )
 {
   fact_perm_kernel<<< dimGrid, dimBlock >>>( pfDevAmps, pcDevAmpFact, 
                                              nFact, nPerm, nEvents );

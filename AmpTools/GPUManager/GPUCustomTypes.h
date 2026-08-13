@@ -52,8 +52,8 @@ using namespace std;
 
 // standard arguments to ampliutde kernel launches
 #define GPU_AMP_PROTO GDouble* pfDevData, GDouble* pfDevUserVars, \
-                      WCUComplex* pcDevAmp, int* piDevPerm, unsigned int iNParticles, \
-                      unsigned int iNEvents, unsigned int startEvent
+                      WCUComplex* pcDevAmp, int* piDevPerm, size_t iNParticles, \
+                      size_t iNEvents, size_t startEvent
 #define GPU_AMP_ARGS  pfDevData, pfDevUserVars, pcDevAmp, piDevPerm, iNParticles, \
                       iNEvents, startEvent                   
 

@@ -95,7 +95,6 @@ NormIntInterfaceMPI::setupMPI()
   
   m_isLeader = ( m_rank == 0 );
   
-  // this is unsigned elsewhere, but MPI
   unsigned int totalGenEvents = 0;
   double totalAccWeights = 0;
     
