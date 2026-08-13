@@ -397,7 +397,7 @@ AmpVecs::allocateCPUAmpStorage( const IntensityManager& intenMan ){
   
   // allocate as "pinned memory" for fast CPU<->GPU memcopies
   cudaMallocHost( (void**)&m_pdAmps, m_iNEvents * intenMan.termStoragePerEvent() * sizeof(GDouble) );
-  cudaMallocHost( (void**)&m_pdAmpFactors, 2 * m_iNEvents * m_maxFactPerEvent * sizeof(GDouble));
+  cudaMallocHost( (void**)&m_pdAmpFactors, m_iNEvents * m_maxFactPerEvent * sizeof(GDouble));
 
   cudaError_t cudaErr = cudaGetLastError();
   if( cudaErr != cudaSuccess  ){
