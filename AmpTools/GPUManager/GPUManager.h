@@ -100,12 +100,12 @@ public:
                       size_t startEvent, size_t nEvents );
   
   // General utils:
-  static int calcNEventsGPU( int iNEvents ){
+  static size_t calcNEventsGPU( size_t iNEvents ){
     
     //Should be a power of 2 for reduction to work, also multiple of GPU_BLOCK_SIZE_SQ    
     int iPow = 0;
-    while( ( 1 << iPow ) < iNEvents ) iPow++;
-    return(  (1<<iPow) < GPU_BLOCK_SIZE_SQ ? GPU_BLOCK_SIZE_SQ : (1<<iPow) );
+    while( ( 1L << iPow ) < iNEvents ) iPow++;
+    return(  ( 1L << iPow ) < GPU_BLOCK_SIZE_SQ ? GPU_BLOCK_SIZE_SQ : ( 1L << iPow ) );
   }
   
   bool m_ownsData;
