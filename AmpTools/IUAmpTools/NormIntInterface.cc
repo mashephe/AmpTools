@@ -396,21 +396,16 @@ NormIntInterface::forceCacheUpdate( bool normIntOnly ) const
     // now we need to have the generated MC in addition to the accepted
     // MC in order to be able to continue
     assert( m_genMCVecs.m_dataLoaded );
-
-    // computing integrals of the generated MC can be done in chunks
-    // to avoid exhausting memory on CPU or GPU -- there is never a need
-    // to have the entire generated MC in memory at once
-    size_t chunkSize = genMCChunkSize();
     
     // do "lazy" allocation of memory here -- this is important for MPI jobs
     // where forceCacheUpdate is only called on follower nodes, as it
     // avoids big memory allocations on the lead nodes
-    if( m_genMCVecs.m_iNTerms == 0 ) m_genMCVecs.allocateTerms( *m_pIntenManager, false, chunkSize );
+    if( m_genMCVecs.m_iNTerms == 0 ) m_genMCVecs.allocateTerms( *m_pIntenManager, false, m_chunkSize );
     
     report( DEBUG, kModule ) << "Asking IntensityManager to calculate integrals "
     << "using the generated MC." << endl;
     
-    m_pIntenManager->calcIntegrals( m_genMCVecs, m_nGenEvents, chunkSize );
+    m_pIntenManager->calcIntegrals( m_genMCVecs, m_nGenEvents, m_chunkSize );
     
     setAmpIntMatrix( m_genMCVecs.m_pdIntegralMatrix );
 
@@ -534,17 +529,20 @@ NormIntInterface::setNormIntMatrix( const double* input ) const {
 #ifndef __ACLIC__
 
 size_t
-NormIntInterface::genMCChunkSize() const {
+NormIntInterface::genMCChunkSize( size_t nGen ) const {
   
   // need to know the sizes of the data sets
-  assert( m_accMCVecs.m_dataLoaded && m_genMCVecs.m_dataLoaded );
-  
-  size_t nGen = m_genMCVecs.m_iNEvents;
+  assert( m_accMCVecs.m_dataLoaded );
   size_t nAcc = m_accMCVecs.m_iNEvents;
-  
+
+  if( nGen == 0 ){
+    assert( m_genMCVecs.m_dataLoaded );
+    nGen = m_genMCVecs.m_iNEvents;
+  } 
+
   // get the chunk size by doing integer division by 2
   // until the size of the generated MC is less than the
-  // 1/2 of the accepted MC -- for GPU fits this should return a
+  // 1/4 of the accepted MC -- for GPU fits this should return a
   // chunk size that is a power of 2, which is required
   
   int iPow = 0;
@@ -557,23 +555,6 @@ NormIntInterface::genMCChunkSize() const {
 
 void
 NormIntInterface::loadMC() const {
-  
-  std::map<DataReader*,AmpVecs*>::iterator genVecs = m_uniqueDataSets.find( m_genMCReader );
-  if( genVecs == m_uniqueDataSets.end() ){
-  
-    report( INFO, kModule ) << "Loading generated Monte Carlo from file..." << endl;
-    m_genMCVecs.loadData( m_genMCReader, m_pIntenManager->needsUserVarsOnly() );
-    
-    m_uniqueDataSets[m_genMCReader] = &m_genMCVecs;
-  }
-  else{
-    
-    report( NOTICE, kModule ) << "Duplicated Monte Carlo set detected, "
-         << "using previously loaded version" << endl;
-    
-    genVecs->second->shareDataWith( &m_genMCVecs, m_pIntenManager->needsUserVarsOnly() );
-  }
-  m_nGenEvents = m_genMCVecs.m_iNTrueEvents;
 
   std::map<DataReader*,AmpVecs*>::iterator accVecs = m_uniqueDataSets.find( m_accMCReader );
   if( accVecs == m_uniqueDataSets.end() ){
@@ -591,6 +572,32 @@ NormIntInterface::loadMC() const {
     accVecs->second->shareDataWith( &m_accMCVecs, m_pIntenManager->needsUserVarsOnly() );
   }
   m_sumAccWeights = m_accMCVecs.m_dSumWeights;
+
+   // computing integrals of the generated MC can be done in chunks
+   // to avoid exhausting memory on CPU or GPU -- there is never a need
+   // to have the entire generated MC in memory at once
+#ifdef GPU_ACCELERATION
+  m_chunkSize = genMCChunkSize( GPUManager::calcNEventsGPU( m_genMCReader->numEvents() ) );
+#else
+  m_chunkSize = genMCChunkSize( m_genMCReader->numEvents() );
+#endif 
+
+  std::map<DataReader*,AmpVecs*>::iterator genVecs = m_uniqueDataSets.find( m_genMCReader );
+  if( genVecs == m_uniqueDataSets.end() ){
+
+    report( INFO, kModule ) << "Loading generated Monte Carlo from file..." << endl;
+    m_genMCVecs.loadData( m_genMCReader, m_pIntenManager->needsUserVarsOnly(), m_chunkSize );
+    
+    m_uniqueDataSets[m_genMCReader] = &m_genMCVecs;
+  }
+  else{
+    
+    report( NOTICE, kModule ) << "Duplicated Monte Carlo set detected, "
+         << "using previously loaded version" << endl;
+    
+    genVecs->second->shareDataWith( &m_genMCVecs, m_pIntenManager->needsUserVarsOnly() );
+  }
+  m_nGenEvents = m_genMCVecs.m_iNTrueEvents;
 }
 
 void

@@ -124,7 +124,7 @@ private:
   void initializeCache();
   int m_cacheSize;
   
-  size_t genMCChunkSize() const;
+  size_t genMCChunkSize( size_t nGen = 0 ) const;
   
   vector< string > m_termNames;
   map< string, int > m_termIndex;
@@ -148,6 +148,7 @@ private:
   // caches for MC
   mutable AmpVecs m_accMCVecs;
   mutable AmpVecs m_genMCVecs;
+  mutable size_t m_chunkSize;
   
   static map< DataReader*, AmpVecs* > m_uniqueDataSets;
 #endif
