@@ -270,7 +270,7 @@ struct AmpVecs
    * \see DataReader::resetSource
    * \see DataReader::getEvent
    */
-  void loadData( DataReader* pDataReader, bool needsUserVarsOnly = false );
+  void loadData( DataReader* pDataReader, bool needsUserVarsOnly = false, size_t chunkSize = 0 );
   
   /**
    * This routine fills the arrays of data and weights event by event
@@ -333,6 +333,8 @@ struct AmpVecs
   AmpVecs* m_sharedDataHost;
   
 private:
+
+  void loadDataArrayElement( const Kinematics* pKinematics, size_t iEvent );
   
   int m_lastWeightSign;
   set< AmpVecs* > m_sharedDataFriends;

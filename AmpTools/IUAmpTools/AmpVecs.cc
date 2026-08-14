@@ -196,19 +196,8 @@ AmpVecs::loadEvent( const Kinematics* pKinematics, size_t iEvent,
     m_pdData = new GDouble[4*m_iNParticles*m_iNEvents];
     m_pdWeights = new GDouble[m_iNEvents];        
   }
-  
-  // check to be sure we won't exceed the bounds of the array
-  assert( iEvent < m_iNEvents );
     
-  for (int iParticle = 0; iParticle < m_iNParticles; iParticle++){
-    m_pdData[4*iEvent*m_iNParticles+4*iParticle+0]=pKinematics->particle(iParticle).E();
-    m_pdData[4*iEvent*m_iNParticles+4*iParticle+1]=pKinematics->particle(iParticle).Px();
-    m_pdData[4*iEvent*m_iNParticles+4*iParticle+2]=pKinematics->particle(iParticle).Py();
-    m_pdData[4*iEvent*m_iNParticles+4*iParticle+3]=pKinematics->particle(iParticle).Pz();
-  }
-
-  m_pdWeights[iEvent] = pKinematics->weight();
-  
+  loadDataArrayElement( pKinematics, iEvent );
 
   m_termsValid = false;
   m_integralValid = false;
@@ -216,13 +205,13 @@ AmpVecs::loadEvent( const Kinematics* pKinematics, size_t iEvent,
   m_userVarsOffset.clear();
 }
 
-
 void
-AmpVecs::loadData( DataReader* pDataReader, bool needsUserVarsOnly ){
+AmpVecs::loadData( DataReader* pDataReader, bool needsUserVarsOnly, size_t chunkSize ){
   
   //  Make sure no data is already loaded
   
-  if( m_pdData!=0 || m_pdWeights!=0 ){
+  if( m_pdData != NULL || m_pdWeights != NULL ){
+
     report( ERROR, kModule ) << "Trying to load data into a non-empty AmpVecs object\n"<<flush;
     assert(false);
   }
@@ -231,6 +220,20 @@ AmpVecs::loadData( DataReader* pDataReader, bool needsUserVarsOnly ){
   
   pDataReader->resetSource();
   m_iNTrueEvents = pDataReader->numEvents();
+  m_iNEvents = m_iNTrueEvents;
+
+  #ifdef GPU_ACCELERATION
+
+  // this pads the number of events up to the next power of 2 for GPU calculations
+  // if a chunk size is specified then the chunk size is already a power of 2
+  // and we need only a multiple of the chunk size that exceeds the number of true events
+  m_iNEvents = GPUManager::calcNEventsGPU(m_iNTrueEvents);
+  if( chunkSize != 0 ){
+    while( m_iNEvents > m_iNTrueEvents ) m_iNEvents -= chunkSize;
+    m_iNEvents += chunkSize;
+  }
+
+  #endif
 
   // try to print an informative message -- this can be normal behavior in
   // an MPI job with a sparse background source and many concurrent processess
@@ -247,35 +250,53 @@ AmpVecs::loadData( DataReader* pDataReader, bool needsUserVarsOnly ){
     report( NOTICE, kModule ) << "\n does not contain any events." << endl;
   }
   
-  // Loop over events and load each one individually
-  
+
+  // loop over events and load each one individually
   Kinematics* pKinematics;
   for(size_t iEvent = 0; iEvent < m_iNTrueEvents; iEvent++){
-    pKinematics = pDataReader->getEvent();
-    loadEvent(pKinematics, iEvent, m_iNTrueEvents, needsUserVarsOnly );
 
-    float weight = pKinematics->weight();
+    pKinematics = pDataReader->getEvent();
+
+    if( iEvent == 0 ){  
+
+      // allocate memory -- pointers are guaranteed to be NULL
+
+      m_iNParticles = pKinematics->particleList().size();
+      m_pdData = new GDouble[4*m_iNParticles*m_iNEvents];
+      m_pdWeights = new GDouble[m_iNEvents]; 
+
+      #ifdef GPU_ACCELERATION
+
+      m_gpuMan.initData( *this, !needsUserVarsOnly );
+      
+      #endif
+    }
+
+    loadDataArrayElement( pKinematics, iEvent );
+
+    float weight = m_pdWeights[iEvent];
     
     // fill some booleans that contain collective information about the weights
-    if( weight != 1 ) m_hasNonUnityWeights = true;
-    if( m_lastWeightSign == 0 ) m_lastWeightSign = weight;
-    int thisWeightSign = ( weight > 0 ? 1 : 0 );
-    thisWeightSign = ( weight < 0 ? -1 : thisWeightSign );
-    if( thisWeightSign * m_lastWeightSign < 0 ) m_hasMixedSignWeights = true;
-    m_lastWeightSign = thisWeightSign;
+    // short circuit logic for speed once the booleans are true
+    if( !m_hasNonUnityWeights && weight != 1 ) m_hasNonUnityWeights = true;
+    if( !m_hasMixedSignWeights ){
+
+      if( m_lastWeightSign == 0 ) m_lastWeightSign = weight;
+      int thisWeightSign = ( weight > 0 ? 1 : 0 );
+      thisWeightSign = ( weight < 0 ? -1 : thisWeightSign );
+      if( thisWeightSign * m_lastWeightSign < 0 ) m_hasMixedSignWeights = true;
+      m_lastWeightSign = thisWeightSign;
+    }
 
     m_dSumWeights += pKinematics->weight();
-    if (iEvent < (m_iNTrueEvents - 1)) delete pKinematics;
+    if( iEvent < ( m_iNTrueEvents - 1) ) delete pKinematics;
   }
   
-  // Fill any remaining space in the data array with the last event's kinematics
-  
-  for (size_t iEvent = m_iNTrueEvents; iEvent < m_iNEvents; iEvent++){
-    loadEvent(pKinematics, iEvent, m_iNTrueEvents, needsUserVarsOnly );
-  }
+  // fill any remaining space in the data array with the last event's kinematics
+  for (size_t iEvent = m_iNTrueEvents; iEvent < m_iNEvents; iEvent++)
+    loadDataArrayElement(pKinematics, iEvent );
 
-  if( m_iNTrueEvents )
-  	delete pKinematics;
+  if( m_iNTrueEvents ) delete pKinematics;
    
 #ifdef GPU_ACCELERATION
 
@@ -289,6 +310,21 @@ AmpVecs::loadData( DataReader* pDataReader, bool needsUserVarsOnly ){
   m_userVarsOffset.clear();
 }
 
+void
+AmpVecs::loadDataArrayElement( const Kinematics* pKinematics, size_t iEvent ){
+
+  // check to be sure we won't exceed the bounds of the array
+  assert( iEvent < m_iNEvents );
+
+  for( int iParticle = 0; iParticle < m_iNParticles; iParticle++ ){
+    m_pdData[4*iEvent*m_iNParticles+4*iParticle+0]=pKinematics->particle(iParticle).E();
+    m_pdData[4*iEvent*m_iNParticles+4*iParticle+1]=pKinematics->particle(iParticle).Px();
+    m_pdData[4*iEvent*m_iNParticles+4*iParticle+2]=pKinematics->particle(iParticle).Py();
+    m_pdData[4*iEvent*m_iNParticles+4*iParticle+3]=pKinematics->particle(iParticle).Pz();
+  }
+
+  m_pdWeights[iEvent] = pKinematics->weight();
+}
 
 void
 AmpVecs::allocateTerms( const IntensityManager& intenMan, bool bAllocIntensity, size_t chunkSize ){
