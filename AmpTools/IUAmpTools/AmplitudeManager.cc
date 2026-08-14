@@ -595,7 +595,7 @@ SCOREP_USER_REGION_BEGIN( calcTerms, "calcTerms", SCOREP_USER_REGION_TYPE_COMMON
       a.m_pdAmps[iOffsetA]   *= dSymmFactor;
       a.m_pdAmps[iOffsetA+1] *= dSymmFactor;
     }
-    
+
     report( DEBUG, kModule ) << "Amplitude index " << iAmpIndex << ", event 0:  (" <<
     a.m_pdAmps[2*nEvents*iAmpIndex] << ", " << a.m_pdAmps[2*nEvents*iAmpIndex+1] << " )" << endl;
     
@@ -853,12 +853,31 @@ SCOREP_USER_REGION_BEGIN( calcIntegralsA, "calcIntegralsA", SCOREP_USER_REGION_T
     // the number of events to process is the chunk size unless
     // it is the last chunk then it is the remainder
     if( chunkSize != 0 ){
+
       nEvents = chunkSize;
-      if( iChunk - nChunk == 1 ) nEvents = a.m_iNEvents % chunkSize;
+      
+      if( iChunk == nChunk - 1 ) nEvents = a.m_iNEvents % chunkSize;
+
+      // sometimes the last chunk is exactly the chunk size, in which case
+      // the remainder is zero, so we should just skip this chunk -- 
+      // NOTE: calling calcTerms below with nEvents = 0 will result in memory
+      // overrun errors because the full data set size is used when the
+      // chunkSize in calcTerms is zero
+      if( nEvents == 0 ) continue;
+
+      // if doing a computation on the GPU we can be in a situation
+      // where the entire chunk of events is beyond the end of the
+      // data set -- in this case we should just skip ahead
+      if( startEvent >= a.m_iNTrueEvents){
+        
+        report( DEBUG, kModule ) << "Skipping chunk " << iChunk+1 << " of " 
+                                 << nChunk << " -- no true events." << endl;
+        continue;
+      }
     }
     
     // this returns a vector indicating which terms have changed
-    const vector<bool>& termChanged = calcTerms( a, startEvent, chunkSize );
+    const vector<bool>& termChanged = calcTerms( a, startEvent, nEvents );
     
     // if we are doing a "chunked" calculation, we should invalidate the
     // termsValid boolean since the terms array will only hold a fraction
@@ -958,7 +977,7 @@ SCOREP_USER_REGION_BEGIN( calcIntegralsA, "calcIntegralsA", SCOREP_USER_REGION_T
     }
     
 #else
-      
+    
     // C++ standard sets initial value to zero
     vector<double> temp(maxNIElements*2);
 
