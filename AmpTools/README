@@ -72,6 +72,12 @@ the square root of the intensity computed from the parameters and the kinematics
 
 RELEASE NOTES:
 
+v0.16.1 (15-Aug-2026):
+
+This release fixes a memory indexing bug in the calculation of the normalization
+integrals.  Additional performance enhancements to reduce memory usage
+are included.
+
 v0.16.0 (14-Jul-2026):
 
 This is a completely backwards-compatible revision of some of the core AmpTools 
