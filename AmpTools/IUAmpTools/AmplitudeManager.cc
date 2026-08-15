@@ -849,32 +849,11 @@ SCOREP_USER_REGION_BEGIN( calcIntegralsA, "calcIntegralsA", SCOREP_USER_REGION_T
         
     size_t startEvent = iChunk * chunkSize;
     size_t nEvents = a.m_iNEvents;
+
     // for  chunked calculation:
     // the number of events to process is the chunk size unless
     // it is the last chunk then it is the remainder
-    if( chunkSize != 0 ){
-
-      nEvents = chunkSize;
-      
-      if( iChunk == nChunk - 1 ) nEvents = a.m_iNEvents % chunkSize;
-
-      // sometimes the last chunk is exactly the chunk size, in which case
-      // the remainder is zero, so we should just skip this chunk -- 
-      // NOTE: calling calcTerms below with nEvents = 0 will result in memory
-      // overrun errors because the full data set size is used when the
-      // chunkSize in calcTerms is zero
-      if( nEvents == 0 ) continue;
-
-      // if doing a computation on the GPU we can be in a situation
-      // where the entire chunk of events is beyond the end of the
-      // data set -- in this case we should just skip ahead
-      if( startEvent >= a.m_iNTrueEvents){
-        
-        report( DEBUG, kModule ) << "Skipping chunk " << iChunk+1 << " of " 
-                                 << nChunk << " -- no true events." << endl;
-        continue;
-      }
-    }
+    if( chunkSize != 0 ) nEvents = min( chunkSize, a.m_iNEvents - startEvent );      
     
     // this returns a vector indicating which terms have changed
     const vector<bool>& termChanged = calcTerms( a, startEvent, nEvents );
