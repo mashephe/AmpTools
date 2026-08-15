@@ -76,7 +76,7 @@ public:
    * memory allocation.
    */
   
-  virtual unsigned int maxFactorStoragePerEvent() const = 0;
+  virtual size_t maxFactorStoragePerEvent() const = 0;
   
   /**
    * This function should return the number of doubles required to store
@@ -89,7 +89,7 @@ public:
    * factor) remains constant throughout the fit.
    */
   
-  virtual unsigned int termStoragePerEvent() const = 0;
+  virtual size_t termStoragePerEvent() const = 0;
   
   /**
    * This function should return the number of doubles required to
@@ -97,7 +97,7 @@ public:
    * for a single event.
    */
   
-  virtual unsigned int userVarsPerEvent() const = 0;
+  virtual size_t userVarsPerEvent() const = 0;
 
   /*
    * These functions perform computations based on the current state
@@ -169,8 +169,8 @@ public:
    * \see calcAmplitudes
    * \see calcIntensities
    */
-  virtual void calcIntegrals( AmpVecs& ampVecs, unsigned int iNGenEvents,
-                              unsigned int chunkSize = 0 ) const = 0;
+  virtual void calcIntegrals( AmpVecs& ampVecs, size_t iNGenEvents,
+                              size_t chunkSize = 0 ) const = 0;
  
   /**
    * This function calculates the intensity for one event using a Kinematics

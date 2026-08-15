@@ -62,11 +62,11 @@ IntensityManager( reaction, reactionName )
   // group the switches by particle type
   // dump out some information
   map< string, vector< pair< int, int > > > swapsByType;
-  for( unsigned int i = 0; i < reaction.size(); ++i ){
+  for( size_t i = 0; i < reaction.size(); ++i ){
     
     report( INFO, kModule ) << "\t particle index assignment:  " << reaction[i] << " -> " << i << endl;
     
-    for( unsigned int j = i + 1; j < reaction.size(); ++j ){
+    for( size_t j = i + 1; j < reaction.size(); ++j ){
       
       if( reaction[i] == reaction[j] ){
         
@@ -95,7 +95,7 @@ IntensityManager( reaction, reactionName )
   // it with numberOfCombos copies of the default ordering
   // then go in and make the swaps
   vector< int > defaultOrder( reaction.size() );
-  for( unsigned int i = 0; i < reaction.size(); ++i ){
+  for( size_t i = 0; i < reaction.size(); ++i ){
     
     defaultOrder[i] = i;
   }
@@ -127,9 +127,9 @@ IntensityManager( reaction, reactionName )
                             << " orderings of the particles are indistinguishable" << endl;
     report( INFO, kModule ) << "and will be permuted when computing amplitudes." << endl;
     
-    for( unsigned int i = 0; i < m_symmCombos.size(); ++i ){
+    for( size_t i = 0; i < m_symmCombos.size(); ++i ){
       
-      for( unsigned int j = 0; j < reaction.size(); ++j ){
+      for( size_t j = 0; j < reaction.size(); ++j ){
         
         report( INFO, kModule ) << "\t" << m_symmCombos[i][j];
       }
@@ -148,17 +148,17 @@ AmplitudeManager::~AmplitudeManager() {
   }
 }
 
-unsigned int
+size_t
 AmplitudeManager::maxFactorStoragePerEvent() const {
   
   vector< string > ampNames = getTermNames();
   
-  unsigned int nAmpFactorsAndPerms = 0;
+  size_t nAmpFactorsAndPerms = 0;
   
   for( int i = 0; i < getTermNames().size(); i++ ) {
     
-    unsigned int iNPermutations = getPermutations( ampNames[i] ).size();
-    unsigned int iNFactors = getFactors( ampNames[i] ).size();
+    size_t iNPermutations = getPermutations( ampNames[i] ).size();
+    size_t iNFactors = getFactors( ampNames[i] ).size();
     
     assert( iNPermutations*iNFactors );
     
@@ -172,7 +172,7 @@ AmplitudeManager::maxFactorStoragePerEvent() const {
   return 2 * nAmpFactorsAndPerms;
 }
 
-unsigned int
+size_t
 AmplitudeManager::termStoragePerEvent() const {
   
   // for each amplitude we need to store a complex
@@ -181,7 +181,7 @@ AmplitudeManager::termStoragePerEvent() const {
   return 2 * getTermNames().size();
 }
 
-unsigned int
+size_t
 AmplitudeManager::userVarsPerEvent() const {
   
   set< string > countedStaticAmps;
@@ -189,11 +189,11 @@ AmplitudeManager::userVarsPerEvent() const {
   
   vector< string > ampNames = getTermNames();
   
-  unsigned int userStorage = 0;
+  size_t userStorage = 0;
   
   for( int i = 0; i < getTermNames().size(); i++ ) {
 
-    unsigned int iNPermutations = getPermutations( ampNames[i] ).size();
+    size_t iNPermutations = getPermutations( ampNames[i] ).size();
     vector< const Amplitude* > factorVec =
       m_mapNameToAmps.find( ampNames[i] )->second;
 
@@ -228,13 +228,13 @@ AmplitudeManager::userVarsPerEvent() const {
   return userStorage;
 }
 
-unsigned int
+size_t
 AmplitudeManager::uniqueNIElements() const {
 
   // find the number of nontrival amplitude products
   // in the expression for the intensity
   
-  unsigned int num = 0;
+  size_t num = 0;
   int N = m_sumCoherently.size();
   for( int i = 0; i < N; ++i ){
     for( int j = 0; j <= i; ++j ){
@@ -274,7 +274,7 @@ SCOREP_USER_REGION_BEGIN( calcUserVars, "calcUserVars", SCOREP_USER_REGION_TYPE_
   int iNAmps = ampNames.size();
 
   int iAmpIndex;
-  unsigned int iUserVarsOffset = 0;
+  size_t iUserVarsOffset = 0;
   for( iAmpIndex = 0; iAmpIndex < iNAmps; iAmpIndex++ )
   {
     
@@ -301,7 +301,7 @@ SCOREP_USER_REGION_BEGIN( calcUserVars, "calcUserVars", SCOREP_USER_REGION_TYPE_
       int iNData = iNVars * a.m_iNEvents * iNPerms;
       
       // we will set this based on the algorithm below
-      unsigned int thisOffset = 0;
+      size_t thisOffset = 0;
 
       if( pCurrAmp->areUserVarsStatic() ){
         
@@ -310,7 +310,7 @@ SCOREP_USER_REGION_BEGIN( calcUserVars, "calcUserVars", SCOREP_USER_REGION_TYPE_
         // object and see if there is one associated with this
         // amplitude name
         
-        map< string, unsigned int >::const_iterator offsetItr =
+        map< string, size_t >::const_iterator offsetItr =
         a.m_userVarsOffset.find( pCurrAmp->name() );
         
         if( offsetItr == a.m_userVarsOffset.end() ){
@@ -338,7 +338,7 @@ SCOREP_USER_REGION_BEGIN( calcUserVars, "calcUserVars", SCOREP_USER_REGION_TYPE_
         // the variables are not static, repeat the algorithm
         // above but search based on identifier of the amplitude
         
-        map< string, unsigned int >::const_iterator offsetItr =
+        map< string, size_t >::const_iterator offsetItr =
         a.m_userVarsOffset.find( pCurrAmp->identifier() );
         
         if( offsetItr == a.m_userVarsOffset.end() ){
@@ -385,9 +385,9 @@ SCOREP_USER_REGION_BEGIN( calcUserVars, "calcUserVars", SCOREP_USER_REGION_TYPE_
         for( int iEvt = 0; iEvt < a.m_iNEvents; ++iEvt ){
           for( int iVar = 0; iVar < iNVars; ++iVar ){
             
-            unsigned int cpuIndex =
+            size_t cpuIndex =
               thisOffset + iPerm*a.m_iNEvents*iNVars + iEvt*iNVars + iVar;
-            unsigned int gpuIndex =
+            size_t gpuIndex =
               iPerm*a.m_iNEvents*iNVars + iVar*a.m_iNEvents + iEvt;
             
             tmpVarStorage[gpuIndex] = a.m_pdUserVars[cpuIndex];
@@ -429,7 +429,7 @@ AmplitudeManager::calcTerms( AmpVecs& a ) const
 }
 
 vector<bool>
-AmplitudeManager::calcTerms( AmpVecs& a, unsigned int startEvent, unsigned int chunkSize ) const
+AmplitudeManager::calcTerms( AmpVecs& a, size_t startEvent, size_t chunkSize ) const
 {
   
 #ifdef SCOREP
@@ -437,7 +437,7 @@ SCOREP_USER_REGION_DEFINE( calcTerms )
 SCOREP_USER_REGION_BEGIN( calcTerms, "calcTerms", SCOREP_USER_REGION_TYPE_COMMON )                           
 #endif
  
-  unsigned int nEvents = ( chunkSize == 0 ? a.m_iNEvents : chunkSize );
+  size_t nEvents = ( chunkSize == 0 ? a.m_iNEvents : chunkSize );
   
   report( DEBUG, kModule ) << "Calculating terms...     termsValid = "
   << a.m_termsValid << endl;
@@ -523,7 +523,7 @@ SCOREP_USER_REGION_BEGIN( calcTerms, "calcTerms", SCOREP_USER_REGION_TYPE_COMMON
     
     // calculate all the factors that make up an amplitude for
     // for all events serially on CPU or in parallel on GPU
-    unsigned int uAmpFactOffset = 0;
+    size_t uAmpFactOffset = 0;
     for( iFactor=0; iFactor < iNFactors;
          iFactor++, uAmpFactOffset += 2 * nEvents * iNPermutations ){
       
@@ -531,7 +531,7 @@ SCOREP_USER_REGION_BEGIN( calcTerms, "calcTerms", SCOREP_USER_REGION_TYPE_COMMON
       
       // if we have static user data, look up the location in the data array
       // if not, then look up by identifier
-      unsigned int userVarsOffset =
+      size_t userVarsOffset =
       ( pCurrAmp->areUserVarsStatic() ?
         a.m_userVarsOffset[pCurrAmp->name()] :
         a.m_userVarsOffset[pCurrAmp->identifier()] );
@@ -557,9 +557,10 @@ SCOREP_USER_REGION_BEGIN( calcTerms, "calcTerms", SCOREP_USER_REGION_TYPE_COMMON
     GDouble dSymmFactor = 1.0f/sqrt( iNPermutations );
     GDouble dAmpFacRe, dAmpFacIm, dTRe, dTIm;
     int iEvent, iPerm;
-    unsigned int iOffsetA, iOffsetP, iOffsetF;
+    size_t iOffsetA, iOffsetP, iOffsetF;
         
-    // zeroing out the entire range
+    // zeroing out the entire chunk where we will accumulate
+    // compute symmetrized amplitude for this particular amplitude index
     memset( (void*)( a.m_pdAmps + 2 * nEvents * iAmpIndex ), 0,
            2 * nEvents * sizeof(GDouble) );
     
@@ -594,7 +595,7 @@ SCOREP_USER_REGION_BEGIN( calcTerms, "calcTerms", SCOREP_USER_REGION_TYPE_COMMON
       a.m_pdAmps[iOffsetA]   *= dSymmFactor;
       a.m_pdAmps[iOffsetA+1] *= dSymmFactor;
     }
-    
+
     report( DEBUG, kModule ) << "Amplitude index " << iAmpIndex << ", event 0:  (" <<
     a.m_pdAmps[2*nEvents*iAmpIndex] << ", " << a.m_pdAmps[2*nEvents*iAmpIndex+1] << " )" << endl;
     
@@ -810,8 +811,8 @@ SCOREP_USER_REGION_END( calcSumLogIntensity )
 
 
 void
-AmplitudeManager::calcIntegrals( AmpVecs& a, unsigned int iNGenEvents,
-                                 unsigned int chunkSize ) const
+AmplitudeManager::calcIntegrals( AmpVecs& a, size_t iNGenEvents,
+                                 size_t chunkSize ) const
 {
 #ifdef SCOREP
 SCOREP_USER_REGION_DEFINE( calcIntegralsA )                                                                                    
@@ -826,7 +827,7 @@ SCOREP_USER_REGION_BEGIN( calcIntegralsA, "calcIntegralsA", SCOREP_USER_REGION_T
   assert( iNGenEvents );
 
   // figure out the number of chunks needed to go through the data
-  unsigned int nChunk = ( chunkSize == 0 ? 1 : a.m_iNEvents / chunkSize );
+  size_t nChunk = ( chunkSize == 0 ? 1 : a.m_iNEvents / chunkSize );
   if( ( chunkSize !=0 ) && ( a.m_iNEvents % chunkSize != 0 ) ) ++nChunk;
   
   int iNAmps = a.m_iNTerms;
@@ -844,20 +845,18 @@ SCOREP_USER_REGION_BEGIN( calcIntegralsA, "calcIntegralsA", SCOREP_USER_REGION_T
   // a variable to track how many elements need computing
   int nCompute;
 
-  for( unsigned int iChunk = 0; iChunk < nChunk; ++iChunk ){
+  for( size_t iChunk = 0; iChunk < nChunk; ++iChunk ){
         
-    unsigned int startEvent = iChunk * chunkSize;
-    unsigned int nEvents = a.m_iNEvents;
+    size_t startEvent = iChunk * chunkSize;
+    size_t nEvents = a.m_iNEvents;
+
     // for  chunked calculation:
     // the number of events to process is the chunk size unless
     // it is the last chunk then it is the remainder
-    if( chunkSize != 0 ){
-      nEvents = chunkSize;
-      if( iChunk - nChunk == 1 ) nEvents = a.m_iNEvents % chunkSize;
-    }
+    if( chunkSize != 0 ) nEvents = min( chunkSize, a.m_iNEvents - startEvent );      
     
     // this returns a vector indicating which terms have changed
-    const vector<bool>& termChanged = calcTerms( a, startEvent, chunkSize );
+    const vector<bool>& termChanged = calcTerms( a, startEvent, nEvents );
     
     // if we are doing a "chunked" calculation, we should invalidate the
     // termsValid boolean since the terms array will only hold a fraction
@@ -957,7 +956,8 @@ SCOREP_USER_REGION_BEGIN( calcIntegralsA, "calcIntegralsA", SCOREP_USER_REGION_T
     }
     
 #else
-      
+    
+    // C++ standard sets initial value to zero
     vector<double> temp(maxNIElements*2);
 
     // use the GPU manager to compute the result for the chunk
@@ -976,7 +976,7 @@ SCOREP_USER_REGION_BEGIN( calcIntegralsA, "calcIntegralsA", SCOREP_USER_REGION_T
     }
 #endif
     if( nChunk > 1 ) report( DEBUG, kModule ) << "Integral calculation:  chunk " 
-                     << iChunk << " of " << nChunk << " complete." << endl;
+                     << iChunk+1 << " of " << nChunk << " complete." << endl;
   }
   
   // in a "chunked" calculation nCompute, iIndex, and jIndex get reset
@@ -1177,7 +1177,7 @@ AmplitudeManager::setupFromConfigurationInfo( const ConfigurationInfo* configInf
   
   // loop over amplitudes in the ConfigurationInfo
   vector<AmplitudeInfo*> ampInfoVector = configInfo->amplitudeList(reactionName());
-  for (unsigned int i = 0; i < ampInfoVector.size(); i++){
+  for (size_t i = 0; i < ampInfoVector.size(); i++){
     
     string ampName = ampInfoVector[i]->fullName();
     string sumName = ampInfoVector[i]->sumName();
@@ -1185,7 +1185,7 @@ AmplitudeManager::setupFromConfigurationInfo( const ConfigurationInfo* configInf
     
     // add amplitudes
     vector< vector<string> > ampFactors = ampInfoVector[i]->factors();
-    for (unsigned int j = 0; j < ampFactors.size(); j++){
+    for (size_t j = 0; j < ampFactors.size(); j++){
       string factorName = ampFactors[j][0];
       vector<string> ampParameters = ampFactors[j];
       ampParameters.erase(ampParameters.begin());
@@ -1194,7 +1194,7 @@ AmplitudeManager::setupFromConfigurationInfo( const ConfigurationInfo* configInf
     
     // add permutations
     vector< vector<int> > permutations = ampInfoVector[i]->permutations();
-    for (unsigned int j = 0; j < permutations.size(); j++){
+    for (size_t j = 0; j < permutations.size(); j++){
       addAmpPermutation( ampName, permutations[j] );
     }
     

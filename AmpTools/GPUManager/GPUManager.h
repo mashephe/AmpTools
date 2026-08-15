@@ -66,7 +66,6 @@ class GPUManager
 public:
   
   GPUManager();
-  GPUManager( const AmpVecs& a );
   ~GPUManager();
   
   void clearAll();
@@ -77,17 +76,17 @@ public:
   
   void initData( const AmpVecs& a, bool use4Vectors = true );
   void useDataFrom( const AmpVecs& a );
-  void initTerms( const AmpVecs& a, unsigned int chunkSize = 0 );
+  void initTerms( const AmpVecs& a, size_t chunkSize = 0 );
   
   void copyDataToGPU( const AmpVecs& a, bool use4Vectors = true  );
   void copyUserVarsToGPU( const AmpVecs& a );
   
-  void calcAmplitudeAll( const Amplitude* amp, unsigned int uAmpFactOffset,
+  void calcAmplitudeAll( const Amplitude* amp, size_t uAmpFactOffset,
                          const vector< vector< int > >* pvPermutations,
-                         unsigned int userVarsOffset,
-                         unsigned int startEvent = 0, unsigned int chunkSize = 0 );
+                         size_t userVarsOffset,
+                         size_t startEvent = 0, size_t chunkSize = 0 );
   
-  void assembleTerms( int iAmpInd, int nFact, int nPerm, unsigned int nEvents );
+  void assembleTerms( int iAmpInd, int nFact, int nPerm, size_t nEvents );
   
   void copyAmpsFromGPU( AmpVecs& a );
 
@@ -97,15 +96,15 @@ public:
 
   void calcIntegrals( double* result, int nElements, 
                       const vector<int>& iIndex, const vector<int>& jIndex, 
-                      unsigned int startEvent, unsigned int nEvents );
+                      size_t startEvent, size_t nEvents );
   
   // General utils:
-  static int calcNEventsGPU( int iNEvents ){
+  static size_t calcNEventsGPU( size_t iNEvents ){
     
     //Should be a power of 2 for reduction to work, also multiple of GPU_BLOCK_SIZE_SQ    
     int iPow = 0;
-    while( ( 1 << iPow ) < iNEvents ) iPow++;
-    return(  (1<<iPow) < GPU_BLOCK_SIZE_SQ ? GPU_BLOCK_SIZE_SQ : (1<<iPow) );
+    while( ( 1L << iPow ) < iNEvents ) iPow++;
+    return(  ( 1L << iPow ) < GPU_BLOCK_SIZE_SQ ? GPU_BLOCK_SIZE_SQ : ( 1L << iPow ) );
   }
   
   bool m_ownsData;
@@ -115,21 +114,22 @@ private:
   static bool m_cudaDisplay;
   
   // array dimensions
-  unsigned int m_iNParticles;
-  unsigned int m_iNEvents;
-  unsigned int m_iNTrueEvents;
-  unsigned int m_iNAmps;
-  unsigned int m_iNUserVars;
+  size_t m_iNParticles;
+  size_t m_iNEvents;
+  size_t m_iNTrueEvents;
+  size_t m_iNAmps;
+  size_t m_iNUserVars;
   
   // array sizes (data)
-  unsigned int m_iGDoubleDataArrSize;
+  size_t m_iGDoubleDataArrSize;
   
   // array sizes (terms)
-  unsigned int m_iDoubleIntenArrSize;
-  unsigned int m_iGDoubleFactArrSize;
-  unsigned int m_iAmpArrSize;
-  unsigned int m_iVArrSize;
-  unsigned int m_iNICalcSize;
+  size_t m_iDoubleIntenArrSize;
+  size_t m_iDoubleReduceArrSize;
+  size_t m_iGDoubleFactArrSize;
+  size_t m_iAmpArrSize;
+  size_t m_iVArrSize;
+  size_t m_iNICalcSize;
 
   //Host Arrays
   GDouble* m_pfVVStar;
@@ -150,24 +150,24 @@ private:
   double* m_pdDevREDUCE;
   
   // CUDA Thread and Grid sizes
-  unsigned int m_iDimGridX;
-  unsigned int m_iDimGridY;
-  unsigned int m_iDimGridXAmpFact;
-  unsigned int m_iDimGridYAmpFact;
-  unsigned int m_iDimThreadX;
-  unsigned int m_iDimThreadY;
+  size_t m_iDimGridX;
+  size_t m_iDimGridY;
+  size_t m_iDimGridXAmpFact;
+  size_t m_iDimGridYAmpFact;
+  size_t m_iDimThreadX;
+  size_t m_iDimThreadY;
   
-  unsigned int m_iNBlocks;
-  unsigned int m_iNThreads;
+  size_t m_iNBlocks;
+  size_t m_iNThreads;
   
   // Internal Utils
   
   unsigned int m_devProp_major;
   unsigned int m_devProp_minor;
-  unsigned int m_maxShared_bytes;
+  size_t m_maxShared_bytes;
 
   void calcCUDADims();
-  void calcCUDADimsAmpFact( unsigned int chunkSize = 0 );
+  void calcCUDADimsAmpFact( size_t chunkSize = 0 );
 
   static const char* kModule;
 };

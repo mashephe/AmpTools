@@ -118,7 +118,7 @@ public:
    * of number of factors * number of permutations for any term.
    */
   
-  unsigned int maxFactorStoragePerEvent() const;
+  size_t maxFactorStoragePerEvent() const;
   
   /**
    * This function returns the number of doubles needed to store all complete
@@ -126,14 +126,14 @@ public:
    * the size of a double.
    */
   
-  unsigned int termStoragePerEvent() const;
+  size_t termStoragePerEvent() const;
   
   /**
    * This function returns the number of doubles needed to store optional
    * user data for all factors and permutations.
    */
   
-  unsigned int userVarsPerEvent() const;
+  size_t userVarsPerEvent() const;
   
   /**
    * This function returns the total number of unique (up to complex
@@ -141,7 +141,7 @@ public:
    *  to index functions useds for NI calculation.
    */
   
-  unsigned int uniqueNIElements() const;
+  size_t uniqueNIElements() const;
   
   /**
    * This function triggers the calculation of optional user data that
@@ -230,8 +230,8 @@ public:
    * \see calcAmplitudes
    * \see calcIntensities
    */
-  void calcIntegrals( AmpVecs& ampVecs, unsigned int iNGenEvents,
-                     unsigned int chunkSize = 0 ) const;
+  void calcIntegrals( AmpVecs& ampVecs, size_t iNGenEvents,
+                     size_t chunkSize = 0 ) const;
 
   /**
    * The function returns a list of permutations that will be performed on
@@ -456,8 +456,8 @@ private:
    * \see calcSumLogIntensity
    * \see calcIntegrals
    */
-  vector<bool> calcTerms( AmpVecs& ampVecs, unsigned int startEvent,
-                          unsigned int chunkSize ) const;
+  vector<bool> calcTerms( AmpVecs& ampVecs, size_t startEvent,
+                          size_t chunkSize ) const;
   
   
   // recursive routine to symmetrize final state
@@ -494,7 +494,7 @@ private:
     
   mutable map< const Amplitude*, int > m_ampIteration;
   mutable map< AmpVecs*, map< const Amplitude*, int > > m_dataAmpIteration;
-  mutable map< string, unsigned int > m_staticUserVarsOffset;
+  mutable map< string, size_t > m_staticUserVarsOffset;
   
   static const char* kModule;
 };

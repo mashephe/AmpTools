@@ -142,17 +142,17 @@ struct SharedMemory<double>
     In other words if blockSize <= 32, allocate 64*sizeof(T) bytes.  
     If blockSize > 32, allocate blockSize*sizeof(T) bytes.
 */
-template <class T, unsigned int blockSize, bool nIsPow2>
+template <class T, size_t blockSize, bool nIsPow2>
 __global__ void
-reduce6(T *g_idata, T *g_odata, unsigned int n)
+reduce6(T *g_idata, T *g_odata, size_t n)
 {
     T *sdata = SharedMemory<T>();
 
     // perform first level of reduction,
     // reading from global memory, writing to shared memory
-    unsigned int tid = threadIdx.x;
-    unsigned int i = blockIdx.x*blockSize*2 + threadIdx.x;
-    unsigned int gridSize = blockSize*2*gridDim.x;
+    size_t tid = threadIdx.x;
+    size_t i = blockIdx.x*blockSize*2 + threadIdx.x;
+    size_t gridSize = blockSize*2*gridDim.x;
     
     T mySum = 0;
 

@@ -71,14 +71,14 @@ struct AmpVecs
   /**
    * An integer that stores the number of events.
    */
-  unsigned int m_iNEvents;
+  size_t m_iNEvents;
   
   /**
    * An integer that stores the true number of events.  For GPU calculations
    * it is necessary to pad iNEvents up to the next power of 2.  This integer
    * stores the actual number of unique events.
    */
-  unsigned int m_iNTrueEvents;
+  size_t m_iNTrueEvents;
   
   /**
    * A double that stores the absolute value of the sum of the weights.  (For
@@ -91,25 +91,25 @@ struct AmpVecs
   /**
    * An integer that stores the number of particles in the final state.
    */
-  unsigned int m_iNParticles;
+  size_t m_iNParticles;
   
   /**
    * An integer that stores the number of amplitudes for a particular
    * configuration of the AmplitudeManager.
    */
-  unsigned int m_iNTerms;
+  size_t m_iNTerms;
   
   /**
    * An integer that is number of doubles required to store all factors
    * and permutations for any term for an event.
    */
-  unsigned int m_maxFactPerEvent;
+  size_t m_maxFactPerEvent;
   
   /**
    * An integer that is the number of doubles required to store all
    * (optionally) user-calculated data per event.
    */
-  unsigned int m_userVarsPerEvent;
+  size_t m_userVarsPerEvent;
 
   /**
    * An array of length 4 * iNEvents * iNParticles that stores the four-vectors
@@ -182,7 +182,7 @@ struct AmpVecs
    * utilized by the AmplitudeManager, but the values are tied
    * to the data set so it resides in the AmpVecs struct.
    */
-  map< string, unsigned int > m_userVarsOffset;
+  map< string, size_t > m_userVarsOffset;
 
   /**
    * These booleans track features of the set of weights are are adjusted
@@ -233,7 +233,7 @@ struct AmpVecs
    */
   void allocateTerms( const IntensityManager& intenMan,
                       bool bAllocIntensity = false,
-                      unsigned int chunkSize = 0 );
+                      size_t chunkSize = 0 );
 
   /** 
    * This routine deallocates the arrays that hold the calculated terms and
@@ -270,7 +270,7 @@ struct AmpVecs
    * \see DataReader::resetSource
    * \see DataReader::getEvent
    */
-  void loadData( DataReader* pDataReader, bool needsUserVarsOnly = false );
+  void loadData( DataReader* pDataReader, bool needsUserVarsOnly = false, size_t chunkSize = 0 );
   
   /**
    * This routine fills the arrays of data and weights event by event
@@ -286,8 +286,8 @@ struct AmpVecs
    *
    * \see loadData
    */
-  void loadEvent( const Kinematics* pKinematics, unsigned int iEvent = 0,
-                  unsigned int iNTrueEvents = 1, bool needsUserVarsOnly = false );
+  void loadEvent( const Kinematics* pKinematics, size_t iEvent = 0,
+                  size_t iNTrueEvents = 1, bool needsUserVarsOnly = false );
   
   /**
    * A helper routine to get an event i from the array of data and weights.
@@ -333,6 +333,8 @@ struct AmpVecs
   AmpVecs* m_sharedDataHost;
   
 private:
+
+  void loadDataArrayElement( const Kinematics* pKinematics, size_t iEvent );
   
   int m_lastWeightSign;
   set< AmpVecs* > m_sharedDataFriends;
