@@ -707,27 +707,23 @@ GPUManager::calcIntegrals( double* result, int nElements,
     << "Unable to continue -- reduce the number of amplitudes to perform this fit on the GPU." << endl;
     exit( 1 );
   }
-  
-  // don't bother to execute the kernel if the answer is going to be zero in the end
-  if( startEvent < m_iNTrueEvents ){
- 
-    GPU_ExecNICalcKernel( dimGrid, dimBlock, totalSize, nElements,
-                          m_pdDevNICalc, m_pfDevAmps, m_pfDevWeights,
-                          startEvent, nEvents, m_iNTrueEvents,
-                          m_devProp_major >= 7 ? m_maxShared_bytes : 0 );
 
-    cudaDeviceSynchronize();
+  GPU_ExecNICalcKernel( dimGrid, dimBlock, totalSize, nElements,
+                        m_pdDevNICalc, m_pfDevAmps, m_pfDevWeights,
+                        startEvent, nEvents, m_iNTrueEvents,
+                        m_devProp_major >= 7 ? m_maxShared_bytes : 0 );
 
-    // check to be sure kernel execution was OK
-    cudaError_t cerrKernel = cudaGetLastError();
-    if( cerrKernel != cudaSuccess  ){
-      
-      report( ERROR, kModule ) << "\nKERNEL LAUNCH ERROR [GPU_ExecNICalcKernel]: "
-          << cudaGetErrorString( cerrKernel ) << endl;
-      assert( false );
-    }
+  cudaDeviceSynchronize();
+
+  // check to be sure kernel execution was OK
+  cudaError_t cerrKernel = cudaGetLastError();
+  if( cerrKernel != cudaSuccess  ){
+    
+    report( ERROR, kModule ) << "\nKERNEL LAUNCH ERROR [GPU_ExecNICalcKernel]: "
+        << cudaGetErrorString( cerrKernel ) << endl;
+    assert( false );
   }
-
+  
   gpuErrChk( cudaMemcpy( result, m_pdDevNICalc, resultSize, cudaMemcpyDeviceToHost ) );
 }
 
