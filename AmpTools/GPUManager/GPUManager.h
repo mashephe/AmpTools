@@ -66,7 +66,6 @@ class GPUManager
 public:
   
   GPUManager();
-  GPUManager( const AmpVecs& a );
   ~GPUManager();
   
   void clearAll();

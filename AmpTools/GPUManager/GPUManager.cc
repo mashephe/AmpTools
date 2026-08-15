@@ -160,17 +160,10 @@ GPUManager::GPUManager() : m_ownsData( true )
      ( m_devProp_major == 7 && m_devProp_minor == 0 ) ) m_maxShared_bytes = 98304;
 }
 
-GPUManager::GPUManager( const AmpVecs& a )
-{
-  GPUManager();
-  init( a );
-}
-
 GPUManager::~GPUManager()
 {
   clearAll();
 }
-
 
 // Initialization routines:
 
