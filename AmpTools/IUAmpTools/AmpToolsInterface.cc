@@ -906,7 +906,7 @@ AmpToolsInterface::forceUserVarRecalculation( bool state ){
 float
 AmpToolsInterface::random( float randMax ) const {
   
-  return ( (float) rand() / RAND_MAX ) * randMax;
+  return ( (float) rand() / (float) RAND_MAX ) * randMax;
 }
 
 void
