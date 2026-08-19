@@ -540,3 +540,42 @@ AmpVecs::claimDataOwnership( set< AmpVecs* > sharedFriends ){
 #endif
 
 }
+
+GDouble*
+AmpVecs::findSharedUserVars( const string& ampIdentifier ){
+
+  // needs to use the host class because the host has 
+  // the complete set of shared data friends 
+  if( m_usesSharedData && m_sharedDataHost != NULL ){
+
+    return m_sharedDataHost->findSharedUserVars( ampIdentifier );
+  }
+
+  // check to see if this class has already calculated
+  // user vars for the requested amplitude identifier
+  map< string, size_t >::iterator offsetItr = m_userVarsOffset.find( ampIdentifier );
+  
+  if( offsetItr != m_userVarsOffset.end() ){
+
+    size_t offset = offsetItr->second;
+
+    return m_pdUserVars + offset;
+  }
+
+  // check to see if any of the friends have already calculated
+  // user vars for the requested amplitude identifier
+  for( set< AmpVecs* >::iterator avItr = m_sharedDataFriends.begin();
+       avItr != m_sharedDataFriends.end(); ++avItr ){
+
+    map< string, size_t >::iterator offsetItr = (*avItr)->m_userVarsOffset.find( ampIdentifier );
+    if( offsetItr != (*avItr)->m_userVarsOffset.end() ){
+
+      size_t offset = offsetItr->second;
+
+      return (*avItr)->m_pdUserVars + offset;
+    }
+  }
+  
+  return NULL;
+}
+

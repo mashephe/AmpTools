@@ -298,33 +298,27 @@ SCOREP_USER_REGION_BEGIN( calcUserVars, "calcUserVars", SCOREP_USER_REGION_TYPE_
 
       // this is the number of variables for the data set
       int iNVars = pCurrAmp->numUserVars();
-      int iNData = iNVars * a.m_iNEvents * iNPerms;
+      size_t iNData = iNVars * a.m_iNEvents * iNPerms;
       
       // we will set this based on the algorithm below
       size_t thisOffset = 0;
 
-      if( pCurrAmp->areUserVarsStatic() ){
-        
-        // the user variables are static, so let's look at the
-        // list of data pointers stored in the relevant AmpVecs
-        // object and see if there is one associated with this
-        // amplitude name
-        
-        map< string, size_t >::const_iterator offsetItr =
-        a.m_userVarsOffset.find( pCurrAmp->name() );
-        
-        if( offsetItr == a.m_userVarsOffset.end() ){
-          
-          // set the offset to where the calculation will end up
-          a.m_userVarsOffset[pCurrAmp->name()] = iUserVarsOffset;
+      string ampId = ( pCurrAmp->areUserVarsStatic() ? 
+                       pCurrAmp->name() : pCurrAmp->identifier() );
+
+      map< string, size_t >::const_iterator offsetItr =
+        a.m_userVarsOffset.find( ampId );
+
+      if( offsetItr == a.m_userVarsOffset.end() ){
           
           // record it to use in the lines below
           thisOffset = iUserVarsOffset;
           
           // increment
           iUserVarsOffset += iNData;
-        }
-        else // we have done the calculation already
+      }
+      else{ // we have done the calculation already
+          
           if( m_forceUserVarRecalculation ){ // but should redo it
             
             thisOffset = offsetItr->second;
@@ -332,45 +326,31 @@ SCOREP_USER_REGION_BEGIN( calcUserVars, "calcUserVars", SCOREP_USER_REGION_TYPE_
           else{ // and don't want to repeat it
             
             continue;
-          }
+          }   
+      }
+
+      GDouble* sharedUserVars = a.findSharedUserVars( ampId );
+
+      // set the offset to where the calculation will end up
+      a.m_userVarsOffset[ampId] = thisOffset;
+      
+      if( sharedUserVars == NULL || m_forceUserVarRecalculation ){
+        
+        // if we are not sharing data, or we are forcing a recalculation
+        // then we will do the calculation here and store it in the
+        // userVars block for this data set
+        pCurrAmp->
+          calcUserVarsAll( a.m_pdData,
+                           a.m_pdUserVars + thisOffset,
+                           a.m_iNEvents, &vvPermuations );
       }
       else{
-        // the variables are not static, repeat the algorithm
-        // above but search based on identifier of the amplitude
         
-        map< string, size_t >::const_iterator offsetItr =
-        a.m_userVarsOffset.find( pCurrAmp->identifier() );
-        
-        if( offsetItr == a.m_userVarsOffset.end() ){
-          
-          // set the offset to where the calculation will end up
-          a.m_userVarsOffset[pCurrAmp->identifier()] = iUserVarsOffset;
-          
-          // record it to use in the lines below
-          thisOffset = iUserVarsOffset;
-          
-          // increment -- can only happen at most once either above or here
-          iUserVarsOffset += iNData;
-        }
-        else // we have done the calculation already
-          if( m_forceUserVarRecalculation ){ // but should redo it
-            
-            thisOffset = offsetItr->second;
-          }
-          else{ // and don't want to repeat it
-            
-            continue;
-          }
+        // if we are sharing data, then copy the user vars from the
+        // shared location to the location for this data set
+        memcpy( a.m_pdUserVars + thisOffset, sharedUserVars,
+                iNData*sizeof(GDouble) );
       }
-      
-      // calculation of user-defined kinematics data
-      // is something that should only be done once
-      // per fit, so do it on the CPU no matter what
-      
-      pCurrAmp->
-        calcUserVarsAll( a.m_pdData,
-                         a.m_pdUserVars + thisOffset,
-                         a.m_iNEvents, &vvPermuations );
          
 #ifdef GPU_ACCELERATION
       

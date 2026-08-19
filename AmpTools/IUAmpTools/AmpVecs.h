@@ -333,6 +333,14 @@ struct AmpVecs
    * which is necessary, e.g., if the friend goes out of scope.
    */
   void removeFriend( AmpVecs* dataFriend );
+
+  /**
+   * This function will look through shared data friends to find
+   * if user vars have been computed for a particular amplitude
+   * identifier already and if so, return a pointer to the location in memory
+   * where the user vars are stored.
+   */
+  GDouble* findSharedUserVars( const string& ampIdentifier );
   
   bool m_usesSharedData;
   AmpVecs* m_sharedDataHost;
