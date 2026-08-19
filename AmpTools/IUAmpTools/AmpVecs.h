@@ -177,6 +177,11 @@ struct AmpVecs
   bool m_dataLoaded;
   
   /**
+   * A boolean that tracks whether user data has been calculated and stored.
+   */
+  bool m_userVarsValid;
+
+  /**
    * This is a map from amplitude identifer to the location in memory
    * where user data for that amplitude exists.  It is
    * utilized by the AmplitudeManager, but the values are tied

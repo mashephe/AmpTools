@@ -70,6 +70,7 @@ AmpVecs::AmpVecs(){
   m_pdIntegralMatrix = 0 ;
   
   m_termsValid     = false ;
+  m_userVarsValid  = false ;
   m_integralValid  = false ;
   m_dataLoaded     = false;
   m_usesSharedData = false;
@@ -392,6 +393,7 @@ AmpVecs::deallocTerms(){
 
   m_termsValid = false;
   m_integralValid = false;
+  m_userVarsValid = false;
 
   if( m_pdIntegralMatrix )
     delete[] m_pdIntegralMatrix;

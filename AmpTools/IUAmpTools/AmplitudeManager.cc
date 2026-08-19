@@ -415,6 +415,7 @@ SCOREP_USER_REGION_BEGIN( calcUserVars, "calcUserVars", SCOREP_USER_REGION_TYPE_
 SCOREP_USER_REGION_END( calcUserVars )
 #endif
 
+  a.m_userVarsValid = true;
   return;
 }
 
@@ -439,14 +440,15 @@ SCOREP_USER_REGION_BEGIN( calcTerms, "calcTerms", SCOREP_USER_REGION_TYPE_COMMON
  
   size_t nEvents = ( chunkSize == 0 ? a.m_iNEvents : chunkSize );
   
-  report( DEBUG, kModule ) << "Calculating terms...     termsValid = "
-  << a.m_termsValid << endl;
+  report( DEBUG, kModule ) << "Calculating terms...   userVarsValid = "
+                           << a.m_userVarsValid << ", termsValid = "
+                           << a.m_termsValid << endl;
   
   // on the first pass through this data set be sure to calculate
   // the user data first, if needed, before doing term calculations
   // the last criteria will make sure that userData is only computed
   // once for the first chunk in sequential calls of calcTerms
-  if( !a.m_termsValid && a.m_userVarsPerEvent > 0 && startEvent == 0 ){
+  if( !a.m_userVarsValid && a.m_userVarsPerEvent > 0 && startEvent == 0 ){
     
     calcUserVars( a );
     if( m_needsUserVarsOnly && !m_forceUserVarRecalculation
