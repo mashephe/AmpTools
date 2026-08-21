@@ -348,45 +348,46 @@ SCOREP_USER_REGION_BEGIN( calcUserVars, "calcUserVars", SCOREP_USER_REGION_TYPE_
           calcUserVarsAll( a.m_pdData,
                            a.m_pdUserVars + thisOffset,
                            a.m_iNEvents, &vvPermuations );
+
+#ifdef GPU_ACCELERATION
+      
+        // we want to reorder the userVars if we are working on the
+        // GPU so that the same variable for neighboring events is
+        // next to each other, this will enhance block read and
+        // caching ability
+
+        GDouble* tmpVarStorage = new GDouble[iNData];
+
+        for( int iPerm = 0; iPerm < iNPerms; ++iPerm ){
+          for( int iEvt = 0; iEvt < a.m_iNEvents; ++iEvt ){
+            for( int iVar = 0; iVar < iNVars; ++iVar ){
+            
+              size_t cpuIndex =
+                thisOffset + iPerm*a.m_iNEvents*iNVars + iEvt*iNVars + iVar;
+              size_t gpuIndex =
+                iPerm*a.m_iNEvents*iNVars + iVar*a.m_iNEvents + iEvt;
+            
+              tmpVarStorage[gpuIndex] = a.m_pdUserVars[cpuIndex];
+            }
+          }
+        }
+
+        memcpy( a.m_pdUserVars + thisOffset, tmpVarStorage,
+	        iNData*sizeof(GDouble) );
+      
+        delete[] tmpVarStorage;
+#endif //GPU_ACCELERATION
       }
       else{
 
         report( DEBUG, kModule ) << "Reusing userVars for factor:  " << ampId << endl;
         
         // if we are sharing data, then copy the user vars from the
-        // shared location to the location for this data set
+        // shared location to the location for this data set; these
+        // are already in the correct format (GPU-reordered if needed)
         memcpy( a.m_pdUserVars + thisOffset, sharedUserVars,
                 iNData*sizeof(GDouble) );
       }
-         
-#ifdef GPU_ACCELERATION
-      
-      // we want to reorder the userVars if we are working on the
-      // GPU so that the same variable for neighboring events is
-      // next to each other, this will enhance block read and
-      // caching ability
-
-      GDouble* tmpVarStorage = new GDouble[iNData];
-
-      for( int iPerm = 0; iPerm < iNPerms; ++iPerm ){
-        for( int iEvt = 0; iEvt < a.m_iNEvents; ++iEvt ){
-          for( int iVar = 0; iVar < iNVars; ++iVar ){
-            
-            size_t cpuIndex =
-              thisOffset + iPerm*a.m_iNEvents*iNVars + iEvt*iNVars + iVar;
-            size_t gpuIndex =
-              iPerm*a.m_iNEvents*iNVars + iVar*a.m_iNEvents + iEvt;
-            
-            tmpVarStorage[gpuIndex] = a.m_pdUserVars[cpuIndex];
-          }
-        }
-      }
-
-      memcpy( a.m_pdUserVars + thisOffset, tmpVarStorage,
-	      iNData*sizeof(GDouble) );
-      
-      delete[] tmpVarStorage;
-#endif //GPU_ACCELERATION
       
     }
   }
@@ -463,6 +464,7 @@ SCOREP_USER_REGION_BEGIN( calcTerms, "calcTerms", SCOREP_USER_REGION_TYPE_COMMON
     assert( permItr != m_ampPermutations.end() );
     const vector< vector< int > >& vvPermuations = permItr->second;
     int iNPermutations = vvPermuations.size();
+    string permTag = getPermutationTag( vvPermuations );
     
     vector< const Amplitude* > vAmps =
     m_mapNameToAmps.find(ampNames.at(iAmpIndex))->second;
@@ -519,11 +521,12 @@ SCOREP_USER_REGION_BEGIN( calcTerms, "calcTerms", SCOREP_USER_REGION_TYPE_COMMON
       pCurrAmp = vAmps.at( iFactor );
       
       // if we have static user data, look up the location in the data array
-      // if not, then look up by identifier
-      size_t userVarsOffset =
-      ( pCurrAmp->areUserVarsStatic() ?
-        a.m_userVarsOffset[pCurrAmp->name()] :
-        a.m_userVarsOffset[pCurrAmp->identifier()] );
+      // if not, then look up by identifier; in both cases append the permTag
+      // to match how calcUserVars stored the offset
+      string ampId = ( pCurrAmp->areUserVarsStatic() ?
+                       pCurrAmp->name() : pCurrAmp->identifier() );
+      ampId += permTag;
+      size_t userVarsOffset = a.m_userVarsOffset[ampId];
 
 #ifndef GPU_ACCELERATION
       pCurrAmp->
