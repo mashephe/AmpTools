@@ -279,10 +279,11 @@ SCOREP_USER_REGION_BEGIN( calcUserVars, "calcUserVars", SCOREP_USER_REGION_TYPE_
   {
     
     map< string, vector< vector< int > > >::const_iterator permItr =
-    m_ampPermutations.find( ampNames[iAmpIndex] );
+      m_ampPermutations.find( ampNames[iAmpIndex] );
     assert( permItr != m_ampPermutations.end() );
     const vector< vector< int > >& vvPermuations = permItr->second;
     int iNPerms = vvPermuations.size();
+    string permTag = getPermutationTag( vvPermuations );
     
     vector< const Amplitude* > vAmps =
     m_mapNameToAmps.find(ampNames.at(iAmpIndex))->second;
@@ -305,6 +306,8 @@ SCOREP_USER_REGION_BEGIN( calcUserVars, "calcUserVars", SCOREP_USER_REGION_TYPE_
 
       string ampId = ( pCurrAmp->areUserVarsStatic() ? 
                        pCurrAmp->name() : pCurrAmp->identifier() );
+
+      ampId += permTag;
 
       map< string, size_t >::const_iterator offsetItr =
         a.m_userVarsOffset.find( ampId );
@@ -335,7 +338,9 @@ SCOREP_USER_REGION_BEGIN( calcUserVars, "calcUserVars", SCOREP_USER_REGION_TYPE_
       a.m_userVarsOffset[ampId] = thisOffset;
       
       if( sharedUserVars == NULL || m_forceUserVarRecalculation ){
-        
+
+        report( DEBUG, kModule ) << "Calculating userVars for factor:  " << ampId << endl;
+
         // if we are not sharing data, or we are forcing a recalculation
         // then we will do the calculation here and store it in the
         // userVars block for this data set
@@ -345,6 +350,8 @@ SCOREP_USER_REGION_BEGIN( calcUserVars, "calcUserVars", SCOREP_USER_REGION_TYPE_
                            a.m_iNEvents, &vvPermuations );
       }
       else{
+
+        report( DEBUG, kModule ) << "Reusing userVars for factor:  " << ampId << endl;
         
         // if we are sharing data, then copy the user vars from the
         // shared location to the location for this data set
@@ -1323,5 +1330,29 @@ AmplitudeManager::generateSymmetricCombos( const vector< pair< int, int > >& pre
       generateSymmetricCombos( newPrevSwaps, remainingSwaps, defaultOrder );
     }
   }
+}
+
+string
+AmplitudeManager::getPermutationTag( const vector< vector< int > >& vvPerm ) const {
+  
+  stringstream sig;
+  
+  sig << "|";
+
+  for( vector< vector< int > >::const_iterator vecItr = vvPerm.begin();
+      vecItr != vvPerm.end(); ++vecItr ){
+    
+    sig << "|";
+    for( vector< int >::const_iterator itr = vecItr->begin();
+        itr != vecItr->end(); ++itr ){
+      
+      sig << *itr;
+    }
+    sig << "|";
+  }
+
+  sig << "|";
+
+  return sig.str();
 }
 
