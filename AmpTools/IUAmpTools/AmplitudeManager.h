@@ -465,6 +465,9 @@ private:
                                vector< vector< pair< int, int > > > remainingSwaps,
                                const vector< int >& defaultOrder );
   
+  // generates a string for a set of permutations
+  string getPermutationTag( const vector< vector< int > >& vvPerm ) const;
+
   // amplitude name -> vector of amplitude factors
   map< string, vector< const Amplitude* > > m_mapNameToAmps;
 

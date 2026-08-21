@@ -1,6 +1,5 @@
 #include <iostream>
 #include <fstream>
-#include <cmath>
 #include <complex>
 #include <string>
 #include <vector>
@@ -62,6 +61,7 @@ class unitTest {
 };
 
 int main() {
+    string ATIFile = "models/AmpToolsInterface.txt";
     string cfgname = "parserTest.cfg";
     ConfigFileParser parser(cfgname);
     ConfigurationInfo* cfgInfo = parser.getConfigurationInfo();
@@ -75,50 +75,33 @@ int main() {
     cout << "________________________________________" << endl;
     
     unitTest unit_test;
-    double neg2LL_before = ATI.likelihood();
+    ifstream fin;
+    fin.open(ATIFile);
+
+    double neg2LL_before;
+    fin >> neg2LL_before;
+    unit_test.add(neg2LL_before, ATI.likelihood(), 1e-1, "Likelihood before fit matches model");
 
     MinuitMinimizationManager* fitManager = ATI.minuitMinimizationManager();
     fitManager->setStrategy(1);
 
     fitManager->migradMinimization();
 
-    double neg2LL_after = ATI.likelihood();
-    double neg2LL_base = ATI.likelihood("base");
-    double neg2LL_constrained = ATI.likelihood("constrained");
-    double neg2LL_symmetrized_implicit = ATI.likelihood("symmetrized_implicit");
-    double neg2LL_symmetrized_explicit = ATI.likelihood("symmetrized_explicit");
-
-#ifdef GPU_ACCELERATION
-    unit_test.add(isfinite(neg2LL_before), "Likelihood before fit is finite");
-    unit_test.add(isfinite(neg2LL_after), "Likelihood after fit is finite");
-    unit_test.add(neg2LL_after < neg2LL_before, "Likelihood improves after fit");
-    unit_test.add(isfinite(neg2LL_base), "Likelihood of base reaction after fit is finite");
-    unit_test.add(isfinite(neg2LL_constrained), "Likelihood of constrained reaction after fit is finite");
-    unit_test.add(isfinite(neg2LL_symmetrized_implicit), "Likelihood of symmetrized (implicit) reaction after fit is finite");
-    unit_test.add(isfinite(neg2LL_symmetrized_explicit), "Likelihood of symmetrized (explicit) reaction after fit is finite");
-#else
-    string ATIFile = "models/AmpToolsInterface.txt";
-    ifstream fin;
-    fin.open(ATIFile);
-    double model_neg2LL_before;
-    fin >> model_neg2LL_before;
-    unit_test.add(model_neg2LL_before, neg2LL_before, 1e-1, "Likelihood before fit matches model");
-    double model_neg2LL_after;
-    fin >> model_neg2LL_after;
-    unit_test.add(model_neg2LL_after, neg2LL_after, 1e-3, "Likelihood after fit matches model");
-    double model_neg2LL_base;
-    fin >> model_neg2LL_base;
-    unit_test.add(model_neg2LL_base, neg2LL_base, 1e-3, "Likelihood of base reaction after fit matches model");
-    double model_neg2LL_constrained;
-    fin >> model_neg2LL_constrained;
-    unit_test.add(model_neg2LL_constrained, neg2LL_constrained,1e-3, "Likelihood of constrained reaction after fit matches model");
-    double model_neg2LL_symmetrized_implicit;
-    fin >> model_neg2LL_symmetrized_implicit;
-    unit_test.add(model_neg2LL_symmetrized_implicit,neg2LL_symmetrized_implicit,1e-4, "Likelihood of symmetrized (implicit) reaction after fit matches model");
-    double model_neg2LL_symmetrized_explicit;
-    fin >> model_neg2LL_symmetrized_explicit;
-    unit_test.add(model_neg2LL_symmetrized_explicit, neg2LL_symmetrized_explicit, 1e-4, "Likelihood of symmetrized (explicit) reaction after fit matches model");
-#endif
+    double neg2LL_after;
+    fin >> neg2LL_after;
+    unit_test.add(neg2LL_after, ATI.likelihood(), 1e-3, "Likelihood after fit matches model");
+    double neg2LL_base;
+    fin >> neg2LL_base;
+    unit_test.add(neg2LL_base, ATI.likelihood("base"), 1e-3, "Likelihood of base reaction after fit matches model");
+    double neg2LL_constrained;
+    fin >> neg2LL_constrained;
+    unit_test.add(neg2LL_constrained, ATI.likelihood("constrained"),1e-3, "Likelihood of constrained reaction after fit matches model");
+    double neg2LL_symmetrized_implicit;
+    fin >> neg2LL_symmetrized_implicit;
+    unit_test.add(neg2LL_symmetrized_implicit,ATI.likelihood("symmetrized_implicit"),1e-4, "Likelihood of symmetrized (implicit) reaction after fit matches model");
+    double neg2LL_symmetrized_explicit;
+    fin >> neg2LL_symmetrized_explicit;
+    unit_test.add(neg2LL_symmetrized_explicit, ATI.likelihood("symmetrized_explicit"), 1e-4, "Likelihood of symmetrized (explicit) reaction after fit matches model");
     bool result = unit_test.summary();
 
     if (!result) {
