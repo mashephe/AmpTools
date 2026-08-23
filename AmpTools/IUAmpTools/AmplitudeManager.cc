@@ -348,17 +348,7 @@ SCOREP_USER_REGION_BEGIN( calcUserVars, "calcUserVars", SCOREP_USER_REGION_TYPE_
           calcUserVarsAll( a.m_pdData,
                            a.m_pdUserVars + thisOffset,
                            a.m_iNEvents, &vvPermuations );
-      }
-      else{
 
-        report( DEBUG, kModule ) << "Reusing userVars for factor:  " << ampId << endl;
-        
-        // if we are sharing data, then copy the user vars from the
-        // shared location to the location for this data set
-        memcpy( a.m_pdUserVars + thisOffset, sharedUserVars,
-                iNData*sizeof(GDouble) );
-      }
-         
 #ifdef GPU_ACCELERATION
       
       // we want to reorder the userVars if we are working on the
@@ -386,8 +376,19 @@ SCOREP_USER_REGION_BEGIN( calcUserVars, "calcUserVars", SCOREP_USER_REGION_TYPE_
 	      iNData*sizeof(GDouble) );
       
       delete[] tmpVarStorage;
-#endif //GPU_ACCELERATION
-      
+#endif //GPU_ACCELERATION 
+      }
+      else{
+
+        // GPU user vars are already in the correct order, so we can just copy them
+
+        report( DEBUG, kModule ) << "Reusing userVars for factor:  " << ampId << endl;
+        
+        // if we are sharing data, then copy the user vars from the
+        // shared location to the location for this data set
+        memcpy( a.m_pdUserVars + thisOffset, sharedUserVars,
+                iNData*sizeof(GDouble) );
+      }
     }
   }
 
@@ -463,6 +464,7 @@ SCOREP_USER_REGION_BEGIN( calcTerms, "calcTerms", SCOREP_USER_REGION_TYPE_COMMON
     assert( permItr != m_ampPermutations.end() );
     const vector< vector< int > >& vvPermuations = permItr->second;
     int iNPermutations = vvPermuations.size();
+    string permTag = getPermutationTag( vvPermuations );
     
     vector< const Amplitude* > vAmps =
     m_mapNameToAmps.find(ampNames.at(iAmpIndex))->second;
@@ -518,12 +520,11 @@ SCOREP_USER_REGION_BEGIN( calcTerms, "calcTerms", SCOREP_USER_REGION_TYPE_COMMON
       
       pCurrAmp = vAmps.at( iFactor );
       
-      // if we have static user data, look up the location in the data array
-      // if not, then look up by identifier
-      size_t userVarsOffset =
-      ( pCurrAmp->areUserVarsStatic() ?
-        a.m_userVarsOffset[pCurrAmp->name()] :
-        a.m_userVarsOffset[pCurrAmp->identifier()] );
+      string ampId = ( pCurrAmp->areUserVarsStatic() ? 
+                       pCurrAmp->name() : pCurrAmp->identifier() );
+      ampId += permTag;
+
+      size_t userVarsOffset = a.m_userVarsOffset[ampId];
 
 #ifndef GPU_ACCELERATION
       pCurrAmp->
