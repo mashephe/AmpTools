@@ -103,6 +103,10 @@ m_termNames( intenManager.getTermNames() )
   m_termNames = intenManager.getTermNames();
    
   initializeCache();
+
+  // class relies on an external call to loadMC()
+  // after construction -- it can't go here because the
+  // MPI implementation must be different
 }
 
 NormIntInterface::~NormIntInterface(){
@@ -355,15 +359,8 @@ NormIntInterface::forceCacheUpdate( bool normIntOnly ) const
                            << normIntOnly << ", emptyNormIntCache = " << m_emptyNormIntCache
                            << ", emptyAmpIntCache = " << m_emptyAmpIntCache << endl;
     
-  // do "lazy" allocation of memory here -- this is important for MPI jobs
-  // where forceCacheUpdate is only called on follower nodes, as it
-  // avoids big memory allocations on the lead nodes
 
-  // this will load both the accepted and generated MC into memory
-  // (For MPI jobs, loadMC is called explicitly on the follower nodes
-  // during the steup step, so this will not be called again on those nodes
-  // and forceCacheUpdate is never called on the MPI lead node)
-  if( !m_accMCVecs.m_dataLoaded ) loadMC();
+  assert( m_accMCVecs.m_dataLoaded );
 
   // allocate the space for calculating the amplitudes
   if( m_accMCVecs.m_iNTerms == 0 ) m_accMCVecs.allocateTerms( *m_pIntenManager );
@@ -410,8 +407,10 @@ NormIntInterface::forceCacheUpdate( bool normIntOnly ) const
     setAmpIntMatrix( m_genMCVecs.m_pdIntegralMatrix );
 
     // try to keep memory usage down by freeing the memory needed to calculate the
-    // integrals -- the data will remain in memory
-    m_genMCVecs.deallocTerms();
+    // integrals -- the data will remain in memory -- the "false" argument tells
+    // the function to not deallocate the user variables, which may be needed
+    // for subsequent amplitude calculations
+    m_genMCVecs.deallocTerms( false );
 
     m_emptyAmpIntCache = false;
   }

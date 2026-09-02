@@ -91,6 +91,9 @@ public:
   
   void invalidateTerms();
 
+  // needs different implementations in MPI so make virtual
+  virtual void loadMC() const;
+
 #endif
   
   void exportNormIntCache( const string& fileName ) const;
@@ -116,8 +119,6 @@ protected:
   
   void setAmpIntMatrix( const double* input ) const;
   void setNormIntMatrix( const double* input ) const;
-
-  void loadMC() const;
   
 private:
   
