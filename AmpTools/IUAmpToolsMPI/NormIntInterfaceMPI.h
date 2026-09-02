@@ -58,6 +58,8 @@ public:
   complex< double > normInt( string amp, string conjAmp, bool forceUseCache = false ) const;
   void forceCacheUpdate( bool normIntOnly = false ) const;
 
+  void loadMC() const;
+
 private:
   
   void setupMPI();

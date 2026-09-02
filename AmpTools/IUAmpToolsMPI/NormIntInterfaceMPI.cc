@@ -204,3 +204,11 @@ NormIntInterfaceMPI::sumIntegrals( IntType type ) const
   delete[] result;
 }
 
+void
+NormIntInterfaceMPI::loadMC() const{
+ 
+  // do not load MC on the leader node 
+  // only the followers need the MC
+  if( !m_isLeader ) NormIntInterface::loadMC();
+}
+

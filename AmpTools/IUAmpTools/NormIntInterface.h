@@ -91,7 +91,7 @@ public:
   
   void invalidateTerms();
 
-  void loadMC() const;
+  virtual void loadMC() const;
 
 #endif
   
