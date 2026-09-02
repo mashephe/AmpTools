@@ -70,6 +70,7 @@ AmpVecs::AmpVecs(){
   m_pdIntegralMatrix = 0 ;
   
   m_termsValid     = false ;
+  m_userVarsValid  = false ;
   m_integralValid  = false ;
   m_dataLoaded     = false;
   m_usesSharedData = false;
@@ -98,13 +99,13 @@ AmpVecs::deallocAmpVecs()
   // this handles the case that
   // other classes may be looking
   // to this class for the data
-  clearFourVecs();
+  clearFourVecs( true );
 
   if(m_pdWeights)
     delete[] m_pdWeights;
   m_pdWeights=0;
   
-  deallocTerms();
+  deallocTerms( true );
 
 #ifdef GPU_ACCELERATION
   //Deallocate "pinned memory"
@@ -122,7 +123,7 @@ AmpVecs::deallocAmpVecs()
 }
 
 void
-AmpVecs::clearFourVecs(){
+AmpVecs::clearFourVecs( bool destruct ){
 
   if( m_usesSharedData ){
 
@@ -132,9 +133,10 @@ AmpVecs::clearFourVecs(){
     // should do the sharing
     assert( m_sharedDataFriends.empty() );
 
-    m_sharedDataHost->removeFriend( this );
-    m_sharedDataHost = NULL;
-    m_usesSharedData = false;
+    // if this is called from the destructor then
+    // we can't leave a bad pointer in the host's
+    // list of friends
+    if( destruct ) m_sharedDataHost->removeFriend( this );
 
     // set the pointer to zero to avoid deleting data
     // that others need in the steps below
@@ -150,7 +152,16 @@ AmpVecs::clearFourVecs(){
     std::set<AmpVecs*>::iterator avItr = m_sharedDataFriends.begin();
     
     AmpVecs* newDataOwner = *avItr;
+
+    // remove the new owner from the set of friends
     m_sharedDataFriends.erase( avItr );
+
+    // the current class becomes a friend of the new owner
+    // unless we are destroying the class
+    // this is critical because the new owner will fetch
+    // cached user variables from the current class if it
+    // needs them for subsequent amplitude calculations
+    if( !destruct )  m_sharedDataFriends.insert( this );
     
     newDataOwner->claimDataOwnership( m_sharedDataFriends );
 
@@ -203,6 +214,7 @@ AmpVecs::loadEvent( const Kinematics* pKinematics, size_t iEvent,
   m_integralValid = false;
   m_dataLoaded = true;
   m_userVarsOffset.clear();
+  m_userVarsValid = false;
 }
 
 void
@@ -308,6 +320,7 @@ AmpVecs::loadData( DataReader* pDataReader, bool needsUserVarsOnly, size_t chunk
   m_integralValid = false;
   m_dataLoaded = true;
   m_userVarsOffset.clear();
+  m_userVarsValid = false;
 }
 
 void
@@ -329,13 +342,20 @@ AmpVecs::loadDataArrayElement( const Kinematics* pKinematics, size_t iEvent ){
 void
 AmpVecs::allocateTerms( const IntensityManager& intenMan, bool bAllocIntensity, size_t chunkSize ){
 
+  // if one deallocates and then allocates terms for the same AmpVecs object
+  // one needs to be aware that the user variables might not have been cleared
+  // during the deallocation -- if this is the case, then this assertion should
+  // be correct:
+
+  if( m_pdUserVars != 0 ) assert( m_userVarsPerEvent == intenMan.userVarsPerEvent() );
+
   size_t ampsEvents = ( chunkSize == 0 ? m_iNEvents : chunkSize );
   
   m_iNTerms           = intenMan.getTermNames().size();
   m_maxFactPerEvent   = intenMan.maxFactorStoragePerEvent(); // in units of doubles; includes factor of 2 for complex numbers
   m_userVarsPerEvent  = intenMan.userVarsPerEvent();
   
-  if( m_pdAmps!=0 || m_pdAmpFactors!=0 || m_pdUserVars!=0 || m_pdIntensity!=0 )
+  if( m_pdAmps!=0 || m_pdAmpFactors!=0 || m_pdIntensity!=0 || m_pdIntegralMatrix!=0 )
   {
     report( ERROR, kModule ) << "ERROR:  trying to reallocate terms in AmpVecs after\n" << flush;
     report( ERROR, kModule ) << "        they have already been allocated.  Please\n" << flush;
@@ -357,13 +377,14 @@ AmpVecs::allocateTerms( const IntensityManager& intenMan, bool bAllocIntensity, 
     m_pdIntensity = new GDouble[m_iNEvents];
   }
   
-  if( m_userVarsPerEvent > 0 ){
+  if( m_userVarsPerEvent > 0 && m_pdUserVars == 0 ){
     
     // if there is no user data, we need pdUserVars to be NULL
     // in order to ensure backwards compatibility with older
     // amplitude definitions
     
     m_pdUserVars = new GDouble[m_iNEvents * m_userVarsPerEvent];
+    m_userVarsValid = false;
   }
   
 #ifndef GPU_ACCELERATION
@@ -384,15 +405,14 @@ AmpVecs::allocateTerms( const IntensityManager& intenMan, bool bAllocIntensity, 
 }
 
 void
-AmpVecs::deallocTerms(){
+AmpVecs::deallocTerms( bool clearUserVars ){
 
   m_iNTerms = 0;
   m_maxFactPerEvent = 0;
-  m_userVarsPerEvent = 0;
 
   m_termsValid = false;
   m_integralValid = false;
-
+  
   if( m_pdIntegralMatrix )
     delete[] m_pdIntegralMatrix;
   m_pdIntegralMatrix = 0;
@@ -401,11 +421,17 @@ AmpVecs::deallocTerms(){
     delete[] m_pdIntensity;
   m_pdIntensity = 0;
 
-  if( m_pdUserVars )
-    delete[] m_pdUserVars;
-  m_pdUserVars = 0;
+  if( clearUserVars ){
 
-  m_userVarsOffset.clear();
+    m_userVarsPerEvent = 0;
+    m_userVarsValid = false;
+
+    if( m_pdUserVars )
+      delete[] m_pdUserVars;
+    m_pdUserVars = 0;
+
+    m_userVarsOffset.clear();
+  }
 
 #ifndef GPU_ACCELERATION
 
@@ -418,7 +444,7 @@ if( m_pdAmps )
 
 #else
 
-  m_gpuMan.clearTerms();
+  m_gpuMan.clearTerms( clearUserVars );
 
 #endif // GPU_ACCELERATION
 
@@ -531,6 +557,7 @@ AmpVecs::claimDataOwnership( set< AmpVecs* > sharedFriends ){
        avItr != sharedFriends.end(); ++avItr ){
 
     (*avItr)->m_sharedDataHost = this;
+    (*avItr)->m_usesSharedData = true;
   }
 
 #ifdef GPU_ACCELERATION
@@ -538,3 +565,42 @@ AmpVecs::claimDataOwnership( set< AmpVecs* > sharedFriends ){
 #endif
 
 }
+
+GDouble*
+AmpVecs::findSharedUserVars( const string& ampIdentifier ){
+
+  // needs to use the host class because the host has 
+  // the complete set of shared data friends 
+  if( m_usesSharedData && m_sharedDataHost != NULL ){
+
+    return m_sharedDataHost->findSharedUserVars( ampIdentifier );
+  }
+
+  // check to see if this class has already calculated
+  // user vars for the requested amplitude identifier
+  map< string, size_t >::iterator offsetItr = m_userVarsOffset.find( ampIdentifier );
+  
+  if( offsetItr != m_userVarsOffset.end() ){
+
+    size_t offset = offsetItr->second;
+
+    return m_pdUserVars + offset;
+  }
+
+  // check to see if any of the friends have already calculated
+  // user vars for the requested amplitude identifier
+  for( set< AmpVecs* >::iterator avItr = m_sharedDataFriends.begin();
+       avItr != m_sharedDataFriends.end(); ++avItr ){
+
+    map< string, size_t >::iterator offsetItr = (*avItr)->m_userVarsOffset.find( ampIdentifier );
+    if( offsetItr != (*avItr)->m_userVarsOffset.end() ){
+
+      size_t offset = offsetItr->second;
+
+      return (*avItr)->m_pdUserVars + offset;
+    }
+  }
+  
+  return NULL;
+}
+

@@ -177,6 +177,11 @@ struct AmpVecs
   bool m_dataLoaded;
   
   /**
+   * A boolean that tracks whether user data has been calculated and stored.
+   */
+  bool m_userVarsValid;
+
+  /**
    * This is a map from amplitude identifer to the location in memory
    * where user data for that amplitude exists.  It is
    * utilized by the AmplitudeManager, but the values are tied
@@ -239,8 +244,11 @@ struct AmpVecs
    * This routine deallocates the arrays that hold the calculated terms and
    * (optionally) the calculated intensities.  It should be called before
    * the AmpVecs object is destroyed or before reallocation of the arrays.
+   *
+   * \param[in] clearUserVars if set to true, also release cached user
+   * variables and their offsets.
    */
-  void deallocTerms();
+  void deallocTerms( bool clearUserVars = true );
   
 #ifdef GPU_ACCELERATION
   /**
@@ -308,7 +316,7 @@ struct AmpVecs
    * This clears only the four vectors from memory.  It can be used
    * in the case all amplitudes depend only on user data.
    */
-  void clearFourVecs();
+  void clearFourVecs( bool destruct = false );
   
   /**
    * This function will share this classes data four vectors with the
@@ -328,6 +336,14 @@ struct AmpVecs
    * which is necessary, e.g., if the friend goes out of scope.
    */
   void removeFriend( AmpVecs* dataFriend );
+
+  /**
+   * This function will look through shared data friends to find
+   * if user vars have been computed for a particular amplitude
+   * identifier already and if so, return a pointer to the location in memory
+   * where the user vars are stored.
+   */
+  GDouble* findSharedUserVars( const string& ampIdentifier );
   
   bool m_usesSharedData;
   AmpVecs* m_sharedDataHost;

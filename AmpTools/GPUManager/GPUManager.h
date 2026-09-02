@@ -70,7 +70,7 @@ public:
   
   void clearAll();
   void clearData();
-  void clearTerms();
+  void clearTerms( bool clearUserVars = true );
   
   void init( const AmpVecs& a, bool use4Vectors = true );
   

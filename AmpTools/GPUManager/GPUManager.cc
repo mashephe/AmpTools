@@ -754,7 +754,7 @@ GPUManager::clearData(){
 }
 
 void
-GPUManager::clearTerms(){
+GPUManager::clearTerms( bool clearUserVars ){
 
   m_iNAmps=0;
   m_iNUserVars=0;
@@ -779,10 +779,12 @@ GPUManager::clearTerms(){
   
   //Device Memory
   
-  if(m_pfDevUserVars)
-    cudaFree(m_pfDevUserVars);
-  m_pfDevUserVars=0;
-
+  if( clearUserVars ) {
+    if(m_pfDevUserVars)
+      cudaFree(m_pfDevUserVars);
+    m_pfDevUserVars=0;
+  }
+  
   if(m_pcDevAmpFact)
     cudaFree(m_pcDevAmpFact);
   m_pcDevAmpFact=0;

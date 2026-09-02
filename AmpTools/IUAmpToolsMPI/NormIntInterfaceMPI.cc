@@ -201,3 +201,11 @@ NormIntInterfaceMPI::sumIntegrals( IntType type ) const
   
   delete[] result;
 }
+
+void
+NormIntInterfaceMPI::loadMC() const
+{
+  // avoids large memory allocations on the lead node
+  if( !m_isLeader ) NormIntInterface::loadMC();
+}
+
