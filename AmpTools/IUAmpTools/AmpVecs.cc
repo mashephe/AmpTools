@@ -214,6 +214,7 @@ AmpVecs::loadEvent( const Kinematics* pKinematics, size_t iEvent,
   m_integralValid = false;
   m_dataLoaded = true;
   m_userVarsOffset.clear();
+  m_userVarsValid = false;
 }
 
 void
@@ -319,6 +320,7 @@ AmpVecs::loadData( DataReader* pDataReader, bool needsUserVarsOnly, size_t chunk
   m_integralValid = false;
   m_dataLoaded = true;
   m_userVarsOffset.clear();
+  m_userVarsValid = false;
 }
 
 void
