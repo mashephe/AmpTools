@@ -123,6 +123,8 @@ AmpToolsInterfaceMPI::AmpToolsInterfaceMPI(ConfigurationInfo* configurationInfo)
     NormIntInterface* normInt = NULL;
     if (genMCRdr && accMCRdr && intenMan && !(reaction->normIntFileInput())){
       normInt = new NormIntInterfaceMPI(genMCRdr, accMCRdr, *intenMan);
+      // no need to call loadMC() here because the constructor of 
+      // NormIntInterfaceMPI calls it through setupMPI()
       m_normIntMap[reactionName] = normInt;
       if (reaction->normIntFile() == "")
 	report( WARNING, kModule ) << "no name given to NormInt file for reaction "

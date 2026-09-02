@@ -91,8 +91,7 @@ public:
   
   void invalidateTerms();
 
-  // needs different implementations in MPI so make virtual
-  virtual void loadMC() const;
+  void loadMC() const;
 
 #endif
   
