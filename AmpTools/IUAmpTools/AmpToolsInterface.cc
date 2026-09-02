@@ -212,6 +212,9 @@ AmpToolsInterface::resetConfigurationInfo(ConfigurationInfo* configurationInfo){
         if (genMCRdr && accMCRdr && intenMan && !(reaction->normIntFileInput())){
           
           normInt = new NormIntInterface(genMCRdr, accMCRdr, *intenMan);
+          // doing this explicitly here allows linking of shared data sets
+          // (otherwise loadMC will be triggered by the first cache update)
+          normInt->loadMC();
           m_normIntMap[reactionName] = normInt;
           if (reaction->normIntFile() == "")
             report( WARNING, kModule ) << "no name given to NormInt file for reaction " << reactionName << endl;
