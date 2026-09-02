@@ -359,8 +359,8 @@ NormIntInterface::forceCacheUpdate( bool normIntOnly ) const
                            << normIntOnly << ", emptyNormIntCache = " << m_emptyNormIntCache
                            << ", emptyAmpIntCache = " << m_emptyAmpIntCache << endl;
     
-
-  assert( m_accMCVecs.m_dataLoaded );
+  // trigger loading if the data has not been loaded yet
+  if( !m_accMCVecs.m_dataLoaded ) loadMC();
 
   // allocate the space for calculating the amplitudes
   if( m_accMCVecs.m_iNTerms == 0 ) m_accMCVecs.allocateTerms( *m_pIntenManager );
