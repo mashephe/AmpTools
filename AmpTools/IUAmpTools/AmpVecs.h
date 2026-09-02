@@ -244,8 +244,11 @@ struct AmpVecs
    * This routine deallocates the arrays that hold the calculated terms and
    * (optionally) the calculated intensities.  It should be called before
    * the AmpVecs object is destroyed or before reallocation of the arrays.
+   *
+   * \param[in] clearUserVars if set to true, also release cached user
+   * variables and their offsets.
    */
-  void deallocTerms();
+  void deallocTerms( bool clearUserVars = true );
   
 #ifdef GPU_ACCELERATION
   /**
@@ -313,7 +316,7 @@ struct AmpVecs
    * This clears only the four vectors from memory.  It can be used
    * in the case all amplitudes depend only on user data.
    */
-  void clearFourVecs();
+  void clearFourVecs( bool destruct = false );
   
   /**
    * This function will share this classes data four vectors with the
