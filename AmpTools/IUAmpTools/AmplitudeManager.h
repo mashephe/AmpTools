@@ -497,7 +497,6 @@ private:
     
   mutable map< const Amplitude*, int > m_ampIteration;
   mutable map< AmpVecs*, map< const Amplitude*, int > > m_dataAmpIteration;
-  mutable map< string, size_t > m_staticUserVarsOffset;
   
   static const char* kModule;
 };

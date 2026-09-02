@@ -184,8 +184,7 @@ AmplitudeManager::termStoragePerEvent() const {
 size_t
 AmplitudeManager::userVarsPerEvent() const {
   
-  set< string > countedStaticAmps;
-  set< string > countedUniqueAmps;
+  set< string > countedAmpIds;
   
   vector< string > ampNames = getTermNames();
   
@@ -194,32 +193,21 @@ AmplitudeManager::userVarsPerEvent() const {
   for( int i = 0; i < getTermNames().size(); i++ ) {
 
     size_t iNPermutations = getPermutations( ampNames[i] ).size();
+    string permTag = getPermutationTag( getPermutations( ampNames[i] ) );
     vector< const Amplitude* > factorVec =
       m_mapNameToAmps.find( ampNames[i] )->second;
 
     for( int j = 0; j < factorVec.size(); ++j ){
 
-      if( factorVec[j]->areUserVarsStatic() ){
-       
-        // for factors that have static data, we only want to
-        // count the allocation once -- if we have counted
-        // it already then skip to the next factor
-        if( countedStaticAmps.find( factorVec[j]->name() ) ==
-            countedStaticAmps.end() )
-          countedStaticAmps.insert( factorVec[j]->name() );
-        else continue;
-      }
-      else{
-        // user data is not static, so
-        // check to see if we have seen an instance of this
-        // same amplitude that would behave in the same way
-        // (i.e., has the same arguments) and if it exists, we
-        // will use user data block from it instead
-        if( countedUniqueAmps.find( factorVec[j]->identifier() ) ==
-           countedUniqueAmps.end() )
-          countedUniqueAmps.insert( factorVec[j]->identifier() );
-          else continue;
-      }
+      // This key must match calcUserVars/calcTerms exactly to avoid
+      // under-allocating user-variable storage.
+      string ampId = ( factorVec[j]->areUserVarsStatic() ?
+                       factorVec[j]->name() : factorVec[j]->identifier() );
+      ampId += permTag;
+
+      if( countedAmpIds.find( ampId ) == countedAmpIds.end() )
+        countedAmpIds.insert( ampId );
+      else continue;
       
       userStorage += iNPermutations * factorVec[j]->numUserVars();
     }
@@ -519,19 +507,30 @@ SCOREP_USER_REGION_BEGIN( calcTerms, "calcTerms", SCOREP_USER_REGION_TYPE_COMMON
          iFactor++, uAmpFactOffset += 2 * nEvents * iNPermutations ){
       
       pCurrAmp = vAmps.at( iFactor );
-      
-      string ampId = ( pCurrAmp->areUserVarsStatic() ? 
-                       pCurrAmp->name() : pCurrAmp->identifier() );
-      ampId += permTag;
 
-      size_t userVarsOffset = a.m_userVarsOffset[ampId];
+      GDouble* userVars = 0;
+      size_t userVarsOffset = 0;
+
+      if( pCurrAmp->numUserVars() > 0 ){
+      
+        string ampId = ( pCurrAmp->areUserVarsStatic() ?
+                         pCurrAmp->name() : pCurrAmp->identifier() );
+        ampId += permTag;
+
+        map< string, size_t >::const_iterator offsetItr =
+          a.m_userVarsOffset.find( ampId );
+        assert( offsetItr != a.m_userVarsOffset.end() );
+
+        userVarsOffset = offsetItr->second;
+        userVars = a.m_pdUserVars + userVarsOffset;
+      }
 
 #ifndef GPU_ACCELERATION
       pCurrAmp->
       calcAmplitudeAll( a.m_pdData,
                         a.m_pdAmpFactors + uAmpFactOffset,
                         a.m_iNEvents, &vvPermuations,
-                        a.m_pdUserVars + userVarsOffset,
+                        userVars,
                         startEvent, nEvents );
 #else
       a.m_gpuMan.calcAmplitudeAll( pCurrAmp, uAmpFactOffset, &vvPermuations,
