@@ -455,7 +455,7 @@ NormIntInterface::exportNormIntCache( ostream& out ) const
   // with older versions that used integer number of generated events
   // rather than the sum of the weights -- this should not make any
   // signficant difference in a result
-  out << static_cast<int>(m_sumGenWeights) << "\t" << m_sumAccWeights << endl;
+  out << static_cast<long int>(m_sumGenWeights) << "\t" << m_sumAccWeights << endl;
   
   out << m_termNames.size() << endl;
   
