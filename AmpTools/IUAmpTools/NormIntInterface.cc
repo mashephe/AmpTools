@@ -137,7 +137,7 @@ NormIntInterface::~NormIntInterface(){
 istream&
 NormIntInterface::loadNormIntCache( istream& input )
 {
-  input >> m_nGenEvents >> m_sumAccWeights;
+  input >> m_sumGenWeights >> m_sumAccWeights;
   
   int numTerms;
   input >> numTerms;
@@ -191,7 +191,7 @@ NormIntInterface::operator+=( const NormIntInterface& nii )
   double nGenEvts = nii.numGenEvents();
   
   double totalAccEvts = nAccEvts + m_sumAccWeights;
-  double totalGenEvts = nGenEvts + m_nGenEvents;
+  double totalGenEvts = nGenEvts + m_sumGenWeights;
   
   string ampName, conjAmpName;
   
@@ -212,8 +212,8 @@ NormIntInterface::operator+=( const NormIntInterface& nii )
       m_ampIntCache[2*i*n+j+1] /= totalAccEvts;
 
       
-      m_ampIntCache[2*i*n+j]   *= m_nGenEvents;
-      m_ampIntCache[2*i*n+j+1] *= m_nGenEvents;
+      m_ampIntCache[2*i*n+j]   *= m_sumGenWeights;
+      m_ampIntCache[2*i*n+j+1] *= m_sumGenWeights;
       
       complex< double > ni = nii.normInt( m_termNames[i], m_termNames[j]  );
       
@@ -228,7 +228,7 @@ NormIntInterface::operator+=( const NormIntInterface& nii )
   
   
   m_sumAccWeights = totalAccEvts;
-  m_nGenEvents = totalGenEvts;
+  m_sumGenWeights = totalGenEvts;
   
   m_emptyNormIntCache = false;
   m_emptyAmpIntCache = false;
@@ -280,7 +280,7 @@ NormIntInterface::normInt( string amp, string conjAmp, bool forceUseCache ) cons
     report( DEBUG, kModule ) << "Request for normInt ( " << amp << ", " << conjAmp
     << " ) asking IntensityManager to calculate integrals." << endl;
     
-    m_pIntenManager->calcIntegrals( m_accMCVecs, m_nGenEvents );
+    m_pIntenManager->calcIntegrals( m_accMCVecs, m_sumGenWeights );
     setNormIntMatrix( m_accMCVecs.m_pdIntegralMatrix );
   }
 #endif
@@ -373,7 +373,7 @@ NormIntInterface::forceCacheUpdate( bool normIntOnly ) const
     report( DEBUG, kModule ) << "Asking IntensityManager to update integrals "
                              << "using the accepted MC." << endl;
     
-    m_pIntenManager->calcIntegrals( m_accMCVecs, m_nGenEvents );
+    m_pIntenManager->calcIntegrals( m_accMCVecs, m_sumGenWeights );
     setNormIntMatrix( m_accMCVecs.m_pdIntegralMatrix );
     
     m_emptyNormIntCache = false;
@@ -402,7 +402,7 @@ NormIntInterface::forceCacheUpdate( bool normIntOnly ) const
     report( DEBUG, kModule ) << "Asking IntensityManager to calculate integrals "
     << "using the generated MC." << endl;
     
-    m_pIntenManager->calcIntegrals( m_genMCVecs, m_nGenEvents, m_chunkSize );
+    m_pIntenManager->calcIntegrals( m_genMCVecs, m_sumGenWeights, m_chunkSize );
     
     setAmpIntMatrix( m_genMCVecs.m_pdIntegralMatrix );
 
@@ -427,7 +427,7 @@ NormIntInterface::forceCacheUpdate( bool normIntOnly ) const
   }
   else {
     
-    m_pIntenManager->calcIntegrals( m_accMCVecs, m_nGenEvents );
+    m_pIntenManager->calcIntegrals( m_accMCVecs, m_sumGenWeights );
     setNormIntMatrix( m_accMCVecs.m_pdIntegralMatrix );
   }
   m_emptyNormIntCache = false;
@@ -451,7 +451,11 @@ NormIntInterface::exportNormIntCache( ostream& out ) const
   if( m_emptyNormIntCache || m_emptyAmpIntCache ) forceCacheUpdate();
 #endif
   
-  out << m_nGenEvents << "\t" << m_sumAccWeights << endl;
+  // the static cast produces an output file that is backwards compatible
+  // with older versions that used integer number of generated events
+  // rather than the sum of the weights -- this should not make any
+  // signficant difference in a result
+  out << static_cast<long int>(m_sumGenWeights) << "\t" << m_sumAccWeights << endl;
   
   out << m_termNames.size() << endl;
   
@@ -596,7 +600,7 @@ NormIntInterface::loadMC() const {
     
     genVecs->second->shareDataWith( &m_genMCVecs, m_pIntenManager->needsUserVarsOnly() );
   }
-  m_nGenEvents = m_genMCVecs.m_iNTrueEvents;
+  m_sumGenWeights = m_genMCVecs.m_dSumWeights;
 }
 
 void

@@ -69,7 +69,7 @@ public:
   istream& loadNormIntCache( istream& in );
   void operator+=( const NormIntInterface& nii );
   
-  size_t numGenEvents() const { return m_nGenEvents; }
+  double numGenEvents() const { return m_sumGenWeights; }
   double numAccEvents() const { return m_sumAccWeights; }
   
   // this integral folds in detector acceptance
@@ -103,7 +103,7 @@ public:
   const double* ampIntMatrix() const  { return m_ampIntCache;  }
   const double* normIntMatrix() const { return m_normIntCache; }
   
-  void setGenEvents( size_t events ) { m_nGenEvents = events; }
+  void setGenEvents( double sumWeights ) { m_sumGenWeights = sumWeights; }
   void setAccEvents( double sumWeights ) { m_sumAccWeights = sumWeights; }
   
 protected:
@@ -135,7 +135,7 @@ private:
   mutable bool m_emptyNormIntCache;
   mutable bool m_emptyAmpIntCache;
   
-  mutable size_t m_nGenEvents;
+  mutable double m_sumGenWeights;
   mutable double m_sumAccWeights;
   
 #ifndef __ACLIC__
