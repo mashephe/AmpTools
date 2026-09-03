@@ -130,6 +130,8 @@ NormIntInterfaceMPI::setupMPI()
     
     // load the MC into CPU memory on the follower nodes -- this is effectively
     // a copy from the DataReaderMPI cache to the AmpVecs structure
+    // and it is only run on the followers to avoid large memory
+    // usage on the lead node
     loadMC();
 
     long int thisEvents;
@@ -203,9 +205,10 @@ NormIntInterfaceMPI::sumIntegrals( IntType type ) const
 }
 
 void
-NormIntInterfaceMPI::loadMC() const
-{
-  // avoids large memory allocations on the lead node
+NormIntInterfaceMPI::loadMC() const{
+ 
+  // do not load MC on the leader node 
+  // only the followers need the MC
   if( !m_isLeader ) NormIntInterface::loadMC();
 }
 

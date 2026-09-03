@@ -59,7 +59,7 @@ public:
   void forceCacheUpdate( bool normIntOnly = false ) const;
 
   void loadMC() const;
-  
+
 private:
   
   void setupMPI();
