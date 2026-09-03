@@ -95,35 +95,34 @@ NormIntInterfaceMPI::setupMPI()
   
   m_isLeader = ( m_rank == 0 );
   
-  long int totalGenEvents = 0;
+  double totalGenWeights = 0;
   double totalAccWeights = 0;
     
   if( m_isLeader ){
     
     for( int i = 1; i < m_numProc; ++i ){
       
-      size_t thisEvents;
       double thisWeights;
 
       // trigger sending of events from followers -- data is irrelevant
-      MPI_Send( &thisEvents, 1, MPI_LONG, i, MPITag::kAcknowledge,
+      MPI_Send( &thisWeights, 1, MPI_DOUBLE, i, MPITag::kAcknowledge,
                MPI_COMM_WORLD );
       
       // now receive actual data
-      MPI_Recv( &thisEvents, 1, MPI_LONG, i, MPITag::kIntSend,
+      MPI_Recv( &thisWeights, 1, MPI_DOUBLE, i, MPITag::kDoubleSend,
                MPI_COMM_WORLD, &status );
-      totalGenEvents += thisEvents;
+      totalGenWeights += thisWeights;
       
       MPI_Recv( &thisWeights, 1, MPI_DOUBLE, i, MPITag::kDoubleSend,
                MPI_COMM_WORLD, &status );
       totalAccWeights += thisWeights;
       
       // send acknowledgment 
-      MPI_Send( &thisEvents, 1, MPI_LONG, i, MPITag::kAcknowledge,
+      MPI_Send( &thisWeights, 1, MPI_DOUBLE, i, MPITag::kAcknowledge,
                MPI_COMM_WORLD );
     }
     
-    setGenEvents( totalGenEvents );
+    setGenEvents( totalGenWeights );
     setAccEvents( totalAccWeights );
   }
   else{
@@ -134,7 +133,6 @@ NormIntInterfaceMPI::setupMPI()
     // usage on the lead node
     loadMC();
 
-    long int thisEvents;
     double thisWeights;
 
     // if we are not the leader, send generated and accepted events
@@ -145,16 +143,16 @@ NormIntInterfaceMPI::setupMPI()
     // to signal that it is ready to accept numbers of events
 
     // data is irrelevant for this receive
-    MPI_Recv( &thisEvents, 1, MPI_LONG, 0, MPITag::kAcknowledge, MPI_COMM_WORLD,
+    MPI_Recv( &thisWeights, 1, MPI_DOUBLE, 0, MPITag::kAcknowledge, MPI_COMM_WORLD,
               &status );
 
-    thisEvents = numGenEvents();
-    MPI_Send( &thisEvents, 1, MPI_LONG, 0, MPITag::kIntSend, MPI_COMM_WORLD );
+    thisWeights = numGenEvents();
+    MPI_Send( &thisWeights, 1, MPI_DOUBLE, 0, MPITag::kDoubleSend, MPI_COMM_WORLD );
     
     thisWeights = numAccEvents();
     MPI_Send( &thisWeights, 1, MPI_DOUBLE, 0, MPITag::kDoubleSend, MPI_COMM_WORLD );
     
-    MPI_Recv( &thisEvents, 1, MPI_LONG, 0, MPITag::kAcknowledge, MPI_COMM_WORLD,
+    MPI_Recv( &thisWeights, 1, MPI_DOUBLE, 0, MPITag::kAcknowledge, MPI_COMM_WORLD,
              &status );
   }
 }
@@ -185,8 +183,8 @@ NormIntInterfaceMPI::sumIntegrals( IntType type ) const
 
   // now broadcast the total number of events from the leader to the
   // followers so that they may renormalize the sum properly
-  long int totalEvents = numGenEvents();
-  MPI_Bcast( &totalEvents, 1, MPI_LONG, 0, MPI_COMM_WORLD );
+  double totalEvents = numGenEvents();
+  MPI_Bcast( &totalEvents, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD );
   
   // and renormalize the sum
   for( int i = 0; i < cacheSize(); ++i ) result[i] /= totalEvents;
