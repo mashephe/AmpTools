@@ -379,7 +379,7 @@ template< class T >
 void DataReaderMPI<T>::defineMPIType()
 {
   
-  KinStruct kinStruct;
+  KinStruct kinStruct = {0};
   
   // arrays used to define info about the six elements in the struct
   int length[6];
