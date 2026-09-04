@@ -73,7 +73,7 @@ class PlotterMainWindow : public TGMainFrame
        kData=0, kBkgnd, kAccMC, kGenMC,
        kSumSelect=0, kAmpSelect, 
        kWeightMC=0 
-};
+  };
   
   PlotterMainWindow( const TGWindow*, PlotFactory& );
 	
