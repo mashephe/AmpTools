@@ -6133,7 +6133,7 @@ void URMinuit::mnplot(Double_urt *xpt, Double_urt *ypt, char* chpt, Int_urt nxyp
  	for (ibk = 1; ibk <= nx; ++ibk) { cline[ibk-1] = ' '; }
  //*-*-        nx/nxbest are clamped above, but gcc's VRP can't see that across the gotos below
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wstringop-overflow"
+#pragma GCC diagnostic ignored "-Wall"
  	cline[nx] = '\0';
  	cline[nx+1] = '\0';
  	cline[0]        = '.';
