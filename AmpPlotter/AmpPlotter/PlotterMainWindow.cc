@@ -253,7 +253,7 @@ m_generator( factory.generator() )
   m_canvFrame->AddFrame( m_canvButton, &canvLayoutHints );
   
   // create a button to clear the canvas...
-  m_clearCanvButton = new TGTextButton( m_canvFrame, "&Clear Canvas", kclearCanv );
+  m_clearCanvButton = new TGTextButton( m_canvFrame, "&Clear Canvas", kClearCanv );
   m_clearCanvButton->Associate( this );
   m_clearCanvButton->Resize( kWidth/3, 20 );
   m_canvFrame->AddFrame( m_clearCanvButton, &canvLayoutHints );
@@ -467,7 +467,7 @@ PlotterMainWindow::ProcessMessage( long mes, long p1, long p2 )
               }
               break;
               
-            case kclearCanv:
+            case kClearCanv:
               m_factory.clearCanvas();
               break;
               

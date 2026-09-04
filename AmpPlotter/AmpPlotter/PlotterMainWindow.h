@@ -57,21 +57,23 @@ class PlotterMainWindow : public TGMainFrame
 		
  public:
 	
-  enum { kWidth  = 690 };
-  enum { kHeight = 500 };
+  enum { 
+       kWidth  = 690,
+       kHeight = 500,
 	
-  enum { kIndexMask     = 0x000000FF };
-  enum { kButtonMask    = 0xFFFFFF00 };
+       kIndexMask     = 0x000000FF,
+       kButtonMask    = 0xFFFFFF00,
 
-  enum { kReaction      = 0x000100 };
-  enum { kType          = 0x000200 };
-  enum { kDrawOption    = 0x000400 };
+       kReaction      = 0x000100,
+       kType          = 0x000200,
+       kDrawOption    = 0x000400,
 	
-  enum { kExit, kPlot, kSelectAllAmp, kClearAmp, kSelectAllSum, kClearSum,
-         kChoosePlot, kChoosePad , kclearCanv, kChooseCanv};
-  enum { kData, kBkgnd, kAccMC, kGenMC };
-  enum { kSumSelect, kAmpSelect };  
-  enum { kWeightMC };
+       kExit = 0, kPlot, kSelectAllAmp, kClearAmp, kSelectAllSum, kClearSum,
+         kChoosePlot, kChoosePad , kClearCanv, kChooseCanv,
+       kData=0, kBkgnd, kAccMC, kGenMC,
+       kSumSelect=0, kAmpSelect, 
+       kWeightMC=0 
+};
   
   PlotterMainWindow( const TGWindow*, PlotFactory& );
 	
