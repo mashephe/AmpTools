@@ -318,8 +318,7 @@ AmpToolsInterface::reinitializePars(){
   minuitMinimizationManager()->resetErrors();
   
   // reset flags in AmpVecs which will trigger recalculation of all
-  // the terms -- this is necessary for example, in cases where
-  // pre-calculated user data depends on parameters that might change
+  // the terms -- this does not invalidate the user variables
   invalidateAmps();
 }
 
@@ -395,8 +394,7 @@ AmpToolsInterface::randomizeParameter( const string& parName, float min, float m
   minuitMinimizationManager()->resetErrors();
   
   // reset flags in AmpVecs which will trigger recalculation of all
-  // the terms -- this is necessary for example, in cases where
-  // pre-calculated user data depends on parameters that might change
+  // the terms -- this does not invalidate the user variables
   invalidateAmps();
 }
 
