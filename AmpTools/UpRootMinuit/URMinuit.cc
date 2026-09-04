@@ -6131,15 +6131,19 @@ void URMinuit::mnplot(Double_urt *xpt, Double_urt *ypt, char* chpt, Int_urt nxyp
      overpr = kurFALSE;
      for (i = 1; i <= ny; ++i) {
  	for (ibk = 1; ibk <= nx; ++ibk) { cline[ibk-1] = ' '; }
- //*-*-        nx/nxbest are clamped above, but gcc's VRP can't see that across the gotos below
+ //*-*-        gcc can't prove nx/nxbest stay within cline's bounds across the gotos below
+#if defined(__GNUC__) && !defined(__clang__)
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wall"
+#pragma GCC diagnostic ignored "-Wstringop-overflow"
+#endif
  	cline[nx] = '\0';
  	cline[nx+1] = '\0';
  	cline[0]        = '.';
  	cline[nx-1]     = '.';
  	cline[nxbest-1] = '.';
+#if defined(__GNUC__) && !defined(__clang__)
 #pragma GCC diagnostic pop
+#endif
  	if (i != 1 && i != nybest && i != ny) goto L320;
  	for (j = 1; j <= nx; ++j) { cline[j-1] = '.'; }
  L320:
