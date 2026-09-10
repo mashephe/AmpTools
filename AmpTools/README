@@ -72,6 +72,18 @@ the square root of the intensity computed from the parameters and the kinematics
 
 RELEASE NOTES:
 
+v0.16.2 (10-Sep-2026):
+
+This release continues to make a several bug fixes to optimizations introduced 
+with v0.16.0 to share user variables for reused generated MC sets. In addition a 
+number of compiler warnings have been addressed without introducing any functional 
+changes to the code. One small functional change is to set the size of the 
+generated MC sample in integral calculations equal to the sum of the weights of 
+the generated events. It had previously assumed that all generated events had 
+weight 1, which is the use case for all know applications. This change allows 
+additional flexibility in redistributing the generated MC and and makes treatment 
+of weights the same for generated and accepted MC.
+
 v0.16.1 (15-Aug-2026):
 
 This release fixes a memory indexing bug in the calculation of the normalization
