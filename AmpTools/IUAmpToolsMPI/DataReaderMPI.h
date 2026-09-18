@@ -31,8 +31,8 @@ struct KinStruct {
  * of the instances of this class on the follower nodes will behave as if
  * they have only a subset of the data.  The instance of it on the leader
  * node will behave as if it has all of the data.  Be sure that the getEvent, 
- * resetSource, and numEvents methods in the user-defined class are declared
- * virtual.
+ * resetSource, numEvents, and (if used for bootstrapping) resample methods in
+ * the user-defined class are declared virtual.
  *
  * \ingroup IUAmpToolsMPI
  */
@@ -66,6 +66,7 @@ public:
   Kinematics* getEvent();
 
   void resetSource();
+  void resample();
   
   unsigned int numEvents() const;
 
@@ -226,6 +227,35 @@ void DataReaderMPI<T>::resetSource()
     // objects so this should be reset
     
     m_ptrItr = m_ptrCache.begin();
+  }
+}
+
+template< class T >
+void DataReaderMPI<T>::resample()
+{
+  if( m_isLeader ){
+
+    report( DEBUG, kDRModule ) << "Resampling leader data source " << m_rank << endl;
+
+    // redraw the bootstrap sample using the user's definition in the reader, then
+    // push the selection out to the follower's exactly as done in startup
+    T::resample();
+    distributeData();
+  }
+  else{
+
+    report( DEBUG, kDRModule ) << "Receiving resampled data on process with rank " << m_rank << endl;
+
+    //discard the cached partition
+    for( vector<Kinematics*>::iterator ptrItr = m_ptrCache.begin();
+        ptrItr != m_ptrCache.end();
+        ++ptrItr ){
+      
+      delete *ptrItr;
+    }
+    m_ptrCache.clear();
+
+    receiveData();
   }
 }
 

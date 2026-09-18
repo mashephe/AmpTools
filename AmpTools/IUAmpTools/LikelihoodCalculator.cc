@@ -230,7 +230,7 @@ SCOREP_USER_REGION_BEGIN( dataTerm, "dataTerm", SCOREP_USER_REGION_TYPE_COMMON )
 
     m_numDataEvents = m_ampVecsSignal.m_iNTrueEvents;
     m_sumDataWeights = m_ampVecsSignal.m_dSumWeights;
- 
+
     if( m_ampVecsSignal.m_hasNonUnityWeights && m_hasBackground ){
     
       report( WARNING, kModule ) << "\n"
@@ -303,6 +303,20 @@ SCOREP_USER_REGION_END( dataTerm )
   report( DEBUG, kModule ) << "Sum_data of ln( I ):  " << sumLnI << endl;
   
   return sumLnI;
+}
+
+void
+LikelihoodCalculator::bootstrapSignalData(){
+#ifdef SCOREP
+SCOREP_USER_REGION_DEFINE( bootstrapSignalData )                                                                                    
+SCOREP_USER_REGION_BEGIN( bootstrapSignalData, "bootstrapSignalData", SCOREP_USER_REGION_TYPE_COMMON )
+#endif
+  m_ampVecsSignal.deallocAmpVecs();
+  m_dataReaderSignal->resample();
+  m_firstDataCalc = true;
+  #ifdef SCOREP
+  SCOREP_USER_REGION_END( bootstrapSignalData )
+  #endif
 }
 
 void

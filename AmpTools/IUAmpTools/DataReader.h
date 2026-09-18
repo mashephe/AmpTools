@@ -105,6 +105,24 @@ public:
    * \see DataReaderMPI
    */
   virtual void resetSource() = 0; 
+
+  /**
+   * Reserved for DataReaders that support redrawing samples in place (e.g. 
+   * bootstrap resampling with replacement) without reconstructing the object.
+   * The default implementation reports that no resampling is supported. 
+   * Overridden by a reader that does.
+   * 
+   * This method should be virtual in the user's class if the DataReaderMPI 
+   * template is to be used.   
+   *    
+   * 
+   * \see DataReaderMPI
+   */
+  virtual void resample(){
+    report( ERROR, kModule ) << name() << " does not implement resample(). "
+    << "Cannot bootstrap this data source." << endl;
+    assert( false );
+  }
   
   /**
    * The user should override this function with one that returns the number

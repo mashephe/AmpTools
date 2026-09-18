@@ -215,6 +215,22 @@ LikelihoodCalculatorMPI::operator()()
   return -2 * lnL;
 }
 
+void
+LikelihoodCalculatorMPI::bootstrapSignalData(){
+
+  if( m_isLeader ){
+
+    int cmnd[2];
+    cmnd[0] = m_thisId;
+    cmnd[1] = LikelihoodManagerMPI::kBootstrapSignalData;
+    MPI_Bcast( cmnd, MPI_INT, 0, MPI_COMM_WORLD);
+  }
+
+  // calls resample() on DataReaderMPI for the leader, and redistributes to the 
+  // followers, discarding the old cached partition
+  LikelihoodCalculator::bootstrapSignalData();
+}
+
 double
 LikelihoodCalculatorMPI::numSignalEvents(){
   

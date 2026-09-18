@@ -106,6 +106,11 @@ LikelihoodManagerMPI::deliverLikelihood()
         
         likCalc->computeLikelihood();
         break;
+
+      case kBootstrapSignalData:
+      
+        likCalc->bootstrapSignalData();
+        break;
         
       default:
         

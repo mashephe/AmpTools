@@ -60,6 +60,7 @@ class LikelihoodManagerMPI
                     kComputeIntegrals,
                     kUpdateParameters,
                     kUpdateAmpParameter,
+                    kBootstrapSignalData,
                     kFinalizeFit,
                     kExit };
 

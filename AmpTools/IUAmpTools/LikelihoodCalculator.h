@@ -87,6 +87,8 @@ public:
   virtual double numSignalEvents();
   
   void invalidateTerms();
+
+  virtual void bootstrapSignalData();
   
 protected:
   
