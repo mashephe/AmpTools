@@ -39,6 +39,9 @@
 
 #include <string>
 #include <vector>
+#include <cassert>
+
+#include "IUAmpTools/report.h"
 
 using namespace std;
 
@@ -118,7 +121,7 @@ public:
    * 
    * \see DataReaderMPI
    */
-  virtual void resample(){
+  virtual void resample( unsigned int seed ){
     report( ERROR, kModule ) << name() << " does not implement resample(). "
     << "Cannot bootstrap this data source." << endl;
     assert( false );
@@ -184,7 +187,7 @@ private:
   
   vector<string> m_args;
   
-  
+  static const char* kModule;
 };
 
 #endif

@@ -401,15 +401,26 @@ AmpToolsInterface::randomizeParameter( const string& parName, float min, float m
 }
 
 void
-AmpToolsInterface::bootstrapSignalData(const string& reactionName){
+AmpToolsInterface::bootstrapSignalData(const string& reactionName, unsigned int seed){
 
   LikelihoodCalculator* likCalc = likelihoodCalculator(reactionName);
   if( likCalc == NULL ){
     report( ERROR, kModule ) << "no LikelihoodCalculator for reaction: " << reactionName << endl;
     return;
   }
-  likCalc->bootstrapSignalData();
+  likCalc->bootstrapSignalData( seed );
     
+}
+
+void
+AmpToolsInterface::bootstrapBackgroundData(const string& reactionName, unsigned int seed){
+
+  LikelihoodCalculator* likCalc = likelihoodCalculator(reactionName);
+  if( likCalc == NULL ){
+    report( ERROR, kModule ) << "no LikelihoodCalculator for reaction: " << reactionName << endl;
+    return;
+  }
+  likCalc->bootstrapBackgroundData( seed );
 }
 
 void

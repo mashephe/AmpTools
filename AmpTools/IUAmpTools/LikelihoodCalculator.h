@@ -88,7 +88,8 @@ public:
   
   void invalidateTerms();
 
-  virtual void bootstrapSignalData();
+  virtual void bootstrapSignalData( unsigned int seed );
+  virtual void bootstrapBackgroundData( unsigned int seed);
   
 protected:
   
@@ -123,6 +124,7 @@ private:
   
   bool m_firstNormIntCalc;
   bool m_firstDataCalc;
+  bool m_firstBkgndCalc;
   
   double* m_prodFactorArray;
   const double* m_normIntArray;

@@ -39,6 +39,7 @@
 #include <vector>
 
 #include "IUAmpTools/DataReader.h"
+const char* DataReader::kModule = "DataReader";
 
 using namespace std;
 

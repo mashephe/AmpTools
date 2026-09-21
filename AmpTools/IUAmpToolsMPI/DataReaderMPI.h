@@ -66,7 +66,7 @@ public:
   Kinematics* getEvent();
 
   void resetSource();
-  void resample();
+  void resample( unsigned int seed );
   
   unsigned int numEvents() const;
 
@@ -231,7 +231,7 @@ void DataReaderMPI<T>::resetSource()
 }
 
 template< class T >
-void DataReaderMPI<T>::resample()
+void DataReaderMPI<T>::resample( unsigned int seed )
 {
   if( m_isLeader ){
 
@@ -239,7 +239,7 @@ void DataReaderMPI<T>::resample()
 
     // redraw the bootstrap sample using the user's definition in the reader, then
     // push the selection out to the follower's exactly as done in startup
-    T::resample();
+    T::resample( seed );
     distributeData();
   }
   else{
