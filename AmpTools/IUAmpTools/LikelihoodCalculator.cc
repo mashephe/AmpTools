@@ -327,6 +327,10 @@ LikelihoodCalculator::bootstrapBackgroundData( unsigned int seed ){
 SCOREP_USER_REGION_DEFINE( bootstrapBackgroundData )                                                                                    
 SCOREP_USER_REGION_BEGIN( bootstrapBackgroundData, "bootstrapBackgroundData", SCOREP_USER_REGION_TYPE_COMMON )
 #endif
+  if( !m_hasBackground ){
+    report( ERROR, kModule ) << "Requested to bootstrap sample non-existant background dataset" << endl;
+    assert( false );
+  }
   m_ampVecsBkgnd.deallocAmpVecs();
   m_dataReaderBkgnd->resample( seed );
   m_firstBkgndCalc = true;

@@ -44,6 +44,7 @@
 #include <map>
 #include <complex>
 #include <fstream>
+#include <ctime>
 
 #include "MinuitInterface/MinuitMinimizationManager.h"
 #include "IUAmpTools/IntensityManager.h"

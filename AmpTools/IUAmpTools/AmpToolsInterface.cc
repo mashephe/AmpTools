@@ -409,15 +409,20 @@ AmpToolsInterface::bootstrapSignalData(const string& reactionName, unsigned int 
     return;
   }
   likCalc->bootstrapSignalData( seed );
-    
+
 }
 
 void
 AmpToolsInterface::bootstrapBackgroundData(const string& reactionName, unsigned int seed){
 
   LikelihoodCalculator* likCalc = likelihoodCalculator(reactionName);
+  DataReader* backgroundReader = bkgndReader(reactionName);
   if( likCalc == NULL ){
     report( ERROR, kModule ) << "no LikelihoodCalculator for reaction: " << reactionName << endl;
+    return;
+  }
+  if( backgroundReader == NULL ){
+    report( ERROR, kModule ) << "no background data for reaction: " << reactionName << endl;
     return;
   }
   likCalc->bootstrapBackgroundData( seed );
