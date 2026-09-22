@@ -123,6 +123,20 @@ public:
    */
   double operator()();
   
+  /**   
+   * Triggers a bootstrap resampling of the signal data. On a leader it 
+   * broadcasts the command to all followers and resamples the leader's own 
+   * DataReaderMPI, pushing newly-drawn events to the followers.
+   */
+  void bootstrapSignalData( unsigned int seed );
+
+    /**   
+   * Triggers a bootstrap resampling of the background data. On a leader it 
+   * broadcasts the command to all followers and resamples the leader's own 
+   * DataReaderMPI, pushing newly-drawn events to the followers.
+   */
+  void bootstrapBackgroundData( unsigned int seed );
+  
   /**
    * This sends the finalize fit flag to all follower jobs which breaks them
    * out of the deliverLikelihood method of the LikelihoodManagerMPI.

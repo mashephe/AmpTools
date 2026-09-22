@@ -215,6 +215,46 @@ LikelihoodCalculatorMPI::operator()()
   return -2 * lnL;
 }
 
+void
+LikelihoodCalculatorMPI::bootstrapSignalData( unsigned int seed ){
+
+  if( m_isLeader ){
+
+    int cmnd[2];
+    cmnd[0] = m_thisId;
+    cmnd[1] = LikelihoodManagerMPI::kBootstrapSignalData;
+    MPI_Bcast( cmnd, 2, MPI_INT, 0, MPI_COMM_WORLD);
+
+    // second, command-specific broadcast carrying the randomized seed for bootstrapping
+    unsigned int seedBuf = seed;
+    MPI_Bcast( &seedBuf, 1, MPI_UNSIGNED, 0, MPI_COMM_WORLD );
+  }
+
+  // calls resample() on DataReaderMPI for the leader, and redistributes to the 
+  // followers, discarding the old cached partition
+  LikelihoodCalculator::bootstrapSignalData( seed );
+}
+
+void
+LikelihoodCalculatorMPI::bootstrapBackgroundData( unsigned int seed ){
+
+  if( m_isLeader ){
+
+    int cmnd[2];
+    cmnd[0] = m_thisId;
+    cmnd[1] = LikelihoodManagerMPI::kBootstrapBackgroundData;
+    MPI_Bcast( cmnd, 2, MPI_INT, 0, MPI_COMM_WORLD);
+
+    // second, command-specific broadcast carrying the randomized seed for bootstrapping
+    unsigned int seedBuf = seed;
+    MPI_Bcast( &seedBuf, 1, MPI_UNSIGNED, 0, MPI_COMM_WORLD );
+  }
+
+  // calls resample() on DataReaderMPI for the leader, and redistributes to the 
+  // followers, discarding the old cached partition
+  LikelihoodCalculator::bootstrapBackgroundData( seed );
+}
+
 double
 LikelihoodCalculatorMPI::numSignalEvents(){
   

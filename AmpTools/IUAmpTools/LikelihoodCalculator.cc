@@ -67,6 +67,7 @@ m_normInt( normInt ),
 m_dataReaderSignal( dataReaderSignal ),
 m_dataReaderBkgnd( dataReaderBkgnd ),
 m_firstDataCalc( true ),
+m_firstBkgndCalc( true ),
 m_firstNormIntCalc( true ),
 m_sumBkgWeights( 0 ),
 m_numBkgEvents( 0 ),
@@ -106,7 +107,7 @@ LikelihoodCalculator::operator()(){
 double
 LikelihoodCalculator::numSignalEvents(){
 
-  if( m_firstDataCalc ) dataTerm();
+  if( m_firstDataCalc || m_firstBkgndCalc ) dataTerm();
   return numDataEvents() - sumBkgWeights();
 }
 
@@ -230,7 +231,7 @@ SCOREP_USER_REGION_BEGIN( dataTerm, "dataTerm", SCOREP_USER_REGION_TYPE_COMMON )
 
     m_numDataEvents = m_ampVecsSignal.m_iNTrueEvents;
     m_sumDataWeights = m_ampVecsSignal.m_dSumWeights;
- 
+
     if( m_ampVecsSignal.m_hasNonUnityWeights && m_hasBackground ){
     
       report( WARNING, kModule ) << "\n"
@@ -244,44 +245,45 @@ SCOREP_USER_REGION_BEGIN( dataTerm, "dataTerm", SCOREP_USER_REGION_TYPE_COMMON )
       << "*   contribution to the likelihood.                            *\n"
       << "****************************************************************\n" << endl;
     }
+  }
     
-    if( m_hasBackground ){
+  if( m_firstBkgndCalc && m_hasBackground ){
           
-      m_ampVecsBkgnd.loadData( m_dataReaderBkgnd, m_intenManager.needsUserVarsOnly() );
-      m_ampVecsBkgnd.allocateTerms( m_intenManager, true );
+    m_ampVecsBkgnd.loadData( m_dataReaderBkgnd, m_intenManager.needsUserVarsOnly() );
+    m_ampVecsBkgnd.allocateTerms( m_intenManager, true );
 
-      if( m_ampVecsBkgnd.m_hasMixedSignWeights ){
-        report( NOTICE, kModule ) << "***************************************************************" << endl;
-        report( NOTICE, kModule ) << "* NOTICE:  Weights with both positive and negative signs were *" << endl;
-        report( NOTICE, kModule ) << "* detected in the background file.  This may be desirable for *" << endl;
-        report( NOTICE, kModule ) << "* some applications.  Older versions of AmpTools (v0.10.x and *" << endl;
-        report( NOTICE, kModule ) << "* prior) will not properly handle this case and will also not *" << endl;
-        report( NOTICE, kModule ) << "* print this notification to the screen.                      *" << endl;
-        report( NOTICE, kModule ) << "***************************************************************" << endl;
-      }
-      
-      m_sumBkgWeights = m_ampVecsBkgnd.m_dSumWeights;
-      
-      // the extra boolean allows MPI jobs to suppress this check which
-      // may fail on one of the follower nodes if the background sample
-      // is sparse
-      if( m_sumBkgWeights < 0 && !suppressError ){
-        report( ERROR, kModule ) << "****************************************************************" << endl;
-        report( ERROR, kModule ) << "* ERROR: The sum of all background weights is negative.  This  *" << endl;
-        report( ERROR, kModule ) << "*   implies a negative background in the signal region, which  *" << endl;
-        report( ERROR, kModule ) << "*   unphysical.  The weighted sum of the background events     *" << endl;
-        report( ERROR, kModule ) << "*   should represent the background contribution to the signal *" << endl;
-        report( ERROR, kModule ) << "*   region.                                                    *" << endl;
-        report( ERROR, kModule ) << "****************************************************************" << endl;
-        
-        assert( false );
-      }
-      
-      m_numBkgEvents = m_ampVecsBkgnd.m_iNTrueEvents;
+    if( m_ampVecsBkgnd.m_hasMixedSignWeights ){
+      report( NOTICE, kModule ) << "***************************************************************" << endl;
+      report( NOTICE, kModule ) << "* NOTICE:  Weights with both positive and negative signs were *" << endl;
+      report( NOTICE, kModule ) << "* detected in the background file.  This may be desirable for *" << endl;
+      report( NOTICE, kModule ) << "* some applications.  Older versions of AmpTools (v0.10.x and *" << endl;
+      report( NOTICE, kModule ) << "* prior) will not properly handle this case and will also not *" << endl;
+      report( NOTICE, kModule ) << "* print this notification to the screen.                      *" << endl;
+      report( NOTICE, kModule ) << "***************************************************************" << endl;
     }
     
-    report( DEBUG, kModule ) << "\tDone." << endl;
+    m_sumBkgWeights = m_ampVecsBkgnd.m_dSumWeights;
+    
+    // the extra boolean allows MPI jobs to suppress this check which
+    // may fail on one of the follower nodes if the background sample
+    // is sparse
+    if( m_sumBkgWeights < 0 && !suppressError ){
+      report( ERROR, kModule ) << "****************************************************************" << endl;
+      report( ERROR, kModule ) << "* ERROR: The sum of all background weights is negative.  This  *" << endl;
+      report( ERROR, kModule ) << "*   implies a negative background in the signal region, which  *" << endl;
+      report( ERROR, kModule ) << "*   unphysical.  The weighted sum of the background events     *" << endl;
+      report( ERROR, kModule ) << "*   should represent the background contribution to the signal *" << endl;
+      report( ERROR, kModule ) << "*   region.                                                    *" << endl;
+      report( ERROR, kModule ) << "****************************************************************" << endl;
+      
+      assert( false );
+    }
+    
+    m_numBkgEvents = m_ampVecsBkgnd.m_iNTrueEvents;
+    m_firstBkgndCalc = false;
   }
+    
+  report( DEBUG, kModule ) << "\tDone." << endl;
   
   double sumLnI = m_intenManager.calcSumLogIntensity( m_ampVecsSignal );
   
@@ -303,6 +305,38 @@ SCOREP_USER_REGION_END( dataTerm )
   report( DEBUG, kModule ) << "Sum_data of ln( I ):  " << sumLnI << endl;
   
   return sumLnI;
+}
+
+void
+LikelihoodCalculator::bootstrapSignalData( unsigned int seed ){
+#ifdef SCOREP
+SCOREP_USER_REGION_DEFINE( bootstrapSignalData )                                                                                    
+SCOREP_USER_REGION_BEGIN( bootstrapSignalData, "bootstrapSignalData", SCOREP_USER_REGION_TYPE_COMMON )
+#endif
+  m_ampVecsSignal.deallocAmpVecs();
+  m_dataReaderSignal->resample( seed );
+  m_firstDataCalc = true;
+#ifdef SCOREP
+SCOREP_USER_REGION_END( bootstrapSignalData )
+#endif
+}
+
+void
+LikelihoodCalculator::bootstrapBackgroundData( unsigned int seed ){
+#ifdef SCOREP
+SCOREP_USER_REGION_DEFINE( bootstrapBackgroundData )                                                                                    
+SCOREP_USER_REGION_BEGIN( bootstrapBackgroundData, "bootstrapBackgroundData", SCOREP_USER_REGION_TYPE_COMMON )
+#endif
+  if( !m_hasBackground ){
+    report( ERROR, kModule ) << "Requested to bootstrap sample non-existant background dataset" << endl;
+    assert( false );
+  }
+  m_ampVecsBkgnd.deallocAmpVecs();
+  m_dataReaderBkgnd->resample( seed );
+  m_firstBkgndCalc = true;
+#ifdef SCOREP
+SCOREP_USER_REGION_END( bootstrapBackgroundData )
+#endif
 }
 
 void

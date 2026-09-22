@@ -170,7 +170,7 @@ AmpToolsInterface::resetConfigurationInfo(ConfigurationInfo* configurationInfo){
       for (unsigned int i = 0; i < m_userDataReaders.size(); i++){
         if (reaction->data().first == m_userDataReaders[i]->name())
           m_dataReaderMap[reactionName]
-	  = m_userDataReaders[i]->newDataReader(reaction->data().second);
+          = m_userDataReaders[i]->newDataReader(reaction->data().second);
         if (reaction->bkgnd().first == m_userDataReaders[i]->name())
           m_bkgndReaderMap[reactionName]
           = m_userDataReaders[i]->newDataReader(reaction->bkgnd().second);
@@ -199,7 +199,7 @@ AmpToolsInterface::resetConfigurationInfo(ConfigurationInfo* configurationInfo){
         report( WARNING, kModule ) << "not creating a DataReader for accepted MC associated with reaction " << reactionName << endl;
       
       if( m_functionality == kFull ){
- 
+
         // ************************
         // create a NormIntInterface
         // ************************
@@ -398,6 +398,34 @@ AmpToolsInterface::randomizeParameter( const string& parName, float min, float m
   // the terms -- this is necessary for example, in cases where
   // pre-calculated user data depends on parameters that might change
   invalidateAmps();
+}
+
+void
+AmpToolsInterface::bootstrapSignalData(const string& reactionName, unsigned int seed){
+
+  LikelihoodCalculator* likCalc = likelihoodCalculator(reactionName);
+  if( likCalc == NULL ){
+    report( ERROR, kModule ) << "no LikelihoodCalculator for reaction: " << reactionName << endl;
+    return;
+  }
+  likCalc->bootstrapSignalData( seed );
+
+}
+
+void
+AmpToolsInterface::bootstrapBackgroundData(const string& reactionName, unsigned int seed){
+
+  LikelihoodCalculator* likCalc = likelihoodCalculator(reactionName);
+  DataReader* backgroundReader = bkgndReader(reactionName);
+  if( likCalc == NULL ){
+    report( ERROR, kModule ) << "no LikelihoodCalculator for reaction: " << reactionName << endl;
+    return;
+  }
+  if( backgroundReader == NULL ){
+    report( ERROR, kModule ) << "no background data for reaction: " << reactionName << endl;
+    return;
+  }
+  likCalc->bootstrapBackgroundData( seed );
 }
 
 void

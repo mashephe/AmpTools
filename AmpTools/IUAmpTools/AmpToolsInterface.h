@@ -44,6 +44,7 @@
 #include <map>
 #include <complex>
 #include <fstream>
+#include <ctime>
 
 #include "MinuitInterface/MinuitMinimizationManager.h"
 #include "IUAmpTools/IntensityManager.h"
@@ -259,10 +260,26 @@ public:
    */
   
   void randomizeParameter( const string& parName, float min = 0, float max = 1 );
+
+  /** This function will call the dataReader.resample() method intended to 
+   *  randomly sample, with replacement, the signal events before getEvent()
+   *  is called. This is particularly useful for fits that contain free 
+   *  parameters in the amplitudes themselves, as the bootstrap distributions 
+   *  will provide better uncertainty estimates. If no seed value is given, a
+   *  random one is chosen.
+   */
+
+  void bootstrapSignalData(const string& reactionName, unsigned int seed = static_cast<unsigned int>( time(NULL) ) );
+
+  /** This function will call the dataReader.resample() method intended to 
+   *  randomly sample, with replacement, the background events before getEvent()
+   *  is called. If no seed value is given, a random one is chosen.
+   */
+  void bootstrapBackgroundData(const string& reactionName, unsigned int seed = static_cast<unsigned int>( time(NULL) ) );
   
   /** Print final fit results to a file.  The tag can be used to
    *  generate a unique name in the case that multiple results are
-   *  written for a singele fit job.
+   *  written for a single fit job.
    */
   
   virtual void finalizeFit( const string& tag = "" );
@@ -270,7 +287,7 @@ public:
   
   /** For manual calculations:  clear all events and calculations.
    *  Call this before loading events from a new reaction or to start
-   *  new calcuations.
+   *  new calculations.
    *
    * \param[in] iDataSet used to index simultaneous manual calculations
    *

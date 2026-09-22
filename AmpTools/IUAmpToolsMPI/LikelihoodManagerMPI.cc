@@ -72,6 +72,7 @@ LikelihoodManagerMPI::deliverLikelihood()
   int* fitFlag = &(cmnd[1]);
   
   LikelihoodCalculatorMPI* likCalc;
+  unsigned int seed;
   map< int, LikelihoodCalculatorMPI* >::iterator mapItr;
   
   MPI_Bcast( cmnd, 2, MPI_INT, 0, MPI_COMM_WORLD );
@@ -105,6 +106,20 @@ LikelihoodManagerMPI::deliverLikelihood()
       case kComputeLikelihood:
         
         likCalc->computeLikelihood();
+        break;
+
+      case kBootstrapSignalData:
+
+        MPI_Bcast( &seed, 1, MPI_UNSIGNED, 0, MPI_COMM_WORLD );
+      
+        likCalc->bootstrapSignalData( seed );
+        break;
+      
+      case kBootstrapBackgroundData:
+
+        MPI_Bcast( &seed, 1, MPI_UNSIGNED, 0, MPI_COMM_WORLD );
+
+        likCalc->bootstrapBackgroundData( seed );
         break;
         
       default:
