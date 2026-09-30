@@ -81,7 +81,7 @@ struct AmpVecs
   size_t m_iNTrueEvents;
   
   /**
-   * A double that stores the absolute value of the sum of the weights.  (For
+   * A double that stores the absolute value of the sum of the current weights.  (For
    * cases where all weights are unity, this is simply the number of true 
    * events.)
    */
@@ -118,9 +118,15 @@ struct AmpVecs
   GDouble* m_pdData;
   
   /**
-   * An array of length iNEvents that stores the event weights for each event.
+
+  * An array of length iNEvents that stores the current event weights for each event.
    */
   GDouble* m_pdWeights;
+  
+  /**
+   * An array of length iNEvents that stores the original event weights for each event.
+   */
+  GDouble* m_pdOriginalWeights;
   
   /**
    * An array of length 2 * iNAmps * iNEvents that stores the real and imaginary
@@ -296,6 +302,18 @@ struct AmpVecs
    */
   void loadEvent( const Kinematics* pKinematics, size_t iEvent = 0,
                   size_t iNTrueEvents = 1, bool needsUserVarsOnly = false );
+
+  /**
+   * This will overwrite the m_pdWeights array with the original weights multiplied by 
+   * an integer randomly drawn from a Poisson distribution of mean 1. For any given 
+   * weighted event, this will effectively
+   * - (integer == 0) remove the event 
+   * - (integer == 1) keep the event 
+   * - (integer == N) repeat the event N times, for N > 1
+   * 
+   * \param[in] weights an array of integers of length m_iNTrueEvents
+   */
+  void applyPoissonWeights(const int* weights);
   
   /**
    * A helper routine to get an event i from the array of data and weights.

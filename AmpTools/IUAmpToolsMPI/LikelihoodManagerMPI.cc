@@ -106,6 +106,11 @@ LikelihoodManagerMPI::deliverLikelihood()
         
         likCalc->computeLikelihood();
         break;
+      
+      case kApplyPoissonWeights:
+
+        likCalc->applyBootstrapWeights();
+        break;
         
       default:
         

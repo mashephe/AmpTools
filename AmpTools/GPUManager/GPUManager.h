@@ -80,6 +80,7 @@ public:
   
   void copyDataToGPU( const AmpVecs& a, bool use4Vectors = true  );
   void copyUserVarsToGPU( const AmpVecs& a );
+  void copyWeightsToGPU( const AmpVecs& a );
   
   void calcAmplitudeAll( const Amplitude* amp, size_t uAmpFactOffset,
                          const vector< vector< int > >* pvPermutations,

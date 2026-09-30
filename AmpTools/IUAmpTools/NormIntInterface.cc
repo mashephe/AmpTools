@@ -44,6 +44,8 @@
 #include <cstring>
 #include <iomanip>
 
+#include "TRandom3.h"
+
 #include "IUAmpTools/NormIntInterface.h"
 #include "IUAmpTools/report.h"
 const char* NormIntInterface::kModule = "NormIntInterface";
@@ -601,6 +603,20 @@ NormIntInterface::loadMC() const {
     genVecs->second->shareDataWith( &m_genMCVecs, m_pIntenManager->needsUserVarsOnly() );
   }
   m_sumGenWeights = m_genMCVecs.m_dSumWeights;
+}
+
+void
+NormIntInterface::applyPoissonWeights( unsigned int seed ) const {
+  if( !m_accMCVecs.m_dataLoaded ) loadMC();
+
+  TRandom3 rndGen(seed);
+
+  vector<int> accW( m_accMCVecs.m_iNTrueEvents );
+  for( size_t i = 0; i < accW.size(); ++i ) accW[i] = rndGen.Poisson(1.0);  
+  m_accMCVecs.applyPoissonWeights( &accW[0] );
+  m_sumAccWeights = m_accMCVecs.m_dSumWeights;
+
+  m_emptyNormIntCache = true;
 }
 
 void

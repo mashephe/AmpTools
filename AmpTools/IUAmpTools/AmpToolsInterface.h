@@ -259,6 +259,15 @@ public:
    */
   
   void randomizeParameter( const string& parName, float min = 0, float max = 1 );
+
+  /** This function will perform Poisson bootstrapping by re-weighting the 
+   * signal, accMC, and background (if available) events, using the provided 
+   * seed. Data and background are always given the same seed per reaction, while
+   * accMC has its own unique, but still traceable, seed. Repeated accMC samples
+   * use the same seed.
+   */
+
+  void bootstrap( unsigned int seed = 0 );
   
   /** Print final fit results to a file.  The tag can be used to
    *  generate a unique name in the case that multiple results are

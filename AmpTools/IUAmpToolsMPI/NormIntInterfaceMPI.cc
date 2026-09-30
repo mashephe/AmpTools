@@ -91,17 +91,29 @@ NormIntInterfaceMPI::setupMPI()
   MPI_Comm_rank( MPI_COMM_WORLD, &m_rank );
   MPI_Comm_size( MPI_COMM_WORLD, &m_numProc );
   
-  MPI_Status status;
-  
   m_isLeader = ( m_rank == 0 );
-  
-  double totalGenWeights = 0;
-  double totalAccWeights = 0;
-    
+
+  if( !m_isLeader ){
+    // load the MC into CPU memory on the follower nodes -- this is effectively
+    // a copy from the DataReaderMPI cache to the AmpVecs structure
+    // and it is only run on the followers to avoid large memory
+    // usage on the lead node
+    loadMC();
+  }
+
+  syncEventCounts();
+}
+
+void
+NormIntInterfaceMPI::syncEventCounts() const {
+  MPI_Status status;
+
   if( m_isLeader ){
-    
+
+    double totalGenWeights = 0;
+    double totalAccWeights = 0;
+
     for( int i = 1; i < m_numProc; ++i ){
-      
       double thisWeights;
 
       // trigger sending of events from followers -- data is irrelevant
@@ -124,15 +136,8 @@ NormIntInterfaceMPI::setupMPI()
     
     setGenEvents( totalGenWeights );
     setAccEvents( totalAccWeights );
-  }
+    }
   else{
-    
-    // load the MC into CPU memory on the follower nodes -- this is effectively
-    // a copy from the DataReaderMPI cache to the AmpVecs structure
-    // and it is only run on the followers to avoid large memory
-    // usage on the lead node
-    loadMC();
-
     double thisWeights;
 
     // if we are not the leader, send generated and accepted events
@@ -210,3 +215,9 @@ NormIntInterfaceMPI::loadMC() const{
   if( !m_isLeader ) NormIntInterface::loadMC();
 }
 
+void
+NormIntInterfaceMPI::applyPoissonWeights( unsigned int seed ) const {
+  if( !m_isLeader ) NormIntInterface::applyPoissonWeights( seed );
+  syncEventCounts();
+  forceCacheUpdate( true );
+} 
