@@ -424,6 +424,7 @@ AmpVecs::allocateTerms( const IntensityManager& intenMan, bool bAllocIntensity, 
 #else
   
   m_gpuMan.initTerms( *this, chunkSize );
+  if( m_pdUserVars != 0 && m_userVarsValid ) m_gpuMan.copyUserVarsToGPU( *this );
 
 #endif // GPU_ACCELERATION
   
