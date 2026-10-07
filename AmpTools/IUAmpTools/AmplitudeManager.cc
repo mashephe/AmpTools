@@ -744,14 +744,16 @@ SCOREP_USER_REGION_BEGIN( calcSumLogIntensity, "calcSumLogIntensity", SCOREP_USE
   calcIntensities( a );
   
   for( int iEvent=0; iEvent < a.m_iNTrueEvents; iEvent++ ){
+
+    double weight = a.m_pdWeights[iEvent];
+    if( weight == 0 ) continue; // avoid divide by zero
     
     // here divide out the weight that was put into the intensity calculation
     // and weight the log -- in practice this just contributes an extra constant
     // term in the likelihood equal to sum -w_i * log( w_i ), but the division
     // helps avoid problems with negative weights, which may be used
     // in background subtraction
-    dSumLogI += a.m_pdWeights[iEvent] *
-    G_LOG( a.m_pdIntensity[iEvent] / a.m_pdWeights[iEvent] );
+    dSumLogI += weight * G_LOG( a.m_pdIntensity[iEvent] / weight );
   }
   
 #else

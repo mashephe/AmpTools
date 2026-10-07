@@ -33,7 +33,8 @@
 // held liable for any liability with respect to any claim by the user or
 // any other party arising from use of the program.
 //******************************************************************************
-
+#include <ctime>
+#include <map>
 
 #include "IUAmpTools/AmpToolsInterface.h"
 #include "MinuitInterface/MinuitMinimizationManager.h"
@@ -398,6 +399,41 @@ AmpToolsInterface::randomizeParameter( const string& parName, float min, float m
   // the terms -- this is necessary for example, in cases where
   // pre-calculated user data depends on parameters that might change
   invalidateAmps();
+}
+
+void
+AmpToolsInterface::bootstrap( unsigned int seed ){
+  
+  if( m_functionality != kFull ) return;
+  if ( seed == 0 ) seed = (unsigned int) time( NULL );
+
+  // give shared acc MC datasets across reactions the same bootstrap seed. Each will
+  // still draw and reassign its own set of weights, but they will be identical. Gen MC 
+  // datasets are never bootstrapped.
+  map< DataReader*, unsigned int > mcSeedForReader;
+  unsigned int nGroups = 0;
+
+  for (unsigned int irct = 0; irct < m_configurationInfo->reactionList().size(); irct++){
+    
+    ReactionInfo* reaction = m_configurationInfo->reactionList()[irct];
+    string reactionName( reaction->reactionName() );
+
+    unsigned int mcSeed = 0;
+    if( DataReader* accMC = accMCReader( reactionName ) ){
+      map< DataReader*, unsigned int >::iterator it = mcSeedForReader.find( accMC );
+      if( it == mcSeedForReader.end() ){
+        mcSeed = seed + 1000000u * (++nGroups);
+        mcSeedForReader[accMC] = mcSeed;
+      }
+      else mcSeed = it->second;
+    }
+
+    // data/bkgnd files do not share common seeds across reactions
+    unsigned int dataSeed = seed + irct;
+
+    if (LikelihoodCalculator* likCalc = likelihoodCalculator( reactionName ) )
+      likCalc->applyPoissonWeights( dataSeed, mcSeed ); 
+  }
 }
 
 void

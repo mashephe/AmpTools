@@ -345,8 +345,7 @@ GPUManager::copyDataToGPU( const AmpVecs& a, bool use4Vectors )
   #endif
   
   // copy the weights to the GPU
-  gpuErrChk( cudaMemcpy( m_pfDevWeights, a.m_pdWeights,
-                         m_iGDoubleDataArrSize, cudaMemcpyHostToDevice ) );
+  copyWeightsToGPU( a );
   
   // we only need to copy the four vectors to the GPU if the
   // amplitude evaulation kernels need them -- this is done by
@@ -426,6 +425,12 @@ GPUManager::copyUserVarsToGPU( const AmpVecs& a )
   #endif
 }
 
+void
+GPUManager::copyWeightsToGPU( const AmpVecs& a )
+{
+  gpuErrChk( cudaMemcpy( m_pfDevWeights, a.m_pdWeights,
+                         m_iGDoubleDataArrSize, cudaMemcpyHostToDevice ) );
+}
 
 void
 GPUManager::copyAmpsFromGPU( AmpVecs& a )

@@ -277,6 +277,35 @@ LikelihoodCalculatorMPI::computeLikelihood()
 }
 
 void
+LikelihoodCalculatorMPI::applyPoissonWeights( unsigned int dataSeed, unsigned int mcSeed ){
+  assert( m_isLeader );
+
+  int cmnd[2] = { m_thisId, LikelihoodManagerMPI::kApplyPoissonWeights };
+  MPI_Bcast( cmnd, 2, MPI_INT, 0, MPI_COMM_WORLD );
+
+  unsigned int seeds[2] = { dataSeed, mcSeed };
+  MPI_Bcast( seeds, 2, MPI_UNSIGNED, 0, MPI_COMM_WORLD );
+
+  // despite the leader holding no sig/bkgd data for reweighting, we need to join 
+  // the normIntInterface MPI handshakes to avoid a desync.
+  m_normInt.applyPoissonWeights( mcSeed );
+  
+}
+
+void
+LikelihoodCalculatorMPI::applyBootstrapWeights(){
+  assert( !m_isLeader );
+
+  unsigned int seeds[2];
+  MPI_Bcast( seeds, 2, MPI_UNSIGNED, 0, MPI_COMM_WORLD );
+
+  // give each follower an independent generator
+  unsigned int dataSeed = seeds[0] + 1000003u * (unsigned int) m_rank;
+  unsigned int mcSeed = seeds[1] + 1000003u * (unsigned int) m_rank;
+  LikelihoodCalculator::applyPoissonWeights( dataSeed, mcSeed );
+}
+
+void
 LikelihoodCalculatorMPI::setupMPI()
 {
   MPI_Comm_rank( MPI_COMM_WORLD, &m_rank );

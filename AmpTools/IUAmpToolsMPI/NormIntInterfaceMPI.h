@@ -59,11 +59,13 @@ public:
   void forceCacheUpdate( bool normIntOnly = false ) const;
 
   void loadMC() const;
+  void applyPoissonWeights( unsigned int seed ) const override;
 
 private:
   
   void setupMPI();
   void sumIntegrals( IntType type ) const;
+  void syncEventCounts() const;
   
   bool m_mpiSetup;
   

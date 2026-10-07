@@ -38,6 +38,8 @@
 #include <cassert>
 #include <string>
 
+#include "TRandom3.h"
+
 #include "IUAmpTools/LikelihoodCalculator.h"
 #include "IUAmpTools/IntensityManager.h"
 #include "IUAmpTools/DataReader.h"
@@ -303,6 +305,28 @@ SCOREP_USER_REGION_END( dataTerm )
   report( DEBUG, kModule ) << "Sum_data of ln( I ):  " << sumLnI << endl;
   
   return sumLnI;
+}
+
+void
+LikelihoodCalculator::applyPoissonWeights( unsigned int dataSeed, unsigned int mcSeed ){
+  if( m_firstDataCalc ) dataTerm();
+
+  TRandom3 rndGen( dataSeed );
+
+  vector<int> sigW( m_ampVecsSignal.m_iNTrueEvents);
+  for( size_t i = 0; i < sigW.size(); ++i) sigW[i] = rndGen.Poisson( 1.0 );
+  m_ampVecsSignal.applyPoissonWeights( &sigW[0] );
+  m_sumDataWeights = m_ampVecsSignal.m_dSumWeights;
+
+  if( m_hasBackground ){
+    vector<int> bkgW( m_ampVecsBkgnd.m_iNTrueEvents);
+    for( size_t i = 0; i < bkgW.size(); ++i) bkgW[i] = rndGen.Poisson( 1.0 );
+    m_ampVecsBkgnd.applyPoissonWeights( &bkgW[0] );
+    m_sumBkgWeights = m_ampVecsBkgnd.m_dSumWeights;
+  }
+
+  m_normInt.applyPoissonWeights( mcSeed );
+  
 }
 
 void

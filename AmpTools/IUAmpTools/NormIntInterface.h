@@ -88,6 +88,7 @@ public:
   // needs to be virtual so parallel implementations can properly
   // override this function
   virtual void forceCacheUpdate( bool normIntOnly = false ) const;
+  virtual void applyPoissonWeights( unsigned int seed ) const;
   
   void invalidateTerms();
 
@@ -103,8 +104,8 @@ public:
   const double* ampIntMatrix() const  { return m_ampIntCache;  }
   const double* normIntMatrix() const { return m_normIntCache; }
   
-  void setGenEvents( double sumWeights ) { m_sumGenWeights = sumWeights; }
-  void setAccEvents( double sumWeights ) { m_sumAccWeights = sumWeights; }
+  void setGenEvents( double sumWeights ) const { m_sumGenWeights = sumWeights; }
+  void setAccEvents( double sumWeights ) const { m_sumAccWeights = sumWeights; }
   
 protected:
   

@@ -59,8 +59,9 @@ AmpVecs::AmpVecs(){
   m_maxFactPerEvent = 0 ;
   m_userVarsPerEvent = 0;
   
-  m_pdData      = 0 ;
-  m_pdWeights   = 0 ;
+  m_pdData            = 0 ;
+  m_pdWeights         = 0 ;
+  m_pdOriginalWeights = 0 ;
   
   m_pdAmps       = 0 ;
   m_pdAmpFactors = 0 ;
@@ -104,6 +105,10 @@ AmpVecs::deallocAmpVecs()
   if(m_pdWeights)
     delete[] m_pdWeights;
   m_pdWeights=0;
+
+  if(m_pdOriginalWeights)
+    delete[] m_pdOriginalWeights;
+  m_pdOriginalWeights=0;
   
   deallocTerms( true );
 
@@ -206,6 +211,7 @@ AmpVecs::loadEvent( const Kinematics* pKinematics, size_t iEvent,
 
     m_pdData = new GDouble[4*m_iNParticles*m_iNEvents];
     m_pdWeights = new GDouble[m_iNEvents];        
+    m_pdOriginalWeights = new GDouble[m_iNEvents];
   }
     
   loadDataArrayElement( pKinematics, iEvent );
@@ -222,7 +228,7 @@ AmpVecs::loadData( DataReader* pDataReader, bool needsUserVarsOnly, size_t chunk
   
   //  Make sure no data is already loaded
   
-  if( m_pdData != NULL || m_pdWeights != NULL ){
+  if( m_pdData != NULL || m_pdWeights != NULL || m_pdOriginalWeights != NULL ){
 
     report( ERROR, kModule ) << "Trying to load data into a non-empty AmpVecs object\n"<<flush;
     assert(false);
@@ -276,6 +282,7 @@ AmpVecs::loadData( DataReader* pDataReader, bool needsUserVarsOnly, size_t chunk
       m_iNParticles = pKinematics->particleList().size();
       m_pdData = new GDouble[4*m_iNParticles*m_iNEvents];
       m_pdWeights = new GDouble[m_iNEvents]; 
+      m_pdOriginalWeights = new GDouble[m_iNEvents];
 
       #ifdef GPU_ACCELERATION
 
@@ -337,6 +344,26 @@ AmpVecs::loadDataArrayElement( const Kinematics* pKinematics, size_t iEvent ){
   }
 
   m_pdWeights[iEvent] = pKinematics->weight();
+  m_pdOriginalWeights[iEvent] = pKinematics->weight();
+}
+
+void
+AmpVecs::applyPoissonWeights( const int* weights ){
+
+  m_dSumWeights = 0;
+
+  for(size_t iEvent = 0; iEvent < m_iNTrueEvents; iEvent++){
+
+    m_pdWeights[iEvent] = m_pdOriginalWeights[iEvent] * weights[iEvent];
+    m_dSumWeights += m_pdWeights[iEvent];
+  }
+
+  m_integralValid = false;
+
+  #ifdef GPU_ACCELERATION
+    m_gpuMan.copyWeightsToGPU( *this );
+  #endif
+
 }
 
 void
@@ -397,6 +424,7 @@ AmpVecs::allocateTerms( const IntensityManager& intenMan, bool bAllocIntensity, 
 #else
   
   m_gpuMan.initTerms( *this, chunkSize );
+  if( m_pdUserVars != 0 && m_userVarsValid ) m_gpuMan.copyUserVarsToGPU( *this );
 
 #endif // GPU_ACCELERATION
   
@@ -522,6 +550,9 @@ AmpVecs::shareDataWith( AmpVecs* targetAmpVecs, bool needsUserVarsOnly ){
   targetAmpVecs->m_pdWeights = new GDouble[m_iNEvents];
   memcpy( targetAmpVecs->m_pdWeights, m_pdWeights, 
 	  sizeof(GDouble)*m_iNEvents );
+  targetAmpVecs->m_pdOriginalWeights = new GDouble[m_iNEvents];
+  memcpy( targetAmpVecs->m_pdOriginalWeights, m_pdOriginalWeights,
+    sizeof(GDouble)*m_iNEvents );
   
   targetAmpVecs->m_dataLoaded = true;
   targetAmpVecs->m_hasNonUnityWeights = m_hasNonUnityWeights;

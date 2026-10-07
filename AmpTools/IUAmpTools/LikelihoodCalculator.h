@@ -85,6 +85,7 @@ public:
   double operator()();
   
   virtual double numSignalEvents();
+  virtual void applyPoissonWeights( unsigned int dataSeed, unsigned int mcSeed );
   
   void invalidateTerms();
   
@@ -108,13 +109,14 @@ protected:
   void setNumBkgEvents (  double num ) { m_numBkgEvents   = num; }
   void setSumDataWeights(  double sum ) { m_sumDataWeights = sum; }
   void setNumDataEvents(  double num ) { m_numDataEvents  = num; }
+
+  const NormIntInterface& m_normInt;
   
 private:
   
   bool m_hasBackground;
   
   const IntensityManager& m_intenManager;
-  const NormIntInterface& m_normInt;
 
   DataReader* m_dataReaderSignal;
   DataReader* m_dataReaderBkgnd;

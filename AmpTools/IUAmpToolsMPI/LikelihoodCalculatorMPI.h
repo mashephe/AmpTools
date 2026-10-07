@@ -40,6 +40,7 @@
 #include "IUAmpToolsMPI/MPITag.h"
 #include "IUAmpToolsMPI/ParameterManagerMPI.h"
 #include "IUAmpTools/LikelihoodCalculator.h"
+#include "IUAmpTools/NormIntInterface.h"
 
 class LikelihoodManagerMPI;
 class MISubject;
@@ -137,6 +138,9 @@ public:
    *  for the entire job summed over all following processes.
    */
   double numSignalEvents();
+
+  virtual void applyPoissonWeights( unsigned int dataSeed, unsigned int mcSeed ); // leader entry point
+  void applyBootstrapWeights(); // follower handler
   
 private:
   
